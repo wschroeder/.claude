@@ -222,9 +222,9 @@ Filter what is left through the three-question gate:
 
 If YES to any: apply the fix without pausing, then re-run BOTH reviews
 against the updated tree. Repeat until reviews are clean on the
-current working tree. Do not declare "converged" or equivalent unless
-the most recent quick-review AND security-review ran against the
-working tree with no further edits since.
+current working tree. Say the loop is complete only when the most recent
+quick-review and security-review both ran against that tree with no edits
+since. Otherwise, say which edits landed after the last pass.
 
 State the loop outcome:
 ```

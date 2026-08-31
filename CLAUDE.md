@@ -144,7 +144,9 @@ If the answer is YES to any of the three, apply the fix without pausing for user
 
 **Hard rules:**
 - **Prose-only diffs are exempt.** A diff that introduces no executable change — pure prose files (`*.md`, `*.txt`, `*.rst`) and/or comment-only hunks in code files — does not trigger the review sequence, and applying a prose-only fix during the loop does not re-trigger reviews. The test is "any executable change anywhere in the diff": if yes, the whole diff is in scope; if no, skip.
-- **The loop iterates on the diff, not on finding severity.** Applying any Fix, Flag, or Note that meets the gate changes the diff. A changed diff requires a fresh pass of *both* reviews — quick-review and security-review — before the loop can be declared complete. This is true regardless of how minor the applied finding was; "it was just a Note" is not an exception. Test/lint passing does not substitute: tests verify behavior, reviews verify cross-cutting properties (sibling consistency, doc/code drift, evidence-of-intent) that test runs cannot detect. Do not use the word "converged" — or any equivalent ("clean," "all clear," "done") — in any user-facing summary unless the most recent quick-review AND security-review pass ran against the current working tree, with no further edits since.
+- **The loop iterates on the diff, not on finding severity.** Applying any Fix, Flag, or Note that meets the gate changes the diff. A changed diff requires a fresh pass of *both* reviews — quick-review and security-review — before the loop can be declared complete. This is true regardless of how minor the applied finding was; "it was just a Note" is not an exception.
+- **A green test suite does not stand in for a review pass.** Tests verify behavior; reviews verify cross-cutting properties (sibling consistency, doc/code drift, evidence-of-intent) that test runs cannot detect. Passing tests and a clean linter leave the review sequence still owed.
+- **Say a review pass is complete only when it ran against the current tree.** Both quick-review and security-review must have run against the current working tree with no edits since. Otherwise, say which edits landed after the last pass.
 - **No chained commit-push-amend.** Each destructive git action (commit, amend, force-push, force-with-lease push) requires fresh per-action authorization. Prior authorization in the same session does NOT authorize future actions.
 - **No "the commit is correct so the push is fine" reasoning.** The question is never whether the code is right; it is whether the process was followed. A technically-correct push that skipped the review sequence is a process violation, not a neutral outcome.
 - **No pattern-matching authorization from earlier turns.** If the user said "Amend" an hour ago, that authorized THAT amend — not this one. Ask again.
@@ -163,9 +165,12 @@ The reader is a smart, tired engineer who has not been following this loop. They
 
 Every label, abbreviation, and compound shorthand from skills, agent reports, or your own scratch notes is opaque to the reader. Translate it to ordinary English the first time it appears, then use the plain phrase. Examples to translate: hypothesis labels (H1/H2), decision labels (D1/D2), pattern names ("copy-with-intent", "extract-shared", "scope discipline", "rich-shape", "happy path", "attack surface", "review surface"). If a phrase would need a glossary, describe the actual thing in plain words instead. Avoid cutesy hyphenated shortcuts: don't shorten things like "set you on the wrong foot" to "wrong-foot you".
 
-### Do not invent compound-noun labels for decisions or concerns
+- "H2 is the stronger hypothesis" → "the second explanation — that the cache is stale — fits the timing better"
+- "the review-fix loop converged" → "the last two review passes found nothing new"
 
-If a noun phrase glues two or more nouns together to describe a DECISION, CONCERN, RISK, SHAPE, SURFACE, or BOUNDARY rather than a concrete physical thing, you almost certainly invented it. Never produce "module-boundary decision", "review surface", "fix shape", "attack surface", "decision surface", "context budget", "scope discipline", "happy path", "urgent-path review surface". Rewrite as a sentence describing the concrete thing. "The choice of introducing a new shared module that both files would import from" beats "module-boundary decision".
+### Describe concerns as sentences, not labels
+
+A compound-noun label — a noun phrase gluing two or more nouns together to describe a DECISION, CONCERN, RISK, SHAPE, SURFACE, or BOUNDARY rather than a concrete physical thing — is almost certainly one you invented. Never produce "module-boundary decision", "review surface", "fix shape", "attack surface", "decision surface", "context budget", "scope discipline", "happy path", "urgent-path review surface". Rewrite as a sentence describing the concrete thing. "The choice of introducing a new shared module that both files would import from" beats "module-boundary decision".
 
 ### Name the actor and the verb
 
@@ -185,11 +190,11 @@ Say "because", not "rationale:". Say "one line of code and one new test", not "o
 
 Use "you" for the reader. Make requests directly. Do not invoke abstract authorities ("standing guidance", "team convention", "codebase convention") as if they were a final word — either name the specific convention concretely (with a file path or commit hash) or just ask what the reader wants.
 
-### No workplace adjectives as labels
+### Say what makes it urgent, in concrete terms
 
 "Urgent fix", "critical bug", "strategic decision", "tactical concern", "priority issue", "important thing" all glue an adjective to a noun to label work as a thing. Describe what makes something urgent in concrete terms: "students are seeing wrong answers right now", or "the fix needs to land before the release on March 1".
 
-### No verb-plus-adverb shorthand for behavior
+### Describe the behavior, with the code reference
 
 "Projects defensively", "fails gracefully", "scales horizontally", "fails fast", "degrades gracefully", "handles defensively", "guards against", "operates correctly" are shorthand for an actual behavior. Describe the behavior in plain words and include the concrete code reference (function name, file path, line number) when one exists. "The resolver projects defensively on read" → "the resolver runs the value through `Scoring.Card.legacy/1` before returning, which flattens the new map shape into the old plain-string shape, so consumers see only the flat shape".
 
