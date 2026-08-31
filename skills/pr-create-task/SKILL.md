@@ -118,10 +118,23 @@ to PR bodies, where it was previously unwritten.
 
 ## Title
 
-Conventional-commit form (`type(scope): subject`), lowercase, describing
-what IS. No roadmap tag ("step 1 of…") unless a reviewer genuinely cannot
-make sense of the change without it — prefer to convey staging in one body
-sentence ("reads still use the old path") instead.
+**The title follows the repository, not a house style.** Read what its PRs
+already look like:
+
+```bash
+gh pr list --state all --limit 20 --json title -q '.[].title'
+```
+
+Match what those titles do: a `type(scope):` prefix if they carry one, a
+plain sentence if they do not, and their capitalization and length either
+way. Where the repository has no PRs to read, fall back to its commit
+subjects (`git log --format='%s' -20`), and say in one line which of the
+two you matched.
+
+Whatever the form, the title describes what IS. No roadmap tag ("step 1
+of…") unless a reviewer genuinely cannot make sense of the change without
+it — prefer to convey staging in one body sentence ("reads still use the
+old path") instead.
 
 ## Push gate (STOP)
 

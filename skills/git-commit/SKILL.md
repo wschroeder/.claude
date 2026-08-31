@@ -1,6 +1,6 @@
 ---
 name: git-commit
-description: Enforces git commit conventions and authors commit messages — staging rules, conventional commit format, message-body authoring, no AI attributions, when to amend instead of adding a follow-up commit, and safety checks. Use whenever committing, amending, pushing, branching, OR drafting/proposing a commit message — even speculatively, before authorization.
+description: Enforces git commit conventions and authors commit messages — staging rules, subjects matched to the repository's own log, message-body authoring, no AI attributions, when to amend instead of adding a follow-up commit, and safety checks. Use whenever committing, amending, pushing, branching, OR drafting/proposing a commit message — even speculatively, before authorization.
 activation:
   - "git"
   - "commit"
@@ -26,21 +26,22 @@ Instead use:
 
 ## Commit Messages
 
-Follow conventional commits format: `<type>(<scope>): <subject>`
+**The subject follows the repository, not a house style.** Read the log before
+writing one:
 
-**Types:**
-- `feat`: New feature
-- `fix`: Bug fix
-- `docs`: Documentation changes
-- `style`: Code style changes (formatting, etc.)
-- `refactor`: Code refactoring
-- `perf`: Performance improvements
-- `test`: Test changes
-- `chore`: Build/tooling changes
+```bash
+git log --format='%s' -20
+```
+
+Match what those subjects do: a `<type>(<scope>):` prefix if they carry one, a
+plain sentence if they do not, and their capitalization, tense and length either
+way. Where the log is empty or shows no pattern, write a plain sentence saying
+what the change does, and say in one line that there was nothing to match.
+
+Only the subject follows the repository. Everything under Body Content holds
+everywhere.
 
 **Guidelines:**
-- Keep commit message headers lowercase
-- Add a scope tag when relevant (e.g., `feat(auth)`, `fix(api)`)
 - Focus on WHY, not HOW - the code shows the how
 - **NEVER include AI attributions** - no "Co-Authored-By: Claude", no "Generated with Claude Code", no "via Happy", nothing. Clean commits only.
 
