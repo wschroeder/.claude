@@ -574,3 +574,53 @@ unfinished.
 Should be `0.00x` for build work. Anything above zero means a session
 delegated, and the question from the skill body applies: did the parent then
 read the same material anyway?
+
+## What `--waste` groups by
+
+`--waste` groups the run into rounds — the stretch between one usage-limit
+cutoff and the next, which is the unit a run is actually lived in — and says
+what each round's tokens were spent reading. The floor is the system prompt,
+tool schemas and skill listing every turn re-reads before it reaches anything
+about the work; it is measured from the round's own sessions rather than held
+as a constant, by fitting opening context against handoff length. The reviewer
+is counted here and in `--value`, which is a fifth to a quarter of a round.
+
+The last line of a round is the one to read first: a session the limit cut off
+before it could commit read everything on that line for nothing.
+
+## What the session-shaping numbers were measured on
+
+### Why the self-check has a floor
+
+Not below about 100,000 context, though. Asking is itself a full-context turn,
+and down there the answer cannot be anything but keep going. Measured on
+2026-08-16, repo-a sessions ran the check six times each — one at 43,254
+context — where repo-b ran it three or four times starting at 110,714. No check
+below 102,349 in any of those sessions returned `hand off`, and the six checks
+cost between 550,055 and 756,225 tokens a session, up to 11% of what the session
+
+### Why asking only after a commit fails
+
+Asking only after a commit is what let sessions sail past the line. Measured
+across four repo-a sessions, the first commit landed at 182,032, 268,636 and
+271,695 context, so the only checkpoint on offer could not fire until the
+session was up to 100,000 tokens past 170,000 — and what it printed then was
+correct and useless. The point just before the reviews is the one that pays:
+review turns cost the most where the context is fullest, and they read the diff
+
+### What polling instead of blocking cost
+
+because both re-send the whole context. On 2026-08-16 repo-a's last session
+spent 40 turns and 4,149,263 tokens on `sleep 300`, repeated agent polling, and
+15 turns whose entire output was the word `Waiting.` — 35% of everything that
+session read, at up to 156,555 tokens for one of them. repo-b waited on long
+runs too, but blocked once per wait with a single call and a ten-minute timeout,
+
+### Why handing the reviews to a subagent does not pay
+
+**The reviews are the case this keeps catching.** A session that hands
+`quick-review` and `security-review` to subagents still reads every finding and
+applies it, so the diff lands in its context either way. Handing them off has
+measured as costing more and finishing less. The loop contract names the reviews
+outright, because a worker session is handed the handoff and the contract and
+never sees this file.

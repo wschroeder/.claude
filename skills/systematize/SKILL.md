@@ -82,13 +82,25 @@ Skills load in layers. Every edit respects these budgets:
 | Core instructions | SKILL.md body | On activation | under 500 lines |
 | References | `references/*.md` | Read on demand | Unbounded |
 
+A skill body is declarative. It says what to do, in what order, and what not to
+do. It does not argue the case. Rationale, measurements, research citations,
+worked derivations and the history of why a rule was tightened all belong in
+`references/`, where a reader who disputes a rule pays for the argument and
+nobody else does. The test: delete a sentence and ask whether the instruction
+still tells you what to do. If it does, the sentence was the treatise, and it
+moves.
+
 Heavy content — templates, scripts over 20 lines, full API examples, large
 lookup tables — belongs in `references/`, linked with a plain markdown link:
 `See [references/foo.md](references/foo.md)`.
 
-Reference files over 100 lines open with a table of contents. References are one
-level deep: a reference file never links to another reference file. SKILL.md is
-the index; references are the detail.
+Reference files over 100 lines open with a table of contents. SKILL.md is the
+index; references are the detail. A reference may point at another reference —
+that is lazy loading working, and a cross-reference made in context is worth
+keeping. Two shapes are not. A chain, where opening one file obliges you to open
+a third, makes the cost of following a link unbounded; keep every target a leaf.
+And the instruction to open a given file belongs in exactly one place: a
+reference that restates the body's own pointer gets that file read twice.
 
 ## Creating a skill
 

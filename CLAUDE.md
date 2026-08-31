@@ -87,8 +87,6 @@ Investigation tasks: do them yourself, don't delegate. When you do delegate via 
 
 Before writing more than ~20 lines of code that touches a boundary you don't own — external API, database schema, library you haven't used in this session, framework convention you're uncertain about — OR that relies on an algorithm or logic whose behavior you haven't measured in this session (your own expertise included) — write a throwaway probe and paste its actual output into the conversation. The probe runs first; the production code follows. The probe's output becomes a REF that anchors the code you're about to write.
 
-**What counts as a probe.** Something that ran on this machine in the last few minutes and produced output that is now in the chat — a curl, a SQL query, an IEx snippet, a small script. The output is real, not paraphrased. The probe is throwaway; its purpose is to verify the shape of the territory before you build on it.
-
 **What is NOT a probe.**
 - "The docs say it returns X" — that is intent, not observation. Rule 11 applies.
 - "I've used this API before" — your memory is a hypothesis, not a measurement.
@@ -96,50 +94,14 @@ Before writing more than ~20 lines of code that touches a boundary you don't own
 - A `case` clause in your code that "should handle" the API's response — speculation, not observation.
 - Reading the file at HEAD, a `git diff`, or a grep result — those confirm what the code SAYS, not what the running system DOES.
 
-**What is exempt.** Mechanical work that introduces no new algorithmic or logical claim — refactors of code you wrote in this session, additions to modules whose shape you just defined where the addition is structurally identical to existing siblings, anything that doesn't cross a boundary AND doesn't depend on an unmeasured runtime, algorithm, or logic assumption. Algorithmic or logical claims in code you own are NOT exempt unless you've already measured them this session. Tests cover the mechanical surface, not probes.
-
-**Probe section discipline (structural).** When you label a section "Probe" — in a skill template, a per-finding cycle, an Evidence block, anywhere — the body of that section MUST contain BOTH (a) the literal command, query, or snippet that ran AND (b) the actual captured output from running it. A "Probe" section whose body contains only file reads, grep output, diff reads, or prose paraphrasing what you observed is mis-labeled: those are static-artifact reads, not probes. The mislabeling is the failure mode this rule prevents — the header creates the appearance of a probe having run, and the absence of measurement hides under the heading. When no probe is practical (live prod infra, complex seed, multi-service orchestration), write `UNPROBED — <impracticality reason>` in the section body. When no boundary is crossed (pure syntactic finding, refactor of code from this session), write `EXEMPT — <reason>`. Both `UNPROBED` and `EXEMPT` are honest disposition states; staging static reads under the Probe label is not.
-
-**Why this exists.** The Evidence block catches false claims *after* they reach the user. Pre-hoc probes prevent false starts *before* they get baked into the code. The "code looks right but doesn't do what we said" failure mode almost always traces back to a boundary assumption that nobody verified during construction. A three-line probe in chat costs ten seconds; the same assumption discovered in code review costs the round trip plus a fix.
+When a probe is impractical write `UNPROBED — <reason>`; when no boundary is crossed write `EXEMPT — <reason>`. Never stage file reads, greps or diffs under a "Probe" heading. Detail, exemptions and rationale: `skills/tdd-cycle/references/probing.md`.
 
 ## Systematize what you repeat (MANDATORY)
 
 Having done the same thing by hand in three separate sessions is a defect. Fix it
-before continuing the work that surfaced it. The test is the same OPERATION, not
-the same command names — three unrelated things that each begin with `git status`
-are not a pattern.
-
-Build the machinery as a script with a test beside it. Where it lives depends on
-who calls it:
-
-- If anything other than a skill would still call it — a task-runner recipe, a
-  design doc, CI, a person — it goes in the project's existing `scripts/`
-  directory, exposed through the task runner.
-- If deleting the skill would leave it with no caller, it goes with the skill, at
-  `<skill>/scripts/`, and is deleted when the skill is.
-
-Never a new top-level directory. Wire the skill-owned tests into the project's
-gate with a glob, so a new skill joins without the gate being edited.
-
-Make it findable through the skill listing, which every session already carries
-before its first tool call:
-
-- A global skill names a SLOT and never a project's commands. It says "if
-  `project-<step>` is listed, load it," and reads the same in a project that
-  supplies nothing.
-- A project fills a slot with a project skill. Adding one modifies no existing
-  skill.
-- A new global skill is the last resort, and only when you can name why every
-  existing one is a poor home, with its routing row added in the same edit.
-
-Every skill added makes the others harder to find, and selection accuracy is what
-degrades first — not the context budget. So the set is capped: when a new global
-skill would push the set past two dozen, merge or retire one first. A skill
-nothing has loaded in months gets deleted.
-
-Load `systematize` before creating, extending, merging or retiring a skill, and
-before writing or extending a script that something other than this one session
-will run.
+before continuing the work that surfaced it. Load `systematize` before creating,
+extending, merging or retiring a skill, and before writing or extending a script
+that something other than this one session will run.
 
 ## Pre-Change Impact Scan (MANDATORY)
 

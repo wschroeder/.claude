@@ -70,6 +70,10 @@ Attaches the tracer to ALL processes in the BEAM, not just the test process. Con
 
 SSM stores everything as strings; runtime config readers MUST coerce (`config[:enabled] == true || config[:enabled] == "true"`). A function like `refresh_token_ttl_seconds/0` that returns the raw config value without coercion fails open or closed depending on which type the surrounding code expects.
 
+## SSM-secrets vs env-vars policy (project rule)
+
+New sensitive configs SHOULD be SSM-backed. A new `System.get_env(...)` reading a secret is a policy violation, not a style choice.
+
 ## Direnv-required mix invocation
 
 Running `mix` without `direnv` loaded picks up the wrong Elixir/OTP and silently misses compile-time checks. Tests authored without direnv may not have run at all.

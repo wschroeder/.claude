@@ -17,23 +17,9 @@ the way, and hands off then — not after one piece of work. A hook the driver
 installs checks the same number on every tool call, so the ceiling holds even
 when a session never reaches one of those three points.
 
-225,000 is the operator's number, and it decides less than it looks like it
-should. Measured over 29 sessions, what a turn of actual work costs barely moves
-with where the session stopped — the correlation is -0.07. What it does track is
-how much the session read before it first changed a file, which ranged from
-60,016 to 187,085 across those same sessions. So treat this ceiling as a safety
-rail and not a cost knob. Lower is the dangerous direction: 4 of the 29 had
-changed nothing at all by 150,000 context, and a ceiling there would have retired
-them before they did any work.
-
-The two numbers it sits between are both measured. A turn taken here costs
-exactly its own context, and a turn of work from a fresh session costs a median
-195,813 once that session's own re-reading is charged to it — so below roughly
-195,813 carrying on is cheaper, and above it handing off is. That figure's
-quartiles are 153,681 and 251,450, so a ceiling a little above the median buys
-margin against drawing a slow-starting successor. The upper bound is accuracy:
-answers were measured starting to degrade past 250,000. If answers go wrong in
-the last stretch of a session, lower this before blaming the work.
+Both numbers are measured. Why 225,000 is a safety rail rather than a cost knob,
+and why lowering it is the dangerous direction, is in
+[references/driver-loop.md](references/driver-loop.md).
 
 ## When you are invoked, act. Do not just read.
 
@@ -245,22 +231,19 @@ the delegation saved nothing. If your working agreement says you review every
 change, handing that change to an agent cannot pay — the standard is right,
 and the delegation is what has to go.
 
-**The reviews are the case this keeps catching.** A session that hands
-`quick-review` and `security-review` to subagents still reads every finding and
-applies it, so the diff lands in its context either way. Handing them off has
-measured as costing more and finishing less. The loop contract names the reviews
-outright, because a worker session is handed the handoff and the contract and
-never sees this file.
+**The reviews are the case this keeps catching.** A session that hands `quick-review`
+and `security-review` to subagents still reads every finding and applies it, so the
+diff lands in its context either way. The loop contract names the reviews outright,
+because a worker session is handed the handoff and the contract and never sees this
+file.
 
-Below about 100,000 of context no job is large enough for a subagent to win —
-its turns cost more than yours. The band where delegating does win opens around
-130,000. That is a reason not to delegate, never a reason to hand off early.
+Below about 100,000 of context no job is large enough for a subagent to win — its
+turns cost more than yours. The band where delegating does win opens around 130,000.
+That is a reason not to delegate, never a reason to hand off early.
 
-The measurements behind those two numbers, the climb-versus-growth arithmetic,
-and a turn-count table for the borderline cases are in
-[references/driver-loop.md](references/driver-loop.md) under "Which model runs
-what". Read them when a delegation looks borderline; the rule above is enough
-the rest of the time.
+The arithmetic behind those two numbers, and a turn-count table for the borderline
+cases: [references/driver-loop.md](references/driver-loop.md) under "Which model runs
+what".
 
 ## Shaping a session
 
@@ -271,47 +254,35 @@ reviews a piece of work owes, and after the probing that opens one:
 python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 ```
 
-Not below about 100,000 context, though. Asking is itself a full-context turn,
-and down there the answer cannot be anything but keep going. Measured on
-2026-08-16, repo-a sessions ran the check six times each — one at 43,254
-context — where repo-b ran it three or four times starting at 110,714. No check
-below 102,349 in any of those sessions returned `hand off`, and the six checks
-cost between 550,055 and 756,225 tokens a session, up to 11% of what the session
-read.
+Never below about 100,000 context. Asking is itself a full-context turn, and down
+there the answer cannot be anything but keep going.
 
 It prints `<session>: turn N, context X of 225,000 — hand off` or `— keep going`. On
-`keep going`, carry on here; stopping earlier is not thrift, because the next
-session pays about 104,000 tokens to read its way back to where you already are.
+`keep going`, carry on here; stopping earlier is not thrift, because the next session
+pays about 104,000 tokens to read its way back to where you already are.
 
 On `hand off`, stop where you are. A piece of work does not have to be finished
-first: commit what you have with a subject saying it is unfinished, and write
-the handoff so it names where in the cycle you stopped and what the work still
-owes. The next session amends that commit or builds on it.
+first: commit what you have with a subject saying it is unfinished, and write the
+handoff so it names where in the cycle you stopped and what the work still owes. The
+next session amends that commit or builds on it.
 
-Asking only after a commit is what let sessions sail past the line. Measured
-across four repo-a sessions, the first commit landed at 182,032, 268,636 and
-271,695 context, so the only checkpoint on offer could not fire until the
-session was up to 100,000 tokens past 170,000 — and what it printed then was
-correct and useless. The point just before the reviews is the one that pays:
-review turns cost the most where the context is fullest, and they read the diff
+Do not ask only after a commit. The point just before the reviews is the one that
+pays: review turns cost the most where the context is fullest, and they read the diff
 better from a session that did not write it.
 
-This is the loop's rule and holds only inside it. Outside the loop a piece of
-work is finished and reviewed before it is committed.
+This is the loop's rule and holds only inside it. Outside the loop a piece of work is
+finished and reviewed before it is committed.
 
-Front-load the expensive reading — design documents, the code you are
-matching, the measurements the work must hit — while the context is small.
-Read a thing once. Put a measurement into the record once, not into the
-conversation three times.
+Front-load the expensive reading — design documents, the code you are matching, the
+measurements the work must hit — while the context is small. Read a thing once. Put a
+measurement into the record once, not into the conversation three times.
 
-**Wait in one call that blocks, never by looking repeatedly.** A turn spent
-asking "is it finished yet?" costs exactly what a turn spent working costs,
-because both re-send the whole context. On 2026-08-16 repo-a's last session
-spent 40 turns and 4,149,263 tokens on `sleep 300`, repeated agent polling, and
-15 turns whose entire output was the word `Waiting.` — 35% of everything that
-session read, at up to 156,555 tokens for one of them. repo-b waited on long
-runs too, but blocked once per wait with a single call and a ten-minute timeout,
-and spent 7 turns on it across a whole session.
+**Wait in one call that blocks, never by looking repeatedly.** A turn spent asking
+"is it finished yet?" costs exactly what a turn spent working costs, because both
+re-send the whole context. Block once per wait, with a timeout.
+
+What each of these numbers was measured on:
+[references/driver-loop.md](references/driver-loop.md).
 
 ## Measuring
 
@@ -324,25 +295,8 @@ python3 "$BUDGET" . --self         # the running session, about itself
 python3 "$BUDGET" . --waste        # by round, and what each round read
 ```
 
-`--waste` groups the run into rounds — the stretch between one usage-limit
-cutoff and the next, which is the unit a run is actually lived in — and says
-what each round's tokens were spent reading. The floor is the system prompt,
-tool schemas and skill listing every turn re-reads before it reaches anything
-about the work; it is measured from the round's own sessions rather than held
-as a constant, by fitting opening context against handoff length. The reviewer
-is counted here and in `--value`, which is a fifth to a quarter of a round.
-
-The last line of a round is the one to read first: a session the limit cut off
-before it could commit read everything on that line for nothing.
-
-Everything is in tokens; nothing is priced. Three columns carry it. `ctx_end`
-is where each session stopped and should land near the threshold — well under
-it means sessions are handing off early and re-orienting more often than they
-need to. `ctx_start` rising across sessions means the handoff is inflating.
-`fanout` is what the subagents read as a multiple of what the session read:
-`0.00x` never delegated, `1.00x` delegating doubled the reading. A row marked
-`<- cut off by the usage limit` did not choose to stop, so its `ctx_end` says
-nothing about where the threshold put it.
+Reading the columns, and what `--waste` groups by:
+[references/driver-loop.md](references/driver-loop.md).
 
 ## Autonomous behavior
 

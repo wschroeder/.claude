@@ -150,18 +150,17 @@ Hindsight OCP:   <none | <which lift; named follow-on: <name>>>
 Re-ran tests:    <pass | fail>
 ```
 
-#### Self-review (tdd-cycle step 4a-4p subset)
+#### Self-review (tdd-cycle step 4)
 
-Walk the checklist against this micro-cycle's diff. Each is a gate:
+Close both gates against this micro-cycle's diff:
 
-- 4a doc/code coherence
-- 4b adjacent-pattern symmetry (siblings in the same file)
-- 4c failure-path coverage (new error branches have failure tests)
-- 4f scope (no drive-by refactors)
-- 4i behavioral regression (existing callers unaffected unless intentional)
-- 4o range assertions are correctness gaps (pin to the exact value)
+- 4a assertion strength — mutate the production value, re-run, confirm the test goes red
+- 4b scope — no drive-by refactors; every file in the diff required by this finding
 
-Any failure → return to Red or Refactor before continuing.
+Doc and code agreeing, sibling symmetry, failure-path coverage and behavioral
+regression are not re-walked here — the combined-diff `quick-review` below owns them.
+
+Either gate failing → return to Red or Refactor before continuing.
 
 #### Reply draft (NOT posted)
 

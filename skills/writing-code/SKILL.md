@@ -1,6 +1,6 @@
 ---
 name: writing-code
-description: How code gets written in any language — comment discipline, naming over narration, and routing to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code or comments are being added, changed, or reviewed. Use when writing or editing code in any language, when writing or editing comments, docstrings, or doc-comments, or when a language has no skill of its own.
+description: How code gets written in any language — comment discipline, naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and routing to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code or comments are being added or changed. Use when writing or editing code in any language, when writing or editing comments, docstrings, or doc-comments, or when a language has no skill of its own.
 activation:
   - "write code"
   - "add a comment"
@@ -84,21 +84,7 @@ structural mechanism it exercises.
 calls, or temporary variables nothing reads. A comment explaining why something is
 kept but unused is not a substitute for deleting it.
 
-### Why this is a rule and not a preference
-
-- Comments do not measurably improve correctness. Nielebock, Krolikowski, Krüger,
-  Leich and Ortmeier (*Empirical Software Engineering* 24(3), 2019) put 277
-  mostly-professional developers on bug-fixing and extension tasks under three
-  conditions — no comments, implementation comments, documentation comments — and
-  found no meaningful difference in accuracy; documentation comments raised the
-  variance in completion time. Participants believed comments helped more than the
-  results showed, and rated proper identifiers as more helpful than comments.
-- Comments go stale by default. Wen, Nagy, Bavota and Lanza (*ICPC* 2019), across
-  1,500 Java projects and 3.3 million commits, found only 13–20% of code changes
-  trigger a comment update.
-- The cost falls on every read. A comment is written once and read by every later
-  session. In this codebase file contents are about 40% of everything a session
-  loads, and about half of the source lines are comments.
+Evidence for this: [references/why-comment-discipline.md](references/why-comment-discipline.md).
 
 ## Naming
 
@@ -109,6 +95,23 @@ travels with every call site.
 Names say what the thing IS or DOES, not how it is implemented. A function called
 `validate_*`, `verify_*` or `ensure_*` must actually perform that action; if it only
 returns a boolean, it is `is_*` or `has_*`.
+
+## Error returns, logs, and untrusted callers
+
+**Error returns match what callers destructure.** A new error tuple flows through the
+existing `else` / `case` branches rather than falling through silently. Do not
+introduce a shape callers pattern-match but do not handle.
+
+**Never log raw sensitive content.** No log line carries tokens, codes, verifiers,
+secrets, emails, IPs, request bodies, full changesets, or an `inspect` of a struct
+that may hold any of those. A log that fires on expected behavior is noise — delete
+it. A log that needs human attention is an error-level log carrying presence flags or
+field keys, never raw content.
+
+**Guard at the function boundary, not at the caller.** Write each function assuming an
+untrusted caller rather than the one you designed around. Where it relies on "my
+caller validates X before calling me", guard X here too — a later refactor can break
+the caller's validation without touching this function.
 
 ## Measure before declaring done
 

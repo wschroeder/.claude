@@ -2,7 +2,7 @@
 
 Boundaries, nil semantics, type coercion across system boundaries, interpolation safety. For each field access pattern in new code (e.g., `x.field["key"]`), grep the file for all other accesses to the same field. Flag inconsistent nil-guarding.
 
-Language-specific shapes for TS/JS live in `details/language-typescript.md`. The angles below are the cross-language semantic shapes plus the most common TS/JS-specific patterns inline.
+The angles below are the cross-language semantic shapes plus the TS/JS-specific ones.
 
 ## 4.1 Empty-value semantics
 

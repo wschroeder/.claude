@@ -1,6 +1,6 @@
 # Pass 5 — Conventions
 
-Module patterns, naming, def/defp visibility, sibling function symmetry. ARIA contracts in `details/accessibility-aria.md`. RFC compliance in `details/rfc-oauth.md`.
+Module patterns, naming, def/defp visibility, sibling function symmetry.
 
 ## 5.1 Sibling-endpoint consistency
 

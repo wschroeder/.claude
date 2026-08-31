@@ -60,12 +60,8 @@ find <root> -name CLAUDE.md -not -path '*/node_modules/*' -not -path '*/_build/*
 
 Each CLAUDE.md rule is an additional named angle in its relevant pass. Recurring rules to watch for:
 
-- **SSM string-coercion** — SSM stores everything as strings; runtime config readers MUST coerce (`config[:enabled] == true || config[:enabled] == "true"`)
-- **SSM-secrets vs env-vars policy** — new sensitive configs SHOULD be SSM-backed; a new `System.get_env(...)` for a secret is a policy violation
 - **Default-branch detection** — `master` vs `main`; wrong branch ref produces a silently-empty diff
-- **Phoenix.Token vs DB-backed tokens** — distinguish in-memory signed (no revocation) from DB-backed (revocable, replay-detectable)
-- **Logging two-tier policy** — `info` / `error` only; see Pass 3 (Elixir) or `details/language-typescript.md` (TS/JS)
-- **Direnv-required mix invocation** — `mix` without `direnv` loaded picks the wrong Elixir/OTP and silently misses compile-time checks
+- **Elixir/Phoenix project rules** — SSM string-coercion, SSM-backed secrets vs `System.get_env`, `Phoenix.Token` vs DB-backed tokens, two-tier logging, direnv-required `mix`: `details/language-elixir.md`
 
 ## Class Checklist
 
@@ -251,10 +247,7 @@ Auth boundary:
   2.10  Trigger-vs-precondition order    cheap filter before side-effecting mint
 
 Error swallowing:
-  2.11  Discarded error tuple (TS/JS)    {data} destructure; fetch.json no .ok;
-                                          Promise.all swallows rejections;
-                                          .catch(()=>null) sentinel; empty catch
-  2.12  Discarded error tuple (Elixir)   `_ = call`; `{:error, _} -> :ok` arm
+  2.11  Discarded error tuple            TS/JS and Elixir shapes: see 2.11-2.12
   2.13  Lookup-then-filter cardinality   wide lookup + post-auth-filter leaks
                                           existence across tenants
 ```
@@ -265,8 +258,7 @@ Failure modes, pattern-match style, sibling consistency, observability of failur
 
 ```
   3.1   Error propagation trace          duplicate logging across chain levels
-  3.2a  Logging discipline (Elixir)      `info` / `error` only; no warning/debug
-  3.2b  Logging discipline (TS/JS)       structured key only; no raw PII/token
+  3.2   Logging discipline               two-tier policy per language: see 3.2a-3.2b
   3.3   Shell-trace credential exposure  `set -x` over secret-handling commands
   3.4   Cloud-init / journald log sinks  xtrace lands in durable log; secret TTL
   3.5   capture_log assertion shape      `assert log == ""` vs `refute log =~`
@@ -290,23 +282,9 @@ Semantic boundaries:
   4.2   Schema default ≠ DB default      Ecto struct default vs migration NULL
   4.3   Redaction/truncation completeness all sinks (throw, log, cause) use redacted
 
-TS/JS-specific shapes:
-  4.4   Template-literal masks nil       `${undefined}` → truthy "undefined"
-  4.5   Hard-coded pageSize / limit / take paginated API; one-page consumed
-  4.6   `result[0]` without orderBy      non-deterministic index access
-  4.7   Remote-write before local-commit retry mints duplicate side-effect
-  4.8   Typed-but-fungible session field `session.user.x[0]` needs `?.[0]`
-  4.9   Test-infra DB without env-guard  helper connects to whatever URL
-  4.10  console.log of PII/identifier    durable log sink leaks identifier
-  4.11  Error.cause non-enumerable       invisible to JSON.stringify
-  4.12  AbortSignal.timeout in jsdom     test env crashes silently
-  4.13  Response/Request body replay     `.clone()` required for second read
-  4.14  Promise not awaited              floating promise; unhandled rejection
-  4.15  .then(B).catch(H) chain breadth  H must be correct for ALL rejection sources
-  4.16  useEffect missing deps           React 18 strict mode amplifies
-  4.17  SSR vs client boundary           localStorage/window/document on server
-  4.18  parseInt without radix           octal interpretation on leading-zero
-  4.19  Regex without anchors            prefix/suffix match when exact intended
+TS/JS-specific shapes (4.4-4.19):  16 angles, listed with worked examples in
+                                   details/04-data-correctness.md. Walk them for any
+                                   .ts/.tsx/.js/.jsx diff; skip as N/A otherwise.
 
 CWE class checks:
   4.20  CWE-190 int overflow             arithmetic on untrusted bounds
@@ -376,12 +354,10 @@ Tests over eyeballing. The review's primary job is to identify behaviors lacking
   7.11  Tests added by current loop      verify behavior; don't lock status quo
 
 Test-infrastructure hazards:
-  7.12  Global-mock + async              Mock/:meck + async:true → leak
-  7.13  Mox :global without set_mox      cross-process boundary
-  7.14  Ecto Sandbox ownership leaks     setup_all without allow
+  7.12  Test-infra leaks (BEAM)          global mock + async, Mox :global, Ecto
+                                          Sandbox ownership, :dbg tracer: see 7.12-7.14, 7.17
   7.15  Shared ETS / named processes     teardown missing
   7.16  Timer/clock reliance             Process.sleep / DateTime in assertions
-  7.17  :dbg.p(:all, :c) global tracer   BEAM-wide tracer; concurrent contamination
   7.18  Literal call-count assertions    brittle to unrelated PR changes
   7.19  describe.skip without tracker    skip string needs `[<ticket>]` reference
   7.20  `as any` / `as unknown as X`     test mocks bypass type contract
@@ -406,9 +382,7 @@ The diff is not the only place that talks about the diff's symbols. Mechanical g
 
 ```
   9.1   Bare-name grep                   function/module/struct name in tests
-  9.2   :dbg.tp / :dbg.p targeting       BEAM tracer on touched module
-  9.3   :meck.new / :meck.expect         module mocked anywhere
-  9.4   Mock.expect / with_mock / Mox    mock libraries' contracts
+  9.2   BEAM mock/tracer targeting       :dbg, :meck, Mock, Mox: see 9.2-9.4
   9.5   Literal call-count assertions    stale on diff's call-count change
   9.6   assert_called / assert_received  message-pattern references
   9.7   Telemetry handlers               attach/detach for touched events
