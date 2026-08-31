@@ -1,0 +1,53 @@
+# Deny everything, then allow back only what is meant to be shared. Claude Code
+# writes caches, transcripts, plugin payloads and machine state into this
+# directory, so listing what to exclude loses the race with the next release.
+# Anything that appears here is ignored until a line below names it.
+*
+
+!.gitignore
+
+# Shared instructions, and the statusline script with its tests.
+!/CLAUDE.md
+!/README.md
+!/statusline-command.sh
+!/statusline-command.test.sh
+
+# Skills, named one directory at a time. The two lines above the list make the
+# directories traversable; without them every negation below is dead, because
+# git will not descend into a directory that is still excluded. A skill is
+# shared only once it is listed here, so a new one is never swept in by
+# accident — add a line when you mean to publish it.
+#
+# Do not replace this list with a broad negation such as `!/skills/**`. That
+# publishes every skill in the directory, including any deliberately left off
+# the list, and no local ignore file can prevent it — this file sits above
+# .git/info/exclude in git's order of precedence. Measured: with `!/skills/**`
+# here, an unlisted skill's files staged, exactly as they did with
+# .git/info/exclude emptied out.
+!/skills/
+!/skills/**/
+!/skills/clear-task/**
+!/skills/create-task-skill/**
+!/skills/design-gap-task/**
+!/skills/elixir-development/**
+!/skills/git-commit/**
+!/skills/grill-me/**
+!/skills/pr-create-task/**
+!/skills/pr-feedback-task/**
+!/skills/pr-respond-task/**
+!/skills/quick-review/**
+!/skills/security-review/**
+!/skills/session-loop/**
+!/skills/systematize/**
+!/skills/tdd-cycle/**
+!/skills/writing-code/**
+
+# OS and editor droppings, anywhere. Redundant against the deny-all above, kept
+# because these are the ones that get re-allowed by accident.
+.DS_Store
+*.bak
+*.bak.*
+*.orig
+*.backup*
+__pycache__/
+*.pyc
