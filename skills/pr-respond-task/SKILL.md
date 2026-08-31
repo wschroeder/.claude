@@ -126,13 +126,14 @@ next finding without changing code.
 <runner output showing green>
 ```
 
-#### Refactor — DRY + Hindsight Open-Closed
+#### Refactor — structure only
 
-Per `tdd-cycle`:
+Per `tdd-cycle` step 3:
 
-- **DRY pass (local).** Collapse in-function / single-file duplication
-  introduced or exposed by this fix. Extract helpers, fold parallel
-  branches, kill copy-paste in the touched unit.
+- **Dead code the fix orphaned.** Remove now-unreachable branches,
+  helpers the fix left with no caller, commented-out blocks it
+  stranded. Collapsing duplication and polishing names is not this
+  pass — the `quick-review` that follows owns those.
 - **Hindsight Open-Closed (in retrospect).** Count *modifications to
   existing files* this fix required. If adding this case forced
   lockstep edits across many existing files (dispatcher + call sites
@@ -145,7 +146,7 @@ Per `tdd-cycle`:
 
 State explicitly:
 ```
-DRY pass:        <none | <which dedup>>
+Dead code:       <none | <what was removed>>
 Hindsight OCP:   <none | <which lift; named follow-on: <name>>>
 Re-ran tests:    <pass | fail>
 ```

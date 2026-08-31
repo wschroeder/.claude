@@ -1,6 +1,6 @@
 ---
 name: tdd-cycle
-description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, then writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring with DRY locally and Open-Closed for additions across files. Use when implementing new features test-first or when asked to use TDD, write tests first, follow red-green-refactor, or probe before building.
+description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first or when asked to use TDD, write tests first, follow red-green-refactor, or probe before building.
 activation:
   - "tdd"
   - "test-driven"
@@ -29,7 +29,7 @@ mix test path/to/test.exs
 
 ## TDD Cycle
 
-The cycle is **Probe → Gray → Red → Green → Refactor**. Probe observes unfamiliar boundaries before any test exists. Gray is the state where the test has been written but not yet run — its outcome is unknown. Red is what happens when you run it and it fails (the *result* of running, not a starting phase). Green is when it passes. Refactor is when you clean up.
+The cycle is **Probe → Gray → Red → Green → Refactor**. Probe observes unfamiliar boundaries before any test exists. Gray is the state where the test has been written but not yet run — its outcome is unknown. Red is what happens when you run it and it fails (the *result* of running, not a starting phase). Green is when it passes. Refactor is when you fix structure — what the next test will attach to — not when you tidy names, comments or duplication; those belong to the review that follows.
 
 ### 0. Probe Boundaries (before writing the test)
 
@@ -47,6 +47,7 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
 
 ### 1. Write the Test (Gray) and Run It (Red)
 - Ask what functionality needs to be implemented
+- **Name the interface before the test file exists.** Say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss. Leave it unnamed and the assertion lands wherever it is cheapest to write, which is usually an internal — and step 4a cannot catch that, because mutating an internal the test calls directly always fails the test.
 - Anchor the test against the probe output from step 0 — the test asserts behavior you've observed at the boundary, not behavior you've imagined
 - Write a single, focused test for that functionality. At this point the test exists but hasn't run yet — that's Gray.
 - Run the test; it should fail (Red) because the implementation doesn't exist yet
@@ -58,13 +59,13 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
 - Focus on making the test pass, not on perfect code
 - Run the test to verify it passes (Green)
 
-### 3. Refactor
-- Improve the code quality while keeping tests passing
+### 3. Refactor (structure only)
+- Improve structure while keeping tests passing
 - Consider edge cases or improvements
-- **(a) DRY pass.** Collapse in-function and single-file duplication. Extract helpers, fold parallel branches, kill copy-paste within the unit you just touched.
-- **(b) Readability pass.** With the green tests as your safety net: rename accurate-but-unclear names so the next reader doesn't have to decode them (distinct from 4a, which fixes names that *lie* — here you improve names that are truthful but hard to read); remove dead code the change orphaned — now-unreachable branches, unused helpers, commented-out blocks; and audit the comments you touched, deleting any that narrate *what* the code does and keeping only those that explain a non-obvious *why*.
-- **(c) Rule-of-three pass.** If this green just landed the **3rd** same-shape edit across files (dispatcher arms, schema fields, registry registrations, event subscribers, dashboard tiles), pause and consider lifting to a registry / behaviour / dispatch table / extension point — but ONLY if you can name the next concrete feature that will land against it: a file path, ticket, or named feature, not a vague articulation. If you can't name the follow-on, ship the lockstep edit and revisit when a 4th case shows up. One is a function; two is a coincidence; three is a pattern; lifting without a named follow-on is premature abstraction.
-- **(d) Hindsight Open-Closed (in retrospect, not speculative).** Don't design abstractions ahead of time. *Recognize* them in retrospect — when (c) triggers AND you have a named follow-on, prefer OCP-shaped lift targets: extension points where new cases **register themselves** rather than require editing a central dispatcher. Behaviours, registries, dispatch tables, plug pipelines — over a `case`/`cond` that grows an arm per case. The signal is always backwards-looking: "this case I just landed required edits across N existing files; the next one will too unless I lift now."
+- **What does NOT happen here.** Collapsing duplication, renaming for readability, and auditing comments. `writing-code` governs names and comments as the code is written, and the review that follows this loop owns what is left: `quick-review` 5.5 runs the deletion test on near-identical helpers, 2.2 and 6.3 catch names and comments that lie. Running those passes here means paying for them twice.
+- **(a) Dead code the change orphaned.** With the green tests as your safety net, remove now-unreachable branches, helpers the change left with no caller, and commented-out blocks it stranded. This one stays in the loop: no review pass downstream looks for it, and you are the only reader who knows what this change orphaned.
+- **(b) Rule-of-three pass.** If this green just landed the **3rd** same-shape edit across files (dispatcher arms, schema fields, registry registrations, event subscribers, dashboard tiles), pause and consider lifting to a registry / behaviour / dispatch table / extension point — but ONLY if you can name the next concrete feature that will land against it: a file path, ticket, or named feature, not a vague articulation. If you can't name the follow-on, ship the lockstep edit and revisit when a 4th case shows up. One is a function; two is a coincidence; three is a pattern; lifting without a named follow-on is premature abstraction.
+- **(c) Hindsight Open-Closed (in retrospect, not speculative).** Don't design abstractions ahead of time. *Recognize* them in retrospect — when (b) triggers AND you have a named follow-on, prefer OCP-shaped lift targets: extension points where new cases **register themselves** rather than require editing a central dispatcher. Behaviours, registries, dispatch tables, plug pipelines — over a `case`/`cond` that grows an arm per case. The signal is always backwards-looking: "this case I just landed required edits across N existing files; the next one will too unless I lift now."
 
   **The measurement: count *modifications to existing files*, not total files touched.** A new feature/case under an OCP-compliant design lands almost entirely in *new* files (a new module plus its registration). The smell is when adding a case forces edits to many existing files — dispatcher + call sites + tests + docs + schema. Fixes naturally update existing code; that's not the OCP signal. The OCP signal is when **additions** require lockstep edits across the existing codebase. A new case should add ~1 line to an existing registration point and otherwise live in new files; needing to modify 8 existing files to introduce one new case means the structure is closed to the extension you're actually trying to perform.
 
@@ -88,7 +89,7 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
 
   Print the count when you report the change, the same way the test result gets printed. A measurement nobody prints is a measurement nobody makes.
   Rationale: [references/open-closed.md](references/open-closed.md).
-- **(e) Re-run tests** to ensure nothing broke.
+- **(d) Re-run tests** to ensure nothing broke.
 
 ### 4. Self-Review (mandatory before declaring done)
 
@@ -108,9 +109,10 @@ directly required by the change; if one isn't, revert it. Line count proportiona
 the ask: a one-line bug does not carry a 200-line diff.
 
 Everything else the finished diff owes — doc and code agreeing, sibling symmetry,
-behavioral regression, whether a test reaches the branch it names, empty-value
-semantics — is `quick-review`'s catalog, walked once by the review that follows this
-loop instead of twice. How the code and its logs are written is `writing-code`.
+duplication across near-identical helpers, names and comments that lie, behavioral
+regression, whether a test reaches the branch it names, empty-value semantics — is
+`quick-review`'s catalog, walked once by the review that follows this loop instead
+of twice. How the code and its logs are written is `writing-code`.
 
 ### 5. Repeat
 - Ask if there are more test cases to add
@@ -132,11 +134,11 @@ loop instead of twice. How the code and its logs are written is `writing-code`.
 When activated:
 1. **Ask what to test**: "What functionality should we implement next?"
 2. **Probe the boundaries it touches**: For each external API, schema, or unfamiliar library the test will touch, run a throwaway probe and paste the output into the chat. Skip only for pure internal logic.
-3. **Write one test**: Create a focused test anchored to the probe output for that specific functionality
+3. **Name the interface, then write one test**: say which public function or module the assertion attaches to, then create a focused test anchored to the probe output for that specific functionality
 4. **Run it (should fail)**: Verify the test fails as expected (Red is the result, not a phase you start in)
 5. **Implement minimum code**: Write just enough to pass
 6. **Run it (should pass)**: Verify it works
-7. **Refactor if needed**: Clean up while tests pass
+7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
 8. **Self-Review**: Close the two Step 4 gates — mutation and scope — against your own diff. If either fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 
@@ -179,10 +181,12 @@ And so on...
 ## What NOT to Do
 
 ❌ Don't write production code before tests
+❌ Don't write a test at an interface you haven't named out loud first
 ❌ Don't write a test against an unfamiliar boundary without probing it first
 ❌ Don't substitute "the docs say" or "I've seen this API before" for an actual probe
 ❌ Don't write multiple tests at once
 ❌ Don't skip the refactor step
+❌ Don't collapse duplication or polish names inside the loop — that is review's pass, and doing it here pays for it twice
 ❌ Don't add features not driven by tests
 ❌ Don't write complex implementations on first pass
 ❌ Don't ship an "extension" that requires modifying N existing files in lockstep — that's the OCP violation, not a successful refactor
@@ -190,9 +194,10 @@ And so on...
 ## What TO Do
 
 ✅ Probe unfamiliar boundaries before writing the test
+✅ Name the interface the test asserts against before the test file exists
 ✅ Write one failing test against the observed shape
 ✅ Write minimum code to pass
-✅ Refactor while green
-✅ Two refactor levers, named: **(1) DRY** locally, **(2) Hindsight Open-Closed** when *adding* a case requires editing many existing files. Apply in retrospect, never speculatively.
+✅ Refactor structure while green; leave duplication and name polish to review
+✅ Two structural levers, named: **(1) rule-of-three**, **(2) Hindsight Open-Closed** when *adding* a case requires editing many existing files. Apply in retrospect, never speculatively.
 ✅ Repeat
 ✅ Let tests guide the design
