@@ -1,6 +1,6 @@
 ---
 name: pr-respond-task
-description: Manual-invoke template — for each approved PR-feedback finding, run a probe → red → green → refactor micro-cycle, then quick-review + security-review on the combined diff, then surface a posting/commit plan; execute it autonomously (reply, amend, push --force-with-lease) when nothing is left for the operator to decide, else stop for approval. Do not auto-activate; invoke explicitly only.
+description: Fixes approved PR-feedback findings one at a time, each through its own probe → red → green → refactor cycle, then runs quick-review and security-review over the combined diff and surfaces a plan for the replies and commits; posts, amends and pushes with --force-with-lease when nothing is left for the operator to decide, else stops for approval. Use when acting on PR review comments, fixing what a reviewer asked for, or pushing fixes back onto a PR branch.
 ---
 
 # pr-respond-task — fix approved PR-feedback findings via probe-first TDD

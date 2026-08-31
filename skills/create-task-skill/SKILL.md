@@ -1,6 +1,6 @@
 ---
 name: create-task-skill
-description: Manual-invoke meta-template — produces a verified plan for a new task-shaped skill (probe boundaries, confirm cited skills are global, draft a structural-output body, review against meta-rules, surface write plan) and stops for approval before any file is written. Do not auto-activate; invoke explicitly only.
+description: Produces a verified plan for a new task-shaped skill — one whose point is forcing a specific ordered response as proof the rules were followed — by probing boundaries, confirming every cited skill is globally invokable, drafting a body whose sections are the forcing chain, and reviewing it against the meta-rules; stops for approval before any file is written. Use when building a skill of that shape; `systematize` covers the ordinary kind and routes here.
 ---
 
 # create-task-skill — build a new task skill via the same discipline
@@ -130,10 +130,13 @@ Propose the full skill body in a fenced block, exactly as it will
 appear in the file. The body must include:
 
 1. **frontmatter**: `name` and `description`. The description states
-   what the skill produces and ends with "Do not auto-activate;
-   invoke explicitly only." NO "Use when..." trigger language; that
-   produces auto-activation we explicitly do not want during the
-   iteration window.
+   what the skill produces and ends with a "Use when…" clause naming
+   the words, file types and errors that mean this skill applies —
+   the trigger terms `systematize` step 2 requires. A description that
+   only says what the skill produces gives the model no way to reach
+   it, so the skill runs only when the operator types its name. While
+   a new template is still being iterated on, say so in the body; do
+   not withhold the triggers from the description to achieve it.
 2. **Opening paragraph**: what the template produces, when it stops,
    and that section order is enforced.
 3. **Ordered sections** with structural headers. Each section
@@ -207,12 +210,13 @@ pattern was built:
 
 - Does not write the skill file. Writing is a separate authorization.
 - Does not add the new skill to any CLAUDE.md routing table.
-- Does not add auto-activation triggers to the new skill's description.
 - Does not reference any skill that has not been verified as globally
   invokable in the Probe Phase.
 - Does not duplicate content from CLAUDE.md; references it.
-- Does not chain to other task templates. A new task skill is invoked
-  explicitly, like its siblings (`pr-feedback-task`, `pr-respond-task`).
+- Does not decide whether the new skill hands off to another one.
+  Some do — `pr-feedback-task` hands its accepted findings to
+  `pr-respond-task` behind a gate — but a hand-off is designed
+  deliberately for that skill, never inherited from this template.
 - Does not build the router, echo-back gate, or any harness-level
   forcing function. Those become reasonable only after enough
   templates exist to make routing concrete.

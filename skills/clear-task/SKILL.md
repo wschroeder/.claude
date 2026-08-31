@@ -1,6 +1,6 @@
 ---
 name: clear-task
-description: Manual-invoke template — produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Do not auto-activate; invoke explicitly only.
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 ---
 
 # clear-task — frontload the handoff, then emit the prompt
@@ -293,5 +293,4 @@ starts the new chat.
   order, §11 included.
 - Does not print an empty section. A `None` in §7 means the credentials
   heading does not appear in the prompt at all.
-- Does not chain to any other skill. Invoke it explicitly, like its
-  siblings (pr-feedback-task, pr-respond-task).
+- Does not chain to any other skill. It emits the prompt and stops.

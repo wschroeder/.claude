@@ -1,6 +1,6 @@
 ---
 name: session-loop
-description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its own context reaches a handoff threshold. Invoking it checks the repository and the handoff file, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, when handing work to a subagent pays and when it doubles the reading, and session_budget.py for measuring where sessions actually handed off. Invoke when starting or resuming unattended work, when deciding whether to use subagents, or when sessions keep running out of context. Do not auto-activate.
+description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its own context reaches a handoff threshold. Invoking it checks the repository and the handoff file, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, when handing work to a subagent pays and when it doubles the reading, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, when deciding whether to hand a piece of work to a subagent, or when sessions keep running out of context.
 ---
 
 # session-loop — run the work as a series of fresh sessions

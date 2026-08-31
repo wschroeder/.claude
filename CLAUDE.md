@@ -244,6 +244,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Topic | Skill |
 |-------|-------|
 | Git commits, pushing, branching, drafting commit messages | `git-commit` |
+| Opening a pull request, writing a PR body or description, `gh pr create` | `pr-create-task` |
 | Quick code review, review changes, review diffs | `quick-review` |
 | TDD, test-driven development, code, fix, implement | `tdd-cycle` |
 | Writing, changing, or deleting code in any language | `writing-code` |

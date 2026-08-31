@@ -1,6 +1,6 @@
 ---
 name: design-gap-task
-description: Manual-invoke template — produces a filtered report of product-level gaps in a design document set, using an entity-lifecycle inventory plus cross-cutting coverage sweeps, with a review/filter checkpoint applied before candidates reach the final report. Do not auto-activate; invoke explicitly only.
+description: Produces a filtered report of product-level gaps in a design document set, working from an inventory of each entity's lifecycle plus cross-cutting coverage sweeps, with a review checkpoint every candidate clears before it reaches the final report. Use when asked what is missing from a design, to find holes or gaps in a spec or design doc set, or to check a set of design documents for coverage.
 ---
 
 # design-gap-task — find gaps by entity lifecycle and by coverage sweep, then filter as you go

@@ -1,6 +1,6 @@
 ---
 name: pr-feedback-task
-description: Manual-invoke template — produces a structured PR-feedback artifact (readiness gate, feedback inventory, legitimacy evaluation, recommended actions); when nothing is left for the operator to decide it auto-launches pr-respond-task, else it stops for approval. Do not auto-activate; invoke explicitly only.
+description: Gathers every source of feedback on a pull request and works out which of it is right — readiness gate, feedback inventory, legitimacy evaluation, recommended actions — then hands the accepted findings to `pr-respond-task` when nothing is left for the operator to decide, else stops for approval. Use when triaging or working through PR review comments, checking what reviewers asked for, or deciding which feedback to act on — "what's blocking the PR", "go through the PR comments", "address the review".
 ---
 
 # pr-feedback-task — check readiness, evaluate legitimacy
