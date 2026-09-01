@@ -227,8 +227,8 @@ open items, applying it is an operator decision made afterward — this
 template doesn't assume one and doesn't invoke one automatically.
 Folding a confirmed gap into the docs is a separate, later,
 explicitly-authorized action through ordinary discussion, per
-`~/.claude/CLAUDE.md`'s Change → Review Workflow for anything beyond a
-prose-only edit.
+`writing-code`'s "After the edit: the review sequence is owed" for
+anything beyond a prose-only edit.
 
 Once the report is delivered, this template's job is done, but that's
 not a reason to stop and ask whether to keep going. Move straight into
@@ -246,14 +246,14 @@ edit lands. It only skips the redundant question of whether to start.
   precedent-gathering) — that happens afterward, in conversation, the
   same way this project's own commander-representation gap got
   resolved only after being flagged. When that afterward conversation
-  does research a gap, `~/.claude/CLAUDE.md`'s Probe Before Build
+  does research a gap, `writing-code`'s "Probe before you build"
   section still applies to it — a historical or precedent claim
   backing a recommended option needs a real search or citation behind
   it that session, not assumed general knowledge, whether it lands in
   prose or inside a tool call like AskUserQuestion.
 - Does not delegate the inventory, lifecycle check, or coverage sweeps
-  to a subagent — investigation is done directly, per
-  `~/.claude/CLAUDE.md`'s Subagents section.
+  to a subagent — investigation is done directly, per the `subagents`
+  skill.
 - Does not flag a numeric or tunable parameter the doc set already
   defers on purpose.
 - Does not batch the per-entity filter to the end — Section 3(d) runs

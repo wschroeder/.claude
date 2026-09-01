@@ -1,7 +1,7 @@
 # ~/.claude
 
 My Claude Code setup: one instruction file that loads into every session,
-fifteen skills, and a statusline script. Clone it into `~/.claude` and it works.
+sixteen skills, and a statusline script. Clone it into `~/.claude` and it works.
 Nothing to install, no configuration first.
 
 If you came looking for parts, the skills are usually what people take. Help
@@ -9,7 +9,7 @@ yourself. They stand alone except where an entry says otherwise.
 
 ```
 CLAUDE.md                   instructions loaded into every session
-skills/                     fifteen skills, described below
+skills/                     sixteen skills, described below
 statusline-command.sh       the statusline, with its tests beside it
 statusline-command.test.sh
 ```
@@ -22,9 +22,20 @@ The longest section asks for evidence. Any response that makes a claim about the
 project has to open with what was actually checked, tagged so every claim points
 at the thing that proves it. Anything unverified says so out loud.
 
-Three shorter sections follow. How a change gets reviewed before it is
-committed. When to probe an unfamiliar API before writing code against a guess
-about its shape. A rule that work done by hand three times becomes a script.
+Three shorter sections follow. How to write for a reader — the one section that
+governs every response, not just the ones about code. A rule that nothing gets
+published off this machine without being asked for. And a note on following a
+chain to its end rather than stopping at the first plausible file.
+
+What used to sit between them has moved out. Everything that only applies while
+code is being changed now lives in the skill that is already loaded at that
+moment: `writing-code` holds probing an unfamiliar boundary, tracing what a
+change reaches, and the review sequence a diff owes; `quick-review` holds the
+bar a fix has to clear and the loop that runs until both reviews come back
+clean; `git-commit` holds the authorization each destructive action needs on its
+own; `subagents` holds whether to hand work to an agent and what its prompt must
+carry; `systematize` holds the three-times rule. CLAUDE.md keeps only what has
+to be true before any of them load.
 
 It ends with two imports:
 
@@ -45,8 +56,10 @@ no error, so a fresh clone runs fine without either of them.
 - **`tdd-cycle`** Probes an unfamiliar boundary for real output, then red, green,
   refactor against what it measured. Loads `writing-code` before the test.
 
-- **`writing-code`** Comment discipline and naming for any language, handing off
-  to a language skill where one exists.
+- **`writing-code`** Everything that holds around a code change in any language:
+  probing an unfamiliar boundary first, tracing what the change reaches, comment
+  discipline and naming while writing it, and the review sequence the diff owes
+  afterwards. Hands off to a language skill where one exists.
 
 - **`elixir-development`** Elixir, Ecto and Phoenix conventions no compiler
   enforces: query timeouts, changesets over a raw `change/2`, migration safety,
@@ -56,7 +69,8 @@ no error, so a fresh clone runs fine without either of them.
 
 - **`quick-review`** Reviews a change in nine named passes, each one having to
   say where it landed: proved, ruled out, or written down as a hunch it could
-  not prove.
+  not prove. Also holds the one definition of the bar a fix has to clear, and
+  the loop that runs until both reviews come back clean.
 
 - **`security-review`** Looks for vulnerabilities in a change, scoped to the
   working tree, staged, a branch, the last commit, or a named ref.
@@ -64,7 +78,8 @@ no error, so a fresh clone runs fine without either of them.
 ### Git and pull requests
 
 - **`git-commit`** Authors the commit message, and asks separately about commit,
-  amend and push.
+  amend and push — each destructive action needs its own approval, and an
+  approval from earlier in the session is not one.
 
 - **`pr-create-task`** Opens a pull request with a body saying what the diff
   cannot show, and stops before the push.
@@ -79,7 +94,10 @@ no error, so a fresh clone runs fine without either of them.
 ### Long jobs
 
 - **`session-loop`** Runs a long build as a series of fresh sessions, each
-  handing off in writing when its own context reaches a measured threshold.
+  handing off in writing when its own context reaches the 170,000 ceiling.
+
+- **`subagents`** Decides whether to hand work to an agent at all — one question
+  settles it — and fixes what the prompt has to carry when the answer is yes.
 
 - **`clear-task`** Writes the handoff before a context is cleared: the decisions,
   the dead ends, and what is actually verified.
@@ -100,13 +118,22 @@ no error, so a fresh clone runs fine without either of them.
 - **`create-task-skill`** Builds a new task skill through the discipline it
   teaches, and stops for approval before writing the file.
 
-### One thing that did not work
+### Why the routing table is back
 
-There used to be a table of generic routing rows here, along the lines of "a
-design-system skill", to be filled in by the private file. It decided nothing.
-Present, absent, or half-filled, the right skill came back every time from the
-descriptions alone. In practice it just cost context on every session. Write the
-descriptions well and let them do the routing.
+An earlier version of this file said the routing table was dead weight, on the
+evidence that generic placeholder rows — "a design-system skill", to be filled
+in by the private file — decided nothing, while the descriptions picked the
+right skill every time. That was true of placeholder rows and is wrong about the
+table as it stands.
+
+The rows are concrete now, and one of them is load-bearing: the rule that
+editing code loads `writing-code` is what makes the review sequence fire at all,
+because a skill cannot instruct you to load it. Once the standing instructions
+stopped restating what the skills say, the routing row became the thing that
+reaches them. Deleting the table would silently switch the review off.
+
+Descriptions still do most of the work, and a row is only worth adding where
+something has to happen before the first tool call.
 
 ## Statusline
 

@@ -116,8 +116,8 @@ duplicate. Example:
 
 ```
 ~/.claude/CLAUDE.md  "Evidence Format (HARD CONSTRAINTS)"  → ref
-~/.claude/CLAUDE.md  "Probe Before Build (MANDATORY)"       → ref
-~/.claude/CLAUDE.md  "Change → Review Workflow (MANDATORY)" → ref
+skills/writing-code   "Probe before you build"               → ref
+skills/writing-code   "After the edit: the review sequence"  → ref
 ~/.claude/CLAUDE.md  rule 11 (design docs describe intent)  → ref
 ```
 
@@ -145,7 +145,7 @@ appear in the file. The body must include:
 4. **Stop section** before any destructive action (write, post,
    commit, push). State that prior approval in the session does NOT
    carry forward — each destructive action needs its own
-   authorization per `~/.claude/CLAUDE.md` Change → Review Workflow.
+   authorization per `git-commit`, "Safety".
 5. **"Notes on what this template does NOT do"** closing section.
    Explicit boundary list — what is out of scope, what does not chain,
    what is not auto-executed.

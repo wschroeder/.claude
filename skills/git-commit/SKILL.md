@@ -90,7 +90,12 @@ Stage explicitly, the same as any other commit — never `git add -A`. Keep the 
 
 ## Safety
 
-- **Never commit, push, or deploy without explicit approval for each action.** Previous approval does not carry forward. "Commit this" approves a commit — not a push. "Push this" approves a push — not a deploy. Each step requires its own approval. Do not chain commit → push → deploy on momentum.
+- **Never commit, push, or deploy without explicit approval for each action.** Previous approval does not carry forward. "Commit this" approves a commit — not a push. "Push this" approves a push — not a deploy. Each destructive git action (commit, amend, force-push, force-with-lease push) needs fresh per-action authorization. Do not chain commit → push → deploy on momentum.
+- **Approval from earlier in the session does not transfer.** If the user said "Amend" an hour ago, that authorized THAT amend — not this one. Ask again.
+- **"Apply the fixes" is not "commit and push".** Applying fixes means writing them to the working tree. Committing and pushing is a separate decision with its own authorization; do not batch the two into one proposal.
+- **"The commit is correct so the push is fine" is not a reason.** The question is never whether the code is right; it is whether the process was followed. A technically-correct push that skipped the review sequence in `writing-code` is a process violation, not a neutral outcome.
 - Never run destructive commands (`push --force`, `reset --hard`) without explicit confirmation
 - Never skip hooks (`--no-verify`) unless explicitly requested
 - Verify with `git status` and `git diff` before committing
+
+If you find yourself writing "amended and pushed" in a summary without the user having explicitly said "push" AFTER the change was made AFTER the reviews completed, stop — you shortcut the user. Revert or surface what happened before any further work.

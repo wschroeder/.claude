@@ -1,6 +1,6 @@
 ---
 name: writing-code
-description: How code gets written in any language — comment discipline, naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and routing to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code or comments are being added or changed. Use when writing or editing code in any language, when writing or editing comments, docstrings, or doc-comments, or when a language has no skill of its own.
+description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the quick-review then security-review sequence the finished diff owes. Routes to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
 activation:
   - "write code"
   - "add a comment"
@@ -29,6 +29,67 @@ that project and the global one applies everywhere else.
 If the language has no skill — GDScript today — this file is the entire convention
 set for it. Say that in one line rather than proceeding as though a convention file
 had been consulted.
+
+## Probe before you build
+
+Before writing more than ~20 lines of code that touches a boundary you don't own
+— external API, database schema, library you haven't used in this session,
+framework convention you're uncertain about — OR that relies on an algorithm or
+logic whose behavior you haven't measured in this session (your own expertise
+included) — write a throwaway probe and paste its actual output into the
+conversation. The probe runs first; the production code follows. The probe's
+output becomes a REF that anchors the code you're about to write.
+
+**What is NOT a probe.**
+
+- "The docs say it returns X" — that is intent, not observation. Rule 11 of the
+  global Evidence Format applies.
+- "I've used this API before" — your memory is a hypothesis, not a measurement.
+- "Based on the schema file" — the schema file is a design artifact; the running
+  system may differ.
+- A `case` clause in your code that "should handle" the API's response —
+  speculation, not observation.
+- Reading the file at HEAD, a `git diff`, or a grep result — those confirm what
+  the code SAYS, not what the running system DOES.
+
+When a probe is impractical write `UNPROBED — <reason>`; when no boundary is
+crossed write `EXEMPT — <reason>`. Never stage file reads, greps or diffs under
+a "Probe" heading. `tdd-cycle` runs this as step 0 of its loop, against the
+boundaries the test will touch; this section is the wider rule, and it holds for
+code that no test drives. Detail, exemptions and rationale:
+`~/.claude/skills/tdd-cycle/references/probing.md`.
+
+## Before the edit: trace its reach
+
+Before making any code change — one-line or large — pause and trace its reach.
+Stale references elsewhere don't raise compile errors but they lie to the next
+reader and surface as review findings two rounds later. Most regressions come
+from changes that landed in the right place but missed the other places that
+described it.
+
+Before writing or dispatching the change, grep for each of these:
+
+1. **Callers** — every call site of the function / GraphQL field / env var /
+   module being modified. Do their expectations still hold after the change? A
+   renamed queue, a flipped return value, an added required arg — each one
+   rewrites caller assumptions.
+2. **Comments and docstrings** — inline `#` comments, moduledocs, `@doc` blocks
+   that mention the function name, the arg name, the return value, or the old
+   behavior in prose. If the comment becomes false, fix it in the same diff.
+   Doc/code drift is the most common regression this checklist catches.
+3. **Tests** — assertions, test names, and describe blocks that encode the old
+   behavior. Rename tests alongside assertion flips so git history records the
+   product decision, not just the code change.
+4. **External references** — PR bodies, Trello cards, design docs, frontend
+   queries, skill frontmatter that describe the old semantic. If the backend
+   contract shifted, these get edited too — otherwise the follow-on reader
+   trusts a stale spec.
+
+This scan is the work. The code edit is the easy part. If the change is going to
+a subagent, put all four findings in its prompt up front — "here are the 3
+callers, 2 comments, 4 tests, and 1 PR body that reference this" — so nothing is
+re-discovered mid-change. `subagents` holds the rest of what that prompt owes,
+and the question of whether to send one at all.
 
 ## Comments
 
@@ -133,8 +194,34 @@ function with one paragraph of justification can sit above it and say so.
 Report the number when you report the change. A measurement nobody prints is a
 measurement nobody makes.
 
+## After the edit: the review sequence is owed
+
+Any code change — regardless of how small, how confident, or how many prior
+changes in the session were approved — owes a review sequence before the commit
+decision arises:
+
+1. `quick-review` against the change.
+2. `security-review` against the change.
+
+Run both inline in this session rather than handing them to subagents — see
+`subagents`, which carries the measurement. Present the findings to the user
+and wait for explicit per-action authorization before any commit, amend or push
+— `git-commit` owns those rules. What happens to the findings themselves is
+`quick-review`'s "Re-review and the fix loop".
+
+**Prose-only diffs are exempt.** A diff that introduces no executable change —
+pure prose files (`*.md`, `*.txt`, `*.rst`) and/or comment-only hunks in code
+files — does not trigger the review sequence. The test is "any executable change
+anywhere in the diff": if yes, the whole diff is in scope; if no, skip.
+
+Before the diff is written, every boundary claim it will encode needs a probe
+REF from this session — see "Probe before you build" above. A diff carrying an
+unobserved boundary claim is a process violation, not a neutral starting point.
+
 ## What this skill does not cover
 
-Test structure and the red-green-refactor loop (`tdd-cycle`). Review passes
-(`quick-review`, `security-review`). Commit messages (`git-commit`). Prose written
-to the user (Communication Style in the global `CLAUDE.md`).
+Test structure and the red-green-refactor loop (`tdd-cycle`). What the review
+passes actually look for (`quick-review`, `security-review`) — this skill says
+when they run, not what they check. Commit and push authorization, and commit
+messages (`git-commit`). Prose written to the user (Communication Style in the
+global `CLAUDE.md`).

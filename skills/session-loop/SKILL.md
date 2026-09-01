@@ -1,6 +1,6 @@
 ---
 name: session-loop
-description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its own context reaches a handoff threshold. Invoking it checks the repository and the handoff file, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, when handing work to a subagent pays and when it doubles the reading, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, when deciding whether to hand a piece of work to a subagent, or when sessions keep running out of context.
+description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its context reaches the 170,000 handoff ceiling. Invoking it checks the repository and the handoff file, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, the context bands where delegating starts to pay at this ceiling, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, or when sessions keep running out of context. Whether to delegate at all, and what a subagent prompt must carry, is in the subagents skill.
 ---
 
 # session-loop — run the work as a series of fresh sessions
@@ -244,6 +244,11 @@ That is a reason not to delegate, never a reason to hand off early.
 The arithmetic behind those two numbers, and a turn-count table for the borderline
 cases: [references/driver-loop.md](references/driver-loop.md) under "Which model runs
 what".
+
+The standing exception for investigation, and what a delegation prompt has to
+carry once you decide to send one, are in `subagents`. This section covers only
+what the numbers above add: the context bands are the loop's own, measured at
+its 170,000 ceiling, and they do not travel outside it.
 
 ## Shaping a session
 

@@ -28,6 +28,9 @@ The test is the same **operation**, not the same command names. Three unrelated
 things that each begin with `git status` are not a pattern. A probe written,
 run, and cleaned up by hand in thirty sessions is.
 
+Three by hand is a defect, and it is fixed before the work that surfaced it
+continues. Noting it for later is how a fourth and a fifth happen.
+
 ## First decide: script or skill
 
 Getting this wrong is worse than doing nothing.

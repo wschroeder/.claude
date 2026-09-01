@@ -1,6 +1,6 @@
 ---
 name: quick-review
-description: Fast single-agent code review with structured angle passes and mission awareness. Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Use when reviewing code changes, diffs, or PRs quickly.
+description: Fast single-agent code review in nine structured angle passes, each having to say where it landed. Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Also holds the Yes-to-any gate that every fix has to clear — security, performance, maintainability, spec compliance — and the loop that re-runs both reviews until the working tree comes back clean. Use when reviewing code changes, diffs or PRs, when asked for a quick review or a code review, and when deciding what to do with the findings afterwards.
 activation:
   - "quick-review"
   - "quick review"
@@ -418,9 +418,9 @@ For each surviving candidate that would be Fix or Flag, ask whether applying the
 - **Security** — attack surface, authn/authz, data integrity, info leak, audit trail
 - **Performance** — hot-path latency, memory, allocation pressure, query plans
 - **Maintainability** — symmetry with siblings, reduced special-casing, clearer invariants, less hidden coupling
-- **Spec compliance** — RFC/standard alignment, cross-system contract adherence
+- **Spec compliance** — RFC/standard alignment, cross-system contract adherence, accessibility standards (WAI-ARIA roles and the keyboard and focus contracts they imply)
 
-If YES to at least one, recommend the fix. The bar is "positive signal on any axis," not "positive on all axes." This is the anti-waffling rule — it prevents the "technically correct but maybe not worth it" drift. A 5-line fix that measurably improves one axis beats a 0-line "ship as-is" that improves none.
+If YES to at least one, recommend the fix. The bar is "positive signal on any axis," not "positive on all axes." This is the anti-waffling rule — it prevents the "technically correct but maybe not worth it" drift. A 5-line fix that measurably improves one axis beats a 0-line "ship as-is" that improves none. This section is the only place the axes are defined; `writing-code`, `pr-respond-task` and `pr-feedback-task` point here rather than restating them.
 
 ### Destructive-recommendation gate (irreversibility ratchet)
 
@@ -436,22 +436,7 @@ The default for any irreversible operation on user data is **preserve-and-flag**
 
 ### Author-acknowledged deviation is not exempt
 
-When a moduledoc, comment, docstring, commit message, or PR body acknowledges a deviation from spec / security / best practice — "we accept the LB-collapse here", "scope-down on refresh is not supported", "intentionally non-strict", "matches library posture", "known limitation upstream", "forward-flag for P6.5", "Q1=A pending column rekey", "silent zero-row until X lands" — the acknowledgment is the TRIGGER to flag, NOT a reason to skip.
-
-The "yes to any" gate has no "author already knew about it" exemption. Run the gate against the deviation itself; if it fires on security/perf/maintainability/spec compliance, the finding stands. Flag it, and let the developer escalate if the team's prior decision should hold.
-
-Acknowledgment language is a SEARCH TERM, not an absolution. Grep for these in the diff and verify each is gate-clean:
-
-```
-# acknowledged   # known            # intentionally    # tradeoff
-# TODO           # FIXME            not supported      accepted
-we accept        forward-flag       forward flag       pinned to
-deferred         defer to           silent zero-row    Q1=A
-documented placeholder              intentional placeholder
-transitional     pre-P\d            until P\d          for now
-```
-
-Such a comment is the signal to evaluate the gate, not a license to skip it.
+An acknowledgment in a moduledoc, comment, commit message or PR body is the TRIGGER to run the Yes-to-any gate against the deviation, never a reason to skip it. The acknowledgment phrases to grep for, and why the gate has no "author already knew" exemption: [details/author-acknowledged.md](details/author-acknowledged.md).
 
 ### Classifications
 
@@ -485,7 +470,15 @@ Surviving candidates get one of three:
   M survived classification; K demonstrate-line classes in scope, all with artifacts above
 ```
 
-## Re-review After Fixes
+## Re-review and the fix loop
+
+The caller runs this loop; the passes above are one iteration of it.
+
+**First, name what runs it.** For each finding, say what executes the code it is about and when that last happened — the caller, the recipe, the test, the request path. If nothing will reach it again — a one-shot tool whose job is finished, a branch no caller takes, a guarantee the surrounding system already makes — record it where the next reader will look (the handoff, the PR thread, the report to the user), say in one line why it is not being fixed, and move on. A correct finding about code that will not run again is the most expensive kind, because its correctness is what gets it fixed.
+
+**Then filter what is left through the Yes-to-any gate above.** If the fix improves any one axis, apply it without pausing for user confirmation, then re-run BOTH `quick-review` and `security-review` against the updated tree. Repeat until a pass against the current working tree surfaces no findings that clear the gate. Only then does the commit decision arise. Do not pause to ask the user between iterations unless there is a genuine design question that cannot be resolved from existing context.
+
+The four rules that decide when the loop is actually finished: [details/review-fix-loop.md](details/review-fix-loop.md).
 
 If the review leads to code changes, those changes get a targeted pass before done.
 

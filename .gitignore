@@ -38,6 +38,7 @@
 !/skills/quick-review/**
 !/skills/security-review/**
 !/skills/session-loop/**
+!/skills/subagents/**
 !/skills/systematize/**
 !/skills/tdd-cycle/**
 !/skills/writing-code/**

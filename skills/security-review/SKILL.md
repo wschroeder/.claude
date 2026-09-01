@@ -245,4 +245,5 @@ this skill was rewritten to prevent.
 For a small change — a handful of files with no auth, network, or database
 surface — do the analysis directly rather than spawning sub-tasks, and say that
 is what you did. Spawning three agents to review a forty-line value object costs
-more than it finds.
+more than it finds. The general rule, and the prompt contract for the cases
+where delegating does pay, is in `subagents`.

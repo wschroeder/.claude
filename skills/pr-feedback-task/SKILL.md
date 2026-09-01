@@ -272,9 +272,11 @@ over-engineering. Cite the constraint in the reply so a future
 reader can verify.
 
 ### Nitpick — worth taking
-For each: thread URL, file:line, why the change improves quality,
-performance, or maintainability. Take nitpicks seriously
-— "would this improve code quality, performance, or maintainability?"
+For each: thread URL, file:line, and which axis of `quick-review`'s
+Yes-to-any gate the change improves — read the "Yes-to-any gate" section
+of `skills/quick-review/SKILL.md` if it has not been loaded this
+session. Take nitpicks seriously: a nitpick that clears the gate is a
+finding, not a preference.
 
 ### Outdated — code already changed
 For each: thread URL, evidence the cited code path no longer matches.

@@ -6,10 +6,6 @@ If no row matches, proceed normally and say nothing about it. Most requests matc
 
 If a row matches but the skill will not load here, say so in one line and proceed without it. Do not substitute a nearby skill. Every row in the global table below resolves globally; a project table may name a skill that only its own repo carries.
 
-## General
-
-**Important:** Do not shortcut and commit without the git-commit skill. Do not use AI attributions.
-
 ## Local Files by Default, No Publishing Without Asking (MANDATORY)
 
 **Everything you produce goes in the local project, at a path that fits the repository.** A report, a deck, a diagram, a plan, a memo, a one-pager — write it to a file on this machine. If the repository has an obvious home for it (`docs/`, `design/`, an existing directory of similar documents), put it there and say where it went. If nothing fits, use the session scratchpad and say so. A local file is the default output for every deliverable, whatever its shape.
@@ -72,89 +68,13 @@ The Evidence block comes FIRST because task momentum kills compliance when it's 
 12. **A cause is not a root cause.** Always look for at least one cause that causes the discovered cause. In other words, strive to get to the root of the problem. For example, "We ran out of CPU" is the kind of cause that prompts "We need more CPU", but something caused us to run out of CPU: what was it? Finding the underlying causes is especially important before recommending resource increases.
 13. **A ref that locates is not a ref that proves.** A grep that found three matching files, a note that you read the diff, a line number where a symbol lives — each establishes WHERE to look and nothing about what is true there. A locating ref can be cited for existence or location only. It can never support a claim about behavior, about content, or about a change having been made. Test a bullet by asking whether its body contains an observed value: an output, a quoted line, a count, a measurement. If it contains none, it locates. Two traps in particular: hanging a sentence that describes what the code now does on the grep you used to find where to edit, and hanging a claim about what a diff does on "I read the diff in full." Both are answered the same way — go read the thing and quote the line, or write `hypothesis:`.
 
-## Subagents
-
-Investigation tasks: do them yourself, don't delegate. When you do delegate via the Agent tool, prompts must include: specific file paths, expected output format, scope boundaries, failure instructions ("if X fails, stop and report — do not retry with variations"), and the footer `You are a subagent. Do all work directly — do NOT use the Task tool to delegate.`
-
 ## Investigation Discipline
 
 **Trace execution paths end-to-end before concluding.** When investigating where a config value, env var, secret, or deployment behavior comes from, do not stop at the first plausible-looking file. Follow the full chain from trigger to runtime.
 
 - Example failure mode: assuming env vars come from the Kubernetes pod definitions without checking the pipeline — the actual path ran CI job → build task script → secret-fetch script → the cloud parameter store. Four steps, none of them the pod spec, and finding that out cost 71 messages.
 - Before concluding, ask: "Is there an earlier step that could override or populate this?"
-- Instruct subagents to surface the full chain, not just the first match.
-
-## Probe Before Build (MANDATORY)
-
-Before writing more than ~20 lines of code that touches a boundary you don't own — external API, database schema, library you haven't used in this session, framework convention you're uncertain about — OR that relies on an algorithm or logic whose behavior you haven't measured in this session (your own expertise included) — write a throwaway probe and paste its actual output into the conversation. The probe runs first; the production code follows. The probe's output becomes a REF that anchors the code you're about to write.
-
-**What is NOT a probe.**
-- "The docs say it returns X" — that is intent, not observation. Rule 11 applies.
-- "I've used this API before" — your memory is a hypothesis, not a measurement.
-- "Based on the schema file" — the schema file is a design artifact; the running system may differ.
-- A `case` clause in your code that "should handle" the API's response — speculation, not observation.
-- Reading the file at HEAD, a `git diff`, or a grep result — those confirm what the code SAYS, not what the running system DOES.
-
-When a probe is impractical write `UNPROBED — <reason>`; when no boundary is crossed write `EXEMPT — <reason>`. Never stage file reads, greps or diffs under a "Probe" heading. Detail, exemptions and rationale: `skills/tdd-cycle/references/probing.md`.
-
-## Systematize what you repeat (MANDATORY)
-
-Having done the same thing by hand in three separate sessions is a defect. Fix it
-before continuing the work that surfaced it. Load `systematize` before creating,
-extending, merging or retiring a skill, and before writing or extending a script
-that something other than this one session will run.
-
-## Pre-Change Impact Scan (MANDATORY)
-
-Before making any code change — one-line or large — pause and trace its reach. Stale references elsewhere don't raise compile errors but they lie to the next reader and surface as review findings two rounds later. Most regressions in this codebase come from changes that landed in the right place but missed the other places that described it.
-
-Before writing or dispatching the change, grep for each of these:
-
-1. **Callers** — every call site of the function / GraphQL field / env var / module being modified. Do their expectations still hold after the change? A renamed queue, a flipped return value, an added required arg — each one rewrites caller assumptions.
-2. **Comments and docstrings** — inline `#` comments, moduledocs, `@doc` blocks that mention the function name, the arg name, the return value, or the old behavior in prose. If the comment becomes false, fix it in the same diff. Doc/code drift is the most common regression this checklist catches.
-3. **Tests** — assertions, test names, and describe blocks that encode the old behavior. Rename tests alongside assertion flips so git history records the product decision, not just the code change.
-4. **External references** — PR bodies, Trello cards, design docs, frontend queries, skill frontmatter that describe the old semantic. If the backend contract shifted, these get edited too — otherwise the follow-on reader trusts a stale spec.
-
-This scan is the work. The code edit is the easy part. Include the findings from all four in the subagent prompt up front — "here are the 3 callers, 2 comments, 4 tests, and 1 PR body that reference this" — so nothing is re-discovered mid-change.
-
-## Change → Review Workflow (MANDATORY)
-
-Any code change the agent makes — regardless of how small, how confident, or how many prior changes in the session were approved — triggers a mandatory review sequence.
-
-**Pre-edit gate (MANDATORY).** Before writing the diff, every boundary claim the diff will encode must already have a probe REF in this session. See "Probe Before Build" above. If the change touches an external API, schema, library, or framework convention you haven't observed in this session, the probe goes first, then the code. A diff that contains an unobserved boundary claim is a process violation, not a neutral starting point.
-
-**Post-edit reviews (MANDATORY).** After the diff is written:
-
-1. **Quick review** (`quick-review` skill) against the new change.
-2. **Security review** (`security-review` skill) against the new change.
-
-Only AFTER both reviews complete and their findings are surfaced to the user does the commit/push/amend decision point arise. The agent presents the review output and waits for explicit per-action authorization.
-
-### Review-fix loop (MANDATORY)
-
-**First, name what runs it.** For each finding, say what executes the code it is about and when that last happened — the caller, the recipe, the test, the request path. If nothing will reach it again — a one-shot tool whose job is finished, a branch no caller takes, a guarantee the surrounding system already makes — record it where the next reader will look (the handoff, the PR thread, your report to the user), say in one line why you are not fixing it, and move on. A finding that fails this gate does not meet the criteria below, so it never restarts the loop.
-
-A correct finding about code that will not run again is the most expensive kind, because its correctness is what gets it fixed.
-
-Then evaluate what is left against three criteria:
-1. Does fixing it improve security?
-2. Does fixing it improve performance?
-3. Does fixing it improve maintainability?
-
-If the answer is YES to any of the three, apply the fix without pausing for user confirmation, then re-run quick-review and security-review against the updated diff. Repeat the loop until a review pass against the current working tree surfaces no findings that meet the criteria. Only then does the commit decision arise. Do not pause to ask the user between iterations unless there is a genuine design question that cannot be resolved from existing context.
-
-**Hard rules:**
-- **Prose-only diffs are exempt.** A diff that introduces no executable change — pure prose files (`*.md`, `*.txt`, `*.rst`) and/or comment-only hunks in code files — does not trigger the review sequence, and applying a prose-only fix during the loop does not re-trigger reviews. The test is "any executable change anywhere in the diff": if yes, the whole diff is in scope; if no, skip.
-- **The loop iterates on the diff, not on finding severity.** Applying any Fix, Flag, or Note that meets the gate changes the diff. A changed diff requires a fresh pass of *both* reviews — quick-review and security-review — before the loop can be declared complete. This is true regardless of how minor the applied finding was; "it was just a Note" is not an exception.
-- **A green test suite does not stand in for a review pass.** Tests verify behavior; reviews verify cross-cutting properties (sibling consistency, doc/code drift, evidence-of-intent) that test runs cannot detect. Passing tests and a clean linter leave the review sequence still owed.
-- **Say a review pass is complete only when it ran against the current tree.** Both quick-review and security-review must have run against the current working tree with no edits since. Otherwise, say which edits landed after the last pass.
-- **No chained commit-push-amend.** Each destructive git action (commit, amend, force-push, force-with-lease push) requires fresh per-action authorization. Prior authorization in the same session does NOT authorize future actions.
-- **No "the commit is correct so the push is fine" reasoning.** The question is never whether the code is right; it is whether the process was followed. A technically-correct push that skipped the review sequence is a process violation, not a neutral outcome.
-- **No pattern-matching authorization from earlier turns.** If the user said "Amend" an hour ago, that authorized THAT amend — not this one. Ask again.
-- **No batching "apply fixes" with "commit + push".** "Apply the fixes" means write the code to the working tree. Commit/push is a separate decision with its own authorization.
-- **Commit messages are authored through the git-commit skill.** Subject and body are produced by invoking git-commit, never hand-drafted in chat or a temp file. Invoke it when you start thinking about the message, not only when running `git commit`.
-
-If you find yourself writing "amended and pushed" in a summary without the user having explicitly said "push" AFTER the change was made AFTER the reviews completed, stop — you shortcut the user. Revert or surface what happened before any further work.
+- Do the tracing yourself rather than delegating it, per the `subagents` skill.
 
 ## Communication Style (HARD CONSTRAINT)
 
@@ -219,6 +139,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Code comments, docstrings, doc-comments | `writing-code` |
 | Finding gaps in a design doc set, design holes, "what's missing from this design" | `design-gap-task` |
 | Creating, updating, merging, or retiring a skill; capturing a repeated workflow | `systematize` |
+| Handing work to a subagent, delegating, spawning an agent or a workflow | `subagents` |
 
 Every row above resolves on any machine carrying this repository. A machine
 may add rows through `CLAUDE-private.md`.

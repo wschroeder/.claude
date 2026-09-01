@@ -1,6 +1,6 @@
 # Probing a boundary before you build on it
 
-Detail behind **Probe Before Build** in the global `CLAUDE.md`. Read when a
+Detail behind **Probe before you build** in `writing-code`. Read when a
 disposition is disputed, when deciding whether a piece of work is exempt, or when
 labelling a Probe section in a report.
 

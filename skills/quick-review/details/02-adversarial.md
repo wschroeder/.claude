@@ -26,7 +26,7 @@ For each unique constraint or race-handling code path, consider concurrent write
 
 When a race window touches AUTHENTICATION, AUTHORIZATION, BILLING, single-use tokens (refresh tokens, password-reset codes, magic links, PKCE codes, CSRF nonces, idempotency keys), or any state where DUPLICATION implies a security or financial loss (double-spend, double-issuance of token pair, double-grant of trial, double-charge avoidance), the finding is **Fix-class, not Note-class**.
 
-Justifications that under-weight the severity — "matches the library's posture", "known limitation upstream", "the library does this too", "single-instance deploys are unaffected" — are NOT acceptable downgrades. The library may itself be flawed; deploys can scale; the recommendation bar is "yes to any" of security/perf/maintainability.
+Justifications that under-weight the severity — "matches the library's posture", "known limitation upstream", "the library does this too", "single-instance deploys are unaffected" — are NOT acceptable downgrades. The library may itself be flawed; deploys can scale; the recommendation bar is the Yes-to-any gate.
 
 If a tighter primitive exists (`UPDATE ... WHERE used_at IS NULL RETURNING *` pattern, advisory lock, atomic CAS, single-flight cache), surface it as the Fix. The race itself is the finding; document the proposed fix even if the team chooses to defer.
 

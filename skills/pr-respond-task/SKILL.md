@@ -100,7 +100,7 @@ failure mode this section's structure exists to prevent.
 Without this section's output (or an explicit `UNPROBED` / `EXEMPT`
 line), the next two sections are invalid by construction — the test
 in Red would be encoding an assumption rather than an observation.
-See `~/.claude/CLAUDE.md` Probe Before Build.
+See `writing-code`, "Probe before you build".
 
 #### Red — write the test (Gray) and run it (Red)
 
@@ -200,31 +200,16 @@ the bot's stated reproduction>.
 ## Reviews on the combined diff
 
 After every per-finding cycle is complete, run both reviews against
-the working tree (per `~/.claude/CLAUDE.md` Change → Review Workflow):
+the working tree (per `writing-code`, "After the edit: the review
+sequence is owed"):
 
 1. `quick-review` against the combined diff
 2. `security-review` against the combined diff
 
-First, name what runs it. For each finding, say what executes the
-code it is about and when that last happened — the caller, the recipe,
-the test, the request path. If nothing will reach it again, record it in
-the PR thread, say in one line why you are not fixing it, and move on. A
-finding that fails this gate does not meet the three questions below, so
-it never restarts the loop. A correct finding about code that will not
-run again is the most expensive kind, because its correctness is what
-gets it fixed.
-
-Filter what is left through the three-question gate:
-
-- Does fixing it improve security?
-- Does fixing it improve performance?
-- Does fixing it improve maintainability?
-
-If YES to any: apply the fix without pausing, then re-run BOTH reviews
-against the updated tree. Repeat until reviews are clean on the
-current working tree. Say the loop is complete only when the most recent
-quick-review and security-review both ran against that tree with no edits
-since. Otherwise, say which edits landed after the last pass.
+Then work `quick-review`'s "Re-review and the fix loop" over the
+findings. It owns naming what actually runs each finding, the Yes-to-any
+gate a fix has to clear, and when the loop counts as finished. Record a
+finding you are not fixing in the PR thread, with one line saying why.
 
 State the loop outcome:
 ```

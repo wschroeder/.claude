@@ -141,6 +141,7 @@ When activated:
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
 8. **Self-Review**: Close the two Step 4 gates — mutation and scope — against your own diff. If either fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
+10. **Run the review sequence**: once the feature is done, run `quick-review` then `security-review` against the diff and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 
 ## Example Flow
 
@@ -201,3 +202,4 @@ And so on...
 ✅ Two structural levers, named: **(1) rule-of-three**, **(2) Hindsight Open-Closed** when *adding* a case requires editing many existing files. Apply in retrospect, never speculatively.
 ✅ Repeat
 ✅ Let tests guide the design
+✅ Hand the finished diff to the review sequence — green is not done

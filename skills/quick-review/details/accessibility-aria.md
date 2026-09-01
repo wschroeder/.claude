@@ -1,6 +1,6 @@
 # ARIA role / contract correctness (UI components)
 
-ARIA roles are contracts the component must deliver on. The same Conventions / sibling-consistency reasoning that catches "module A declares `@behaviour X` and module B doesn't" applies to UI components: a component declaring an ARIA role takes on the keyboard and focus contract that role implies, and a component shaped like a dialog/disclosure/listbox owes its users the corresponding role declaration. Both directions are Fix-class — the "yes to any" maintainability/accessibility gate fires.
+ARIA roles are contracts the component must deliver on. The same Conventions / sibling-consistency reasoning that catches "module A declares `@behaviour X` and module B doesn't" applies to UI components: a component declaring an ARIA role takes on the keyboard and focus contract that role implies, and a component shaped like a dialog/disclosure/listbox owes its users the corresponding role declaration. Both directions are Fix-class — the Yes-to-any gate fires on spec compliance.
 
 ---
 
