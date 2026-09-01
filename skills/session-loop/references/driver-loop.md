@@ -215,22 +215,7 @@ cheapest stop near 162,000 and charging 200,000 a 4% premium. That fit assumed a
 single re-orientation cost shared by every session. The measurement says the cost
 varies threefold between them, which swamps the curve.
 
-What the threshold is genuinely for is not retiring a session before it has done
-anything. Lower is the dangerous direction: 4 of the 29 had not changed a single
-file by 150,000 context, and 1 had not by 170,000. A ceiling beneath those
-numbers does not save money — it throws away reading the session already paid
-for.
-
-The default is 225,000, set between two measured numbers. Below it: a turn taken
-in the session you already have costs exactly its own context, while a turn of
-work from a fresh session costs a median 195,813 with that session's whole
-re-orientation charged to it — so carrying on is the cheaper move up to roughly
-195,813 and handing off is cheaper after. That median has quartiles of 153,681
-and 251,450, the same threefold spread as everything else here, so a ceiling
-somewhat above it buys margin against drawing a slow-starting successor. Above
-it: this operator measured answers starting to degrade past 250,000, which is
-the hard bound. If answers start going wrong in the last stretch of a session,
-this is the first number to lower.
+The default is 170,000. It is the operator's call, not a figure derived here.
 
 What it is not is where the money is. The money is in why a session reads 60,000
 tokens before its first change on a good day and 187,000 on a bad one.
@@ -478,13 +463,11 @@ neither has opened, and the parent never will, is read once either way, and
 reading it inline leaves it in the parent's context to be re-sent every turn
 afterwards. Running the two curves against each other puts the crossover above
 about 100,000 of parent context — below that no job is large enough for a
-subagent to win, because its turns cost more than the parent's outright. The band
-where it does win opens around 130,000. Under the old 170,000 handoff line that
-left only 40,000 tokens of a session's life above the crossover, so the contract
-told a session there to leave the job for the next one rather than give it to a
-subagent. At the current 225,000 the band is 95,000 wide — but the curves were
-fitted under the old ceiling, so read 170,000 as the end of the measurement and
-not the end of the range. For a job needing the stated number of turns once the reading is done:
+subagent to win, because its turns cost more than the parent's outright. Above
+roughly 130,000 it can win. The 170,000 handoff line leaves 40,000 tokens of a
+session's life above the crossover, and the curves were fitted at that same
+ceiling, so the table below covers the whole range rather than extrapolating
+past it. For a job needing the stated number of turns once the reading is done:
 
 ```
                         the session's context when it decides

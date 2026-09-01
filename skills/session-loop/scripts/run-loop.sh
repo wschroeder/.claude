@@ -20,7 +20,7 @@
 #   run-loop.sh [REPO] [options]
 #
 #   --handoff FILE        handoff file, relative to REPO (default: HANDOFF.md)
-#   --handoff-at N        context at which a session hands off (default: 225000)
+#   --handoff-at N        context at which a session hands off (default: 170000)
 #   --model NAME          model for each session (default: claude-opus-5)
 #   --eval-model NAME     model for the reviewer that reads each session's diff
 #                         (default: sonnet)
@@ -40,17 +40,9 @@ set -euo pipefail
 
 REPO="."
 HANDOFF="HANDOFF.md"
-# Where a session hands off, in context tokens. Measured over 29 sessions, this
-# number barely predicts what a turn of work costs (r = -0.07). What does predict
-# it is how much a session reads before it first changes a file, which ranged
-# from 60,016 to 187,085 across those same sessions. So treat this as a safety
-# rail and not a cost knob, and note that lower is the dangerous direction — 4 of
-# the 29 had not touched a file at all by 150,000. 225,000 sits just above the
-# 195,813 median cost of getting one turn of work out of a fresh session instead,
-# which is the point where handing off stops paying, and just below the 250,000
-# where the operator measured answers starting to degrade as context fills.
-# session_budget.py holds the same number and the measurements behind it.
-HANDOFF_AT=225000
+# Where a session hands off, in context tokens. A safety rail set by the
+# operator, not a cost knob. session_budget.py holds the same number.
+HANDOFF_AT=170000
 # The loop exists to commit unattended, and a headless session cannot answer a
 # permission prompt — the prompt becomes a silent denial, HEAD never moves, and
 # the run halts on "changed nothing." bypassPermissions is the one mode under

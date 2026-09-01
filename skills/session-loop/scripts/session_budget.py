@@ -853,39 +853,9 @@ def collect(project_dir: str, since: Optional[str] = None) -> List[SessionReport
     return reports
 
 
-# Where a session hands off. The default is 225,000, and the honest reason to
-# record here is that this number matters far less than it looks like it should.
-#
-# Measured over 29 sessions across repo-a and repo-b. Cost per turn of actual
-# work — total context spent, divided by the turns after that session's own first
-# Edit or Write — barely moves with where the session stopped: r = -0.07. What it
-# does track is when the session starts working: r = +0.62. Sessions that first
-# touch a file below 90,000 context cost a median 144,049 per working turn and
-# get 51 working turns out of their life; sessions that first touch one above
-# 130,000 cost 264,826 and get 20. That first-change point ranged from 60,016 to
-# 187,085 across the same 29 sessions, and it is where the money actually is.
-#
-# An earlier version of this comment carried a fitted curve claiming a cheapest
-# stopping point near 163,000 and a 4.3% penalty for stopping at 200,000. The fit
-# assumed one re-orientation cost for every session. The measurement above says
-# that cost varies threefold between sessions, which swamps the curve entirely.
-#
-# So do not tune this expecting a saving. It is a safety rail, and lower is the
-# dangerous direction: 4 of those 29 sessions had not yet changed a single file
-# at 150,000 context, so a ceiling there would have retired them before they did
-# any work at all.
-#
-# 225,000 is where the operator set it, between two measured numbers. A turn
-# taken in the session you already have costs exactly its own context; a turn of
-# work from a fresh session costs a median 195,813 once that session's whole
-# re-orientation is charged to it, so below about 195,813 carrying on is the
-# cheaper move and above it handing off is. The quartiles on that figure are
-# 153,681 and 251,450 — the same threefold spread again — so a ceiling somewhat
-# above the median buys margin against drawing a slow-starting successor. The
-# upper bound is accuracy: the operator measured answers starting to degrade past
-# 250,000. If answers go wrong late in a session, lower this before assuming the
-# work itself was at fault.
-DEFAULT_HANDOFF_AT = 225_000
+# Where a session hands off, in context tokens. A safety rail set by the
+# operator, not a cost knob. run-loop.sh holds the same number.
+DEFAULT_HANDOFF_AT = 170_000
 
 
 def spend_report(

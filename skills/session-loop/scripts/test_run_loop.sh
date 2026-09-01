@@ -715,22 +715,11 @@ drop_fixture
 DEFAULT_HANDOFF_AT="$(awk -F= '/^HANDOFF_AT=/ { print $2; exit }' "$LOOP")"
 check "the default threshold is readable from the script" 0 \
   "$([ -n "$DEFAULT_HANDOFF_AT" ] && echo 0 || echo 1)"
-# The number itself is the operator's call, so it is pinned here rather than
-# derived from a curve. It is worth knowing how little it decides: measured over
-# 29 sessions, cost per turn of actual work barely moves with where the session
-# stopped (r = -0.07), while it does track how much the session read before its
-# first file change (r = +0.62, and that ranged from 60,016 to 187,085). This is
-# a safety rail. Lower is the dangerous direction — 4 of those 29 had changed
-# nothing at all by 150,000 context, so a ceiling there would have retired them
-# before they did any work.
-#
-# 225,000 is where the operator put it. The break-even is measurable: a turn taken
-# in the session you already have costs exactly its own context, and a turn of
-# work from a fresh one costs a median 195,813 with its whole re-orientation
-# charged to it. So a ceiling a little above that median buys margin against the
-# quarter of sessions whose re-orientation runs to 251,450, and the accuracy
-# ceiling is at 250,000, so it fits underneath.
-check "the default threshold is the operator's 225,000" 225000 "$DEFAULT_HANDOFF_AT"
+# The number itself is the operator's call. The three checks below pin the four
+# places that carry it — the literal here, HANDOFF_AT and the help-text default
+# in run-loop.sh, and DEFAULT_HANDOFF_AT in session_budget.py — so none of them
+# can drift from the others silently.
+check "the default threshold is the operator's 170,000" 170000 "$DEFAULT_HANDOFF_AT"
 check "the help text quotes the real default" "$DEFAULT_HANDOFF_AT" \
   "$(grep -- '--handoff-at' "$LOOP" | grep -oE 'default: [0-9]+' | head -1 | awk '{ print $2 }')"
 check "the script agrees with session_budget.py" "$DEFAULT_HANDOFF_AT" \

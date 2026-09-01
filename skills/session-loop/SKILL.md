@@ -12,14 +12,15 @@ that on a loop.
 
 Ending too early is its own waste, though: a fresh session spends about 104,000
 tokens re-reading its way back to where the last one already was. So a session
-runs until its context reaches 225,000, checking itself at three points along
+runs until its context reaches 170,000, checking itself at three points along
 the way, and hands off then — not after one piece of work. A hook the driver
 installs checks the same number on every tool call, so the ceiling holds even
 when a session never reaches one of those three points.
 
-Both numbers are measured. Why 225,000 is a safety rail rather than a cost knob,
-and why lowering it is the dangerous direction, is in
-[references/driver-loop.md](references/driver-loop.md).
+170,000 is a safety rail the operator sets, not a cost knob to tune. The three
+places carrying it — `scripts/run-loop.sh`, `scripts/session_budget.py` and the
+test that pins them together — are kept in step by
+`scripts/test_run_loop.sh`.
 
 ## When you are invoked, act. Do not just read.
 
@@ -109,10 +110,9 @@ per iteration and the operator may be on a phone, so a foreground call would
 just block. Do not poll it either — the driver prints as it goes and you are
 re-invoked when it exits.
 
-Each session runs until its own context reaches 225,000 and then hands off, so
+Each session runs until its own context reaches 170,000 and then hands off, so
 one iteration is however much work fits under that — usually several commits,
-not one. Pass `--handoff-at` only to move that line; the reasoning is in
-[references/driver-loop.md](references/driver-loop.md).
+not one. Pass `--handoff-at` only to move that line.
 
 Between iterations the driver runs a second, much smaller session over the diff
 the first one just committed. It has no memory of writing that code and no tools
@@ -145,7 +145,7 @@ offer to resume.
 
 Watching a loop is not free, and the session doing the watching fills up like
 any other. One supervising session reached 277,862 context while its workers
-were being held to 170,000, the ceiling at the time. So ask yourself the same
+were being held to the 170,000 ceiling. So ask yourself the same
 question you ask them:
 
 ```bash
@@ -257,7 +257,7 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 Never below about 100,000 context. Asking is itself a full-context turn, and down
 there the answer cannot be anything but keep going.
 
-It prints `<session>: turn N, context X of 225,000 — hand off` or `— keep going`. On
+It prints `<session>: turn N, context X of 170,000 — hand off` or `— keep going`. On
 `keep going`, carry on here; stopping earlier is not thrift, because the next session
 pays about 104,000 tokens to read its way back to where you already are.
 
