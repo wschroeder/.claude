@@ -1,11 +1,6 @@
 ---
 name: security-review
 description: Security review of a code change, scoped the same way the other review commands scope things — working tree, staged, branch, last commit, or a named ref. Use when asked for a security review, to check a diff for vulnerabilities, or when the change-then-review workflow calls for one.
-activation:
-  - "security-review"
-  - "security review"
-  - "review for vulnerabilities"
-  - "check this for security issues"
 ---
 
 # Security Review

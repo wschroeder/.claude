@@ -1,20 +1,6 @@
 ---
 name: systematize
 description: Turns work you have repeated into machinery, and keeps the skill library from growing past the point where the model stops finding things. Covers the whole lifecycle — deciding between a script and a skill, where a script lives and when to extend an existing one rather than write another, creating a skill, extending one, merging two, and retiring one — plus the slot pattern that lets a global skill reach project-specific mechanics without naming them. Use when a workflow keeps recurring, when something done by hand three times should become a script, when asked to capture or save something as a skill, when a skill is outdated or wrong, when two skills overlap, or when the library needs pruning.
-activation:
-  - "extract this as a skill"
-  - "create a skill from this"
-  - "make this a skill"
-  - "make this a script"
-  - "should this be a script or a skill"
-  - "we keep doing this by hand"
-  - "save this workflow"
-  - "capture this pattern"
-  - "update this skill"
-  - "improve this skill"
-  - "merge these skills"
-  - "consolidate skills"
-  - "retire this skill"
 ---
 
 # systematize — machinery for what you repeat, without a library nobody can search
@@ -81,7 +67,7 @@ Skills load in layers. Every edit respects these budgets:
 
 | Layer | What | When loaded | Budget |
 |-------|------|-------------|--------|
-| Metadata | Frontmatter: name, description, activation | Every session | ~100 tokens |
+| Metadata | Frontmatter: name and description | Every session | ~100 tokens |
 | Core instructions | SKILL.md body | On activation | under 500 lines |
 | References | `references/*.md` | Read on demand | Unbounded |
 
@@ -133,10 +119,13 @@ what the model has when deciding whether to open the skill.
 - Say what makes it *different* from its neighbours. A description that could
   equally describe two skills is how the wrong one gets picked.
 
-### 3. Choose activation keywords
+### 3. Put the trigger phrasings in the description too
 
-Natural phrasings, not just technical ones. Include the casual form and the
-precise form, and the errors a person would paste.
+There is no separate keyword field. `activation:` is not real — neither the
+Agent Skills spec nor Claude Code reads it, and eight skills here carried one
+for months doing nothing. The description is the only text loaded at startup,
+so the phrasings that should pull the skill in go in its sentences: the casual
+form and the precise form, the file types, and the errors a person would paste.
 
 ### 4. Write the body
 
@@ -144,8 +133,6 @@ precise form, and the errors a person would paste.
 ---
 name: [kebab-case-name]
 description: [third person, trigger terms, under 1024 chars]
-activation:
-  - "[keyword]"
 ---
 
 ## Purpose
@@ -195,8 +182,8 @@ call needed.
 
 Read the whole skill first. Keep what works; change what is wrong.
 
-**Just do it** for typos, a missing example, clearer wording, an obvious extra
-activation keyword.
+**Just do it** for typos, a missing example, clearer wording, an obvious
+trigger phrasing the description is missing.
 
 **Ask first** for restructuring, removing sections, changing what the skill is
 for, or anything that would conflict with another skill.
@@ -214,9 +201,9 @@ conflicting approaches, or skills that are already focused.
 
 1. Read every skill being merged, in full.
 2. For each, name its core purpose, its unique value, and what it duplicates.
-3. Design the merged skill — a name covering all of them, one description, the
-   union of activation keywords with duplicates dropped, and content organised
-   logically rather than concatenated.
+3. Design the merged skill — a name covering all of them, one description
+   carrying every trigger phrasing the originals answered to, and content
+   organised logically rather than concatenated.
 4. Show the outline and what is being dropped. Wait for approval.
 5. Write the merged skill.
 6. Delete the old files, update every routing row, and grep for anything else

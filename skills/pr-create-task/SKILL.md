@@ -1,15 +1,6 @@
 ---
 name: pr-create-task
 description: Opens a pull request end to end — readiness gate, full-diff scan, a body authored to content discipline (what IS, the why, and the operational facts the diff can't show; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when creating or opening a pull request, writing a PR body or description, or running `gh pr create` — "make the PR", "open a PR", "create the PR".
-activation:
-  - "open a pull request"
-  - "create a pull request"
-  - "make the PR"
-  - "open a PR"
-  - "create the PR"
-  - "PR body"
-  - "PR description"
-  - "gh pr create"
 ---
 
 # pr-create-task — author and open a pull request

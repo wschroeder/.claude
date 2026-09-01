@@ -1,13 +1,6 @@
 ---
 name: quick-review
 description: Fast single-agent code review in nine structured angle passes, each having to say where it landed. Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Also holds the Yes-to-any gate that every fix has to clear — security, performance, maintainability, spec compliance — and the loop that re-runs both reviews until the working tree comes back clean. Use when reviewing code changes, diffs or PRs, when asked for a quick review or a code review, and when deciding what to do with the findings afterwards.
-activation:
-  - "quick-review"
-  - "quick review"
-  - "review changes"
-  - "review the code"
-  - "review this"
-  - "code review"
 ---
 
 # Quick Review

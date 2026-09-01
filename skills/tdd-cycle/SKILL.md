@@ -1,12 +1,6 @@
 ---
 name: tdd-cycle
 description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first or when asked to use TDD, write tests first, follow red-green-refactor, or probe before building.
-activation:
-  - "tdd"
-  - "test-driven"
-  - "test driven development"
-  - "write test first"
-  - "red green refactor"
 ---
 
 ## Purpose

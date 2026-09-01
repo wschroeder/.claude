@@ -1,13 +1,6 @@
 ---
 name: git-commit
 description: Enforces git commit conventions and authors commit messages — staging rules, subjects matched to the repository's own log, message-body authoring, no AI attributions, when to amend instead of adding a follow-up commit, and safety checks. Use whenever committing, amending, pushing, branching, OR drafting/proposing a commit message — even speculatively, before authorization.
-activation:
-  - "git"
-  - "commit"
-  - "commit message"
-  - "amend"
-  - "push"
-  - "branch"
 ---
 
 ## When to invoke

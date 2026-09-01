@@ -1,24 +1,12 @@
 ---
 name: elixir-development
-description: Elixir, Ecto, and Phoenix conventions that hold in any project — pipe-style queries, changesets over Ecto.Changeset.change/2, query timeouts, migration safety, module organization, dependency lookup, test hygiene, and date/timezone handling. Loaded by writing-code when the work is Elixir. Use when writing or reviewing .ex/.exs code, adding dependencies, or running mix.
+description: Elixir, Ecto, and Phoenix conventions that hold in any project — pipe-style queries, schemas and changesets over Ecto.Changeset.change/2, query timeouts, migration safety, module organization, dependency lookup, ExUnit test hygiene including capture_log, and date/timezone handling. Loaded by writing-code when the work is Elixir. Use when writing or reviewing .ex, .exs or .heex code, adding dependencies, running mix, or chasing a compiler warning.
 paths:
   - "**/*.ex"
   - "**/*.exs"
   - "**/*.heex"
   - "**/*.eex"
   - "**/mix.lock"
-activation:
-  - "elixir"
-  - "ecto"
-  - "phoenix"
-  - "mix"
-  - ".ex file"
-  - ".exs"
-  - "schema"
-  - "changeset"
-  - "ExUnit"
-  - "capture_log"
-  - "compiler warning"
 ---
 
 ## Purpose

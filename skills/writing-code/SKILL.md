@@ -1,13 +1,6 @@
 ---
 name: writing-code
 description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the quick-review then security-review sequence the finished diff owes. Routes to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
-activation:
-  - "write code"
-  - "add a comment"
-  - "docstring"
-  - "doc-comment"
-  - "code style"
-  - "coding conventions"
 ---
 
 ## Purpose
