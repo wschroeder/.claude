@@ -137,6 +137,8 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | TDD, test-driven development, code, fix, implement | `tdd-cycle` |
 | Writing, changing, or deleting code in any language | `writing-code` |
 | Code comments, docstrings, doc-comments | `writing-code` |
+| Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body | `writing-prose` |
+| Organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written | `writing-prose` |
 | Finding gaps in a design doc set, design holes, "what's missing from this design" | `design-gap-task` |
 | Creating, updating, merging, or retiring a skill; capturing a repeated workflow | `systematize` |
 | Handing work to a subagent, delegating, spawning an agent or a workflow | `subagents` |

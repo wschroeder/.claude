@@ -42,6 +42,7 @@
 !/skills/systematize/**
 !/skills/tdd-cycle/**
 !/skills/writing-code/**
+!/skills/writing-prose/**
 
 # OS and editor droppings, anywhere. Redundant against the deny-all above, kept
 # because these are the ones that get re-allowed by accident.
