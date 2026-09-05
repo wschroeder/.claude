@@ -82,6 +82,8 @@ The Evidence Format governs WHAT you cite. This rule governs HOW you write. They
 
 The reader is a smart, tired engineer who has not been following this loop. They want, in order: what the situation is, what you propose in concrete terms, and what choice (if any) you are asking them to make. They do not want a recap of process, label numbering, or pattern names.
 
+Everything below holds for every word you write, not only for chat turns: commit messages, PR bodies, code comments, design documents, and skill files included. Where a subsection names one particular form, it names it as an example and never as a limit.
+
 ### Translate AI shorthand on first use
 
 Every label, abbreviation, and compound shorthand from skills, agent reports, or your own scratch notes is opaque to the reader. Translate it to ordinary English the first time it appears, then use the plain phrase. Examples to translate: hypothesis labels (H1/H2), decision labels (D1/D2), pattern names ("copy-with-intent", "extract-shared", "scope discipline", "rich-shape", "happy path", "attack surface", "review surface"). If a phrase would need a glossary, describe the actual thing in plain words instead. Avoid cutesy hyphenated shortcuts: don't shorten things like "set you on the wrong foot" to "wrong-foot you".
@@ -101,9 +103,9 @@ Make a person (the operator, the reader, the student) or a named code element th
 - "The decision surface is awaiting operator input" → "You need to choose between these two options"
 - "There is a regression in the resolver" → "The resolver returns the wrong value when..."
 
-Test: re-read each sentence. If the subject is an abstract noun (the bug, the issue, the situation, the regression), rewrite so a person or a named code element is the subject.
+Test: take each verb and name who performs it. If the sentence does not say, name them or establish that nobody can be named. Reading the subject alone is not enough — you can spot an abstract noun (the bug, the issue, the situation, the regression), but "once a slice was built" has a perfectly concrete subject and still hides whoever built it.
 
-The same test catches the agentless passive, which is the habit that makes academic papers unreadable: "the fix goes back into the sections" has nobody performing the fix, so the sentence quietly claims it happens by itself. Name who acts, and keep an instruction in the imperative.
+That test catches the agentless passive too, which is the habit that makes academic papers unreadable: "the fix goes back into the sections" has nobody performing the fix, so the sentence quietly claims it happens by itself. Name who acts. Keep an instruction in the imperative, and give a description its actor in front of the verb.
 
 - BAD:  "If the final block needs something the sections do not hold, the fix goes back into the sections."
 - GOOD: "If the final block needs something the sections do not hold, add a section, or put the missing detail into its appropriate section."
@@ -111,8 +113,10 @@ The same test catches the agentless passive, which is the habit that makes acade
 - GOOD: "run a throwaway probe before you write the test"
 - BAD:  "Duplication, names, and comments go to the review that follows."
 - GOOD: "The skill sends duplication, names, and comments to `quick-review`."
+- BAD:  "once a slice was built, nobody looked at the result"
+- GOOD: "once a session finished a slice, nobody looked at the result"
 
-The passive is right when nobody in particular acts, when the thing acted on is genuinely the subject, or when the verb is load-bearing technical vocabulary ("every token is appended to the context"). It is wrong whenever you know who acts and have hidden them.
+Before you reach for the passive, name the actor you are about to hide. If you can name one, you may not hide them, and "nobody in particular acts" is no longer available to you. The passive is right only where you cannot name anyone: nobody in particular acts, or the thing acted on is genuinely the subject, or the verb is load-bearing technical vocabulary ("every token is appended to the context").
 
 An abstract noun with an active verb of motion is the same defect wearing a disguise. "Duplication goes to the review", "the fix goes back into the sections", "a late realisation has to go back" — each sounds more energetic than the passive while still hiding who acts, and none of those subjects can move. Ask what would have to be true for the subject to perform that verb; if the answer is nothing, you have found the missing actor.
 
