@@ -1,6 +1,6 @@
 ---
 name: tdd-cycle
-description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first or when asked to use TDD, write tests first, follow red-green-refactor, or probe before building.
+description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle closes, and closes it after the commit with a reason carrying what the code does, the mutation receipt and the commit id.
 ---
 
 ## Purpose
@@ -24,6 +24,12 @@ mix test path/to/test.exs
 ## TDD Cycle
 
 The cycle is **Probe → Gray → Red → Green → Refactor**. Probe observes unfamiliar boundaries before any test exists. Gray is the state where the test has been written but not yet run — its outcome is unknown. Red is what happens when you run it and it fails (the *result* of running, not a starting phase). Green is when it passes. Refactor is when you fix structure — what the next test will attach to — not when you tidy names, comments or duplication; those belong to the review that follows.
+
+### Before the cycle: name the card you are building
+
+If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will close — its id, its title, and the proof command in its acceptance criteria. `backlog-task` created these cards from a design document and put that proof command there; `bd show <id>` prints its `--spec-id` when you need the requirement behind it. That proof command is the test to drive to red in step 1. You are not choosing what to build here; you are reading which card is unblocked.
+
+If `bd ready` returns nothing while open cards exist, name the blocker holding them and stop rather than picking one anyway. If there is no `.beads` directory, say so in one line and carry on — the cycle does not require a backlog.
 
 ### 0. Probe Boundaries (before writing the test)
 
@@ -87,7 +93,7 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
 
 ### 4. Self-Review (mandatory before declaring done)
 
-After GREEN and before handing off or saying "complete", close these two gates.
+After GREEN and before handing off or saying "complete", close these gates.
 A failing gate is fixed in the loop, not reclassified as a "design question" and
 handed to the user to defer it. Hand a decision to the user only when their answer
 changes the design or product behavior (which type, which name, clear-vs-error). A
@@ -95,18 +101,54 @@ missing validation, an unguarded write, or a robustness fix is a gate to close, 
 a question to ask — the tell that you are rationalizing a deferral is catching
 yourself writing "this is the user's call" or "doesn't block."
 
-**4a. Assertion strength — prove it by mutation, not by reading.** For each assertion the diff adds on a behavior that matters, mutate the production code to a wrong-but-plausible value and re-run that one test. If it STILL PASSES, the assertion doesn't pin the behavior — that gap is real, and the green-on-broken-code output is your proof of it. Tighten the assertion (pin to the exact value: `== 502` not `in [400, 502]`; the exact message not `=~ "error"`; `== expected` not `refute is_nil`) and re-run until the same mutation makes it FAIL. A range assertion that survives mutation requires explicit justification — it is not default good practice. Judging an assertion "specific enough" by reading it is the satisficing this gate exists to kill; the mutation is the disposition, the sentence is not.
+**4a. Assertion strength — prove it by mutation, not by reading.** Mutate the production code to a wrong-but-plausible value and re-run that one test. If it STILL PASSES, the assertion doesn't pin the behavior — that gap is real, and the green-on-broken-code output is your proof of it. Tighten the assertion (pin to the exact value: `== 502` not `in [400, 502]`; the exact message not `=~ "error"`; `== expected` not `refute is_nil`) and re-run until the same mutation makes it FAIL. A range assertion that survives mutation requires explicit justification — it is not default good practice. Judging an assertion "specific enough" by reading it is the satisficing this gate exists to kill; the mutation is the disposition, the sentence is not.
+
+**Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. Measured: in one run, three assertions survived mutation — a four-cell shape cut to three cells, and an entire rotation state replaced with garbage, both left a 17-test suite fully green — and all three sat under assertions their author had judged not to matter.
+
+**The receipt.** Name the mutation and paste the line the run printed:
+
+```
+mutated <file>:<line>  <original expression> -> <mutated expression>
+  15 successes / 2 failures        caught
+```
+
+"Assertions mutation-verified" is a summary, and a summary cannot be checked without redoing the work. Five beads in that same run closed carrying exactly that phrase; three of them do not survive checking. The receipt goes wherever the next reader looks — the commit message, the issue's close reason, or the handoff.
 
 **4b. Scope.** You implemented exactly the ask — no drive-by refactors, no
 speculative abstractions, no unrelated cleanup. Every file in `git diff --stat` is
 directly required by the change; if one isn't, revert it. Line count proportional to
 the ask: a one-line bug does not carry a 200-line diff.
 
+**4c. The close, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
+
+Commit before closing, and name the issue in the subject. **Stage by path, never `git add -u`** — `bd close` writes `.beads/interactions.jsonl`, so the close you are about to run dirties a tracked file that the next card would otherwise sweep into its commit. Then close with a reason carrying three things: what the code now does, the 4a receipt, and the commit. Nothing is closed on a working tree that still holds the change:
+
+```
+$ git commit -m "<id>: <what changed>"
+$ bd close <id> --reason "Board.can_move_down checks is_free(col, row+1) for
+  every cell. Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures,
+  caught. Commit a1b2c3d."
+```
+
+A closed issue with no commit is a claim that work happened, contradicted by the repository. Measured: one run closed six issues while the tree held one commit — `bd init` — and five files that had never been committed at all.
+
 Everything else the finished diff owes — doc and code agreeing, sibling symmetry,
 duplication across near-identical helpers, names and comments that lie, behavioral
 regression, whether a test reaches the branch it names, empty-value semantics — is
 `quick-review`'s catalog, walked once by the review that follows this loop instead
 of twice. How the code and its logs are written is `writing-code`.
+
+**4d. The slice, when the card you just closed was its last.** Run `bd ready`
+and `bd list --label slice:S<n> --status open`. When the slice's lane comes
+back empty, **the slice is finished and this loop is over — hand to
+`demo-task`.** It runs every proof command, builds the demo the
+operator operates themselves, and takes their feedback; none of that is
+this skill's job and none of it happens if you go straight to the next
+slice. Say in one line that the slice closed, then **invoke
+`demo-task` in that same turn**. Do not end the turn first: naming the
+hand-off and stopping leaves the operator to type the instruction this step
+exists to make unnecessary. Do not specify the next slice, and do not
+summarize the slice in place of the demo.
 
 ### 5. Repeat
 - Ask if there are more test cases to add
@@ -133,7 +175,7 @@ When activated:
 5. **Implement minimum code**: Write just enough to pass
 6. **Run it (should pass)**: Verify it works
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
-8. **Self-Review**: Close the two Step 4 gates — mutation and scope — against your own diff. If either fails, return to step 3 or step 7 before moving on.
+8. **Self-Review**: Close the Step 4 gates — mutation, scope, and the commit-and-close receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 10. **Run the review sequence**: once the feature is done, run `quick-review` then `security-review` against the diff and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 

@@ -103,9 +103,81 @@ Make a person (the operator, the reader, the student) or a named code element th
 
 Test: re-read each sentence. If the subject is an abstract noun (the bug, the issue, the situation, the regression), rewrite so a person or a named code element is the subject.
 
+The same test catches the agentless passive, which is the habit that makes academic papers unreadable: "the fix goes back into the sections" has nobody performing the fix, so the sentence quietly claims it happens by itself. Name who acts, and keep an instruction in the imperative.
+
+- BAD:  "If the final block needs something the sections do not hold, the fix goes back into the sections."
+- GOOD: "If the final block needs something the sections do not hold, add a section, or put the missing detail into its appropriate section."
+- BAD:  "a throwaway probe is run before the test is written"
+- GOOD: "run a throwaway probe before you write the test"
+- BAD:  "Duplication, names, and comments go to the review that follows."
+- GOOD: "The skill sends duplication, names, and comments to `quick-review`."
+
+The passive is right when nobody in particular acts, when the thing acted on is genuinely the subject, or when the verb is load-bearing technical vocabulary ("every token is appended to the context"). It is wrong whenever you know who acts and have hidden them.
+
+An abstract noun with an active verb of motion is the same defect wearing a disguise. "Duplication goes to the review", "the fix goes back into the sections", "a late realisation has to go back" — each sounds more energetic than the passive while still hiding who acts, and none of those subjects can move. Ask what would have to be true for the subject to perform that verb; if the answer is nothing, you have found the missing actor.
+
 ### Ordinary sentences only
 
 Say "because", not "rationale:". Say "one line of code and one new test", not "one-line change plus one test". Do not use arithmetic operators (+, →, /, =, ::) inside prose. Do not use "plus" as a connector for English lists or sums. Reserve those symbols and the word "plus" for code snippets.
+
+### Commas
+
+Every list of three or more items takes a comma before the final "and" or "or" — in prose, in bullets, in headings, in commit messages, and in anything else you write. The one exception is quoted text: reproduce a quotation exactly as its source wrote it, missing comma and all.
+
+- BAD:  "a recursive loop of planning, translating and reviewing"
+- GOOD: "a recursive loop of planning, translating, and reviewing"
+
+Put a comma before one of the seven coordinating conjunctions — for, and, nor, but, or, yet, so — only when that conjunction joins two complete clauses. Read the words after the conjunction and ask whether they carry a subject of their own. If they do, then keep the comma. If they only hang a second verb on the subject already standing, then the comma cuts a subject away from half its own predicate, and it has to go.
+
+- BAD:  "It can only append, and never takes anything back." — "never takes" has no subject of its own.
+- GOOD: "It can only append and never takes anything back."
+- BAD:  "Put two concerns in one pass and you will usually leave one of them unchecked." — "you" is a second subject, so the two clauses need separating.
+- GOOD: "Put two concerns in one pass, and you will usually leave one of them unchecked."
+
+Commands are the exception. When both halves hand the reader an instruction and share an implied "you", keep the comma: it marks the second instruction as a separate act rather than as a continuation of the first. A negative first half changes nothing here, which is why the heading further down keeps its own comma.
+
+- GOOD: "Give each concern its own pass, and say which."
+- GOOD: "If the final block needs something the sections do not hold, add a section, or put the missing detail into its appropriate section."
+- GOOD: "Do not inflate the setup, and cut the boring half."
+
+When the sentence already carries two or three commas, deleting one more is rarely the best repair: give the second half its own subject and let it stand as a sentence.
+
+- BAD:  "If the model's first paragraph states something false, the model writes the rest of the answer to fit that claim, and usually goes on citing it as though someone had checked it."
+- GOOD: "If the model's first paragraph states something false, the model writes the rest of the answer to fit that claim. It usually goes on citing the claim as though someone had checked it."
+
+A subordinate clause that leads takes a comma after it. The same clause trailing takes none, so do not reach for a comma just because the sentence feels long. A negative main clause does not change that: if the reader can only take the trailing clause as the reason, then the comma buys nothing and costs a mark the sentence has to spend elsewhere.
+
+- GOOD: "Once the evidence is on the page, an unsupported claim has nowhere to sit."
+- BAD:  "An unsupported claim has nowhere to sit, once the evidence is on the page."
+- GOOD: "An unsupported claim has nowhere to sit once the evidence is on the page."
+- GOOD: "You cannot give a model more thinking per token because a transformer runs the same fixed stack of layers for every token it produces."
+
+### A follow-on sentence takes a colon, not a full stop
+
+When the second sentence completes the first, or gives its content, a full stop makes the reader start fresh on something that was never independent. Use a colon and let the second half run on in lower case. The reader then sees at a glance that the two halves are one thought.
+
+- BAD:  "The skill has one rule. Considerations come before the artifact."
+- GOOD: "The skill has one rule: considerations come before the artifact."
+
+### Do not inflate the setup, and cut the boring half
+
+"CLAUDE.md asks for one thing" is grandiose — CLAUDE.md asks for a great many things, and the sentence buys drama by pretending otherwise. Name the thing and skip the announcement. Then look at what the rule actually covers and ask which branch the reader came for. When one branch is interesting and the other is trivial, spend the words on the interesting one and drop the other outright, heading included: putting the trivial case in the heading tells the reader the whole passage is about the boring half.
+
+- BAD:  "CLAUDE.md asks for one thing. A response that claims nothing about the project gets no special format. A response that does claim something opens with an Evidence block: ..."
+- GOOD: "A response that claims something about the project opens with an Evidence block: ..."
+- BAD:  a section titled "References first, or no format at all."
+- GOOD: a section titled "References first."
+
+### Put the condition before the consequence
+
+An imperative that actually means "if" hands the reader a command they were never meant to obey. "Skip it and Red then Green can both pass" opens by telling them to skip it, and only the word "and" reveals that the whole clause was hypothetical — by which point they have already read it as an instruction. Lead with the condition, signposted by "if", and let the consequence follow after "then". The reader knows which frame they are in before they read what happens inside it.
+
+- BAD:  "Skip it and Red then Green can both pass while the live boundary behaves differently."
+- GOOD: "If you skip it, then Red and Green can both pass while the live boundary behaves differently."
+- BAD:  "Forget the migration and the deploy fails halfway through."
+- GOOD: "If you forget the migration, then the deploy fails halfway through."
+
+The same fix applies to any sentence that buries its condition after the outcome: "the cache stays stale unless you pass --refresh" becomes "unless you pass --refresh, the cache stays stale".
 
 ### Address the reader directly
 
@@ -123,6 +195,21 @@ Use "you" for the reader. Make requests directly. Do not invoke abstract authori
 
 Use flowing paragraphs for narrative. When you present two or more options for one decision, each option gets its own paragraph or its own bullet — never crammed into one paragraph. When the reader has more than one decision to make, each gets a clear visual break (a small heading, a numbered item, or a paragraph whose topic sentence names the decision). Enumerated items belong in a list, not in a sentence. Test: can a reader scan and tell within five seconds how many decisions you are asking them to make? If not, restructure.
 
+### When you need an answer, the ask goes last and says what to do
+
+A turn that ends by waiting on the reader closes with the ask under its own heading, with nothing after it. Everything the reader needs in order to decide goes above it, at whatever length the work takes; the ask itself is short enough to act on without scrolling back.
+
+The ask names one decision. It says what you recommend, what happens if the reader agrees, and what the alternatives are in the words the reader can type back. A second decision waits for the next turn.
+
+Four ways to get this wrong:
+
+- "What would you like to do from here?" is not an ask. It hands back a decision you are equipped to make. Recommend one and say what would change your mind.
+- An ask that sits at the end of a long section instead of being the last thing in the message.
+- Two questions joined by "and separately".
+- Asking what has already been answered. Search this session and the repository's own documents first; if the answer is there, quote it with its file and line and proceed.
+
+When the answer is a choice among named options rather than a yes, use AskUserQuestion. Options cannot be scrolled past, and writing them is what forces you to work out what you are actually asking.
+
 ### Tables and dense layout
 
 Never use markdown tables in a chat session or Slack. Use a code block and ASCII art. For small amounts of information, prefer lists with sublists, record style.
@@ -134,14 +221,19 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Git commits, pushing, branching, drafting commit messages | `git-commit` |
 | Opening a pull request, writing a PR body or description, `gh pr create` | `pr-create-task` |
 | Quick code review, review changes, review diffs | `quick-review` |
-| TDD, test-driven development, code, fix, implement | `tdd-cycle` |
+| TDD, test-driven development, code, fix, implement, continue implementing, closing a bead once the work is done | `tdd-cycle` |
+| Running work unattended, across more than one slice, or "keep going until it's done" | `session-loop` |
 | Writing, changing, or deleting code in any language | `writing-code` |
 | Code comments, docstrings, doc-comments | `writing-code` |
 | Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body | `writing-prose` |
 | Organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written | `writing-prose` |
+| Writing a spec, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
+| Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |
+| Demoing a finished slice, showing what was built, taking feedback on it, closing out an iteration | `demo-task` |
+| Retro of a run or of the process, how a run went, what should change about the skills or a CLAUDE.md, reading a run's transcripts to find why a rule fired | `retro-task` |
 | Finding gaps in a design doc set, design holes, "what's missing from this design" | `design-gap-task` |
 | Creating, updating, merging, or retiring a skill; capturing a repeated workflow | `systematize` |
-| Handing work to a subagent, delegating, spawning an agent or a workflow | `subagents` |
+| Handing work to a subagent, delegating, forking, spawning an agent or a workflow | `subagents` |
 
 Every row above resolves on any machine carrying this repository. A machine
 may add rows through `CLAUDE-private.md`.

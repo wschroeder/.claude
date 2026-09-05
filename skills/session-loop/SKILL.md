@@ -1,6 +1,6 @@
 ---
 name: session-loop
-description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its context reaches the 170,000 handoff ceiling. Invoking it checks the repository and the handoff file, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, the context bands where delegating starts to pay at this ceiling, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, or when sessions keep running out of context. Whether to delegate at all, and what a subagent prompt must carry, is in the subagents skill.
+description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its context reaches the 170,000 handoff ceiling or the same check fails three times running. Invoking it checks the repository, writes the handoff through clear-task when none exists, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, the context bands where delegating starts to pay at this ceiling, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, or when sessions keep running out of context. Whether to delegate at all, and what a subagent prompt must carry, is in the subagents skill.
 ---
 
 # session-loop — run the work as a series of fresh sessions
@@ -15,7 +15,9 @@ tokens re-reading its way back to where the last one already was. So a session
 runs until its context reaches 170,000, checking itself at three points along
 the way, and hands off then — not after one piece of work. A hook the driver
 installs checks the same number on every tool call, so the ceiling holds even
-when a session never reaches one of those three points.
+when a session never reaches one of those three points. A session also hands
+off after three consecutive failures of the same check, whatever its context
+number says.
 
 170,000 is a safety rail the operator sets, not a cost knob to tune. The three
 places carrying it — `scripts/run-loop.sh`, `scripts/session_budget.py` and the
@@ -42,10 +44,32 @@ ls -l HANDOFF.md 2>/dev/null && git check-ignore -v HANDOFF.md
 
 ### 2. No HANDOFF.md, or it is not gitignored
 
-Stop and say what is missing. The handoff is produced by ending a normal
-session with `clear-task` and asking it to write the block to `HANDOFF.md`;
-`/HANDOFF.md` belongs in `.gitignore` so the loop's own rewrites do not read
-as unfinished work. Offer to add the ignore rule now if that is the only gap.
+Produce it here. `clear-task` writes the handoff, and `/HANDOFF.md` belongs
+in `.gitignore` so the loop's own rewrites do not read as unfinished work.
+Neither is a decision the operator makes, so do not stop to ask for either.
+
+**Step 3 goes first when the tree is dirty.** This step writes and commits,
+so run it on a clean tree or the handoff describes a repository that is
+already out of date. Where `git status --porcelain` returned anything, take
+step 3 now, and come back here once the tree is clean.
+
+In order, without stopping between them:
+
+1. Run `clear-task`, telling it the artifact is `HANDOFF.md` in this
+   repository rather than a block to paste. It writes the file.
+2. Where `/HANDOFF.md` is not already ignored, add that line to
+   `.gitignore` and commit it on its own. Committing carries the standing
+   permission in `git-commit`.
+3. Read the file back and confirm `git status --porcelain` comes back
+   clean.
+
+**Then stop once, and this is the only stop this step makes.** Say the
+handoff is written, name its first next step, and ask the operator to
+`/clear` and invoke this skill again. The fresh session starts at step 1
+and everything in this step now passes, so it goes on to launch.
+
+Clearing is the operator's, and a session cannot clear itself. Everything
+before the clear can be done here.
 
 ### 3. The working tree is dirty
 
@@ -80,6 +104,18 @@ where the work that was waiting on it can now proceed. That edited file is what
 carries their answer forward — the next fresh session reads it as its
 instructions and picks up where the blocked one stopped. One word back from them
 usually unblocks the whole queue.
+
+**Answer them before you file it.** Feedback arriving as a question is a
+question, and editing it into the handoff answers nobody. Say where the design
+documents already stand on what they asked, and where the answer turns on the
+product's own domain rather than on this repository, look it up. Where what you
+find disagrees with what they asked for, put that to them in one line and wait.
+Otherwise record it and relaunch.
+
+**Where the feedback closes a slice rather than unblocking a step inside one,
+the handoff is rewritten through `clear-task` rather than edited.** The old one
+describes a slice that is finished, and editing the question out of it carries
+the rest of a spent slice into the next one.
 
 ### 5. Check there is unblocked work to start on
 
@@ -134,12 +170,23 @@ git -C <repo> log --oneline -20
 python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <start>
 ```
 
+Where the stopped session produced a demo artifact, read the file so it
+renders here rather than handing over its path.
+
 Say what landed, where each session handed off (the `ctx_end` column), and why
 the loop stopped. If it stopped on `DONE`, the work is complete — say so. If it
 stopped on `BLOCKED:`, the first line of `HANDOFF.md` is the question — read it
 against step 4 before you pass it on, because a question about what to do next
 is one you answer yourself. If it really is the operator's, put it to them and
 offer to resume.
+
+**Open the ask with the phase line**, directly above the question, or closing
+the report where nothing needs deciding — the four phases in order, with the
+one the loop stopped in capitalized:
+
+```
+plan -> BUILD -> demo -> retro
+```
 
 ### 8. Then measure yourself, before starting anything else
 
@@ -155,9 +202,11 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 On `keep going`, carry on — report, and start the next run if there is one.
 
 On `hand off`, stop. Do not launch another iteration, and do not start the next
-piece of work. Run the `clear-task` skill, write the handoff block, and tell the
-operator it is ready. They clear and paste it into a fresh session, which picks
-the loop back up from there.
+piece of work. Run the `clear-task` skill for the block to paste, not for
+`HANDOFF.md` — the driver rewrites that file every iteration for the workers,
+and this handoff is about resuming the watch. Tell the operator it is ready.
+They clear and paste it into a fresh session, which picks the loop back up
+from there.
 
 ### Never
 
@@ -270,6 +319,23 @@ On `hand off`, stop where you are. A piece of work does not have to be finished
 first: commit what you have with a subject saying it is unfinished, and write the
 handoff so it names where in the cycle you stopped and what the work still owes. The
 next session amends that commit or builds on it.
+
+### The other trigger: three failures of the same check
+
+Three consecutive failures of one check hand off, whatever the context number
+says. Count failures of a single command — the same test, the same build, the
+same query — failing a third time after two attempts to fix it. A different
+command failing resets the count; a fix that changes the failure to a new error
+from the same command does not.
+
+Stop the same way as on a full context: commit what you have with a subject
+saying it is unfinished, and write the handoff naming the command, its latest
+output, and each fix already tried, so the next session does not spend its
+first turns repeating them.
+
+Why this trigger exists, and why it does not wait for the ceiling:
+[references/driver-loop.md](references/driver-loop.md), "Why three failures
+hand off".
 
 Do not ask only after a commit. The point just before the reviews is the one that
 pays: review turns cost the most where the context is fullest, and they read the diff

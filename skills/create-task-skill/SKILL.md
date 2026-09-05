@@ -78,10 +78,16 @@ invokable location:
 
 ```
 $ find ~/.claude/skills ~/.claude/commands \
-       -maxdepth 3 -iname "<skill>*" -type f 2>/dev/null
+       -maxdepth 2 -ipath "*<skill>*" -name "*.md" 2>/dev/null
 $ find ~/.claude/plugins -maxdepth 8 -ipath "*<skill>*" \
        -name SKILL.md 2>/dev/null
 ```
+
+Match the path, not the filename. A global skill is a *directory* named
+after the skill holding a `SKILL.md`, so `-iname "<skill>*" -type f`
+matches nothing and reports every installed skill as missing. The
+`-maxdepth 2` keeps the output to one line per skill by excluding
+`references/*.md`, and still catches a `~/.claude/commands/<skill>.md`.
 
 Both finds are required. A skill installed by a plugin at user scope
 resolves globally but sits seven levels under `~/.claude/plugins`, so the

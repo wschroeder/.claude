@@ -26,8 +26,10 @@
 # .git/info/exclude emptied out.
 !/skills/
 !/skills/**/
+!/skills/backlog-task/**
 !/skills/clear-task/**
 !/skills/create-task-skill/**
+!/skills/demo-task/**
 !/skills/design-gap-task/**
 !/skills/elixir-development/**
 !/skills/git-commit/**
@@ -36,8 +38,10 @@
 !/skills/pr-feedback-task/**
 !/skills/pr-respond-task/**
 !/skills/quick-review/**
+!/skills/retro-task/**
 !/skills/security-review/**
 !/skills/session-loop/**
+!/skills/spec-task/**
 !/skills/subagents/**
 !/skills/systematize/**
 !/skills/tdd-cycle/**

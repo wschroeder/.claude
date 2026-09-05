@@ -87,6 +87,19 @@ step that unblocks the most of what is left; where nothing waits on anything
 else, take any of them and record which in the handoff, so the next session does
 not start the same piece of work over.
 
+Drawn that narrowly, the clause then swallowed a case it was never meant to
+reach. A worker closing slice S1 read "which piece of work comes next" as
+covering whether the operator approved slice S2's scope, took it, and went on
+to specify, review and build nine cards without a question reaching anybody.
+Its own account: "I took it rather than stopping for the approval Section 8
+asks for, because the loop I am running in settles which work comes next."
+Ordering among steps already agreed is the thing nobody holds a preference
+about. Which behavior the next slice contains is the opposite — the one
+question the operator was always going to be asked, and both `spec-task`
+Section 1 and `backlog-task` Section 2 stop for it. So the contract states
+where its ordering rule ends, in the paragraph after the rule itself,
+because a worker is handed the contract and never opens this file.
+
 The commit rule carries its own permission, because it has to. Starting the loop
 is the operator's authorization for every commit it makes in that repository, and
 for amending — a commit the running session made, and the unfinished commit an
@@ -607,3 +620,26 @@ applies it, so the diff lands in its context either way. Handing them off has
 measured as costing more and finishing less. The loop contract names the reviews
 outright, because a worker session is handed the handoff and the contract and
 never sees this file.
+
+### Why three failures hand off
+
+The ceiling exists because a session runs out of room. This trigger exists
+because a session runs out of accuracy, which happens earlier and leaves the
+context number looking fine.
+
+Two findings drive it. Models make more mistakes specifically when their own
+prior errors are sitting in the context, so the attempts already in the
+transcript are not neutral history — they are material the next attempt
+conditions on. And a model revising its own work without an external signal
+produces worse reasoning than it started with, so a session that has failed the
+same check twice and is now reasoning about why is in the regime where more
+turns subtract.
+
+Put together: by the fourth attempt on one command, a fresh session's first
+attempt is the better bet, whatever the token count says. The 104,000 tokens the
+next session pays to read its way back are cheap against a session grinding a
+check it has already failed three times.
+
+Counting one command rather than failures in general is what keeps the trigger
+from firing on ordinary red-green work, where failing tests are the point. It
+fires on a session stuck on one thing, not on a session doing TDD.

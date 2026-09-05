@@ -491,6 +491,15 @@ done
 # returned "hand off", so below roughly a hundred thousand the turn is wasted.
 case "$PROMPT" in *"Skip the check below about a hundred thousand"*) ok=0 ;; *) ok=1 ;; esac
 check "the contract puts a floor under the how-full check" 0 "$ok"
+# A session runs out of accuracy before it runs out of room, and the context
+# number cannot see that. Its own failed attempts sitting in the transcript are
+# what the next attempt conditions on, so by the fourth try on one command a
+# fresh session's first try is the better bet. The worker never reads the skill
+# body, so the second trigger has to be in the contract or it governs nothing.
+for phrase in "failed three times running" "each fix you already tried"; do
+  case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
+  check "the contract tells the session: $phrase" 0 "$ok"
+done
 # The opening line promises a count, so a rule added below has to be counted
 # here too or the session is told to expect fewer than it gets.
 case "$PROMPT" in *"Seven rules govern how you work"*) ok=0 ;; *) ok=1 ;; esac
@@ -589,9 +598,17 @@ check "the contract tells a blocked session to commit what it has first" 0 "$ok"
 # grounds to ask, which is the exact case the operator said they do not care
 # about; and the instruction to say which one it took is what stops the next
 # session repeating the same piece of work.
+#
+# The ordering rule then swallowed a case it was not drawn for: a worker closing
+# slice S1 read "which piece of work comes next" as covering whether the operator
+# approved S2's scope, took it, and built nine cards with no question reaching
+# anybody. Its edge is asserted with it, because the two are only correct
+# together.
 for phrase in "Which piece of work comes next is not a decision like that" \
               "unblocks the most of what is left" \
-              "take any of them and say"; do
+              "take any of them and say" \
+              "the order of work already agreed and nothing wider" \
+              "ordering question and never yours to settle"; do
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the contract tells the session: $phrase" 0 "$ok"
 done

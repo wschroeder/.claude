@@ -17,6 +17,14 @@ Instead use:
 - `git add -u` - stage only tracked files that have been modified/deleted
 - `git add <specific files>` - explicitly name the files to stage
 
+**Where a tool writes tracked files as a side effect of your work, stage by
+path.** `git add -u` takes every tracked modification, including an audit
+trail or export the tool rewrote while you were working, and those land in
+a commit that does not describe them. Measured: `bd close` writes
+`.beads/interactions.jsonl`, and because the close follows the commit, nine
+consecutive card commits in one run each carried the previous card's close
+record.
+
 ## Commit Messages
 
 **The subject follows the repository, not a house style.** Read the log before
@@ -79,13 +87,13 @@ When you fix something a commit on this branch already covers, fold the fix into
 
 Stage explicitly, the same as any other commit — never `git add -A`. Keep the existing message unless the fix changes what that commit claims; when it does, re-author the message through this skill, otherwise use `git commit --amend --no-edit`.
 
-**An amend needs its own approval.** `git commit --amend` rewrites history and counts as a separate destructive action. Approval to commit is not approval to amend, and approval to amend is not approval to push the rewritten branch.
+**Amending an unpushed commit needs no approval. Amending a pushed one does.** The `git branch -r --contains HEAD` check above is what tells them apart. While it prints nothing, the amend is covered by the standing permission in Safety below — make it and move on. Once a remote carries the commit, the next push becomes `git push --force-with-lease`, and no standing permission reaches a push: stop, say what the amend would rewrite, and wait.
 
 ## Safety
 
-- **Never commit, push, or deploy without explicit approval for each action.** Previous approval does not carry forward. "Commit this" approves a commit — not a push. "Push this" approves a push — not a deploy. Each destructive git action (commit, amend, force-push, force-with-lease push) needs fresh per-action authorization. Do not chain commit → push → deploy on momentum.
-- **Approval from earlier in the session does not transfer.** If the user said "Amend" an hour ago, that authorized THAT amend — not this one. Ask again.
-- **"Apply the fixes" is not "commit and push".** Applying fixes means writing them to the working tree. Committing and pushing is a separate decision with its own authorization; do not batch the two into one proposal.
+- **Committing and amending carry standing permission. Pushing and deploying never do.** Commit when a piece of work is finished, and amend an unpushed commit, without asking first. Push, force-push, `--force-with-lease` push, and deploy each need the user's words for that specific action, every time. Do not chain commit → push → deploy on momentum: the momentum stops at the push.
+- **Approval from earlier in the session does not transfer to a push.** If the user said "Push" an hour ago, that authorized THAT push — not this one. Ask again.
+- **"Apply the fixes" is not "push".** Applying fixes means writing them to the working tree, and committing them is already covered. Putting them on a remote is a separate decision with its own authorization; do not batch the two into one proposal.
 - **"The commit is correct so the push is fine" is not a reason.** The question is never whether the code is right; it is whether the process was followed. A technically-correct push that skipped the review sequence in `writing-code` is a process violation, not a neutral outcome.
 - Never run destructive commands (`push --force`, `reset --hard`) without explicit confirmation
 - Never skip hooks (`--no-verify`) unless explicitly requested

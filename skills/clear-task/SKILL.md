@@ -1,6 +1,6 @@
 ---
 name: clear-task
-description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the prompt to HANDOFF.md instead of printing it when session-loop asks. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 ---
 
 # clear-task — frontload the handoff, then emit the prompt
@@ -101,6 +101,14 @@ chat builds on it and finds out the hard way. Write:
 NOT "MEASURED: order diverges because the rout path is order-dependent."
 That is ~/.claude/CLAUDE.md rules 4 and 10 applied to the handoff itself:
 one tag covers one fact, and a causal connector starts a new claim.
+
+**A dead-end is recorded against the mechanism that failed, never against
+the class of evidence it was serving.** "macOS `screencapture` returns a
+uniform black image in this sandbox" is a dead-end. "Do not retry pixel
+screenshots" is a ban, and the fresh chat will obey it in cases the failure
+never covered. Name the tool, the call, or the path that failed. Where
+another route to the same evidence exists, name that route instead of
+closing the subject.
 
 ## 5. Principles the operator highlighted
 
@@ -220,7 +228,12 @@ session eats first, and §11 is the one that catches the rest.
 A single fenced code block, assembled from §1–§10, written in plain
 English for the reader — a fresh AI plus the operator (~/.claude/CLAUDE.md
 "Communication Style"). It is the LAST thing in your response: no prose,
-no postscript, no "let me know if..." after it. Every line in the prompt
+no postscript, no "let me know if..." after it.
+
+Where `session-loop` asked for `HANDOFF.md`, this same assembled text goes
+to that file and the path and line count take the block's place as the last
+thing in the response. See "Stop" below. Nothing else about this section
+changes. Every line in the prompt
 must trace to a consideration already written above; if while assembling
 it you reach for something not in §1–§10, STOP — that is a §11 miss.
 Return to the relevant section, add it, regenerate the whole block.
@@ -271,16 +284,27 @@ the fresh chat must not need this conversation. Nothing follows it.
 
 This template produces text and nothing else. It does NOT run /clear, does
 NOT begin executing the next steps, and does NOT write the prompt to a file
-unless the operator explicitly asks. The operator copies the block and
-starts the new chat.
+unless the operator explicitly asks, or `session-loop` asks on their behalf.
+The operator copies the block and starts the new chat.
+
+**One caller gets a file instead of a block.** `session-loop` step 2 runs
+this template when a repository has no `HANDOFF.md`, and there the artifact
+is that file: the driver hands it to every fresh session, nobody copies
+anything, and a block printed beside it would be a second copy going stale
+from the moment it appeared. Write §1-§10 exactly as always, because they
+are the forcing function and nothing about them changes. Then write the
+assembled prompt to `HANDOFF.md`, and report the path and its line count in
+place of printing the block. Everything else holds: considerations first,
+one artifact, nothing after it.
 
 ## Notes on what this template does NOT do
 
 - Does not run /clear or start a new session — that is the operator's
   manual step.
 - Does not begin the next steps; it only describes them.
-- Does not write, commit, push, or post anything. There is no destructive
-  action.
+- Does not write, commit, push, or post anything, save the one
+  `HANDOFF.md` that `session-loop` step 2 asks for. No destructive action
+  either way.
 - Does not append anything after the prompt code block. A late
   consideration is a §11 miss, fixed by regenerating the block — never by a
   postscript.
@@ -293,4 +317,5 @@ starts the new chat.
   order, §11 included.
 - Does not print an empty section. A `None` in §7 means the credentials
   heading does not appear in the prompt at all.
-- Does not chain to any other skill. It emits the prompt and stops.
+- Does not chain to any other skill. It emits the artifact and stops,
+  `session-loop` included — that skill resumes on its own.

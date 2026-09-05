@@ -218,30 +218,56 @@ and it survived this skill's own first real runs the same way — first a
 lifecycle gap, then two interaction gaps the per-entity loop couldn't
 see — before the added sweeps caught them.
 
-## 6. Stop — this template writes nothing
+**Running a second time over the same directory.** A caller may revise the
+documents and run this template again — `spec-task` Section 9 does exactly
+that, in a loop, until a round changes no requirement. The previous run's
+report and its "considered and dropped" log are in the session's context.
+They are context, not precedent. Re-run Section 2's inventory and
+Section 3's lifecycle check over every entity the revision touched, and
+re-fill any Section 4 matrix cell whose axis gained a value, letting the
+step-(d) filter drop the duplicates on their own merits. Carrying the
+previous log forward as settled is how a gap introduced by the fix for the
+last gap survives the review that was supposed to catch it.
 
-The report in Section 5 is the entire deliverable. This skill never
-writes an Open Questions heading, a note, or anything else into any
-design doc. If the target doc set has its own convention for tracking
-open items, applying it is an operator decision made afterward — this
-template doesn't assume one and doesn't invoke one automatically.
-Folding a confirmed gap into the docs is a separate, later,
-explicitly-authorized action through ordinary discussion, per
-`writing-code`'s "After the edit: the review sequence is owed" for
-anything beyond a prose-only edit.
+## 6. Stop — the report, then the caller's rules
 
-Once the report is delivered, this template's job is done, but that's
-not a reason to stop and ask whether to keep going. Move straight into
-resolving the findings in a sensible order — report order is fine —
-without asking permission first; the operator has answered yes to that
-every time it's come up. That doesn't touch the actual per-finding
-decision: still lay out the tradeoffs, research them per the Probe
-Before Build note above, and wait for the operator's answer before any
-edit lands. It only skips the redundant question of whether to start.
+The report in Section 5 is this template's entire deliverable, and the
+sweep that produced it wrote nothing. Sections 1 through 5 only read, so
+the report describes the documents as they stood rather than as an edit
+mid-sweep left them.
+
+Resolving the findings comes next, and it writes.
+
+**A caller that invoked this template inside its own loop owns what
+happens to the findings, and this section does not override it.**
+`spec-task` Section 9 is that caller: its step 3 routes every finding
+into the document and its step 4 revises it. Follow the caller. A
+closing section here that told the caller to wait would countermand the
+skill that loaded this one, and being read last is not the same as being
+right.
+
+**Never ask whether a decision belongs in the design document.** The
+document is the source of truth, so a confirmed finding goes into it and
+gets committed, per `spec-task` Section 8. A decision that lives only in
+the conversation is gone at the next clear, and asking about it spends a
+turn on something already settled.
+
+What does reach the operator is a real choice between competing product
+answers: which of two behaviors the product should have, never whether to
+write the answer down. Ask that as the choice itself, with the options
+named, per CLAUDE.md "When the answer is a choice among named options
+rather than a yes, use AskUserQuestion". Research the options first, per
+the Probe Before Build note above.
+
+Once the report is delivered, move straight into resolving the findings
+in a sensible order — report order is fine — without asking permission
+to start.
 
 ## Notes on what this template does NOT do
 
-- Does not write to any file — Section 5 is the entire deliverable.
+- Does not write to any file during the sweep — Sections 1 through 5 only
+  read, so the report describes the documents as they stood. Resolving the
+  findings afterward does write, under Section 6's rules.
 - Does not research or resolve a flagged gap (no WebSearch, no
   precedent-gathering) — that happens afterward, in conversation, the
   same way this project's own commander-representation gap got
@@ -261,5 +287,6 @@ edit lands. It only skips the redundant question of whether to start.
   they run once across the whole set by nature, since their subject is
   cross-entity, and they filter their own candidates with the same four
   checks before the report.
-- Does not chain to another task template automatically.
+- Does not chain to another task template automatically. A caller that
+  loops it, as `spec-task` Section 9 does, owns that loop.
 - Does not add auto-activation triggers to its own description.

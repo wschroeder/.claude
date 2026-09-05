@@ -250,6 +250,14 @@ piece of work still owes — the test that is written and failing, the reviews n
 yet run, what the probe showed. The next session amends that commit or builds on
 it.
 
+Hand off on the same terms when one check has failed three times running,
+whatever your context number says. Count a single command — the same test, the
+same build, the same query — failing a third time after two attempts to fix it.
+A different command failing starts the count over; the same command failing with
+a new error does not. Commit what you have as unfinished and write $HANDOFF
+naming that command, its latest output, and each fix you already tried, so the
+next session does not spend its first turns repeating them.
+
 Stopping just before the reviews is a good place to stop rather than a lapse.
 Review turns cost the most where the context is fullest, and the session that
 wrote the code is the worst-placed one to read it back: a fresh session reads the
@@ -314,6 +322,11 @@ unblocks the most of what is left, and where nothing waits on anything else,
 take any of them and say in $HANDOFF which you took. Nobody is holding a
 preference between them, and a run stopped on that question sits idle until
 someone happens to look.
+
+That is the order of work already agreed and nothing wider. Whether the
+operator agrees to a slice's scope or to the stories inside it is not an
+ordering question and never yours to settle: where a template stops for
+their approval, stop there too and write the BLOCKED line above.
 
 If instead you have finished everything the handoff asks for and there is no
 next piece of work left, make the first line of $HANDOFF read "DONE" — on its
