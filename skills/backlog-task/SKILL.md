@@ -1,12 +1,12 @@
 ---
 name: backlog-task
-description: Creates and verifies the bd (beads) backlog for one approved slice from a design document that already exists — checks preconditions against the document, reprints the slice's stories for a single approval, runs the create, dependency and label commands one at a time, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has written and reviewed a design document, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
+description: Creates and verifies the bd (beads) backlog for one approved slice from a plan that already exists — checks preconditions against the plan, reprints the slice's stories for a single approval, runs the create, dependency and label commands one at a time, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has written and reviewed a plan, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
 ---
 
-# backlog-task — a reviewed design document in, a verified backlog out
+# backlog-task — a reviewed plan in, a verified backlog out
 
-For the design document and slice named in $ARGUMENTS, respond with the
-sections below in order. If $ARGUMENTS is empty, the document is the one
+For the plan and slice named in $ARGUMENTS, respond with the
+sections below in order. If $ARGUMENTS is empty, the plan is the one
 `spec-task` just wrote and the slice is the one it marked `building` — say
 which, with its path.
 
@@ -94,7 +94,7 @@ work exists to produce:
 [../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
 Everything stays on this machine.
 
-The created ids live in bd alone. A copy in the design document goes stale
+The created ids live in bd alone. A copy in the plan goes stale
 the first time a card splits.
 
 ## 4. Verification, by reading bd back
@@ -134,7 +134,9 @@ two sessions' work and this is the seam.
 
 ## 6. Notes on what this template does NOT do
 
-- Does not write or revise the design document. That is `spec-task`.
+- Does not write or revise the plan. That is `spec-task`.
+- Does not write to a design document. Nothing here does; see `spec-task`,
+  "Two documents".
 - Does not re-cut the slice or re-review the document. A gap found here is
   reported and left for `spec-task`.
 - Does not implement, close, claim or update issues. That is `tdd-cycle`.

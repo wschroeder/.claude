@@ -1,31 +1,58 @@
 ---
 name: spec-task
-description: Turns a design conversation into a living design document whose acceptance criteria are EARS requirements, each carrying the command that proves it and a status derived from running that command. On a returning initiative it also decides and sizes the next slice itself, from the document's own sketch, the backlog, and the last retro's findings, then cuts that slice into sized tasks with the exact bd (beads) commands that will create them, while everything beyond it stays a loose sketch and a dependency edge. Hands those commands to backlog-task, which creates and verifies the cards. Use when asked to write a spec, spec something out, turn a design or a discussion into requirements, define acceptance criteria, decide or size the next slice, or break designed work into tickets or a backlog — and when work has been designed but nothing durable has been written down.
+description: Turns a design conversation into a plan whose acceptance criteria are EARS requirements, each carrying the command that proves it and a status derived from running that command. Reads the repository's design documents — the rules of the product, which it never writes to — and takes the definition of released from them where they state one. On a returning initiative it also decides and sizes the next slice itself, from the plan's own sketch, the backlog, and the last retro's findings, then cuts that slice into sized tasks with the exact bd (beads) commands that will create them, while everything beyond it stays a loose sketch and a dependency edge. Hands those commands to backlog-task, which creates and verifies the cards. Use when asked to write a spec, spec something out, turn a design or a discussion into requirements, define acceptance criteria, decide or size the next slice, or break designed work into tickets or a backlog — and when work has been designed but nothing durable has been written down.
 ---
 
-# spec-task — design conversation in, design document plus backlog out
+# spec-task — design conversation in, a plan plus a backlog out
 
 For the design conversation named in $ARGUMENTS, respond with the sections
 below in order. If $ARGUMENTS is empty, the design conversation is this
 session's own history — say so, and name where it starts. The deliverable
-is the design document in Section 5, written and committed by Section 8
+is the plan in Section 5, written and committed by Section 8
 and reviewed by Section 9. Section 8 writes and commits without asking.
 This template touches bd only to read it; the backlog is created by
 `backlog-task`, which Section 10 hands to. Section 1 stops for approval
 of the slice itself on a returning initiative; `backlog-task` holds the
 other stop, approval of the cards built from it.
 
-The document covers the whole initiative and outlives this run. The
+## Two documents, and this template writes only one of them
+
+**A design document describes the product.** The rules of the game or the
+business logic of the application, the aesthetic, and the main ideas,
+written so a reader finishes knowing how the thing behaves. No formulae and
+no code, and no account of how any of it is built: no source file, no
+function, no test, no engine setting, no configuration key. No slice,
+ticket or card either, because those describe a schedule. One exception
+stands on purpose — a tag on an element saying the build holds it.
+
+**A plan describes what is being built next.** Problem, definition of
+released, solution, slices, requirements, test seams, implementation
+decisions, out of scope. It holds exactly what a design document may not,
+it goes stale on purpose, and it is rewritten every slice.
+
+This template reads the design documents and writes the plan. It never
+writes to a design document, and it never copies the product's rules into
+the plan. Where the two disagree about how the product behaves, the design
+document is right, and correcting it is the operator's call.
+
+Deciding an unclear case: ask who would have to open the file to keep the
+sentence true, and whether they have any reason to. Nobody renaming a
+function opens a design document, which is why prose may not point at code
+while a doc comment may point at a design section. The argument in full,
+the research behind it, and the run that produced the rule:
+[references/two-documents.md](references/two-documents.md).
+
+The plan covers the whole initiative and outlives this run. The
 **current slice** is the only part specified deeply — EARS text, a proof
 command, acceptance criteria on the bead. Everything past it is one
-sentence in the document and, at most, a bead title carrying its dependency
+sentence in the plan and, at most, a bead title carrying its dependency
 edges. Sketching ahead is cheap; specifying ahead is not.
 
-**When the design document already exists, it is the input, not something
-to re-derive.** Take Sections 1, 2, 3 and 5 from what the document says:
+**When the plan already exists, it is the input, not something
+to re-derive.** Take Sections 1, 2, 3 and 5 from what the plan says:
 the definition of released it states, the decisions it records as source
 lines, the questions it lists as out of scope, and its own structure.
-Section 4 specifies only the slice Section 1 names. Nothing the document
+Section 4 specifies only the slice Section 1 names. Nothing the plan
 already settles is researched again or asked again.
 
 Order is enforced: each section is built from the one above it and checked
@@ -46,7 +73,22 @@ $ ls -d docs design specs 2>/dev/null
 ```
 
 State the repository root, whether bd is already initialized here, the
-issue prefix in use, and the directory the design document will live in.
+issue prefix in use, and the directory the plan will live in.
+
+**Then find the design documents and read them.** They are the description
+of the product this work changes, and a plan written without them specifies
+a product nobody described. Name the directory and how you found it, list
+what is in it, and read enough to state in two or three sentences what the
+product does — from the documents, not from the conversation. Where the
+repository holds no design documents at all, say so in one line and carry
+on; the plan is then the only durable writing, and that is a finding worth
+reporting rather than a blocker.
+
+Take three things from them, and nothing else: the definition of released
+if they state one, the behavior the current slice has to match, and the
+questions they leave open. Do not restate their rules in the plan, do not
+edit them, and do not write into them. A change they need is the
+operator's call, made in its own turn.
 
 If `.beads/` is absent, do NOT run `bd init` here. Record it as a
 precondition for `backlog-task`, in exactly this form:
@@ -56,11 +98,9 @@ $ bd init --skip-agents --skip-hooks -p <prefix>
 ```
 
 **Both flags are required.** Without them bd writes a `CLAUDE.md`, an
-`AGENTS.md`, a `.claude/settings.json` SessionStart hook and five git
-hooks, and the instructions in them contradict this machine's on commits,
-on destructive flags and on subagents. The hooks do no measured work.
-What was measured, and what bd writes either way:
-[references/bd-behavior.md](references/bd-behavior.md).
+`AGENTS.md`, a SessionStart hook and five git hooks whose instructions
+contradict this machine's, and none of those hooks does measured work.
+What was measured: [references/bd-behavior.md](references/bd-behavior.md).
 
 bd makes its own commit on init whatever flags it is given. Expect that
 commit, and do not report it as work this session did.
@@ -69,9 +109,9 @@ commit, and do not report it as work this session did.
 — for one team a deployment behind a feature flag, for another "runs on
 this machine".
 
-- If a design document in this repository already states a definition of
-  released, quote it with its file and line, treat it as settled, and do
-  not ask. That sentence is the answer.
+- If a design document or an existing plan in this repository already
+  states a definition of released, quote it with its file and line, treat
+  it as settled, and do not ask. That sentence is the answer.
 - If a `project-definition-of-done` skill is listed in the available
   skills, load it and use what it says. Say that you did.
 - If neither exists, ask the operator with AskUserQuestion and quote the
@@ -89,7 +129,7 @@ rewrite one the operator supplies that does not.
 
 **Then decide which slice this pass specifies.** On a brand-new initiative
 there is no slice yet — that is the walking skeleton Section 4 cuts.
-Otherwise, read the design document's sketch, the backlog, and — following
+Otherwise, read the plan's sketch, the backlog, and — following
 a retro — its findings, and name the next slice:
 
 ```
@@ -124,7 +164,7 @@ Proceed with the slice above, or name a different one?
 
 ## 2. Source lines from the design conversation
 
-Real quotes with locations. One record per decision the document rests on:
+Real quotes with locations. One record per decision the plan rests on:
 
 ```
 [S1] <file:line, or "session, operator message beginning '<first six words>'">
@@ -247,13 +287,18 @@ Rules for this section:
   A slice whose requirements are all internal modules cannot produce one,
   and that is the signal the cut was horizontal.
 
-## 5. The design document
+## 5. The plan
 
 The full text, exactly as the file will read, in a fenced block. Every
 Section 4 record appears here in full. A pointer standing in for content —
 "specified above", "see the spec history", "as listed earlier" — means the
-block is not the document, and the file Section 8 writes will not be the
+block is not the plan, and the file Section 8 writes will not be the
 file shown here.
+
+Nothing here restates a design document. Where a requirement needs the
+product's own rule to make sense, name the rule in the requirement's own
+words and leave the design document to hold it — a plan that carries a copy
+has created a second place for that rule to be wrong.
 
 **The document is an index plus leaves, not one growing file.** A session
 that has to read the whole thing to specify one slice pays for every slice
@@ -297,8 +342,8 @@ run in this session and passed. And a `stubbed` requirement names the slice
 that will replace it, so a deliberate fake in a walking skeleton cannot be
 mistaken for finished work.
 
-No user-story list in the document. Stories are how Section 6 reports the
-work to the operator, not how the document records it. Prose follows
+No user-story list in the plan. Stories are how Section 6 reports the
+work to the operator, not how the plan records it. Prose follows
 CLAUDE.md "Communication Style": plain
 sentences, a named actor and verb, no invented compound-noun labels.
 
@@ -377,7 +422,7 @@ Current-slice tasks get the full form:
 bd create "<title>" -t task -p <0-4> \
   --acceptance "<EARS text>  Check: <proof command>" \
   --design "<design line>" \
-  --spec-id "<design document path from Section 5>" \
+  --spec-id "<plan path from Section 5>" \
   -e <estimate in minutes> --silent
 bd dep add <blocked-id> <blocker-id>
 bd label add <id> slice:S<n>
@@ -392,7 +437,7 @@ bd dep add <blocked-id> <blocker-id>
 ```
 
 The slice label is what separates the board's lanes that `demo-task`
-reads. `--spec-id` carries the document path, which is the link from a bead
+reads. `--spec-id` carries the plan's path, which is the link from a bead
 back to the requirement it came from.
 
 Use this per-issue form. Do not use `bd create --file` or
@@ -406,39 +451,55 @@ Where Section 1 found no `.beads/`, this list's first line is
 Section 1. Section 9 regenerates the whole list on every round, and
 `backlog-task` runs the list as Section 7 leaves it.
 
-## 8. Write the design document
+## 8. Write the plan
 
 Write the Section 5 text to the path Section 1 named. Do not ask first, and
-do not stop here. The document is a local file in a git repository, Section
+do not stop here. The plan is a local file in a git repository, Section
 9's loop revises it in place, and nothing leaves this machine.
 
 Then report the path and the byte count, taken from `wc -c` on the file
 that now exists rather than estimated from the text above.
 
-The document is not published anywhere, per CLAUDE.md "Local Files by
+The plan is not published anywhere, per CLAUDE.md "Local Files by
 Default, No Publishing Without Asking".
 
 **Then commit it, without asking.** Committing is covered by the standing
-permission in `git-commit`. Stage the document and its leaves by path, per
+permission in `git-commit`. Stage the plan and its leaves by path, per
 `git-commit`.
+
+**Write nothing to a design document here, or anywhere in this template.**
+Not a status tag, not a correction, not a link back to the plan. Where the
+work has shown a design document to be wrong, say so as a finding and let
+the operator decide.
 
 If the directory is not tracked by git at all, say so as a finding and
 stop, because that is a precondition rather than something to fix silently.
 
-## 9. Review the document for gaps, and re-review until a round changes nothing
+## 9. Review the plan for gaps, and re-review until a round changes nothing
 
-This is a loop, not a single pass. One pass finds the gaps in the document
+This is a loop, not a single pass. One pass finds the gaps in the plan
 as first written and none of the gaps its own fixes introduce.
 
 **One round is these five steps.**
 
-1. Run `design-gap-task`, passing it the directory rather than the file —
-   it reads every `*.md` at the top level. Findings against documents this
-   run did not write are recorded and left alone.
-2. Run the one sweep `design-gap-task` does not: **every requirement making
-   a factual claim about an existing system, checked against its cited
-   source.** That sweep looks for what is missing; a requirement that is
-   present and wrong passes it untouched.
+1. Run `design-gap-task`, and **pass it the design documents' directory,
+   never the plan's.** That template hunts for holes in a described
+   product — a rule that sorts things into categories without covering
+   every case, an entity created and never removed — and the plan is a
+   schedule, so pointed at the plan it reports on the wrong artifact and
+   the product's own holes go unlooked-at. Where the two directories are
+   the same one, say so and name which files it is reading. Its findings
+   are about the product, so none of them edits a design document here:
+   a finding inside the current slice becomes a requirement by step 3, and
+   the rest go to the operator.
+2. Then check the plan itself, which `design-gap-task` has not read. Two
+   sweeps. **Every requirement making a factual claim about an existing
+   system, checked against its cited source** — that sweep looks for what
+   is missing, and a requirement that is present and wrong passes it
+   untouched. And **every requirement checked against the design documents
+   for a rule it contradicts**, because a plan that specifies behavior the
+   product was never designed to have is a plan that will be built and
+   then argued about.
 3. Act on every finding, one of four ways:
    - A missing rule **inside the current slice** becomes a new requirement
      in Section 4, with its own proof command, and a task in Section 6.
@@ -448,7 +509,7 @@ as first written and none of the gaps its own fixes introduce.
    - A finding the conversation deliberately ruled out goes into the
      out-of-scope list.
    - A finding you reject gets one line saying why.
-4. Revise the document and say what changed.
+4. Revise the plan and say what changed.
 5. Re-enter at Section 4 and come forward through 6 and 7: renumber the
    requirements, re-run the coverage check, regenerate the command list.
    Do not patch those in place — the approval `backlog-task` asks for is on
@@ -470,17 +531,17 @@ Round two runs `design-gap-task` again — step 1 is not optional on a later
 round — and lets the filter drop duplicates on their own merits.
 
 This loop closes before any bead exists: reviewing after the backlog is
-created means fixing the document and the issues both.
+created means fixing the plan and the issues both.
 
 ## 10. Hand the backlog to `backlog-task`
 
 The document is written, reviewed and committed. Creating the beads is
-`backlog-task`: it checks the document is clean, reprints Section 6's
+`backlog-task`: it checks the plan is clean, reprints Section 6's
 stories for the one approval, runs the Section 7 list one command at a
 time, and reads bd back to prove the acceptance criteria and the blocking
 edges stored.
 
-Name three things and load it: the document's path, the slice marked
+Name three things and load it: the plan's path, the slice marked
 `building`, and the Section 7 list it is to run. Load nothing else — the
 slice is cut and the list is generated, and rebuilding either there would
 specify something this document does not say.

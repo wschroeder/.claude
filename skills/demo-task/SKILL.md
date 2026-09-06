@@ -1,18 +1,27 @@
 ---
 name: demo-task
-description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, reconciles the design document's status tags from measured results, and records what that feedback changed before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, reconciles the plan's requirement statuses from measured results, and records what that feedback changed before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
 ---
 
 # demo-task — the slice is shown, the feedback is recorded
 
 For the slice named in $ARGUMENTS, respond with the sections below in
-order. If $ARGUMENTS is empty, the slice is the one the design document
+order. If $ARGUMENTS is empty, the slice is the one the plan
 marks as building — say which one, and where you read it.
 
-The deliverables are the demo in Section 3 and the revised design document
+The deliverables are the demo in Section 3 and the revised plan
 in Section 6. Section 4 is this template's one stop; everything after it
 records what the operator already said there rather than asking something
 new.
+
+**Everything the operator reads here is plain English.** They have not been
+in the session, they do not know what R7 is, and a label this run invented
+means nothing to them. So the demo opens with a paragraph anyone could
+follow, and reference tags, requirement ids, bead ids and coined vocabulary
+stay out of every part addressed to them. Measured: one run opened its demo
+with an evidence block of twelve refs and ten labelled records, and the
+operator's whole reply was that they did not understand any of it. The
+records were correct. Nobody could read them.
 
 Order is enforced because each section is built from the one above it. A
 status tag written before Section 2's commands have run is a claim rather
@@ -44,8 +53,8 @@ the counts:
   Done         bd list --label slice:<n> --status closed
 ```
 
-State the design document's path and the definition of released it records.
-If the document has no definition of released, stop — Section 3 cannot say
+State the plan's path and the definition of released it records.
+If the plan has no definition of released, stop — Section 3 cannot say
 whether the slice is finished without it, and inventing one here would
 answer a question that belongs to the operator.
 
@@ -58,30 +67,26 @@ and no feedback to take on work nobody has seen.
 
 ## 2. Where the slice actually stands
 
-Run every proof command belonging to the current slice's requirements. Real
-output, one record per requirement:
+Run every proof command belonging to the current slice's requirements, then
+write this section in three parts, in this order — the order the operator
+reads, which is the reverse of the order you did the work in.
 
-```
-[R<n>] $ <the proof command>
-       <the last line of real output>
-       result: passes | fails | ran nothing
-```
+**First, one paragraph in plain English.** What was built, and what a person
+can now do that they could not do before. No reference tag, no requirement
+id, no bead id, no command, no count, and no word this project invented. If
+someone who has not been in the session cannot follow it, it has failed, and
+the rest of the section will fail with it — this paragraph is what the
+operator is asking for when they ask what you did this iteration.
 
-Three rules for reading the results:
+Where the slice built something a person cannot do anything with — a
+checker, a pinned toolchain, a test harness — say that plainly in the same
+paragraph, in terms of what it does for them. "The build now refuses to
+pass when a citation goes stale" is the paragraph. A slice with nothing to
+say here is a finding: name it, and let Section 3 report there is no demo.
 
-- **A command that ran no tests is a failure, not a pass.** A filtered test
-  command whose filter matches nothing exits 0 and reports zero tests.
-  Read the count of tests it ran, never the exit code alone.
-- **Do not repair a failing proof command here.** Record it. It becomes
-  work the next slice inherits, in Section 6.
-- **Do not skip a command because the bead that owned it is closed.** A
-  closed bead is a claim about the past; the command is the measurement
-  now.
-
-**Then roll the per-requirement records up into stories.** The records are
-the measurement and they stay. The roll-up is what the operator reads,
-because a requirement id names a rule and a story names something a person
-can do:
+**Then the stories.** A requirement id names a rule; a story names
+something a person can do, which is why the operator reads these and not
+the records:
 
 ```
 Story: As a <person who uses the product>, I can <what they can do>.
@@ -99,6 +104,26 @@ easy to explain to rather than the audience it is for.
 
 A story whose beads are all closed but whose proof command fails is the
 finding worth leading with.
+
+**Last, the per-requirement records.** They are the measurement, they stay,
+and they are for you rather than for the operator:
+
+```
+[R<n>] $ <the proof command>
+       <the last line of real output>
+       result: passes | fails | ran nothing
+```
+
+Three rules for reading the results:
+
+- **A command that ran no tests is a failure, not a pass.** A filtered test
+  command whose filter matches nothing exits 0 and reports zero tests.
+  Read the count of tests it ran, never the exit code alone.
+- **Do not repair a failing proof command here.** Record it. It becomes
+  work the next slice inherits, in Section 6.
+- **Do not skip a command because the bead that owned it is closed.** A
+  closed bead is a claim about the past; the command is the measurement
+  now.
 
 Then write the dependency graph to a file and say where it is:
 
@@ -186,7 +211,7 @@ stopped.
 
 ## 5. Status reconciliation
 
-Rewrite each requirement's status tag in the design document from
+Rewrite each requirement's status tag in the plan from
 Section 2's results. The four values:
 
 ```
@@ -211,7 +236,7 @@ Work every Section 4 record to one of five outcomes, and no sixth:
 
 - Accepted as it stands, changing nothing. Say so in one line. This is the
   ordinary answer to a demo that worked, and it is not a rejection.
-- A new requirement. Write it into the design document, coarse — one
+- A new requirement. Write it into the plan, coarse — one
   sentence, no EARS text and no proof command, unless it lands in the next
   slice.
 - A revision to the solution or the definition of released. Change that
@@ -225,7 +250,7 @@ requirement or a revision is work for a later slice; `spec-task` places it
 and writes its EARS text once Planning decides to pull that slice. Never
 file a card carrying the demoed slice's label to fix what the demo found.
 
-Then revise the design document and say what changed. State the path and
+Then revise the plan and say what changed. State the path and
 the byte count before and after.
 
 ## 7. Hand to `retro-task`
@@ -258,5 +283,5 @@ retro that waits to be asked for does not happen.
 - Does not close beads or repair failing proof commands.
 - Does not decide the definition of released. The operator settles it, and
   `spec-task` Section 1 is where that conversation happens.
-- Does not push anything outward. The backlog and the design document stay
+- Does not push anything outward. The backlog and the plan stay
   local.

@@ -27,7 +27,7 @@ The cycle is **Probe → Gray → Red → Green → Refactor**. Probe observes u
 
 ### Before the cycle: name the card you are building
 
-If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will close — its id, its title, and the proof command in its acceptance criteria. `backlog-task` created these cards from a design document and put that proof command there; `bd show <id>` prints its `--spec-id` when you need the requirement behind it. That proof command is the test to drive to red in step 1. You are not choosing what to build here; you are reading which card is unblocked.
+If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will close — its id, its title, and the proof command in its acceptance criteria. `backlog-task` created these cards from a plan and put that proof command there; `bd show <id>` prints its `--spec-id` when you need the requirement behind it. That proof command is the test to drive to red in step 1. You are not choosing what to build here; you are reading which card is unblocked.
 
 If `bd ready` returns nothing while open cards exist, name the blocker holding them and stop rather than picking one anyway. If there is no `.beads` directory, say so in one line and carry on — the cycle does not require a backlog.
 
