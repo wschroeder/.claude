@@ -146,6 +146,7 @@ One record:
   shows:      <which requirements, by id>
   artifact:   <path to the screenshot, recording, file or output>
   produced by: $ <the exact command that made it>
+  drove it:   <the input you sent it, and the capture either side of that>
   operate it: $ <the exact command the operator runs to drive it themselves>
 ```
 
@@ -154,6 +155,16 @@ Rules:
 - **The operator may drive it themselves, so the reproduction command is
   part of the demo.** An artifact nobody else can regenerate is a claim,
   not proof. Both commands above are required, and both have been run.
+- **Show yourself driving it, not one frame of it.** Where the definition
+  of released says you operate the thing too, one capture proves only that
+  it started. Send it an input — a key, a request, a typed command — capture
+  it again, and name the input between the two, so the pair shows the thing
+  responding rather than sitting there. Where you cannot drive it at all,
+  say so in one line and name what is missing, rather than letting a picture
+  of the opening state stand in for your half of released. Measured: a demo
+  of a slice whose whole promise was landing the player in a named world
+  showed two opening frames, sent the game no input, and left the operator
+  asking whether the assistant could move the character at all.
 - If the slice cannot produce an artifact a person can look at, say so
   plainly and name what is missing. A slice with no demo is the finding —
   it means the work was cut along module lines rather than through the
