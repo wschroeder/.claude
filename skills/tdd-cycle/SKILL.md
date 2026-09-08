@@ -232,6 +232,21 @@ end
 
 And so on...
 
+## After each card closes, read your own room
+
+    $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
+
+Past the ceiling it reports, hand off rather than starting the next card:
+write the handoff through `clear-task` and say you have, in the same turn.
+Do not ask permission first — the operator set the ceiling, so reaching it
+is not a decision they need to make twice.
+
+`demo-task` and `retro-task` each end this way, and a session running only
+this loop is the one that never checks. Measured: two build sessions ran
+without a single check, one of them to 374,944 tokens against a ceiling of
+170,000, and when it did stop it asked to hand off instead of doing it, then
+sat idle for two hours until the operator answered.
+
 ## What NOT to Do
 
 ❌ Don't write production code before tests
