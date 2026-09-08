@@ -45,11 +45,18 @@ genuinely unclear, take the lower one and say in one line which you took.
 A code comment, a commit message, a Slack reply, a short email, a one-paragraph
 answer.
 
-The CLAUDE.md sentence rules apply and nothing else does. Write it, then read it
-once against those rules. Do not dump, do not outline, do not announce a count.
+The CLAUDE.md sentence rules apply, and no composition machinery does. Write it,
+then read it once against those rules. Do not dump, do not outline, and do not
+announce a count.
 
 One addition, because it is the only ordering decision a single point has: say
 the point in the first sentence. Everything after it is support.
+
+Register — how formal to be, how warm, and how much of the reader's own world
+to explain back to them — is neither a sentence rule nor a composition
+decision, so neither CLAUDE.md nor this body covers it. Read
+[references/register.md](references/register.md) before writing as the operator
+to someone they have written to before.
 
 ---
 
