@@ -17,11 +17,19 @@ new.
 **Everything the operator reads here is plain English.** They have not been
 in the session, they do not know what R7 is, and a label this run invented
 means nothing to them. So the demo opens with a paragraph anyone could
-follow, and reference tags, requirement ids, bead ids and coined vocabulary
-stay out of every part addressed to them. Measured: one run opened its demo
-with an evidence block of twelve refs and ten labelled records, and the
+follow, and no sentence explaining what was built makes them decode a
+requirement id, a bead id or a word this project coined. Measured: one run
+opened its demo with twelve refs and ten labelled records, and the
 operator's whole reply was that they did not understand any of it. The
 records were correct. Nobody could read them.
+
+**This never suspends CLAUDE.md's Evidence Format, which governs here as
+everywhere.** The evidence block and its reference tags stay, and every claim
+still carries the tag that proves it. Plain English is a demand on the prose,
+not permission to drop the measurements — a demo is the response most likely
+to describe something nobody checked, so it is the last one that should be
+citing less. Where the two pull against each other, write the plain sentence
+and put its tag on it.
 
 Order is enforced because each section is built from the one above it. A
 status tag written before Section 2's commands have run is a claim rather
@@ -159,12 +167,26 @@ Rules:
   of released says you operate the thing too, one capture proves only that
   it started. Send it an input — a key, a request, a typed command — capture
   it again, and name the input between the two, so the pair shows the thing
-  responding rather than sitting there. Where you cannot drive it at all,
-  say so in one line and name what is missing, rather than letting a picture
-  of the opening state stand in for your half of released. Measured: a demo
-  of a slice whose whole promise was landing the player in a named world
-  showed two opening frames, sent the game no input, and left the operator
-  asking whether the assistant could move the character at all.
+  responding rather than sitting there. Measured: a demo of a slice whose
+  whole promise was landing the player in a named world showed two opening
+  frames, sent the game no input, and left the operator asking whether the
+  assistant could move the character at all.
+- **The input has to be the one a person sends.** Calling the code's own
+  method and writing the result up as a press or a drag is the failure this
+  rule exists to catch, and the word in the record is not the act. If
+  `project-drive` appears in the available skills, load it for how to send
+  this product real input. If nothing is listed, work it out and say in one
+  line what you did.
+- **Being unable to drive it is a finding, not a caveat.** Where the
+  definition of released says the operator operates the thing and you cannot
+  send it the input a person sends, the slice is not built: say so as the
+  demo's result, leave the requirement's status where the measurement puts
+  it, and let Planning place the work. Do not fill the record in and carry
+  on. Measured: a demo wrote "dragged the first battalion 150 files forward"
+  from a method call, admitted further down the same message that it could
+  not send the window a keystroke, told the operator to drag a battalion,
+  and shipped — and the operator's reply was that they could not drag
+  anything at all.
 - If the slice cannot produce an artifact a person can look at, say so
   plainly and name what is missing. A slice with no demo is the finding —
   it means the work was cut along module lines rather than through the

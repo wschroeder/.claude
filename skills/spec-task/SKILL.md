@@ -298,6 +298,21 @@ Rules for this section:
   requirement, and its proof command is the one that produces the artifact.
   A slice whose requirements are all internal modules cannot produce one,
   and that is the signal the cut was horizontal.
+- **Where the definition of released says a person operates the thing, one
+  requirement in the slice is proved by the input that person sends.** Not
+  by calling the code that input would have reached — by the press, the
+  keystroke or the request itself, arriving the way it arrives in the
+  assembled product. Write it as a requirement here, at planning, because
+  it is the only place cheap enough: every layer below this one is
+  satisfied by a public method with the right name, and nothing downstream
+  asks whether anybody can reach it. For how to send this product real
+  input, load `project-drive` if it appears in the available skills; if
+  nothing is listed, say so in one line and write the requirement anyway.
+  Measured: a slice built to let two players play a battle shipped eleven
+  requirements, not one of them proved by an input a person sends — the ones
+  that reached the planning screen called its own methods — and the
+  operator's first act was to open the game and find that no press reached
+  it.
 
 ## 5. The plan
 
