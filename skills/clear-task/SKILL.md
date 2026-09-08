@@ -177,6 +177,17 @@ that step still owes. Put that first, owed work ahead of new work, in the words
 it used. Where nothing said, write that nothing did, and let the fresh chat
 find out rather than assume.
 
+**And no sentence says what the product can do unless a command showed it.**
+"A person can play a whole turn with the mouse" is the same unchecked claim as
+"the demo is over", and it reads worse: the fresh chat takes it as the ground it
+is standing on and spends the session confirming rather than testing. So every
+capability sentence carries the command that demonstrated it and what that
+command printed, or it comes out. Closed cards, a passing suite and a green gate
+are what you can write instead, because those are what you ran. Measured: a
+handoff opened "A person can launch the game and play a whole turn with the
+mouse and keyboard", written the evening before the operator opened that game
+and found that no press reached a battalion.
+
 ## 9. Pointers (paths, links, skills, commands, environment)
 
 The lookup table that saves the fresh chat from rediscovering what you
