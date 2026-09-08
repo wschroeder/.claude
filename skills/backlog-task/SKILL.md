@@ -124,6 +124,18 @@ demo; `demo-task` hands to `retro-task`, which inspects the run itself and
 then returns to `spec-task`, which decides the next slice and returns
 here.
 
+**The build runs as a `session-loop` run, not as a string of sessions the
+operator clears by hand.** The cards exist now and nothing between here and the
+demo needs the operator, so hand to `session-loop` rather than to a prompt for
+them to paste. It writes `HANDOFF.md`, stops once for a `/clear`, and then
+drives `tdd-cycle` card after card to the end of the slice, holding each session
+to the ceiling with a hook instead of a judgment call. Measured: across two
+projects in one month, twenty-nine handoffs were written by hand and the loop
+was invoked zero times; one of those builds closed seven cards over five
+sessions, four of them closing exactly one card each, while a session that kept
+going closed its second and third cards for 21,239 and 14,670 tokens against the
+114,028 its first one cost.
+
 Before either handoff, read your own room:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
@@ -132,8 +144,8 @@ Past the ceiling it reports, hand off instead of starting to build: say so and
 let the operator clear, per `clear-task`. Tell it which section you stopped at
 and what that section still owes — a record you have not worked, an answer
 the operator is waiting on — so the handoff cannot write this phase down as
-finished. Planning a slice and building it are two sessions' work, and this
-is the seam.
+finished, and make invoking `session-loop` the first of its next steps.
+Planning a slice and building it are two sessions' work, and this is the seam.
 
 ## 6. Notes on what this template does NOT do
 

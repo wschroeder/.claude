@@ -226,7 +226,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Opening a pull request, writing a PR body or description, `gh pr create` | `pr-create-task` |
 | Quick code review, review changes, review diffs | `quick-review` |
 | TDD, test-driven development, code, fix, implement, continue implementing, closing a bead once the work is done | `tdd-cycle` |
-| Running work unattended, across more than one slice, or "keep going until it's done" | `session-loop` |
+| Starting the run that builds a slice whose cards already exist, running work unattended, or "keep going until it's done" | `session-loop` |
 | Writing, changing, or deleting code in any language | `writing-code` |
 | Code comments, docstrings, doc-comments | `writing-code` |
 | Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body | `writing-prose` |
