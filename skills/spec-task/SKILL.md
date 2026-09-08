@@ -313,6 +313,17 @@ Rules for this section:
   that reached the planning screen called its own methods — and the
   operator's first act was to open the game and find that no press reached
   it.
+- **That input is aimed at the thing as a person sees it, not at a
+  coordinate the code returns.** Where the target's position comes from the
+  same module the assertion reads, the requirement only shows the code
+  agreeing with itself, and says nothing about whether anybody can hit it.
+  So the requirement names the target from what is on the screen — the drawn
+  extent, the rendered label, the visible control — and compares the ground
+  that answers the input against the ground the person is aiming at.
+  Measured: seven requirements drove real presses into a running game, every
+  one of them at the centre the game's own layout function returned, and
+  every one passed over a battalion painted 51 pixels wide that answered a
+  press over 3 of them.
 
 ## 5. The plan
 
