@@ -243,8 +243,15 @@ finding. Name it.
 
 ## 6. What the feedback changed
 
-Work every Section 4 record to one of five outcomes, and no sixth:
+Work every Section 4 record to one of six outcomes, and no seventh:
 
+- A request to do something before this phase ends. Do it in this phase, and
+  say what came of it. The operator asking for research, a second look, or a
+  conversation about a design is not a requirement for a later slice, and
+  filing it as one answers a question they did not ask. Measured: "I highly
+  recommend researching it and circling with me on this design. Now, I think
+  that can naturally happen during this phase" became three later requirements
+  and no research.
 - Accepted as it stands, changing nothing. Say so in one line. This is the
   ordinary answer to a demo that worked, and it is not a rejection.
 - A new requirement. Write it into the plan, coarse — one
@@ -260,6 +267,9 @@ Work every Section 4 record to one of five outcomes, and no sixth:
 requirement or a revision is work for a later slice; `spec-task` places it
 and writes its EARS text once Planning decides to pull that slice. Never
 file a card carrying the demoed slice's label to fix what the demo found.
+Doing what the operator asked for before this phase ends is not reopening the
+slice: it closes no card and changes no code, and it writes to the same plan
+this section already revises.
 
 Then revise the plan and say what changed. State the path and
 the byte count before and after.
@@ -271,7 +281,10 @@ Before handing off, read your own room:
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
 Past the ceiling it reports, hand off instead of continuing: say so and let
-the operator clear, per `clear-task`.
+the operator clear, per `clear-task`. Tell it which section you stopped at
+and what that section still owes — a record you have not worked, an answer
+the operator is waiting on — so the handoff cannot write this phase down as
+finished.
 
 Otherwise, hand to `retro-task` now, in the same turn, before anything is
 specified. The demo is over and its feedback is recorded, which is the

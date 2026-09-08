@@ -164,6 +164,19 @@ Name the specific thing that could have changed and the command that
 settles it — not "confirm state," but "run `<command>`; the handoff
 assumed `<X>`, act only if that still holds."
 
+**Nothing here declares a stage of the work finished.** This template sees one
+session, not the checklist the work is running against, so a sentence saying a
+stage is over is a claim it cannot check — and the fresh chat reads it as
+settled and never looks again. Measured: a handoff written five minutes after
+the operator asked for research before the current stage ended opened its next
+steps with "the demo is over and its feedback is recorded", and the session
+that read it went straight on to the following stage.
+
+Where a skill handed off to this one, it says which step it was on and what
+that step still owes. Put that first, owed work ahead of new work, in the words
+it used. Where nothing said, write that nothing did, and let the fresh chat
+find out rather than assume.
+
 ## 9. Pointers (paths, links, skills, commands, environment)
 
 The lookup table that saves the fresh chat from rediscovering what you

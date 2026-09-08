@@ -129,8 +129,11 @@ Before either handoff, read your own room:
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
 Past the ceiling it reports, hand off instead of starting to build: say so and
-let the operator clear, per `clear-task`. Planning a slice and building it are
-two sessions' work and this is the seam.
+let the operator clear, per `clear-task`. Tell it which section you stopped at
+and what that section still owes — a record you have not worked, an answer
+the operator is waiting on — so the handoff cannot write this phase down as
+finished. Planning a slice and building it are two sessions' work, and this
+is the seam.
 
 ## 6. Notes on what this template does NOT do
 

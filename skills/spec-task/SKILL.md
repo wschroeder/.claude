@@ -156,6 +156,11 @@ nobody reads a question in the transcript, so make the first line of
 confirmation, and stop — nothing here has been written yet, so there is
 nothing to commit first.
 
+**Open the ask with the phase line**, directly above the question — the
+four phases in order, this stop's capitalized. Measured: the operator asked
+"What phase are we in?" twice inside one planning pass; the line was already
+in this template and nothing told anyone to print it.
+
 ```
 PLAN -> build -> demo -> retro
 ```
@@ -209,6 +214,13 @@ written after them — or the one plain sentence that every question went to
 out of scope and there is nothing here for them to do. A section headed
 "open questions" that silently answers all of them leaves the operator
 guessing whether their turn has come.
+
+**Where there are questions, open the ask with the phase line**, directly
+above them — the four phases in order, this stop's capitalized:
+
+```
+PLAN -> build -> demo -> retro
+```
 
 ## 4. Requirements in EARS, each with the command that proves it
 

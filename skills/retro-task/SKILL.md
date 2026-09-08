@@ -174,7 +174,10 @@ Before handing off, read your own room:
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
 Past the ceiling it reports, hand off instead of continuing: say so and let
-the operator clear, per `clear-task`.
+the operator clear, per `clear-task`. Tell it which section you stopped at
+and what that section still owes — a record you have not worked, an answer
+the operator is waiting on — so the handoff cannot write this phase down as
+finished.
 
 Otherwise, hand to `spec-task`, in the same turn. `spec-task` decides and
 specifies whatever slice comes next — this template does not pull one for

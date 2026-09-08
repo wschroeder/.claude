@@ -151,7 +151,22 @@ exists to make unnecessary. Do not specify the next slice, and do not
 summarize the slice in place of the demo.
 
 ### 5. Repeat
-- Ask if there are more test cases to add
+
+**A turn that names its own next step takes it, in the same turn.** Whatever
+you have just written that you will do next — the next card, the probe before
+it, the section still to write — do it now rather than ending on the sentence
+that names it. The operator cannot tell a turn that is still working from one
+that has stopped, so ending there leaves them to type an instruction you had
+already worked out. Measured across one run: one turn ended on a sentence
+naming the next card it would pick up, another on "I will write it there
+verbatim", and the operator's next messages were "Are you working?" 46 minutes
+later and "? So what now?" two hours and thirteen minutes later.
+
+Where the next step genuinely needs the operator — an approval, a question only
+they can answer — the ask goes last and says what to do, per CLAUDE.md. Naming
+a step you could have taken yourself is not an ask.
+
+- Work out whether there are more test cases to add
 - **Failure paths are the next tests, not a gate at the end.** Every new error
   branch, every external call with a new error shape, every new `else` arm gets
   its own test. A test that asserts only happy-path behavior is half a test.
@@ -168,7 +183,9 @@ summarize the slice in place of the demo.
 ## Autonomous Behavior
 
 When activated:
-1. **Ask what to test**: "What functionality should we implement next?"
+1. **Name what to test**: read `bd ready` for the card, or take the next
+   failing case from the work in hand. Do not hand the choice back when you
+   can make it.
 2. **Probe the boundaries it touches**: For each external API, schema, or unfamiliar library the test will touch, run a throwaway probe and paste the output into the chat. Skip only for pure internal logic.
 3. **Name the interface, then write one test**: say which public function or module the assertion attaches to, then create a focused test anchored to the probe output for that specific functionality
 4. **Run it (should fail)**: Verify the test fails as expected (Red is the result, not a phase you start in)
