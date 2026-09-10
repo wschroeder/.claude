@@ -227,15 +227,36 @@ own viewport, so media and container queries evaluate correctly inside them:
 
 ```bash
 # strip.html holds one <iframe src="page.html" width="320|390|600|900"> per width
-timeout 90 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-  --headless=new --disable-gpu --window-size=2280,800 --user-data-dir=$(mktemp -d) \
-  --allow-file-access-from-files --virtual-time-budget=15000 \
-  --screenshot=strip.png "file://$PWD/strip.html"
+~/.claude/skills/responsive-design/scripts/render.sh \
+  --url strip.html --out strip.png --width 2280 --height 800
 ```
 
-`--allow-file-access-from-files` is required or the iframes stay blank. One run of
-this costs about 80 seconds; one Chrome run per width costs 90 seconds each, because
-Chrome does not exit after writing the file.
+Every render in this skill goes through that script. It kills Chrome once the
+output stops growing, because Chrome does not exit after writing the file, and a
+command that waits for it pays its whole timeout instead of the two seconds the
+render takes. Run its tests once before trusting it:
+`python3 ~/.claude/skills/responsive-design/scripts/test_render.py`.
+
+**One Chrome window per width cannot test the narrow end.** Chrome clamps
+`--window-size` to a 500-pixel minimum, so a window asked for 320, 390 or 480
+renders at 500 and reports a clean pass for a page nobody tested. The iframe strip
+is the only way to reach the two narrowest widths this skill requires. `render.sh`
+refuses a `--width` below 500 rather than let the clamp through quietly.
+
+**Fonts that arrive over the network change what you measured.** A page declaring
+webfaces lays out one way before its glyphs land and another way after, so a
+capture taken in between belongs to a page no reader will see. Add `--fonts` to a
+dom pass and read the receipt, which reports faces downloaded over faces declared:
+
+```
+render: ok out=dom.html bytes=191568 width=1440 elapsed=1s fonts=8/57
+```
+
+Two captures are comparable only when their receipts match. A page that declares
+webfaces and reports `fonts=0/0` never reached the font host at all. Do not reach
+for `document.fonts.status` or `document.fonts.check()` instead — both report
+success with the font hosts blocked. See
+[references/sources.md](references/sources.md), "Renders are not reproducible".
 
 **The strip cannot serve check 6.** Its iframes have a fixed height, so it has no
 fold — the same defect as a tall phone-width strip. Check 6 needs its own render at

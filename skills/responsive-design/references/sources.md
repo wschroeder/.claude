@@ -165,3 +165,37 @@ eight filter groups occupy the room eight filter groups occupy.
 That is the boundary the skill draws: fluid layout decides how things fit, and
 only disclosure decides what belongs on screen. Reaching for units when the
 problem is disclosure is the mistake this section exists to prevent.
+
+
+## Renders are not reproducible
+
+Three renders of one unchanged dashboard produced three different results. Six
+captures taken with the output-polling wrapper were byte-identical to each other;
+two taken with the font hosts mapped to 127.0.0.1 were byte-identical to each
+other and different from the first six; one taken by waiting for Chrome to exit
+matched neither, differing from the webfont group by 88,330 pixels and from the
+blocked group by 124,134.
+
+The page had no randomness and disabled transitions. It linked three families
+from Google Fonts with `display=swap`. With the font hosts mapped to 127.0.0.1,
+`document.fonts` held 0 faces against 57, and the page came out 71 pixels shorter.
+
+Which number to read matters. `document.fonts.size` counts faces the stylesheet
+*declares*, so it reaches 57 the moment that stylesheet parses and says nothing
+about glyphs. Counting the faces whose own `status` is `loaded` gives the
+downloaded total, which on that page was 8 of the 57. Two other candidates are
+worth naming only to rule them out: `document.fonts.status` reads `loaded` and
+`document.fonts.check("1em 'Host Grotesk'")` returns `true` even with the hosts
+blocked, because a fallback can render the text.
+
+That is why the receipt carries a downloaded-over-declared count rather than only
+a byte count. The harness cannot make the network fast, but it can record what
+had arrived, so two captures that disagree can be told apart from two that agree.
+
+## Chrome's minimum window width
+
+`--window-size=320`, `390` and `480` each rendered at `innerWidth: 500`;
+`--window-size=600` rendered at 600. A single Chrome window therefore cannot
+produce the 320-pixel viewport that WCAG 1.4.10 requires, and a run that asks
+for one gets a silent pass at 500 instead of a failure. The iframe strip exists
+for this reason as much as for media and container query evaluation.

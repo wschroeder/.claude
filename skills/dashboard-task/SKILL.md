@@ -267,12 +267,14 @@ Two artifacts, and they answer different questions.
 
 **A full-page desktop render**, for checks 1 to 6, which are about blocks:
 
-    timeout 90 "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
-      --headless=new --disable-gpu --window-size=1440,2400 --user-data-dir=$(mktemp -d) \
-      --virtual-time-budget=15000 --screenshot=<out.png> "file://<built.html>"
+    ~/.claude/skills/responsive-design/scripts/render.sh \
+      --url <built.html> --out <out.png> --width 1440 --height 2400
 
-Chrome does not exit after writing the file, which is why it runs under `timeout`.
-The image comes out at exactly the window size you asked for.
+That script owns every render both skills make, and `responsive-design` explains
+why: Chrome does not exit after writing the file, so a command that waits for it
+pays its whole timeout. The image comes out at exactly the window size you asked
+for. Add `--fonts` on a dom pass before trusting any measurement taken from a page
+that pulls its fonts over the network.
 
 **The width strip from `responsive-design`**, for check 7, which is about widths.
 That skill owns the command, the widths, and what to look for. Do not build your own
