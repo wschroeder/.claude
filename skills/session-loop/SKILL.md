@@ -173,6 +173,15 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <
 Where the stopped session produced a demo artifact, read the file so it
 renders here rather than handing over its path.
 
+**The last review's findings are owed work, and nothing in the loop owns
+them.** The driver hands each iteration's findings to the next session, so the
+final iteration's have no reader by construction — its own output names the
+file and stops there. Where that last line says the reviewer found something,
+read the file, say what is in it, and put it in the handoff as work still to
+do. Measured: a run ended with two findings in
+`findings-20260910T010228-5.md`, and what carried them forward was an attended
+session writing its handoff by hand, not anything here.
+
 Say what landed, where each session handed off (the `ctx_end` column), and why
 the loop stopped. If it stopped on `DONE`, the work is complete — say so. If it
 stopped on `BLOCKED:`, the first line of `HANDOFF.md` is the question — read it
