@@ -411,14 +411,30 @@ inherits whatever mode the logs directory has, exactly as the run summaries do,
 so a `--logs` directory you made world-readable makes the findings and the run
 summaries world-readable with it.
 
-What it cannot do is run anything. The read-only allowlist is `Bash(git :*)`
-plus Read, Grep and Glob, so an evaluator that wants to execute the function it
-is suspicious of gets denied — measured, in the first end-to-end run: it tried
-`python3 -c` on the buggy function to confirm an off-by-one and was refused. It
-reached the right answer by reading instead, but its findings are reasoning
-rather than measurement, and that is the cost of not giving a reviewer a shell.
-Giving it one safely means running it in a throwaway worktree, which is not
-built.
+It can run things, and the prompt rather than an allowlist is what bounds
+that. It used to hold `Bash(git :*)` plus Read, Grep and Glob, and that scope
+failed twice over. An evaluator that wanted to execute the function it doubted
+was refused — measured in the first end-to-end run, where it tried `python3 -c`
+on a buggy function to confirm an off-by-one and reached the right answer by
+reading instead, so its finding was reasoning rather than measurement. Then a
+later run took 13 refusals over 104 reviewer turns, `npm test` among them, and
+one refusal came from the pattern itself: `Bash(git :*)` denied
+`git -C <repo> log --oneline -1` where `Bash(git:*)` ran it, the space being
+the whole of the difference. Naming commands also cannot survive a second
+language, since the same reviewer needs `mix test` in one repository and
+`go test` in the next.
+
+So `Bash` is allowed whole, and the prompt tells the reviewer to investigate
+only, to run nothing the review does not need and nothing that installs,
+fetches, deploys, or reaches the network, and to leave the repository exactly
+as it found it. Know what that constraint is and is not. It is an instruction,
+not an enforcement: denying Edit and Write leaves the shell open, and a reader
+under exactly these flags wrote a file with `echo > path` with no denial
+recorded. What catches a reader that leaves something behind in the repository
+is the dirty-tree gate at the top of the next iteration, which halts the run
+and prints the paths — one iteration late, but loud. Running the reviewer in a
+throwaway worktree would make the boundary real rather than instructed, and
+that is still not built.
 
 ## Which model runs what
 

@@ -859,19 +859,32 @@ check "the evaluator's verdict is read as json, not scraped from prose" 0 "$ok"
 # no tools to do, so it would spend turns failing instead of answering.
 case "$EVAL_ARGV" in *"--settings"*) ok=1 ;; *) ok=0 ;; esac
 check "the evaluator does not get the builder's handoff hook" 0 "$ok"
-# Denying Edit and Write under bypassPermissions still leaves Bash, which is a
-# whole shell. Probed: under dontAsk with the read-only allowlist the evaluator
-# reached its verdict in 2 turns with no denials, and an instruction to remove a
-# file in the repository was denied with the file left in place.
+# The mode stays dontAsk rather than the builder's bypassPermissions, and the
+# reviewer keeps its explicit denial of every tool that edits a file.
 case "$EVAL_ARGV" in *"--permission-mode dontAsk"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator does not inherit the builder's permission mode" 0 "$ok"
-case "$EVAL_ARGV" in *"--allowed-tools Bash(git :*) Read Grep Glob"*) ok=0 ;; *) ok=1 ;; esac
-check "the evaluator's shell is scoped to reading git" 0 "$ok"
+# The shell is no longer scoped by pattern. Naming the commands a reviewer may
+# run cannot survive more than one language — it needs `mix test` in one
+# repository and `go test` in the next — and the matcher refuses forms nobody
+# would predict: measured, `Bash(git :*)` denied
+# `git -C <repo> log --oneline -1` while `Bash(git:*)` ran the same command,
+# and the space was the whole difference. Measured on the run that prompted
+# this: 13 refusals over 104 reviewer turns, `npm test` among them. So the
+# prompt carries the boundary instead, and the three assertions below are what
+# hold it there.
+case "$EVAL_ARGV" in *"--allowed-tools Bash Read Grep Glob"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator can run what the review needs" 0 "$ok"
 EVAL_PROMPT="$(tr '\n' ' ' < "$STUB_EVAL_PROMPT_FILE" | tr -s ' ')"
 case "$EVAL_PROMPT" in *"PASS"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator is told what a clean verdict looks like" 0 "$ok"
 case "$EVAL_PROMPT" in *"git diff"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator is told how to reach the diff" 0 "$ok"
+case "$EVAL_PROMPT" in *"Investigate only"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator is told to investigate only" 0 "$ok"
+case "$EVAL_PROMPT" in *"nothing this review does not need"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator is told to run nothing the review does not need" 0 "$ok"
+case "$EVAL_PROMPT" in *"Leave the repository exactly as you found it"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator is told to leave the repository alone" 0 "$ok"
 drop_fixture
 
 # --- what the evaluator found reaches the session that can act on it ---

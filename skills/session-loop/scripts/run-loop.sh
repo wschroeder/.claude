@@ -346,11 +346,17 @@ PROTOCOL
 eval_prompt() {
   cat <<EVALPROMPT
 You are reading the commits in the range $1 of the repository you are standing
-in. You did not write them, and you have no tools to change anything: report
-what you find, do not fix it.
+in. You did not write them. Investigate only: report what you find, do not fix
+it.
 
 Start with \`git diff $1\` and read whatever surrounding code you need to judge
-what you see there.
+what you see there. You have a shell, and running something is often the
+shortest way to settle a question about this diff — run the project's own test
+command, check what a value actually holds, count what a string actually
+contains. Run nothing this review does not need, and nothing that installs,
+fetches, deploys, or reaches the network. Leave the repository exactly as you
+found it: no commits, no edits, no files added or removed. Put scratch files in
+a temporary directory.
 
 Report only what you can point at a file and line for:
 - the code does not do what its own name, docstring or comment says it does
@@ -598,12 +604,25 @@ RECORD
   # reads its own diff for what it meant to write, and it would be reading at
   # the fullest and most expensive part of its context.
   #
-  # It does NOT inherit $PERMISSION_MODE. The builder needs bypassPermissions to
-  # commit unattended, and denying Edit and Write under that mode still leaves
-  # Bash, which is a whole shell. dontAsk with an explicit read-only allowlist is
-  # the mode that matches what a reader needs — probed both ways: under it the
-  # evaluator still reached its verdict in 2 turns with no denials, and an
-  # instruction to `rm` a file in the repository was denied, file left in place.
+  # It does NOT inherit $PERMISSION_MODE, because the builder needs
+  # bypassPermissions to commit unattended and a reader needs no such thing.
+  #
+  # What the reader may run is settled by the prompt, not by a pattern. An
+  # allowlist of command names cannot span languages — the same reviewer needs
+  # `mix test` in one repository and `go test` in the next — and the matcher
+  # refuses forms nobody would predict: measured, `Bash(git :*)` denied
+  # `git -C <repo> log --oneline -1` while `Bash(git:*)` ran it, the space
+  # being the whole difference. The narrow list cost a real run 13 refusals
+  # over 104 reviewer turns, `npm test` among them, and left the reviewer
+  # reasoning about a suite it could not execute.
+  #
+  # So `Bash` is allowed whole and the prompt carries the boundary. Two things
+  # are worth knowing before trusting that. Denying Edit and Write does not
+  # close the shell route: measured, a reader under exactly these flags wrote a
+  # file with `echo > path` and no denial was recorded. And the backstop is the
+  # dirty-tree gate at the top of the next iteration, which halts the run and
+  # prints the paths if a reader leaves anything behind in the repository — one
+  # iteration late, but loud.
   PENDING_FINDINGS=""
   FINDINGS_IN=""
   if [ "$EVAL" -eq 1 ]; then
@@ -618,7 +637,7 @@ RECORD
         -p "$(eval_prompt "$HEAD_BEFORE..HEAD")" \
         --output-format json \
         --permission-mode dontAsk \
-        --allowed-tools "Bash(git :*)" Read Grep Glob \
+        --allowed-tools Bash Read Grep Glob \
         --disallowed-tools Edit Write NotebookEdit \
         --model "$EVAL_MODEL" \
         < /dev/null
