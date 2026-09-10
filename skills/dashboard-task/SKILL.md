@@ -55,8 +55,12 @@ Every section's output follows `~/.claude/CLAUDE.md` "Evidence Format (HARD
 CONSTRAINTS)", and every sentence follows its "Communication Style (HARD
 CONSTRAINT)". This file restates neither.
 
-Machinery is at `scripts/` beside this file. Run its tests once before trusting the
-gate: `python3 scripts/test_layout_scales.py`
+Machinery is at `scripts/` beside this file, and the chart library at `assets/`.
+Run both test suites once before trusting either. The second one drives real
+Chrome and takes about thirty seconds:
+
+    python3 scripts/test_layout_scales.py
+    python3 scripts/test_chartkit.py
 
 ---
 
@@ -217,6 +221,36 @@ exactly and do not restate it here.
 
 Build into the session scratchpad. Writing into the user's project happens at Section
 10 and not before.
+
+### Draw on chartkit rather than deriving the geometry again
+
+`assets/chartkit.js` beside this file sizes each band of a chart from the width the
+browser gives the strings that will sit in that band, and the function that sizes a
+band is the one that draws into it. Concatenate it into the page's `<script>` ahead
+of the chart bodies, and write each body to draw only its own marks.
+
+- `CK.cartesian(host, spec)` — a value axis down the left, a value or category axis
+  along the bottom. Takes the tick values, a formatter per axis, the axis titles,
+  and the radius of the largest mark you will draw; returns the plot box and a
+  scale for each direction.
+- `CK.rows(host, spec)` — horizontal rows sharing one axis along the bottom: ranked
+  bars, dots on a stem, a mean against a range. Takes one entry per row carrying a
+  label and a value string, the tick values, and the axis title; returns the plot
+  box, a scale, and where each row sits.
+
+Both settle whether a label fits beside its mark or goes above it, whether the value
+column has room to be drawn at all, and how tall the axis band must be for a title
+that wrapped onto a second line. **Do not compute a padding, a label-column width,
+or a stacking threshold in a chart body.** Seven bodies each doing that arithmetic
+is what shipped a build with five text nodes outside their SVG at the narrow width
+and three at 1440, and left four row charts carrying two stacking thresholds and
+three label-column caps that nobody had chosen.
+
+The page owes the library four classes it reads its type sizes off — `.ax` for tick
+labels, `.cat` for category labels, `.val` for value labels, and `.axtitle` for axis
+titles — and one element with `id="tip"` for the hover layer. Give those classes
+their sizes from the tokens Section 6 fixed. `scripts/test_chartkit.py` draws both
+forms at 320, 768, and 1440; read it for what each spec accepts.
 
 What this template adds, because the gate and the review read them:
 
@@ -413,7 +447,9 @@ disposition. Then:
 - Does not decide what order the blocks go in. `writing-prose` owns that, and Section 4
   runs it rather than inventing an order here.
 - Does not decide anything about an individual chart — not the form, the colours, the
-  marks, the tooltips, or the accessibility pass. `dataviz` owns all of it.
+  marks, the tooltips, or the accessibility pass. `dataviz` owns all of it. The
+  library at `assets/` measures and places what that skill decided; every answer in
+  a spec handed to `CK.cartesian` or `CK.rows` came from `dataviz`, not from here.
 - Does not name a brand. Section 6 reaches a slot your private routing fills.
 - Does not decide a unit, a breakpoint, a query, or a pointer-target size.
   `responsive-design` owns all of it, and the numbers there come from WCAG
