@@ -643,5 +643,155 @@ class TickGeneration(Case):
         self.assertEqual(got["infinite"], [0])
 
 
+class RowHitTargets(Case):
+    """A row's mark is a bar 14 pixels tall, and the reader is aiming at the
+    row. The build this came from drew its marks, measured them, found every
+    one of them under the 24-pixel pointer target WCAG 2.2 asks for, and wrote
+    its own invisible rect per row to fix it."""
+
+    def test_a_row_target_clears_24_pixels_though_its_mark_is_thinner(self):
+        got = self.draw(r"""
+          var items = [["Humidity", "+0.213"], ["Days of rest", "\u22120.177"],
+                       ["Roof overhead", "+0.145"]];
+          var box = CK.rows(document.getElementById("host"), {
+            width: 520,
+            rows: items.map(function (r) { return { label: r[0], value: r[1] }; }),
+            ticks: [0, 0.1, 0.2, 0.3],
+            tickFormat: function (v) { return v.toFixed(1); },
+            title: "correlation with total goals"
+          });
+          var hits = items.map(function (r, i) {
+            return CK.rowHit(box, i, [{ val: r[0] }, { key: "r", val: r[1] }], r[0]);
+          });
+          report({
+            markH: box.markH, rowH: box.rowH, width: box.width, axisY: box.axisY,
+            boxes: hits.map(function (h) {
+              var b = h.getBoundingClientRect();
+              return { w: +b.width.toFixed(1), h: +b.height.toFixed(1),
+                       y: +h.getAttribute("y"), label: h.getAttribute("aria-label") };
+            })
+          });
+        """)
+        self.assertEqual(got["markH"], 14,
+                         "the mark is no longer thinner than the target, so this "
+                         "case stopped exercising the thing it was written for")
+        self.assertEqual(len(got["boxes"]), 3)
+        want = max(got["rowH"], 24)
+        for i, b in enumerate(got["boxes"]):
+            self.assertEqual(b["h"], want, "row %d target is %s tall" % (i, b["h"]))
+            self.assertEqual(b["w"], 520, "row %d target does not span the chart" % i)
+        self.assertGreaterEqual(got["boxes"][0]["y"], 0)
+        self.assertLessEqual(got["boxes"][-1]["y"] + got["boxes"][-1]["h"], got["axisY"])
+        self.assertEqual(got["boxes"][0]["label"], "Humidity")
+
+    def test_the_floor_binds_when_the_row_itself_is_shorter_than_24(self):
+        """At the page's own type sizes a row already runs past 24 pixels, so
+        the first case leaves the floor doing no work. Shrink the type and the
+        row drops under it, which is when the target has to stop following the
+        row and hold at 24."""
+        got = self.draw(r"""
+          var s = document.createElement("style");
+          s.textContent = "body{font-size:11px} .cat{font-size:9px}";
+          document.head.appendChild(s);
+          var box = CK.rows(document.getElementById("host"), {
+            width: 420,
+            rows: [{ label: "Humidity" }, { label: "Wind speed" }],
+            ticks: [0, 1, 2], tickFormat: function (v) { return v.toFixed(0); }
+          });
+          var hit = CK.rowHit(box, 0, [{ val: "Humidity" }], "Humidity");
+          report({ rowH: box.rowH, markH: box.markH,
+                   hitH: +hit.getBoundingClientRect().height.toFixed(1),
+                   mid: box.rowMid(0), y: +hit.getAttribute("y") });
+        """)
+        self.assertLess(got["rowH"], 24,
+                        "the row is not shorter than the floor, so this case is "
+                        "not exercising the floor")
+        self.assertEqual(got["hitH"], 24)
+        self.assertEqual(got["y"], got["mid"] - 12,
+                         "the target is not centred on the row it covers")
+
+    def test_the_pointer_lands_on_the_target_and_not_the_mark_beneath_it(self):
+        """The target paints nothing, and a rect with no fill takes no pointer
+        events by default — measured in this Chrome: fill=none alone does not
+        receive the point, and fill=none with pointer-events:all does. So the
+        rule is not decoration. It also has to sit above the mark it covers,
+        which is why the caller draws its marks before calling."""
+        got = self.draw(r"""
+          var box = CK.rows(document.getElementById("host"), {
+            width: 520,
+            rows: [{ label: "Humidity", value: "+0.213" }],
+            ticks: [0, 0.1, 0.2], tickFormat: function (v) { return v.toFixed(1); }
+          });
+          var bar = CK.S("path", {
+            d: CK.barRight(box.x0, box.markTop(0), 60, box.markH, 4), fill: "#36a" });
+          box.svg.appendChild(bar);
+          var hit = CK.rowHit(box, 0,
+            [{ val: "Humidity" }, { key: "correlation", val: "+0.213" }], "Humidity");
+          var b = hit.getBoundingClientRect();
+          var x = b.left + box.x0 + 20, y = b.top + b.height / 2;
+          var over = document.elementFromPoint(x, y);
+          hit.dispatchEvent(new PointerEvent("pointerenter", { clientX: x, clientY: y }));
+          var tip = document.getElementById("tip");
+          report({ overIsTarget: over === hit, overTag: over && over.tagName,
+                   barIsBeneath: document.elementFromPoint(x, y) !== bar,
+                   tipText: tip.textContent,
+                   tipOpacity: getComputedStyle(tip).opacity });
+        """)
+        self.assertTrue(got["overIsTarget"],
+                        "the point over the mark reached a %s, not the target"
+                        % got["overTag"])
+        self.assertTrue(got["barIsBeneath"])
+        self.assertEqual(got["tipOpacity"], "1")
+        self.assertIn("Humidity", got["tipText"])
+        self.assertIn("+0.213", got["tipText"])
+
+
+class RangeTickGeneration(Case):
+    """Round tick values for an axis whose low end is not zero. The explorer
+    scatter in the build this came from ran humidity from 30 to 92 per cent and
+    altitude from 2 to 2,240 metres, and `niceTicks` walks from zero, so that
+    page carried a second tick generator of its own to cover them."""
+
+    def test_ticks_over_a_range_that_does_not_start_at_zero_stay_inside_it(self):
+        got = self.draw(r"""
+          report({ humidity: CK.rangeTicks(30, 92, 5),
+                   fromZero: CK.niceTicks(92, 5) });
+        """)
+        self.assertEqual(got["humidity"], [40, 60, 80])
+        self.assertEqual(
+            got["fromZero"][0], 0,
+            "niceTicks is supposed to start at zero; if it does not, this case "
+            "no longer shows why rangeTicks exists")
+
+    def test_a_range_with_no_span_or_no_tick_count_yields_one_tick(self):
+        """None of these spins. Each one derives a step of zero, NaN, or
+        Infinity, and the walk then never runs, handing back an empty list that
+        leaves an axis with no gridlines and no labels. The single tick is the
+        low end of the range, which is the whole axis when there is no span."""
+        got = self.draw(r"""
+          report({ equal: CK.rangeTicks(5, 5, 4),
+                   reversed: CK.rangeTicks(90, 30, 4),
+                   noCount: CK.rangeTicks(30, 92, 0),
+                   loNaN: CK.rangeTicks(NaN, 92, 4),
+                   hiInfinite: CK.rangeTicks(30, Infinity, 4) });
+        """)
+        self.assertEqual(got["equal"], [5])
+        self.assertEqual(got["reversed"], [90])
+        self.assertEqual(got["noCount"], [30])
+        self.assertEqual(got["loNaN"], [0])
+        self.assertEqual(got["hiInfinite"], [30])
+
+    def test_a_span_too_small_to_derive_a_step_from_yields_one_tick(self):
+        """A span can clear the guard above and still leave nothing to walk in
+        steps of: the magnitude below the smallest span JavaScript can hold
+        rounds to zero, and the walk from lo to hi in steps of zero never
+        advances. Measured: lo 0, hi 5e-324 gives a step of 0 and, without the
+        check on the derived step, an empty tick list."""
+        got = self.draw(r"""
+          report({ smallest: CK.rangeTicks(0, 5e-324, 4) });
+        """)
+        self.assertEqual(got["smallest"], [0])
+
+
 if __name__ == "__main__":
     unittest.main(verbosity=2)

@@ -359,6 +359,26 @@
     return out;
   }
 
+  /* Round tick values inside a range whose low end is not zero. niceTicks
+     walks from zero and takes no lower bound, so an axis running 30 to 92 has
+     no answer there. */
+  function rangeTicks(lo, hi, count) {
+    if (!(hi > lo) || !isFinite(lo) || !isFinite(hi) || !(count > 0)) {
+      return [isFinite(lo) ? lo : 0];
+    }
+    var span = hi - lo;
+    var raw = span / count;
+    var mag = Math.pow(10, Math.floor(Math.log10(raw)));
+    var step = [1, 2, 2.5, 5, 10].map(function (m) { return m * mag; })
+      .find(function (s) { return s >= raw; }) || 10 * mag;
+    if (!(step > 0)) return [lo];
+    var out = [];
+    for (var t = Math.ceil(lo / step) * step; t <= hi + step / 1000; t += step) {
+      out.push(+t.toFixed(10));
+    }
+    return out;
+  }
+
   /* A bar with one rounded end and one square end, so the end sitting on the
      baseline stays flat against it. The radius is clamped to the bar rather
      than trusted: an arc wider than the bar it turns inside out, and the shape
@@ -608,12 +628,33 @@
       }
     });
 
-    return { svg: svg, x0: x0, x1: x1, sx: sx, height: h,
+    return { svg: svg, width: w, x0: x0, x1: x1, sx: sx, height: h,
              rowTop: rowTop, markTop: markTop, rowMid: rowMid,
              rowH: rowH, markH: markH, axisY: axisY, axisH: axisH,
              stacked: stacked, showValues: showValues,
              labelW: labelW, padR: padR,
              base: base, axPx: axPx, catPx: catPx, valPx: valPx, titlePx: titlePx };
+  }
+
+  /* WCAG 2.2 asks this many CSS pixels of a pointer target. */
+  var MIN_POINTER_TARGET = 24;
+
+  /* A row's mark is thinner than the row it sits in, and the reader is aiming
+     at the row rather than at the mark, so the target covers the row and never
+     falls below the pointer minimum. It paints nothing and takes the pointer
+     anyway, which a rect with no fill does not do on its own. Call it after
+     drawing the row's marks: it goes on the end of the SVG, so marks drawn
+     afterwards would sit on top of it and take the pointer back. */
+  function rowHit(box, i, lines, label) {
+    var h = Math.max(box.rowH, MIN_POINTER_TARGET);
+    var hit = S("rect", { x: 0, y: box.rowMid(i) - h / 2,
+                          width: box.width, height: h, fill: "none" });
+    hit.style.pointerEvents = "all";
+    hit.setAttribute("role", "img");
+    if (label) hit.setAttribute("aria-label", label);
+    box.svg.appendChild(hit);
+    hoverable(hit, lines);
+    return hit;
   }
 
   global.CK = {
@@ -625,7 +666,7 @@
     S: S, T: T, frame: frame, barRight: barRight, barUp: barUp,
     legend: legend, tableInto: tableInto, tooFew: tooFew,
     fitText: fitText, wrapLines: wrapLines, axisTitle: axisTitle,
-    edgeAnchor: edgeAnchor, niceTicks: niceTicks,
-    cartesian: cartesian, rows: rows
+    edgeAnchor: edgeAnchor, niceTicks: niceTicks, rangeTicks: rangeTicks,
+    cartesian: cartesian, rows: rows, rowHit: rowHit
   };
 })(window);
