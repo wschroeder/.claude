@@ -228,9 +228,11 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | TDD, test-driven development, code, fix, implement, continue implementing, closing a bead once the work is done | `tdd-cycle` |
 | Starting the run that builds a slice whose cards already exist, running work unattended, or "keep going until it's done" | `session-loop` |
 | Writing, changing, or deleting code in any language | `writing-code` |
+| Making a page work on both a phone and a desktop; CSS breakpoints, fluid type, viewport units, media or container queries, mobile layout | `responsive-design` |
 | Code comments, docstrings, doc-comments | `writing-code` |
 | Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body | `writing-prose` |
 | Organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written | `writing-prose` |
+| Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |
 | Writing a spec, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
 | Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |
 | Demoing a finished slice, showing what was built, taking feedback on it, closing out an iteration | `demo-task` |

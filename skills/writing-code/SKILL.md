@@ -13,6 +13,7 @@ governs what the code and its comments look like once the loop reaches Green.
 | Language | Skill | Where it lives |
 |----------|-------|----------------|
 | Elixir, Ecto, Phoenix | `elixir-development` | global |
+| CSS, HTML, any user interface that has to work at more than one width | `responsive-design` | global |
 | Ecto migrations | `elixir-migrations`, `safe-migration` | one project only |
 | TypeScript, React | `quality-checks`, `eslint`, `security-review-fe` | one project only |
 

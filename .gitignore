@@ -29,6 +29,7 @@
 !/skills/backlog-task/**
 !/skills/clear-task/**
 !/skills/create-task-skill/**
+!/skills/dashboard-task/**
 !/skills/demo-task/**
 !/skills/design-gap-task/**
 !/skills/elixir-development/**
@@ -38,6 +39,7 @@
 !/skills/pr-feedback-task/**
 !/skills/pr-respond-task/**
 !/skills/quick-review/**
+!/skills/responsive-design/**
 !/skills/retro-task/**
 !/skills/security-review/**
 !/skills/session-loop/**
