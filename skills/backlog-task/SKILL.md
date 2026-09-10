@@ -75,9 +75,11 @@ Recommend building them, and say the alternative is naming a story to hold
 back. The ask names the decision and ends the message.
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
-nobody reads a question in the transcript, so create nothing, make the first
-line of `HANDOFF.md` read `BLOCKED:` and one sentence naming the slice
-awaiting approval, and stop. A section that prints the stories and then runs
+nobody reads a question in the transcript, so create nothing, then write
+`HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one
+sentence naming the slice awaiting approval, and stop. Write it through the
+skill rather than by hand, however close the ceiling is: the handoff point is a
+budget and not a limit. A section that prints the stories and then runs
 `bd create` in the same turn has not stopped.
 
 Approval here covers this creation. A later slice asks again, and pushing

@@ -563,6 +563,26 @@ class HookCheck(unittest.TestCase):
         self.assertIn("commit", err)
         self.assertIn("HANDOFF.md", err)
 
+    def test_the_message_names_the_skill_that_writes_the_handoff(self):
+        # Measured on the run that prompted this: two work sessions wrote
+        # HANDOFF.md with a heredoc rather than through clear-task, one of them
+        # saying at 160,121 context that loading the skill "would not leave
+        # enough room to finish the file". A peer loaded it from 150,721 and
+        # finished the whole handoff at 172,071, so the skill and the file
+        # together cost 21,350 against a window of a million. This line is the
+        # instruction in the room at that moment, and it named no skill.
+        path = self.transcript(180_000)
+        err = self.run_hook({"transcript_path": path})[2]
+        self.assertIn("clear-task", err)
+
+    def test_the_message_says_the_handoff_point_is_not_a_limit(self):
+        # A session reading the number as a wall spends its last turns
+        # economising, which is how one of those two talked itself out of
+        # loading the skill that owns handoffs.
+        path = self.transcript(180_000)
+        err = self.run_hook({"transcript_path": path})[2]
+        self.assertIn("not a limit", err)
+
     def test_the_threshold_passed_is_the_one_used(self):
         path = self.transcript(100_000)
         self.assertEqual(self.run_hook({"transcript_path": path}, threshold=90_000)[0], 2)

@@ -235,8 +235,10 @@ first; interpret in Section 6.
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
 nobody reads a question in the transcript and nobody runs the demo, so commit
-what is already done, make the first line of `HANDOFF.md` read `BLOCKED:` and
-one sentence naming the slice waiting to be demoed, and stop. No requirement
+what is already done, then write `HANDOFF.md` through `clear-task` with a first
+line reading `BLOCKED:` and one sentence naming the slice waiting to be demoed,
+and stop. Write it through the skill rather than by hand, however close the
+ceiling is: the handoff point is a budget and not a limit. No requirement
 reaches `demoed` from an unattended run, because that status is what a person
 looking at the thing produces; they stay `built` until someone has looked. A
 section that posts the demo and then carries on into Section 5 has not

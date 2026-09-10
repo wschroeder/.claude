@@ -1316,11 +1316,20 @@ def hook_check(threshold: int) -> int:
     # Naming both steps is what makes this a handoff rather than an abort. A
     # worker told only that it is over stops where it stands, and the dirty tree
     # it leaves trips the driver's dirty-tree gate, halting the whole run.
+    #
+    # Naming the skill is what stops the second step being improvised. Measured:
+    # two sessions in one run wrote HANDOFF.md with a heredoc instead, one of
+    # them reasoning at 160,121 that loading `clear-task` would not leave room
+    # to finish the file. It would have: a peer loaded it from 150,721 and
+    # finished the whole handoff at 172,071. Saying the point is a budget rather
+    # than a wall is what keeps the next one from making the same trade.
     sys.stderr.write(
         "You are at %s context against a handoff point of %s. Stop here rather "
         "than finishing the piece of work: commit what you have with a subject "
-        "that says it is unfinished, then rewrite HANDOFF.md as the continuation "
-        "prompt for the next fresh session.\n"
+        "that says it is unfinished, then write HANDOFF.md through the "
+        "clear-task skill. That point is a budget, not a limit, and the window "
+        "has room left, so load the skill and write the file properly rather "
+        "than by hand.\n"
         % ("{:,}".format(stats.ctx_end), "{:,}".format(threshold)))
     return 2
 

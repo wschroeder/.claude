@@ -151,10 +151,12 @@ makes this the cheap place to catch a wrong slice — catching it after
 Sections 2 through 9 have run costs the whole pass.
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
-nobody reads a question in the transcript, so make the first line of
-`HANDOFF.md` read `BLOCKED:` and one sentence naming the slice awaiting
-confirmation, and stop — nothing here has been written yet, so there is
-nothing to commit first.
+nobody reads a question in the transcript, so write `HANDOFF.md` through
+`clear-task` with a first line reading `BLOCKED:` and one sentence naming the
+slice awaiting confirmation, and stop — nothing here has been written yet, so
+there is nothing to commit first. Write it through the skill rather than by
+hand, however close the ceiling is: the handoff point is a budget and not a
+limit.
 
 **Open the ask with the phase line**, directly above the question — the
 four phases in order, this stop's capitalized. Measured: the operator asked

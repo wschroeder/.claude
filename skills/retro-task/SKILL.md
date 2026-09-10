@@ -95,9 +95,11 @@ plan -> build -> demo -> RETRO
 
 **Unattended, this stop ends the run.** Inside a `session-loop` run nobody is
 there to answer, and no amount of transcript reading substitutes for the
-operator's own account. So commit what is already done, make the first line of
-`HANDOFF.md` read `BLOCKED:` and one sentence saying a retro is waiting on
-their experience of the run, and stop.
+operator's own account. So commit what is already done, then write
+`HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one
+sentence saying a retro is waiting on their experience of the run, and stop.
+Write it through the skill rather than by hand, however close the ceiling is:
+the handoff point is a budget and not a limit.
 
 ## 5. Where the readings diverge
 
