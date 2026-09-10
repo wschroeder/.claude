@@ -308,9 +308,17 @@ document at all.
 ## Autonomous behaviour
 
 Pick the tier without asking, and say in one line which you picked. Run tier one
-and tier two inline without stopping. For tier three, stop after step 4 and show
-the operator the derived order and the free choices before drafting a body
-against it, because reordering after the body is written costs the body.
+and tier two inline without stopping.
+
+For tier three, what happens after step 4 depends on what the body will cost to
+rebuild, so say in one line which of these two you are in. If a person drafts the
+body — an email, a design document, a report someone types out — then stop after
+step 4 and show the operator the derived order and the free choices, because
+reordering after that body is written means rewriting its paragraphs. If a
+generator writes the body from a declared list of parts, then reordering costs a
+rebuild and nothing else: carry on without stopping, and let the skill driving
+you choose what it puts in front of the operator instead. Showing someone a list
+of section slugs is not worth a stop when they could be reading the words.
 
 Report the script output verbatim rather than summarizing it. When a check
 cannot be closed, report it with what it would take, rather than reclassifying it

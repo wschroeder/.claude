@@ -2,7 +2,7 @@
 """Counts how many distinct sizes a built dashboard uses, and checks that each
 figure a block declared shows up in that block only.
 
-Reads the built HTML and the layout.tsv that Section 3 wrote. A page that keeps
+Reads the built HTML and the layout.tsv that Section 5 wrote. A page that keeps
 its sizes in custom properties and reaches them through var() scores near zero
 literals, which is the point: the ceilings punish placing a value by hand.
 """

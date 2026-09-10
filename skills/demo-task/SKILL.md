@@ -224,6 +224,12 @@ next — deciding what comes after this slice is Planning's job, not this
 stop's. The ask is the last thing in the message, per CLAUDE.md "When you
 need an answer, the ask goes last and says what to do".
 
+**Where the demo is something to read rather than something to run, send the
+file with `SendUserFile` as well as naming its path.** A page, a report, a
+render, a PDF: the operator may be reading this on a phone, where a path on
+this machine is not something they can open. Send it and give the path, so
+either route works.
+
 Record what comes back verbatim, one record per point:
 
 ```

@@ -1,6 +1,6 @@
 ---
 name: dashboard-task
-description: Builds a dashboard or a data report that argues a point the operator chose — opens the data, declares what it can and cannot support, then proposes three to five candidate stories with the numbers behind each and stops for the operator to pick one or write their own. Never chooses the story itself. From that sentence it drives `writing-prose` to derive the block order, ranks every block so no two carry the same weight, fixes one type scale, one spacing scale, and one corner radius before anything is placed, gives each figure exactly one owner, gates the built file for repeated numbers and for how many distinct sizes it contains, renders it, and reviews it against a seven-check grid before stopping for approval. Hands every chart to `dataviz` and everything about behaving at any width to `responsive-design`, and restates neither. Use when the ask names a dashboard, a data report, an analysis write-up, or a page of charts for a client or a team.
+description: Builds a dashboard or a data report that argues a point the operator chose — opens the data, declares what it can and cannot support, then proposes three to five candidate stories with the numbers behind each and stops for the operator to pick one or write their own. Never chooses the story itself. From that sentence it drives `writing-prose` to derive the block order, settles every word the reader will read before any visual exists, ranks every block so no two carry the same weight, fixes one type scale, one spacing scale, and one corner radius before anything is placed, gives each figure exactly one owner, gates the built file for repeated numbers and for how many distinct sizes it contains, renders it, and reviews it against a seven-check grid before stopping for approval. Hands every chart to `dataviz` and everything about behaving at any width to `responsive-design`, and restates neither. Use when the ask names a dashboard, a data report, an analysis write-up, or a page of charts for a client or a team.
 ---
 
 # dashboard-task — build a surface that makes a point
@@ -139,11 +139,13 @@ rather than one of yours.
 
 Then stop. Do not open Section 4 on a story you chose.
 
-## Section 4 — Derive the order from the chosen story
+## Section 4 — Derive the order, then write every word the reader will read
 
 Load `writing-prose` and run its third tier, giving the operator's chosen sentence as
-its step 0. Stop where that skill says to stop, at its step 4, and show the operator
-the derived order before a body gets drafted against it.
+its step 0. **Do not stop at its step 4.** That skill stops there when a person drafts
+the body by hand; a dashboard's body comes out of a generator reading a declared list
+of blocks, so reordering it costs a rebuild and nothing else. A list of block slugs is
+not worth an operator's turn.
 
 Valid output: the real output of
 
@@ -152,6 +154,40 @@ Valid output: the real output of
 What comes back — `ideas.tsv`, `graph.tsv`, and the printed derivation naming the
 groups, the levels, and the free choices somebody made — is what Section 5 consumes.
 A block order invented in Section 5 is the defect `writing-prose` exists to prevent.
+
+### Then write `copy.md`, and stop on that
+
+Every string a reader will read, written out as text before any scale, colour, or
+mark exists. One entry per derived group, plus one for the page chrome:
+
+```
+# <the page headline>
+<the standfirst, one or two sentences>
+
+## <block heading>            [group: <name from the derivation>]
+<the sentence this block asserts, in the reader's words not the data's>
+axis / category labels: <every string that will be drawn as a label>
+
+...
+
+# Limits
+<one bullet per thing the data cannot support>
+
+# Colophon
+<source, date, and what the figures are>
+```
+
+Write the headline and the block headings last, from the sentences under them, per
+`writing-prose`. A label whose block turns out not to need one — a stat tile has no
+axis — simply goes unused.
+
+**Stop here and show `copy.md` in full.** This is the only stop before the build. Ask
+whether the words hold, per CLAUDE.md "When you need an answer, the ask goes last and
+says what to do".
+
+Section 7 builds from this file. A string invented during the build, rather than taken
+from here, is what this section exists to prevent: checks 1 and 6 at Section 9 are
+where it otherwise surfaces, and by then every render has to be taken again.
 
 ## Section 5 — Rank the blocks onto the screen
 
@@ -172,8 +208,12 @@ block<TAB>group<TAB>rank<TAB>slot<TAB>form<TAB>figures<TAB>why
 - `form` — the answer `dataviz` gives for this block, recorded and not decided here.
   When its "Is it even a chart?" table says a stat tile or a hero number, write that;
   a hero slot holding a single number is a correct outcome, not a thin one.
-- `figures` — the specific numbers this block owns, comma-separated. **A figure
-  appears in exactly one row's list.** Section 8 proves the build honoured it.
+- `figures` — the specific numbers this block owns, comma-separated, written the
+  way the page will print them. **A figure appears in exactly one row's list.**
+  Section 8 proves the build honoured it. When that gate reports a figure absent,
+  find out which side is wrong before editing either: a declaration corrected to
+  match a page that is rounding differently from the build buries the disagreement
+  instead of fixing it.
 - `why` — one clause. Wherever two blocks could have taken either rank, the winner's
   `why` says which two and why this one went first. A free choice you do not write
   down is one you will not remember making.
@@ -224,39 +264,25 @@ Build into the session scratchpad. Writing into the user's project happens at Se
 
 ### Draw on chartkit rather than deriving the geometry again
 
-`assets/chartkit.js` beside this file sizes each band of a chart from the width the
-browser gives the strings that will sit in that band, and the function that sizes a
-band is the one that draws into it. Concatenate it into the page's `<script>` ahead
-of the chart bodies, and write each body to draw only its own marks.
+`assets/chartkit.js` beside this file measures and places what `dataviz` decided.
+Concatenate it into the page's `<script>` ahead of the chart bodies, and write each
+body to draw only its own marks. **Do not compute a padding, a label-column width, or
+a stacking threshold in a chart body** — seven bodies each doing that arithmetic is
+what shipped a build with five text nodes hanging outside their SVG.
 
-- `CK.cartesian(host, spec)` — a value axis down the left, a value or category axis
-  along the bottom. Takes the tick values, a formatter per axis, the axis titles,
-  and the radius of the largest mark you will draw; returns the plot box and a
-  scale for each direction.
-- `CK.rows(host, spec)` — horizontal rows sharing one axis along the bottom: ranked
-  bars, dots on a stem, a mean against a range. Takes one entry per row carrying a
-  label and a value string, the tick values, and the axis title; returns the plot
-  box, a scale, and where each row sits.
-
-Both settle whether a label fits beside its mark or goes above it, whether the value
-column has room to be drawn at all, and how tall the axis band must be for a title
-that wrapped onto a second line. **Do not compute a padding, a label-column width,
-or a stacking threshold in a chart body.** Seven bodies each doing that arithmetic
-is what shipped a build with five text nodes outside their SVG at the narrow width
-and three at 1440, and left four row charts carrying two stacking thresholds and
-three label-column caps that nobody had chosen.
-
-The page owes the library four classes it reads its type sizes off — `.ax` for tick
-labels, `.cat` for category labels, `.val` for value labels, and `.axtitle` for axis
-titles — and one element with `id="tip"` for the hover layer. Give those classes
-their sizes from the tokens Section 6 fixed. `scripts/test_chartkit.py` draws both
-forms at 320, 768, and 1440; read it for what each spec accepts.
+Read [references/chartkit.md](references/chartkit.md) before the first chart body,
+for what each spec takes and the two ways to call the library wrong.
 
 What this template adds, because the gate and the review read them:
 
 - Every block's container carries `data-block="<slug>"` matching `layout.tsv`. A block
   built without it is invisible to Section 8, which then gates against nothing.
 - Every size, space, and radius is written as `var(--token)`, never as a literal.
+- Where the page recomputes a figure the build also wrote into the prose, one
+  formatter governs both, and the build's is the one that has to match the browser's.
+  Python rounds a half to even and JavaScript rounds it up, so 2.625 prints as 2.62
+  on one side and 2.63 on the other, and Section 8 then reports the figure missing
+  from a block that is rendering it perfectly well.
 - The layout, the queries, and the disclosure controls follow `responsive-design`,
   loaded at Section 6. Its filter rule matters most here: `dataviz` puts filters in
   one row above the charts and assumes a wide viewport, and that skill owns what
@@ -413,6 +439,11 @@ you reopen `layout.tsv`:
 Do not copy anything into the user's project. Present the built path, the gate
 output, the render, and the exact destination path. Then wait.
 
+**Send the page itself with `SendUserFile`, not only its path.** The operator may be
+reading this on a phone, where a path on the build machine opens nothing. Send the
+built file and give the path, so either route works. They cannot approve a page they
+cannot open.
+
 Prior approval in this session does not carry forward. Each write, each overwrite,
 and any later commit needs its own authorization, per `git-commit` "Safety".
 
@@ -434,6 +465,11 @@ disposition. Then:
   Section 5 against the new derivation. Restyling stays here; anything structural
   leaves.
 - Changing a rank is structural. It changes what the surface argues.
+- **A wording change after Section 4 was approved is reported at Section 10**, with
+  the old string and the new one. The operator approved `copy.md`; changing what the
+  page says without telling them makes that approval cover something they did not
+  read. Make the change, re-run Section 9 against the rebuilt file, and say what
+  moved.
 - Say a gate is complete only when the most recent full run happened against the
   current files with nothing edited after. Otherwise, say which edits landed after
   the last run.
@@ -455,7 +491,9 @@ disposition. Then:
   `responsive-design` owns all of it, and the numbers there come from WCAG
   rather than from a list of devices.
 - Does not write into the user's project. That is a separate authorization.
-- Does not commit, push, or publish.
+- Does not commit, push, or publish. Sending the built file to the operator with
+  `SendUserFile` at Section 10 is none of those: it hands them the page they are
+  being asked to approve, and publishing it to claude.ai still needs their own ask.
 - Does not judge whether the data supports the point. Section 2 asks you to write
   down what the data cannot answer; nothing here checks that you were honest.
 - Does not decide whether an undeclared repeated number matters. The sweep finds
