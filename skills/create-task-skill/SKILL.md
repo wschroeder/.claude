@@ -193,17 +193,28 @@ Plan with open gates.
 Path:     ~/.claude/skills/<skill-name>/SKILL.md
 Action:   mkdir -p <skill-dir> && Write SKILL.md
 Bytes:    <approximate count>
-Mapping:  NONE — unmapped during the iteration window
+Row:      <the routing row, quoted exactly as it will read>
+Table:    <~/.claude/CLAUDE.md, or the private table when the row names
+           mechanics only one machine carries>
 ```
+
+The row ships with the skill, in the same change. A skill nothing routes
+to is a skill nothing loads: leave the row out and the new template runs
+only when the operator types its name, which is the one condition under
+which it never gets the real-task exposure the discipline below asks for.
+
+Write the row's topic column in the words the operator would actually
+use, and check it against every row already in the table. A topic that
+restates a neighbour is how the wrong skill gets picked.
 
 ## Stop — awaiting approval before writing
 
 Do not call mkdir or Write yet. The operator approves the write as a
-separate action. Per the iteration discipline established when this
-pattern was built:
+separate action, and that write includes the routing row. Per the
+iteration discipline established when this pattern was built:
 
-- Build ONE new task skill, leave it unmapped, use it on real tasks
-  for a week or two
+- Build ONE new task skill and use it on real tasks for a week or two
+  before starting another
 - After it earns its keep, add a second; discover overlap and
   ambiguity between them at that point
 - Only then build a router with outcome-shaped discriminators
@@ -214,8 +225,8 @@ pattern was built:
 
 ## Notes on what this template does NOT do
 
-- Does not write the skill file. Writing is a separate authorization.
-- Does not add the new skill to any CLAUDE.md routing table.
+- Does not write the skill file or its routing row. Both go in one
+  change, and that change is a separate authorization.
 - Does not reference any skill that has not been verified as globally
   invokable in the Probe Phase.
 - Does not duplicate content from CLAUDE.md; references it.
