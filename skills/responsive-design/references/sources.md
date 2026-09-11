@@ -7,6 +7,10 @@
 - [The 1.4.4 correction — an error this file shipped](#the-144-correction)
 - [The layout philosophy](#the-layout-philosophy)
 - [The failure that produced the disclosure rule](#the-disclosure-rule)
+- [Why a render is not reproducible](#renders-are-not-reproducible)
+- [Chrome's minimum window width](#chromes-minimum-window-width)
+- [The cost of holding a line](#the-cost-of-holding-a-line)
+- [Space that grows while the viewport does not](#space-that-grows-while-the-viewport-does-not)
 
 ## The standards
 
@@ -199,3 +203,108 @@ had arrived, so two captures that disagree can be told apart from two that agree
 produce the 320-pixel viewport that WCAG 1.4.10 requires, and a run that asks
 for one gets a silent pass at 500 instead of a failure. The iframe strip exists
 for this reason as much as for media and container query evaluation.
+
+## The cost of holding a line
+
+A dashboard shipped four readouts in a grid of
+`repeat(auto-fit, minmax(min(18ch, 100%), 1fr))`, each a value above its label,
+with `white-space: nowrap` on the value. At 320 CSS pixels with the text at 200%
+the page scrolled sideways, `documentElement.scrollWidth` reading 388 against a
+`clientWidth` of 305, and the longest value overran its own box at 143 against
+307. Deleting the `nowrap` brought both to 305.
+
+Deleting it looked free because the grid's own column minimum already beat the
+longest string. Measured in the page at a font size of 17.265px, `18ch` in the
+grid's font came to 196.05px, while the longest value, `-0.139 to +0.250`, drew
+134.33px — 61.72px of headroom in the narrowest column the grid can build.
+A value there cannot wrap until `min(18ch, 100%)` has resolved to `100%`, which
+is the moment the grid collapses to one column, and one cell in a row has no
+neighbour to fall out of line with.
+
+Two things eat that headroom, and they compound:
+
+```
+  longest value, drawn                 width     headroom in an 18ch column
+  as the page ships                   134.33px            61.72px
+  under the four 1.4.12 overrides     173.00px            23.05px
+  with the webface absent             166.31px            29.74px
+  under both at once                  204.98px            -8.93px
+```
+
+Stepping the component's own width from 380 to 900 in 4px steps, 131 widths in
+all, under the overrides with the webface absent:
+
+```
+  nowrap deleted, nothing reserved    18 widths misaligned, worst 25.90px
+  line-height 1.25, min-height 2.5em  18 widths misaligned, worst  8.64px
+  line-height 1.5,  min-height 3em     0
+  min-height 2lh                       0
+```
+
+The misaligned widths cluster at 412, where the second column appears, and 624,
+where the third does — the only widths at which a column sits at its bare 18ch
+minimum. The 2.5em reservation failed because the override sets
+`line-height: 1.5 !important` over the 1.25 the reservation was sized against,
+so two lines then need 3em from a box holding 2.5em, and that missing 0.5em is
+the 8.64px.
+
+Reserving costs vertical space, because every value takes two lines whether it
+needs them or not. The same readout grew from 234.5px to 333.66px at 320 with
+normal text, and from 504.62px to 752.59px with the text at 200%.
+
+A container query restoring `nowrap` once a second column appears would avoid
+that vertical cost. Nobody measured it, and the table above says why it would
+not hold: its threshold would have to be set wider than the text actually draws,
+and the same string spans 134.33px to 204.98px depending on what the reader and
+the network do.
+
+## Space that grows while the viewport does not
+
+A page can reflow at 320 CSS pixels and still fail the moment the reader raises
+their browser's default font size, because every `rem` on it doubles and the
+viewport does not. Measured on a built dashboard, `wc2026_correlations.html`,
+sha256 `b834be3e3439`, 97648 bytes.
+
+At 320 with the default root font the page passes: `documentElement.scrollWidth`
+305 against a `clientWidth` of 305. It passes under the four 1.4.12 text-spacing
+overrides too, at 305 against 305, and again with every webface swapped for its
+fallback. So neither text spacing nor the fonts reach this.
+
+With `html { font-size: 200% }` the same page reports 347 against 305, and the
+overflow traces down to one block: `DIV.shell 347>305`, `MAIN.stack 315>241`,
+`SECTION.hero 315>241`, `P.n 235>81`.
+
+Two declarations produced that 81-pixel column and the 235-pixel string in it.
+
+The hero takes `padding: var(--s-20) var(--s-10)` with `--s-10: 2.5rem`, which
+is 40px a side at the default root and 80px at 200%. Inside a 241px hero that
+leaves 81px for content.
+
+The hero number takes `--t-hero: clamp(3.25rem, 2.652rem + 2.989vw, 6rem)`. At a
+320px viewport and a 32px root the preferred term computes to 94.5px while the
+floor computes to 104px, so the browser takes the floor, and "4.5%" draws 235px
+wide.
+
+Fixing each in turn, all at 320 with the root at 200%:
+
+```
+as shipped                                  scrollWidth 347   client 305
+padding-inline: min(2.5rem, 6vw)            scrollWidth 332   client 305
+  padding-left 80px -> 19.2px, content box 81px -> 203px
+  + floor lowered to 2.75rem                scrollWidth 332   client 305
+  hero number 104px -> 94.43px; headings now bind instead
+  + overflow-wrap: break-word on headings   scrollWidth 322   client 305
+```
+
+What is left over at 322 is inside the charts — `text.axtitle 178>116` and
+`332>106`, and `DIV.legend 172>143` — which the chart library owns rather than
+this skill.
+
+Lowering the floor costs nothing at a normal root font. At 1440 with the default
+root the preferred term computes to 85.47px, which sits above both the old floor
+and the new one, so the hero number measures 85.47px either way and the document
+reports 1425 against 1425.
+
+The lesson is the order of the checks rather than any one of these numbers: a
+page that reflows at 320 has been tested at one root font size, and the reader
+who needs 320 is frequently the same reader who has raised that size.

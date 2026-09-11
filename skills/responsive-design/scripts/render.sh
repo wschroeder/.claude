@@ -16,6 +16,7 @@ OUT=""
 URL=""
 MODE=screenshot
 FONTS=0
+SCHEME=light
 
 die() { echo "render.sh: $*" >&2; exit 2; }
 
@@ -37,6 +38,7 @@ while [ $# -gt 0 ]; do
     --url)    URL="$2";    shift 2 ;;
     --mode)   MODE="$2";   shift 2 ;;
     --fonts)  FONTS=1;      shift 1 ;;
+    --color-scheme) SCHEME="$2"; shift 2 ;;
     *) die "unknown argument: $1" ;;
   esac
 done
@@ -63,6 +65,15 @@ case "$MODE" in
   screenshot) capture=(--screenshot="$OUT") ;;
   dom)        capture=(--dump-dom) ;;
   *) die "--mode must be screenshot or dom, not $MODE" ;;
+esac
+
+# Chrome flips prefers-color-scheme for --force-dark-mode and leaves every
+# computed colour alone, so a page with no dark rules renders identically under
+# it. That is what makes the flag safe to measure colours through.
+case "$SCHEME" in
+  light) scheme_flag="" ;;
+  dark)  scheme_flag="--force-dark-mode" ;;
+  *) die "--color-scheme must be light or dark, not $SCHEME" ;;
 esac
 
 if [ "$FONTS" = 1 ] && [ "$MODE" != dom ]; then
@@ -120,6 +131,7 @@ timeout "$BACKSTOP" "$CHROME" \
   --user-data-dir="$profile_dir" \
   --allow-file-access-from-files `# iframes of local files stay blank without it` \
   --virtual-time-budget=15000 \
+  $scheme_flag \
   "${capture[@]}" \
   "$render_url" >"$dom_target" 2>/dev/null &
 chrome_pid=$!

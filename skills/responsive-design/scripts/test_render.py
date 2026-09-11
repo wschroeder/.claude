@@ -62,6 +62,12 @@ class UsageErrors(unittest.TestCase):
         self.assertEqual(r.returncode, 2)
         self.assertIn("--mode", r.stderr)
 
+    def test_an_unknown_colour_scheme_is_refused(self):
+        r = run("--width", "900", "--out", "/dev/null", "--url", "about:blank",
+                "--color-scheme", "sepia")
+        self.assertEqual(r.returncode, 2)
+        self.assertIn("sepia", r.stderr)
+
     def test_a_source_file_that_is_not_there_is_refused(self):
         r = run("--width", "900", "--out", "/dev/null", "--url", "/nope/absent.html")
         self.assertEqual(r.returncode, 2)
@@ -133,6 +139,40 @@ class DomRender(unittest.TestCase):
         dom = open(self.out).read()
         self.assertIn("<h1>hello</h1>", dom)
         self.assertIn("<title>ran</title>", dom)
+
+
+SCHEME_FIXTURE = (
+    "<!doctype html><meta charset=utf-8><pre id=r>pending</pre>"
+    "<script>document.getElementById('r').textContent="
+    "'dark='+matchMedia('(prefers-color-scheme: dark)').matches</script>"
+)
+
+
+@unittest.skipUnless(os.path.exists(CHROME), "Chrome not installed here")
+class ColorScheme(unittest.TestCase):
+    """A page can answer the reader's colour scheme, and a review that renders
+    only the default one has tested half of it."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp()
+        self.page = os.path.join(self.dir, "page.html")
+        with open(self.page, "w") as f:
+            f.write(SCHEME_FIXTURE)
+        self.out = os.path.join(self.dir, "dom.html")
+
+    def tearDown(self):
+        shutil.rmtree(self.dir, ignore_errors=True)
+
+    def render(self, *extra):
+        r = run("--url", self.page, "--out", self.out,
+                "--width", "900", "--mode", "dom", *extra)
+        self.assertEqual(r.returncode, 0, r.stderr)
+        return open(self.out).read()
+
+    def test_dark_is_what_the_page_is_asked_and_light_is_the_default(self):
+        self.assertIn("dark=true", self.render("--color-scheme", "dark"))
+        self.assertIn("dark=false", self.render("--color-scheme", "light"))
+        self.assertIn("dark=false", self.render())
 
 
 WEBFONT_FIXTURE = (

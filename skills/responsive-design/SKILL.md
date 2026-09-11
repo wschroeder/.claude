@@ -99,6 +99,70 @@ Flex and grid children default to `min-width: auto`, so a long word or a wide
 table refuses to shrink and pushes the page sideways. Give any child that holds
 text or a scroller `min-width: 0`.
 
+### A value that wraps keeps its label in line
+
+`white-space: nowrap` is not how you hold a value on one line. In a grid of
+repeated cells you will not catch it at any width you are likely to try: it
+gives way only at the narrow end, where the column finally measures thinner
+than the string and the body starts scrolling sideways.
+
+Let the value wrap, and reserve its height so a cell that takes two lines does
+not drop its label below the labels beside it:
+
+```css
+.readout .n {
+  white-space: normal;
+  overflow-wrap: break-word;
+  line-height: 1.5;
+  min-height: 3em;   /* engines with no lh unit */
+  min-height: 2lh;
+}
+```
+
+Write the reservation in `lh`, which is the element's own computed line height
+and so tracks the reader's text-spacing override. A height you sized against a
+line height of your own choosing comes up short the moment that override sets
+`line-height: 1.5`. Declare that same 1.5 here and the `em` fallback lands on
+two lines exactly, which is what makes it safe to ship beside the `lh`.
+
+Check whether you need the reservation at all before you add it. Where the
+grid's own column minimum is already wider than the longest string, the value
+cannot wrap until the grid has collapsed to one column, and a single cell per
+row has no neighbour to fall out of line with. Measure the two against each
+other rather than assuming either:
+[references/sources.md](references/sources.md), "The cost of holding a line".
+
+### Check the narrow end with the text doubled, not only at the default size
+
+A reader who raises their browser's default font size doubles every `rem` on the
+page. The viewport does not move with them, so at 320 CSS pixels the space and
+the type go on growing into a column that can spare neither, and the body starts
+scrolling sideways. That is a 1.4.10 failure reached through 1.4.4, at a width
+nobody designed and a size nobody tested.
+
+Three things break this way, and each is a rule from further up this page.
+
+**Padding in `rem` eats the column it sits in.** Cap it against the viewport, so
+it stops growing where the viewport cannot spare it:
+
+```css
+.hero { padding-inline: min(var(--s-10), 6vw); }
+```
+
+**A `clamp()` floor in `rem` is a floor the viewport cannot honour.** The `vw`
+term falls as the viewport narrows and the floor does not, so the browser takes
+the floor and the longest string overruns its line. Lower the floor until that
+string fits. The desktop size does not move, because the preferred term already
+sits above the floor there.
+
+**A heading at a doubled size holds words wider than its column.** Give every
+heading and any unbroken value `overflow-wrap: break-word`.
+
+Check 2 of the review checklist is where all three surface, and it is the one to
+run before trusting a page at 320. The measurements:
+[references/sources.md](references/sources.md), "Space that grows while the
+viewport does not".
+
 ### Which query
 
 | The behaviour belongs to | Use | Note |
@@ -183,7 +247,8 @@ and "it looks fine" is not one of them.
                   criterion here: this is not WCAG 1.4.4.
 
 3  TEXT SPACING   Inject the four overrides and render. Does anything clip,
-   artifact       overlap, or disappear?
+   artifact       overlap, disappear, or fall out of line with the cells
+                  beside it?
                   the injected render.  (WCAG 1.4.12)
 
 4  UNIT AUDIT     Count px against rem for font-size, padding, and margin.
@@ -275,6 +340,11 @@ one width and the real device height.
 p{margin-bottom:2em!important}
 </style>
 ```
+
+Run check 3 a second time with every webface swapped for its fallback. The two
+conditions compound: each one on its own widens a string by a little, and a
+fallback face is wider per character than the one you chose, so the pair
+overruns a column that either alone still fits.
 
 **Measured, not looked at.** For checks 1, 4, 7 and 8, read the numbers. Where a
 devtools MCP is available, read `documentElement.scrollWidth` against `innerWidth`

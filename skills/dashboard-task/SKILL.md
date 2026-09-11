@@ -1,6 +1,6 @@
 ---
 name: dashboard-task
-description: Builds a dashboard or a data report that argues a point the operator chose — opens the data, declares what it can and cannot support, then proposes three to five candidate stories with the numbers behind each and stops for the operator to pick one or write their own. Never chooses the story itself. From that sentence it drives `writing-prose` to derive the block order, settles every word the reader will read before any visual exists, ranks every block so no two carry the same weight, fixes one type scale, one spacing scale, and one corner radius before anything is placed, gives each figure exactly one owner, gates the built file for repeated numbers and for how many distinct sizes it contains, renders it, and reviews it against a seven-check grid before stopping for approval. Hands every chart to `dataviz` and everything about behaving at any width to `responsive-design`, and restates neither. Use when the ask names a dashboard, a data report, an analysis write-up, or a page of charts for a client or a team.
+description: Builds a dashboard or a data report that argues a point the operator chose — opens the data, declares what it can and cannot support, then proposes three to five candidate stories with the numbers behind each and stops for the operator to pick one or write their own. Never chooses the story itself. From that sentence it drives `writing-prose` to derive the block order, settles every word the reader will read before any visual exists, ranks every block so no two carry the same weight, fixes one type scale, one spacing scale, and one corner radius before anything is placed, gives each figure exactly one owner, gates the built file for repeated numbers and for how many distinct sizes it contains, renders it, and reviews it against an eight-check grid before stopping for approval. Hands every chart to `dataviz` and behaviour at any width to `responsive-design`, restating neither. Use when the ask names a dashboard, a data report, an analysis write-up, or a page of charts for a client or a team.
 ---
 
 # dashboard-task — build a surface that makes a point
@@ -56,10 +56,11 @@ CONSTRAINTS)", and every sentence follows its "Communication Style (HARD
 CONSTRAINT)". This file restates neither.
 
 Machinery is at `scripts/` beside this file, and the chart library at `assets/`.
-Run both test suites once before trusting either. The second one drives real
-Chrome and takes about thirty seconds:
+Run all three test suites once before trusting any of them. The last two drive
+real Chrome, and `test_chartkit.py` takes about a minute:
 
     python3 scripts/test_layout_scales.py
+    python3 scripts/test_block_contrast.py
     python3 scripts/test_chartkit.py
 
 ---
@@ -294,6 +295,10 @@ Valid output: the real output of
 
     python3 scripts/layout_scales.py --html <built.html> --layout layout.tsv
 
+Its first two lines name each file the script opened and give the SHA-256 of the
+bytes it read. Paste them with the findings: they say which build everything below
+describes, and a report that drops them describes a page nobody can name.
+
 Six findings, and each gets a written disposition:
 
 - `TYPE-SCALE`, `RADIUS-SCALE`, `SPACE-SCALE` — more distinct literal values than the
@@ -325,6 +330,10 @@ Do not advance while the script exits non-zero and any finding is unanswered.
 
 Two artifacts, and they answer different questions.
 
+Render the file whose digest the Section 8 report names. If you rebuilt the page
+after that report, then re-run Section 8 before rendering, or the numbers you
+present will come from two different builds.
+
 **A full-page desktop render**, for checks 1 to 6, which are about blocks:
 
     ~/.claude/skills/responsive-design/scripts/render.sh \
@@ -345,8 +354,8 @@ Then open both and read them.
 
 ### The grid
 
-**Checks 1, 2, 5, and 6 run against every block. Checks 3, 4, and 7 run once for
-the whole surface.** Eight blocks is thirty-five dispositions. Keep the grid in
+**Checks 1, 2, 5, 6, and 8 run against every block. Checks 3, 4, and 7 run once
+for the whole surface.** Eight blocks is thirty-five dispositions. Keep the grid in
 your working notes; what reaches the response is the findings, the artifacts
 checks 1 to 4 and 7 owe, and the coverage line.
 
@@ -370,7 +379,8 @@ Every block-and-check pair resolves to exactly one of three states, the same thr
 
 ### The checks
 
-**Checks 1 to 4 and check 7 owe an artifact even when they come back clean.** For those,
+**Checks 1 to 4 and checks 7 and 8 owe an artifact even when they come back
+clean.** For those,
 prose is an invalid disposition — they are the ones a builder passes by knowing
 what the page means rather than by reading what it says.
 
@@ -407,6 +417,16 @@ what the page means rather than by reading what it says.
                     template most often fails: at the narrowest width, does any
                     content reach the first screenful, or does the reader meet
                     a screen of controls?
+
+8  CONTRAST         Every string this block draws, in both colour schemes,
+   artifact         against the ratio WCAG 1.4.3 asks of its size.
+   required         Run, for the whole surface at once:
+                      python3 scripts/block_contrast.py --html <built.html>
+                    Report its digest line and its findings. A page that
+                    defines a dark scheme is not thereby tested in one: the
+                    defect this catches is a colour that is right against the
+                    page and wrong against the card the text sits on, and it
+                    shows up in one scheme only.
 ```
 
 Checks 5 and 6 may be answered in prose, but prose that cites a measurement or
@@ -417,7 +437,7 @@ quotes a line, never a story about what the reader will probably understand.
 Close the section with it, and make it real:
 
 ```
-4 per-block checks x <n> blocks + 3 once = <n> pairs
+5 per-block checks x <n> blocks + 3 once = <n> pairs
 DEMONSTRATED <n>   N/A <n>   hypothesis <n>   findings: <n>
 ```
 
@@ -438,6 +458,22 @@ you reopen `layout.tsv`:
 
 Do not copy anything into the user's project. Present the built path, the gate
 output, the render, and the exact destination path. Then wait.
+
+**Prove the page you are handing over is the page you gated.** Run
+
+    python3 scripts/layout_scales.py --digest <built.html>
+
+and read its `sha256:` value against the one on the first line of the Section 8
+report. Compare that value rather than the whole line, which carries the path as
+you typed it: the same file named relatively in one run and absolutely in the other
+gives two lines and one digest. If the digests disagree, then you are about to hand
+over a build nobody gated: rebuild if you need to, re-run Sections 8 and 9, and
+present the new report instead. The operator can check the same digest without this
+script because `shasum -a 256 <built.html>` starts with the same characters.
+
+**Report any wording change since Section 4 as prose in this message with the old
+string and the new one, never as a file written into the project, which takes the
+finished page and nothing else.**
 
 **Send the page itself with `SendUserFile`, not only its path.** The operator may be
 reading this on a phone, where a path on the build machine opens nothing. Send the
@@ -471,8 +507,9 @@ disposition. Then:
   read. Make the change, re-run Section 9 against the rebuilt file, and say what
   moved.
 - Say a gate is complete only when the most recent full run happened against the
-  current files with nothing edited after. Otherwise, say which edits landed after
-  the last run.
+  current files with nothing edited after. The digest at the top of the Section 8
+  report settles that; do not answer it from memory. Otherwise, say which edits
+  landed after the last run.
 - A gate that cannot be closed is reported to the operator with its number and what
   it would take. It is not reclassified as a preference.
 

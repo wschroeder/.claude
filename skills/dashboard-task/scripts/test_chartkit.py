@@ -202,6 +202,44 @@ class RowsFit(Case):
         self.assertEqual(long["bounds"]["escaped"], [])
 
 
+    def test_a_stacked_label_keeps_the_gridlines_out_of_its_own_line(self):
+        """A label that stacks sits above its mark, inside the band the
+        gridlines run down. Drawn full height they strike through the words:
+        measured at 400px, five gridlines crossed two labels six times."""
+        got = self.draw("""
+          var box = CK.rows(document.getElementById("host"), {
+            width: 400,
+            rows: [{label: "Attendance against stadium capacity", value: "+0.178"},
+                   {label: "Apparent temperature at kickoff", value: "+0.006"}],
+            ticks: [-1, -0.5, 0, 0.5, 1],
+            tickFormat: function (v) { return v.toFixed(1); },
+            title: "correlation with goals in the match"
+          });
+          var lines = [];
+          Array.prototype.forEach.call(box.svg.querySelectorAll("line.gridline"),
+            function (l) { lines.push({ x: +l.getAttribute("x1"),
+                                        y1: +l.getAttribute("y1"),
+                                        y2: +l.getAttribute("y2") }); });
+          var struck = [];
+          Array.prototype.forEach.call(box.svg.querySelectorAll("text.cat"),
+            function (t) {
+              var b = t.getBBox();
+              lines.forEach(function (g) {
+                if (g.x >= b.x && g.x <= b.x + b.width
+                    && g.y1 <= b.y + b.height && g.y2 >= b.y) {
+                  struck.push({ label: t.textContent, x: g.x });
+                }
+              });
+            });
+          report({ stacked: box.stacked, struck: struck,
+                   gridlines: lines.length, bounds: bounds(box.svg) });
+        """)
+        self.assertTrue(got["stacked"], "the labels did not stack, so nothing was exercised")
+        self.assertGreater(got["gridlines"], 0, "no gridline was drawn at all")
+        self.assertEqual(got["struck"], [])
+        self.assertEqual(got["bounds"]["escaped"], [])
+
+
 class CsvReading(Case):
     """A field holding a comma inside quotes shifts every column after it when
     the reader splits on commas, and the shift is silent: the row still parses,
@@ -577,6 +615,49 @@ class WholeChart(Case):
                     self.assertEqual(got["marks"]["escaped"], [])
                     self.assertLess(got["x0"], got["x1"])
 
+    def test_a_dot_at_the_top_of_the_axis_clears_its_own_value_label(self):
+        """The value column sits a fixed gap past the plot's right edge, and a
+        dot at the top of the axis reaches its own radius past that same edge.
+        Where the radius is the larger of the two the mark lands on the digits:
+        measured on a built page, a dot ending at x=1252 against a label
+        starting at x=1252."""
+        got = self.draw("""
+          var data = [["Third-place play-off", 10.00], ["Quarter-finals", 3.00],
+                      ["Final", 1.00]];
+          var box = CK.rows(document.getElementById("host"), {
+            width: 560, markRadius: 8, markHeight: 16,
+            rows: data.map(function (d) {
+              return { label: d[0], value: d[1].toFixed(2) }; }),
+            ticks: [0, 5, 10], tickFormat: String,
+            title: "mean goals a match"
+          });
+          data.forEach(function (d, i) {
+            box.svg.appendChild(CK.S("circle", { cx: box.sx(d[1]),
+              cy: box.rowMid(i), r: 8, fill: "#3b6ea5" }));
+          });
+          var marks = [];
+          Array.prototype.forEach.call(box.svg.querySelectorAll("circle"),
+            function (c) { marks.push(c.getBBox()); });
+          var overlaps = [];
+          Array.prototype.forEach.call(box.svg.querySelectorAll("text.val"),
+            function (t) {
+              var b = t.getBBox();
+              marks.forEach(function (m) {
+                if (m.x + m.width > b.x && b.x + b.width > m.x
+                    && m.y + m.height > b.y && b.y + b.height > m.y) {
+                  overlaps.push({ value: t.textContent,
+                                  markRight: m.x + m.width, textLeft: b.x });
+                }
+              });
+            });
+          report({ showValues: box.showValues, overlaps: overlaps,
+                   bounds: bounds(box.svg), marks: bounds(box.svg, "circle") });
+        """)
+        self.assertTrue(got["showValues"], "the value column was dropped, so nothing was exercised")
+        self.assertEqual(got["overlaps"], [])
+        self.assertEqual(got["bounds"]["escaped"], [])
+        self.assertEqual(got["marks"]["escaped"], [])
+
     def test_a_mark_wider_than_the_value_column_still_gets_its_room(self):
         """The value column usually absorbs a dot's radius, so the two only
         come apart when the mark is the wider of them — a bubble sized by a
@@ -791,6 +872,285 @@ class RangeTickGeneration(Case):
           report({ smallest: CK.rangeTicks(0, 5e-324, 4) });
         """)
         self.assertEqual(got["smallest"], [0])
+
+
+class MeasuresTheSpacingItWillDraw(Case):
+    """Every band in a chart is sized from a measured string width, and the
+    canvas doing the measuring starts at zero letter-spacing and zero
+    word-spacing. A reader who turns on the WCAG 1.4.12 text-spacing override
+    sets both, and every string then draws wider than the band it was measured
+    into. Measured on one build: 11 labels past their own chart box at 900
+    pixels, the worst by 37.1, and 3 still past it once only the letter
+    spacing was accounted for, the worst by 5.2."""
+
+    def test_classSpacing_reads_both_spacings_the_page_set_for_the_class(self):
+        """The override widens strings two ways, and the two report
+        differently: an unset letter-spacing computes as the word `normal`,
+        which parseFloat turns into NaN, while an unset word-spacing computes
+        as `0px`."""
+        got = self.draw(r"""
+          var style = document.createElement("style");
+          style.textContent = "* { letter-spacing: 0.12em !important;"
+                            + " word-spacing: 0.16em !important; }";
+          document.head.appendChild(style);
+          var sp = CK.classSpacing("cat");
+          report({ track: +sp.track.toFixed(2), word: +sp.word.toFixed(2) });
+        """)
+        self.assertAlmostEqual(got["track"], 1.56, delta=0.01)
+        self.assertAlmostEqual(got["word"], 2.08, delta=0.01)
+
+    def test_textW_matches_the_drawn_width_when_the_page_tracks_the_class_out(self):
+        """The browser applies the letter spacing after the last character too,
+        so a
+        width derived from character count times spacing is short by one
+        character's worth even when it is derived at all."""
+        got = self.draw(r"""
+          var style = document.createElement("style");
+          style.textContent = "* { letter-spacing: 0.12em !important; }";
+          document.head.appendChild(style);
+          var svg = CK.S("svg", { width: 400, height: 40 });
+          var node = CK.T(0, 20, "Mercedes-Benz Stadium", "cat");
+          svg.appendChild(node);
+          document.getElementById("host").appendChild(svg);
+          var px = CK.classFontPx("cat"), sp = CK.classSpacing("cat");
+          report({ drawn: +node.getBBox().width.toFixed(2),
+                   track: +sp.track.toFixed(2),
+                   measured: +CK.textW("Mercedes-Benz Stadium", px, 400,
+                                       sp).toFixed(2) });
+        """)
+        self.assertAlmostEqual(got["track"], 1.56, delta=0.01)
+        self.assertAlmostEqual(got["measured"], got["drawn"], delta=0.5)
+
+    def test_textW_matches_the_drawn_width_when_the_page_spaces_the_words_out(self):
+        """A category label is several words, and the override widens every
+        space in it as well as every character. Measured on the shipped page at
+        900 pixels: `35 °C and above` drew 148.55 wide against 141.53 measured,
+        the 7.02 difference being its three spaces at 2.34 each, and the label
+        hung 5.19 past the left edge of its own chart."""
+        got = self.draw(r"""
+          var style = document.createElement("style");
+          style.textContent = "* { letter-spacing: 0.12em !important;"
+                            + " word-spacing: 0.16em !important; }";
+          document.head.appendChild(style);
+          var svg = CK.S("svg", { width: 400, height: 40 });
+          var node = CK.T(0, 20, "35 °C and above", "cat");
+          svg.appendChild(node);
+          document.getElementById("host").appendChild(svg);
+          var px = CK.classFontPx("cat"), sp = CK.classSpacing("cat");
+          report({ drawn: +node.getBBox().width.toFixed(2),
+                   measured: +CK.textW("35 °C and above", px, 400, sp).toFixed(2) });
+        """)
+        self.assertAlmostEqual(got["measured"], got["drawn"], delta=0.05)
+
+    def test_titleW_matches_the_drawn_width_of_a_tracked_uppercase_axis_title(self):
+        """An axis title is uppercased and tracked out by the page, and the
+        library added the tracking back over one gap fewer than the browser
+        draws, so a title measured this way is short by one character's worth
+        of spacing however wide it is."""
+        got = self.draw(r"""
+          var svg = CK.S("svg", { width: 400, height: 40 });
+          var node = CK.T(0, 20, "seats sold", "axtitle");
+          svg.appendChild(node);
+          document.getElementById("host").appendChild(svg);
+          report({ drawn: +node.getBBox().width.toFixed(2),
+                   track: +CK.classSpacing("axtitle").track.toFixed(2),
+                   measured: +CK.titleW("seats sold", CK.classFontPx("axtitle"),
+                                        500, CK.classSpacing("axtitle")).toFixed(2) });
+        """)
+        self.assertAlmostEqual(got["track"], 0.8, delta=0.01)
+        self.assertAlmostEqual(got["measured"], got["drawn"], delta=0.5)
+
+    def test_a_row_chart_keeps_every_label_inside_the_svg_under_the_spacing_override(self):
+        """What this pins, measured on one build at 900 pixels wide: 11 text
+        nodes reaching past their own chart box, worst by 37.1, each one a long
+        category or value label whose band was sized from a width measured
+        without the spacing the page had added. The label set carries a short
+        string with more spaces in it than the widest string has, because that
+        is the shape a gutter sized from the widest string alone fails on: the
+        override widens `35 °C and above` by three spaces' worth and
+        `Mercedes-Benz Stadium`, which sets the gutter, by one."""
+        got = self.draw(r"""
+          var style = document.createElement("style");
+          style.textContent = "* { letter-spacing: 0.12em !important;"
+                            + " word-spacing: 0.16em !important; }";
+          document.head.appendChild(style);
+          var names = ["Mercedes-Benz Stadium", "Lincoln Financial Field",
+                       "35 °C and above", "Estadio Akron"];
+          var box = CK.rows(document.getElementById("host"), {
+            width: 520,
+            rows: names.map(function (n, i) {
+              return { label: n, value: (3.86 - i).toFixed(2) }; }),
+            ticks: [0, 1, 2, 3, 4],
+            tickFormat: function (v) { return v.toFixed(0); },
+            title: "goals per match at that venue"
+          });
+          var drawn = [].map.call(box.svg.querySelectorAll("text.cat"),
+                                  function (t) { return t.textContent; });
+          report({ bounds: bounds(box.svg), stacked: box.stacked,
+                   showValues: box.showValues, drawn: drawn, asked: names });
+        """)
+        self.assertFalse(got["stacked"], "the labels stacked, so the gutter was not exercised")
+        self.assertTrue(got["showValues"], "the value column was dropped, so it was not exercised")
+        self.assertEqual(got["bounds"]["escaped"], [])
+        # A gutter sized from an untracked width also passes the escape check,
+        # because the label is then shortened to fit it instead of overflowing.
+        self.assertEqual(got["drawn"], got["asked"])
+
+class AxisLabelsDoNotCollide(Case):
+    """Tick values arrive from the caller, and the library drew every one it was
+    handed however little room the plot had. Measured on one build at 320 CSS
+    pixels: eight labels from -0.3 to 0.4 in about 130 pixels of plot, three
+    overlapping pairs, the worst overlapping by 19 pixels."""
+
+    def test_a_narrow_row_chart_labels_only_the_ticks_that_clear_their_neighbour(self):
+        got = self.draw(r"""
+          var box = CK.rows(document.getElementById("host"), {
+            width: 280,
+            rows: [{ label: "Humidity", value: "+0.213" },
+                   { label: "Wind speed", value: "-0.112" }],
+            ticks: [-0.3, -0.2, -0.1, 0, 0.1, 0.2, 0.3, 0.4],
+            tickFormat: function (v) { return v.toFixed(1); },
+            title: "correlation with goals in the match"
+          });
+          var seen = [].map.call(box.svg.querySelectorAll("text.ax"), function (t) {
+            var b = t.getBBox();
+            return { s: t.textContent, l: b.x, r: b.x + b.width };
+          }).sort(function (a, b) { return a.l - b.l; });
+          var pairs = 0, smallest = Infinity;
+          for (var i = 1; i < seen.length; i++) {
+            var gap = seen[i].l - seen[i - 1].r;
+            if (gap < 0) pairs++;
+            if (gap < smallest) smallest = gap;
+          }
+          report({ drawn: seen.map(function (x) { return x.s; }),
+                   gridlines: box.svg.querySelectorAll("line.gridline").length,
+                   overlappingPairs: pairs,
+                   smallestGap: +smallest.toFixed(2),
+                   axPx: box.axPx, plotW: +(box.x1 - box.x0).toFixed(1) });
+        """)
+        self.assertEqual(got["overlappingPairs"], 0, got["drawn"])
+        self.assertGreaterEqual(len(got["drawn"]), 2,
+                                "an axis labelled once states no scale")
+        self.assertEqual(got["drawn"][0], "-0.3",
+                         "the axis no longer states where it starts")
+        self.assertEqual(got["gridlines"], 8,
+                         "a dropped label should not take its gridline with it")
+        # Labels that merely touch read as one run of digits, which is the
+        # defect, so neighbours have to clear each other by a visible margin
+        # rather than by any positive amount.
+        self.assertGreaterEqual(got["smallestGap"], got["axPx"] * 0.5)
+
+    def test_the_stride_leaves_clear_space_and_not_merely_no_overlap(self):
+        """Labels that only just miss each other read as one run of digits, so
+        the stride is derived from the label width plus a clear margin. Measured
+        with these eight labels at 11px, each 26.4 wide: a 100-pixel plot has
+        room to label every second tick if touching counted as fitting, and
+        room for every third once the margin is required."""
+        got = self.draw(r"""
+          var labels = ["-0.3", "-0.2", "-0.1", "0.0", "0.1", "0.2", "0.3", "0.4"];
+          var px = CK.classFontPx("ax"), sp = CK.classSpacing("ax");
+          var stride = {};
+          [100, 130, 300].forEach(function (plotW) {
+            var xs = labels.map(function (_, i) {
+              return i * plotW / (labels.length - 1); });
+            stride["w" + plotW] = CK.tickStride(labels, xs, px, sp);
+          });
+          report({ stride: stride,
+                   labelW: +CK.monoW("-0.3", px, 400, sp).toFixed(1) });
+        """)
+        self.assertEqual(got["labelW"], 26.4)
+        self.assertEqual(got["stride"], {"w100": 3, "w130": 2, "w300": 1})
+
+
+    def test_a_label_the_left_edge_pushed_inward_costs_its_neighbour_the_room(self):
+        """`edgeAnchor` start-anchors a label whose centred half would spill off
+        the left of the SVG, which moves its far edge a half-width further
+        right, and `tickStride` measured clearance as though every label were
+        centred. Measured at 320 on the shipped page: `0.00` start-anchored
+        against `0.25` centred, touching by 0.4. These two cases differ only in
+        whether the leftmost label clears the edge: at 11px each label is 26.4
+        wide, so centred at 0 it spills 13.2 and start-anchors, while centred at
+        20 it clears and stays centred."""
+        got = self.draw(r"""
+          var labels = ["-0.3", "-0.2", "-0.1", "0.0", "0.1", "0.2", "0.3", "0.4"];
+          var px = CK.classFontPx("ax"), sp = CK.classSpacing("ax");
+          var stride = {};
+          [0, 20].forEach(function (off) {
+            var xs = labels.map(function (_, i) {
+              return off + i * 300 / (labels.length - 1); });
+            stride["off" + off] = CK.tickStride(labels, xs, px, sp, 340);
+          });
+          report({ stride: stride,
+                   labelW: +CK.monoW("-0.3", px, 400, sp).toFixed(1) });
+        """)
+        self.assertEqual(got["labelW"], 26.4)
+        self.assertEqual(got["stride"], {"off0": 2, "off20": 1})
+
+
+    def test_a_label_the_right_edge_pushed_inward_costs_its_neighbour_the_room(self):
+        """The same inward push happens at the other end, where `edgeAnchor`
+        end-anchors the label and its near edge moves a half-width left. These
+        two cases differ only in whether the rightmost label clears the edge:
+        five labels 26.4 wide at 40 apart leave 0.4 of clearance once the last
+        one is end-anchored, against the 6.6 a reader needs at 11px."""
+        got = self.draw(r"""
+          var labels = ["0.00", "0.05", "0.10", "0.15", "0.20"];
+          var px = CK.classFontPx("ax"), sp = CK.classSpacing("ax");
+          var xs = labels.map(function (_, i) { return 20 + i * 40; });
+          report({ tight: CK.tickStride(labels, xs, px, sp, 190),
+                   roomy: CK.tickStride(labels, xs, px, sp, 250),
+                   labelW: +CK.monoW("0.00", px, 400, sp).toFixed(1) });
+        """)
+        self.assertEqual(got["labelW"], 26.4)
+        self.assertEqual(got["roomy"], 1,
+                         "the last label clears the edge, so nothing moved it")
+        self.assertEqual(got["tight"], 2)
+
+
+    def test_without_a_plot_width_every_label_is_taken_as_centred(self):
+        """A caller who hands over no width has told the function nothing about
+        where the edges are, so there is no edge for `edgeAnchor` to push a
+        label away from. Both chart forms pass the width; this pins what the
+        exported function does for a caller that does not."""
+        got = self.draw(r"""
+          var labels = ["-0.3", "-0.2", "-0.1", "0.0", "0.1", "0.2", "0.3", "0.4"];
+          var px = CK.classFontPx("ax"), sp = CK.classSpacing("ax");
+          var xs = labels.map(function (_, i) { return i * 300 / 7; });
+          report({ noWidth: CK.tickStride(labels, xs, px, sp),
+                   withWidth: CK.tickStride(labels, xs, px, sp, 340) });
+        """)
+        self.assertEqual(got["noWidth"], 1)
+        self.assertEqual(got["withWidth"], 2,
+                         "the same positions with a width start-anchor the first label")
+
+    def test_the_stride_survives_positions_it_cannot_read_a_span_from(self):
+        """Callers are told not to guard their inputs, so the answer comes from
+        here. Nothing below may throw, and nothing may hand back a stride of
+        zero, which would label no tick at all: `i % 0` is NaN, and every tick
+        would keep its gridline and lose its label. Positions the function
+        cannot read a span from still come back as some stride the caller can
+        use. The infinite case asserts only those two properties: a position
+        that is not a place has no right stride, so pinning the one it happens
+        to return would lock in an answer nobody chose."""
+        got = self.draw(r"""
+          var px = CK.classFontPx("ax"), sp = CK.classSpacing("ax");
+          var four = ["0.00", "0.05", "0.10", "0.15"];
+          report({
+            noLabels: CK.tickStride([], [], px, sp, 300),
+            oneLabel: CK.tickStride(["0.00"], [10], px, sp, 300),
+            nanPositions: CK.tickStride(four, [0, NaN, NaN, 300], px, sp, 300),
+            shortPositions: CK.tickStride(four, [0, 100], px, sp, 300),
+            identical: CK.tickStride(four, [50, 50, 50, 50], px, sp, 300),
+            descending: CK.tickStride(four, [300, 200, 100, 0], px, sp, 300),
+            infinite: CK.tickStride(four, [0, Infinity, Infinity, 300], px, sp, 300)
+          });
+        """)
+        for name, stride in got.items():
+            self.assertIsInstance(stride, int, name)
+            self.assertGreaterEqual(stride, 1, name)
+        self.assertEqual({k: v for k, v in got.items() if k != "infinite"},
+                         {"noLabels": 1, "oneLabel": 1, "nanPositions": 1,
+                          "shortPositions": 1, "identical": 4, "descending": 4})
 
 
 if __name__ == "__main__":

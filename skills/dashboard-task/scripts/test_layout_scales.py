@@ -1,11 +1,21 @@
 #!/usr/bin/env python3
 """Tests for layout_scales.py. Run: python3 test_layout_scales.py"""
 
+import contextlib
+import hashlib
+import io
 import os
 import tempfile
 import unittest
 
 import layout_scales
+
+
+def run_main(argv):
+    out, err = io.StringIO(), io.StringIO()
+    with contextlib.redirect_stdout(out), contextlib.redirect_stderr(err):
+        code = layout_scales.main(argv)
+    return code, out.getvalue()
 
 
 def write(tmp, name, body):
@@ -65,6 +75,53 @@ class ScaleCounting(unittest.TestCase):
         layout_scales.check_scales(f"<style>{pads}{margins}</style>", findings)
         self.assertIn("SPACE-SCALE", [c for c, _ in findings])
 
+
+    def test_hand_placed_box_sizes_fail(self):
+        """The four properties this started with cover type, corners and space,
+        so a size placed straight onto a box went uncounted. Measured on a
+        built page that passed the gate: seven distinct literal lengths across
+        min-height, height and width, one of them the 32rem that left a hero
+        card half empty."""
+        rules = (".a{min-height:32rem;}.b{height:0.68rem;}.c{height:0.75rem;}"
+                 ".d{height:2px;}.e{width:1.25rem;}")
+        findings = []
+        layout_scales.check_scales(f"<style>{rules}</style>", findings)
+        self.assertIn("SIZE-SCALE", [c for c, _ in findings])
+        self.assertIn("5 distinct width/height values", dict(findings)["SIZE-SCALE"])
+
+    def test_a_prose_measure_in_ch_is_not_counted_as_a_hand_placed_size(self):
+        """responsive-design asks for prose measure as a count of characters,
+        and a page following it carries one max-width per column width it
+        supports — the built page that prompted this carried twelve. A count of
+        characters is not a distance, so none of them is a size placed by hand."""
+        rules = "".join(f".m{i}{{max-width:{50 + i}ch;}}" for i in range(12))
+        findings = []
+        layout_scales.check_scales(f"<style>{rules}</style>", findings)
+        self.assertEqual(findings, [])
+
+    def test_a_query_threshold_is_not_a_size_placed_on_a_box(self):
+        """`@container shell (min-width: 46rem)` names the width at which a
+        component changes shape. It sets nothing on any box, and a page doing
+        what responsive-design asks carries one per layout change."""
+        rules = ("@container shell (min-width:46rem){.a{color:red}}"
+                 "@container shell (min-width:52rem){.b{color:blue}}"
+                 "@media (min-width:60rem){.c{color:green}}"
+                 "@media (max-height:30rem){.d{color:gray}}"
+                 "@media (min-width:70rem){.e{color:teal}}")
+        findings = []
+        layout_scales.check_scales(f"<style>{rules}</style>", findings)
+        self.assertEqual(findings, [])
+
+    def test_an_at_rule_name_inside_a_string_does_not_eat_the_rule_after_it(self):
+        """Stripping a prelude runs to the next brace, so the word `@media` in
+        a content string carried the strip past the closing quote and took a
+        real declaration with it. A gate that counts sizes placed by hand must
+        not lose one to a coincidence of spelling."""
+        rules = '.a{content:"@media handheld";width:5rem;}.b{width:6rem;}'
+        stripped = layout_scales.strip_query_preludes(f"<style>{rules}</style>")
+        self.assertIn("5rem", stripped)
+        self.assertEqual(
+            sorted(layout_scales.declared_values(stripped, "width")), ["5rem", "6rem"])
 
 class Ranks(unittest.TestCase):
     def rows(self, ranks):
@@ -129,6 +186,29 @@ class Figures(unittest.TestCase):
         layout_scales.check_figures(rows, blocks, findings)
         self.assertEqual([c for c, _ in findings], [])
 
+    def test_a_declared_figure_ending_a_sentence_is_found_in_its_block(self):
+        findings = []
+        rows = [{"line": 1, "block": "a", "group": "g", "rank": "1", "slot": "hero",
+                 "form": "stat", "figures": ["2.36"], "why": "-"}]
+        layout_scales.check_figures(rows, {"a": "<p>a gap of 2.36.</p>"}, findings)
+        self.assertEqual([c for c, _ in findings], [])
+
+    def test_a_dotted_number_does_not_match_a_shorter_declared_one(self):
+        findings = []
+        rows = [{"line": 1, "block": "a", "group": "g", "rank": "1", "slot": "hero",
+                 "form": "stat", "figures": ["2.36"], "why": "-"}]
+        blocks = {"a": "<p>2.36</p>", "b": "<p>version 2.36.5</p>"}
+        layout_scales.check_figures(rows, blocks, findings)
+        self.assertEqual([c for c, _ in findings], [])
+
+    def test_a_thousands_group_does_not_match_a_shorter_declared_one(self):
+        findings = []
+        rows = [{"line": 1, "block": "a", "group": "g", "rank": "1", "slot": "hero",
+                 "form": "stat", "figures": ["104"], "why": "-"}]
+        blocks = {"a": "<p>104</p>", "b": "<p>104,829 attended</p>"}
+        layout_scales.check_figures(rows, blocks, findings)
+        self.assertEqual([c for c, _ in findings], [])
+
 
 class BlockTracing(unittest.TestCase):
     def test_a_declared_block_absent_from_the_html_is_reported(self):
@@ -149,13 +229,19 @@ class LayoutFile(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             path = write(tmp, "layout.tsv", "a\tb\tc\n")
             with self.assertRaises(SystemExit):
-                layout_scales.read_layout(path)
+                layout_scales.parse_layout(open(path).read(), path)
 
     def test_an_empty_file_is_refused(self):
         with tempfile.TemporaryDirectory() as tmp:
             path = write(tmp, "layout.tsv", "# only a comment\n")
             with self.assertRaises(SystemExit):
-                layout_scales.read_layout(path)
+                layout_scales.parse_layout(open(path).read(), path)
+
+    def test_a_thousands_separator_does_not_split_one_figure_into_two(self):
+        text = ("block\tgroup\trank\tslot\tform\tfigures\twhy\n"
+                "a\tg\t1\thero\tstat\t2,200, 14.2, 20,000\t-\n")
+        rows = layout_scales.parse_layout(text, "layout.tsv")
+        self.assertEqual(rows[0]["figures"], ["2,200", "14.2", "20,000"])
 
 
 class PageChrome(unittest.TestCase):
@@ -220,6 +306,60 @@ class UndeclaredSweep(unittest.TestCase):
             h = write(tmp, "d.html", html)
             l = write(tmp, "layout.tsv", CLEAN_LAYOUT)
             self.assertEqual(layout_scales.main(["--html", h, "--layout", l]), 0)
+
+
+class TheReportNamesWhatItRead(unittest.TestCase):
+    def test_the_report_carries_a_sha256_of_the_bytes_of_each_file_it_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            html = write(tmp, "d.html", CLEAN_HTML)
+            layout = write(tmp, "layout.tsv", CLEAN_LAYOUT)
+            code, out = run_main(["--html", html, "--layout", layout])
+            self.assertEqual(code, 0)
+            for path in (html, layout):
+                body = open(path, "rb").read()
+                short = hashlib.sha256(body).hexdigest()[:12]
+                self.assertIn(f"read  {path}  sha256:{short}  {len(body)} bytes",
+                              out.splitlines())
+
+    def test_digest_mode_reprints_the_line_the_gate_printed_for_each_file(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            html = write(tmp, "d.html", CLEAN_HTML)
+            layout = write(tmp, "layout.tsv", CLEAN_LAYOUT)
+            _, gate = run_main(["--html", html, "--layout", layout])
+            code, alone = run_main(["--digest", html, layout])
+        self.assertEqual(code, 0)
+        self.assertEqual(len(alone.splitlines()), 2)
+        for line in alone.splitlines():
+            self.assertIn(line, gate.splitlines())
+
+    def test_the_digest_lines_open_the_report_in_the_order_they_were_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            html = write(tmp, "d.html", CLEAN_HTML)
+            layout = write(tmp, "layout.tsv", CLEAN_LAYOUT)
+            _, out = run_main(["--html", html, "--layout", layout])
+        first, second = out.splitlines()[:2]
+        self.assertTrue(first.startswith(f"read  {html}  sha256:"), first)
+        self.assertTrue(second.startswith(f"read  {layout}  sha256:"), second)
+
+    def test_a_layout_whose_lines_end_in_bare_carriage_returns_still_parses(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            path = write(tmp, "layout.tsv", CLEAN_LAYOUT.replace("\n", "\r"))
+            text = open(path, "rb").read().decode("utf-8")
+            rows = layout_scales.parse_layout(text, path)
+        self.assertEqual([r["block"] for r in rows], ["headline", "venues"])
+
+    def test_the_gate_is_refused_when_only_one_of_the_two_files_is_named(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            html = write(tmp, "d.html", CLEAN_HTML)
+            with self.assertRaises(SystemExit):
+                run_main(["--html", html])
+
+    def test_digest_mode_is_refused_alongside_the_gate_rather_than_skipping_it(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            html = write(tmp, "d.html", CLEAN_HTML)
+            layout = write(tmp, "layout.tsv", CLEAN_LAYOUT)
+            with self.assertRaises(SystemExit):
+                run_main(["--digest", html, "--html", html, "--layout", layout])
 
 
 if __name__ == "__main__":

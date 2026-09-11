@@ -5,28 +5,76 @@ figure a block declared shows up in that block only.
 Reads the built HTML and the layout.tsv that Section 5 wrote. A page that keeps
 its sizes in custom properties and reaches them through var() scores near zero
 literals, which is the point: the ceilings punish placing a value by hand.
+
+The report opens by naming each file it read and the SHA-256 of the bytes it
+read, so a reader can tell which build the findings below describe. Run with
+--digest alone to reprint that line for a file and compare.
 """
 
 import argparse
+import hashlib
+import io
 import re
 import sys
 from collections import defaultdict
 
 LENGTH = re.compile(r"-?\d*\.?\d+(?:px|rem|em|%|pt|vh|vw)\b", re.I)
 ROOT_BLOCK = re.compile(r":root\s*\{.*?\}", re.S)
+AT_RULE_PRELUDE = re.compile(
+    r"@(?:media|container|supports)\b[^{;\"']*(?=\{)", re.I)
 SCALE_PROPS = {
     "font-size": ("TYPE-SCALE", 6),
     "border-radius": ("RADIUS-SCALE", 2),
     "padding": ("SPACE-SCALE", None),
     "margin": ("SPACE-SCALE", None),
+    "width": ("SIZE-SCALE", None),
+    "height": ("SIZE-SCALE", None),
 }
-SPACE_CEILING = 8
+# One ceiling rather than a property each, because a swatch's width and a rule's
+# height are the same decision made twice. The word boundary in declared_values
+# puts the min- and max- forms under these two keys as well, so a measure set by
+# hand is counted wherever it was written. A measure in `ch` costs nothing: it is
+# a count of characters rather than a distance, and LENGTH does not read it.
+POOL_CEILINGS = {"SPACE-SCALE": 8, "SIZE-SCALE": 4}
+POOL_LABELS = {"SPACE-SCALE": "padding/margin", "SIZE-SCALE": "width/height"}
 BLOCK_TAG = re.compile(r'data-block\s*=\s*"([^"]+)"')
+
+
+DIGEST_CHARS = 12
+
+
+def read_file(path):
+    with open(path, "rb") as handle:
+        return handle.read()
+
+
+def digest_line(path, body):
+    """Name a file by a truncated SHA-256 of the bytes on disk.
+
+    Truncated rather than hashed differently so that `shasum -a 256 <file>`
+    starts with the same characters, which lets a reader check a report
+    without running this script.
+    """
+    short = hashlib.sha256(body).hexdigest()[:DIGEST_CHARS]
+    return f"read  {path}  sha256:{short}  {len(body)} bytes"
 
 
 def strip_custom_property_definitions(html):
     """Values defined once in :root are the scale itself, not a use of it."""
     return ROOT_BLOCK.sub("", html)
+
+
+def strip_query_preludes(html):
+    """`(min-width: 46rem)` in a query names where a layout changes, and sets
+    nothing on any box. Left in, every threshold reads as a size placed by hand
+    and a page that answers its own column rather than the window is punished
+    for it.
+
+    Only a prelude that reaches an opening brace is stripped, and a quote or a
+    semicolon ends the attempt. The word `@media` sits in content strings and
+    script bodies too, and a strip that ran to the next brace from one of those
+    took the declarations between with it."""
+    return AT_RULE_PRELUDE.sub("", html)
 
 
 def declared_values(html, prop):
@@ -81,56 +129,63 @@ def visible_text(markup):
     return re.sub(r"<[^>]+>", " ", SCRIPT_OR_STYLE.sub(" ", markup))
 
 
-def read_layout(path):
+# A comma before exactly three digits groups thousands; the rest separate figures.
+FIGURE_LIST_COMMA = re.compile(r",(?!\d{3}(?!\d))")
+
+
+def parse_layout(text, path):
     rows = []
-    with open(path, encoding="utf-8") as handle:
-        for lineno, line in enumerate(handle, 1):
-            line = line.rstrip("\n")
-            if not line.strip() or line.lstrip().startswith("#"):
-                continue
-            parts = line.split("\t")
-            if lineno == 1 and parts[0].strip() == "block":
-                continue
-            if len(parts) < 7:
-                raise SystemExit(
-                    f"{path}:{lineno}: expected 7 tab-separated columns, saw {len(parts)}"
-                )
-            block, group, rank, slot, form, figures, why = parts[:7]
-            rows.append(
-                {
-                    "line": lineno,
-                    "block": block.strip(),
-                    "group": group.strip(),
-                    "rank": rank.strip(),
-                    "slot": slot.strip(),
-                    "form": form.strip(),
-                    "figures": [f.strip() for f in figures.split(",") if f.strip()],
-                    "why": why.strip(),
-                }
+    # newline=None translates line endings the way text mode does, so a
+    # layout.tsv saved with CRLF loses its \r before the columns are split.
+    for lineno, line in enumerate(io.StringIO(text, newline=None), 1):
+        line = line.rstrip("\n")
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        parts = line.split("\t")
+        if lineno == 1 and parts[0].strip() == "block":
+            continue
+        if len(parts) < 7:
+            raise SystemExit(
+                f"{path}:{lineno}: expected 7 tab-separated columns, saw {len(parts)}"
             )
+        block, group, rank, slot, form, figures, why = parts[:7]
+        rows.append(
+            {
+                "line": lineno,
+                "block": block.strip(),
+                "group": group.strip(),
+                "rank": rank.strip(),
+                "slot": slot.strip(),
+                "form": form.strip(),
+                "figures": [f.strip() for f in FIGURE_LIST_COMMA.split(figures) if f.strip()],
+                "why": why.strip(),
+            }
+        )
     if not rows:
         raise SystemExit(f"{path}: no rows")
     return rows
 
 
 def check_scales(html, findings):
-    stripped = strip_custom_property_definitions(html)
-    space = set()
+    stripped = strip_query_preludes(strip_custom_property_definitions(html))
+    pools = defaultdict(set)
     for prop, (code, ceiling) in SCALE_PROPS.items():
         values = declared_values(stripped, prop)
         if ceiling is None:
-            space |= values
+            pools[code] |= values
             continue
         if len(values) > ceiling:
             findings.append(
                 (code, f"{len(values)} distinct {prop} values, ceiling {ceiling}: "
                        + ", ".join(sorted(values)))
             )
-    if len(space) > SPACE_CEILING:
-        findings.append(
-            ("SPACE-SCALE", f"{len(space)} distinct padding/margin values, "
-                            f"ceiling {SPACE_CEILING}: " + ", ".join(sorted(space)))
-        )
+    for code in sorted(pools):
+        values, ceiling = pools[code], POOL_CEILINGS[code]
+        if len(values) > ceiling:
+            findings.append(
+                (code, f"{len(values)} distinct {POOL_LABELS[code]} values, "
+                       f"ceiling {ceiling}: " + ", ".join(sorted(values)))
+            )
 
 
 def check_ranks(rows, findings):
@@ -169,7 +224,7 @@ def check_figures(rows, blocks, findings):
     text = {slug: visible_text(markup) for slug, markup in blocks.items()}
     for row in rows:
         for figure in row["figures"]:
-            pattern = re.compile(rf"(?<![\d.]){re.escape(figure)}(?![\d.])")
+            pattern = re.compile(rf"(?<![\d.]){re.escape(figure)}(?!\d)(?![.,]\d)")
             elsewhere = sorted(
                 slug for slug, body in text.items()
                 if slug != row["block"] and pattern.search(body)
@@ -217,12 +272,28 @@ def sweep_undeclared_figures(rows, blocks, warnings):
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
-    parser.add_argument("--html", required=True)
-    parser.add_argument("--layout", required=True)
+    parser.add_argument("--html")
+    parser.add_argument("--layout")
+    parser.add_argument(
+        "--digest", nargs="+", metavar="FILE",
+        help="print the read line for each file and exit, to check that a file "
+             "still matches the one an earlier report named",
+    )
     args = parser.parse_args(argv)
 
-    html = open(args.html, encoding="utf-8").read()
-    rows = read_layout(args.layout)
+    if args.digest:
+        if args.html or args.layout:
+            parser.error("--digest names its own files; drop --html and --layout")
+        for path in args.digest:
+            print(digest_line(path, read_file(path)))
+        return 0
+    if not args.html or not args.layout:
+        parser.error("--html and --layout are both required")
+
+    html_bytes = read_file(args.html)
+    layout_bytes = read_file(args.layout)
+    html = html_bytes.decode("utf-8")
+    rows = parse_layout(layout_bytes.decode("utf-8"), args.layout)
     blocks = split_blocks(html)
 
     findings = []
@@ -233,6 +304,8 @@ def main(argv=None):
     check_figures(rows, blocks, findings)
     sweep_undeclared_figures(rows, blocks, warnings)
 
+    print(digest_line(args.html, html_bytes))
+    print(digest_line(args.layout, layout_bytes))
     named = len(blocks) - (1 if PAGE_CHROME in blocks else 0)
     print(f"blocks declared: {len(rows)}   blocks found in HTML: {named}"
           f"   page chrome: {'yes' if PAGE_CHROME in blocks else 'no'}")

@@ -30,8 +30,9 @@ carrying a label and a value string, the tick values, and the axis title; it
 returns the plot box, a scale, the chart's own width, and where each row sits.
 
 Both settle whether a label fits beside its mark or goes above it, whether the
-value column has room to be drawn at all, and how tall the axis band must be for
-a title that wrapped onto a second line.
+value column has room to be drawn at all, which tick labels there is room to
+draw, and how tall the axis band must be for a title that wrapped onto a second
+line.
 
 ## Ticks
 
@@ -44,6 +45,13 @@ from 2 to 2,240.
 Neither asks the caller to guard its inputs. A maximum of zero, a reversed range,
 a range too small to derive a step from: each comes back as a single tick rather
 than as an empty list that leaves an axis with no gridlines and no labels.
+
+You pass tick values, and neither function knows the width the plot ends up with,
+so a narrow plot can receive more labels than it has room for. Both chart forms
+label every nth tick rather than drawing them on top of each other, choosing the
+smallest n whose labels clear each other. Every tick keeps its gridline, and the
+first tick keeps its label, so the axis still states where it starts. Ask for the
+ticks the data deserves and let the chart drop what will not fit.
 
 ## The hover layer, and the field name that broke a build
 
@@ -79,6 +87,16 @@ Four classes it reads its type sizes off — `.ax` for tick labels, `.cat` for
 category labels, `.val` for value labels, and `.axtitle` for axis titles — and
 one element with `id="tip"` for the hover layer. Give those classes their sizes
 from the tokens Section 6 fixed.
+
+It reads letter-spacing and word-spacing off those same four classes and adds
+both to every width it measures, so a reader who turns on the WCAG 1.4.12
+text-spacing override gets bands sized for the strings they actually see. It
+learns all six numbers by drawing one probe node per class into the document
+body and asking the browser what it computed, which is the one thing to know
+when you write the CSS: a rule on the class, on `body`, or on `*` reaches that
+probe, and a rule on some container the chart happens to sit inside does not.
+Measured on a chart inside a `letter-spacing: 0.12em` wrapper: a four-character
+tick label drew 34.09 wide and measured 26.4.
 
 `scripts/test_chartkit.py` draws both forms at 320, 768, and 1440 in real Chrome.
 Read it for what each spec accepts.

@@ -248,29 +248,58 @@
     return px;
   }
 
-  function textW(str, px, weight) {
+  /* The WCAG 1.4.12 text-spacing override sets both of these, and the browser
+     adds both to the width it draws, so reading one without the other sizes a
+     band too narrow for the string that goes in it. The two report an unset
+     value differently: `letter-spacing` computes to the word `normal`, which
+     parses to NaN, where `word-spacing` computes to `0px`. */
+  function classSpacing(cls) {
+    var svg = S("svg", { width: 1, height: 1 });
+    var probe = T(0, 0, "0", cls);
+    svg.appendChild(probe);
+    document.body.appendChild(svg);
+    var style = getComputedStyle(probe);
+    var track = parseFloat(style.letterSpacing);
+    var word = parseFloat(style.wordSpacing);
+    svg.remove();
+    return { track: isFinite(track) ? track : 0,
+             word: isFinite(word) ? word : 0 };
+  }
+
+  /* Both properties are set on every measurement, including back to zero, so
+     a class the page leaves alone cannot inherit the spacing of whichever
+     class was measured before it. */
+  function spaceOut(spacing) {
+    measurer.letterSpacing = ((spacing && spacing.track) || 0) + "px";
+    measurer.wordSpacing = ((spacing && spacing.word) || 0) + "px";
+  }
+
+  function textW(str, px, weight, spacing) {
     measurer.font = (weight || 400) + " " + px + "px Inter, sans-serif";
+    spaceOut(spacing);
     return measurer.measureText(String(str)).width;
   }
 
-  function monoW(str, px, weight) {
+  function monoW(str, px, weight, spacing) {
     measurer.font = (weight || 400) + " " + px + "px 'DM Mono', 'Courier New', monospace";
+    spaceOut(spacing);
     return measurer.measureText(String(str)).width;
   }
 
-  /* .axtitle is uppercased and tracked out by 0.08em, and neither shows up in
-     measureText, so both are added back here. */
-  function titleW(str, px) {
+  /* An axis title's class uppercases it, and text-transform does not reach
+     measureText, so the string is uppercased here before it is measured. */
+  function titleW(str, px, weight, spacing) {
     var up = String(str).toUpperCase();
     measurer.font = "500 " + px + "px 'DM Mono', 'Courier New', monospace";
-    return measurer.measureText(up).width + 0.08 * px * Math.max(0, up.length - 1);
+    spaceOut(spacing);
+    return measurer.measureText(up).width;
   }
 
-  function widest(strings, px, weight, measure) {
+  function widest(strings, px, weight, measure, spacing) {
     var m = measure || textW;
     var most = 0;
     (strings || []).forEach(function (s) {
-      var w = m(s, px, weight);
+      var w = m(s, px, weight, spacing);
       if (w > most) most = w;
     });
     return most;
@@ -293,35 +322,40 @@
   /* A category label wider than the room it has gets an ellipsis. Callers keep
      the full string in the tooltip and the block's data table, so nothing the
      chart shortens is only available shortened. */
-  function fitText(str, maxW, px, measure) {
+  function fitText(str, maxW, px, measure, spacing) {
     var m = measure || textW;
     var t = String(str);
-    if (m(t, px) <= maxW) return t;
-    while (t.length > 1 && m(t + "…", px) > maxW) t = t.slice(0, -1);
+    if (m(t, px, undefined, spacing) <= maxW) return t;
+    while (t.length > 1 && m(t + "…", px, undefined, spacing) > maxW) {
+      t = t.slice(0, -1);
+    }
     return t + "…";
   }
 
   /* An axis title states the unit, so it is never shortened to fit. It wraps
      onto as many lines as the plot is wide enough for and the band grows. */
-  function wrapLines(str, maxW, px) {
+  function wrapLines(str, maxW, px, spacing) {
     var words = String(str).split(" ");
     var lines = [];
     var cur = "";
     words.forEach(function (word) {
       var join = cur ? cur + " " + word : word;
-      if (cur && titleW(join, px) > maxW) { lines.push(cur); cur = word; }
-      else cur = join;
+      if (cur && titleW(join, px, 500, spacing) > maxW) {
+        lines.push(cur);
+        cur = word;
+      } else cur = join;
     });
     if (cur) lines.push(cur);
     return lines.map(function (line) {
-      return titleW(line, px) > maxW ? fitText(line, maxW, px, titleW) : line;
+      return titleW(line, px, 500, spacing) > maxW
+        ? fitText(line, maxW, px, titleW, spacing) : line;
     });
   }
 
   var TITLE_LEADING = 1.35;
 
-  function axisTitle(svg, x, baseline, str, maxW, px, anchor) {
-    var lines = wrapLines(str, maxW, px);
+  function axisTitle(svg, x, baseline, str, maxW, px, anchor, spacing) {
+    var lines = wrapLines(str, maxW, px, spacing);
     var t = S("text", { x: x, y: baseline }, "axtitle");
     if (anchor) t.setAttribute("text-anchor", anchor);
     lines.forEach(function (line, i) {
@@ -423,6 +457,42 @@
 
   var TICK_BASELINE = 1.45;
 
+  /* Clear space between two tick labels, in the label's own em. Below about a
+     half the axis reads as one run of digits rather than as separate numbers. */
+  var TICK_LABEL_GAP = 0.6;
+
+  /* A label `edgeAnchor` pushed inward reaches a full width to one side of its
+     tick rather than a half width to each, so the anchor decision has to be
+     the same one the drawing makes. Without a width there is no edge to
+     measure against and every label is taken as centred. */
+  function labelSpan(label, cx, px, spacing, w) {
+    var half = monoW(label, px, 400, spacing) / 2;
+    var anchor = isFinite(w) ? edgeAnchor(cx, half, w) : "middle";
+    if (anchor === "start") return { lo: cx, hi: cx + half * 2 };
+    if (anchor === "end") return { lo: cx - half * 2, hi: cx };
+    return { lo: cx - half, hi: cx + half };
+  }
+
+  /* Tick values arrive from the caller, which cannot know the width the plot
+     ends up with, so the labels handed over may not all fit. Labelling every
+     nth tick keeps what is drawn evenly spaced and keeps the first, which is
+     where the axis states its low end. The gridlines stay at every tick. */
+  function tickStride(labels, xs, px, spacing, w) {
+    var n = labels.length;
+    if (n < 2) return 1;
+    var clear = px * TICK_LABEL_GAP;
+    for (var step = 1; step < n; step++) {
+      var fits = true;
+      for (var i = step; i < n; i += step) {
+        var lower = labelSpan(labels[i - step], xs[i - step], px, spacing, w);
+        var upper = labelSpan(labels[i], xs[i], px, spacing, w);
+        if (upper.lo - lower.hi < clear) { fits = false; break; }
+      }
+      if (fits) return step;
+    }
+    return n;
+  }
+
   /* The band under a plot: the tick labels' baseline and their descenders,
      then the axis title's block. Both chart forms derive it here, and both
      place the title with the function below, so the room reserved and the
@@ -452,6 +522,8 @@
     var base = baseFont();
     var axPx = classFontPx("ax");
     var titlePx = classFontPx("axtitle");
+    var axSp = classSpacing("ax");
+    var titleSp = classSpacing("axtitle");
     var y = spec.y || {};
     var x = spec.x || {};
 
@@ -464,15 +536,18 @@
        extreme a reader most needs to see, so every band keeps its radius. */
     var mark = Math.max(0, spec.markRadius || 0);
 
-    var padL = Math.ceil(Math.max(widest(yLabels, axPx, 400, monoW) + gap, mark));
+    var padL = Math.ceil(Math.max(
+      widest(yLabels, axPx, 400, monoW, axSp) + gap, mark));
     var padR = Math.ceil(Math.max(base * 0.5, mark));
 
-    var yTitleLines = y.title ? wrapLines(y.title, w, titlePx).length : 0;
+    var yTitleLines = y.title
+      ? wrapLines(y.title, w, titlePx, titleSp).length : 0;
     var padT = Math.ceil(Math.max(titleBlockHeight(yTitleLines, titlePx) + base * 0.4,
                                   axPx * 0.45, mark));
 
     var plotW = Math.max(1, w - padL - padR);
-    var xTitleLines = x.title ? wrapLines(x.title, plotW, titlePx).length : 0;
+    var xTitleLines = x.title
+      ? wrapLines(x.title, plotW, titlePx, titleSp).length : 0;
 
     var tickBaseline = axPx * TICK_BASELINE;
     var padB = Math.ceil(Math.max(
@@ -499,10 +574,12 @@
       svg.appendChild(T(x0 - gap, sy(t) + axPx * 0.35, yLabels[i], "ax", "end"));
     });
 
+    var xTickStep = tickStride(xLabels, (x.ticks || []).map(sx), axPx, axSp, w);
     (x.ticks || []).forEach(function (t, i) {
+      if (i % xTickStep) return;
       var cx = sx(t);
       svg.appendChild(T(cx, y0 + tickBaseline, xLabels[i], "ax",
-                        edgeAnchor(cx, monoW(xLabels[i], axPx) / 2, w)));
+                        edgeAnchor(cx, monoW(xLabels[i], axPx, 400, axSp) / 2, w)));
     });
 
     svg.appendChild(S("line", { x1: x0, x2: x1, y1: y0, y2: y0 }, "axisline"));
@@ -510,13 +587,13 @@
     if (xTitleLines) {
       axisTitle(svg, (x0 + x1) / 2,
                 y0 + axisTitleBaseline(axPx, titlePx, xLabels.length > 0),
-                x.title, plotW, titlePx, "middle");
+                x.title, plotW, titlePx, "middle", titleSp);
     }
     /* The y title sits horizontally above the plot in every chart. Rotated
        text is harder to read, and a title longer than its plot is tall would
        need a second treatment that the page would then carry two of. */
     if (yTitleLines) {
-      axisTitle(svg, 0, titlePx * 1.1, y.title, w, titlePx);
+      axisTitle(svg, 0, titlePx * 1.1, y.title, w, titlePx, null, titleSp);
     }
 
     return { svg: svg, x0: x0, x1: x1, y0: y0, y1: y1, sx: sx, sy: sy,
@@ -547,6 +624,10 @@
     var catPx = classFontPx("cat");
     var valPx = classFontPx("val");
     var titlePx = classFontPx("axtitle");
+    var axSp = classSpacing("ax");
+    var catSp = classSpacing("cat");
+    var valSp = classSpacing("val");
+    var titleSp = classSpacing("axtitle");
     var items = spec.rows || [];
     var labels = items.map(function (r) { return String(r.label); });
     var values = items.map(function (r) {
@@ -556,7 +637,7 @@
       ? Math.min(24, Math.round(base * 0.9)) : spec.markHeight;
     var gap = base * 0.4;
 
-    var labelWanted = widest(labels, catPx) + base * 0.6;
+    var labelWanted = widest(labels, catPx, 400, textW, catSp) + base * 0.6;
     var stacked = labelWanted > w * LABEL_SHARE_MAX;
     var labelW = stacked ? 0 : Math.ceil(labelWanted);
 
@@ -565,8 +646,12 @@
        axis, so the right band never falls below the radius. */
     var mark = Math.max(0, spec.markRadius || 0);
     var anyValue = values.some(function (v) { return v !== ""; });
+    /* A dot at the top of the axis is centred on the plot's right edge and so
+       reaches its own radius past it, where the value column starts. Clear the
+       radius as well as the gap, or the mark lands on the digits. */
+    var valueGap = gap + mark;
     var valueWanted = anyValue
-      ? widest(values, valPx, 500, monoW) + gap + base * 0.6 : 0;
+      ? widest(values, valPx, 500, monoW, valSp) + valueGap + base * 0.6 : 0;
     var padR = Math.ceil(Math.max(valueWanted || base * 0.5, mark));
     var showValues = anyValue && (w - labelW - padR) >= w * PLOT_SHARE_MIN;
     if (!showValues) padR = Math.ceil(Math.max(base * 0.5, mark));
@@ -579,7 +664,8 @@
     var x0 = labelW;
     var x1 = w - padR;
     var plotW = Math.max(1, x1 - x0);
-    var titleLines = spec.title ? wrapLines(spec.title, w - x0, titlePx).length : 0;
+    var titleLines = spec.title
+      ? wrapLines(spec.title, w - x0, titlePx, titleSp).length : 0;
 
     var tickBaseline = axPx * TICK_BASELINE;
     var axisH = Math.ceil(axisBand(axPx, titlePx, titleLines, tickLabels.length > 0));
@@ -594,27 +680,42 @@
 
     var svg = frame(host, w, h, spec.label);
 
-    (spec.ticks || []).forEach(function (t, i) {
-      var cx = sx(t);
-      svg.appendChild(S("line", { x1: cx, x2: cx, y1: 0, y2: axisY }, "gridline"));
-      svg.appendChild(T(cx, axisY + tickBaseline, tickLabels[i], "ax",
-                        edgeAnchor(cx, monoW(tickLabels[i], axPx) / 2, w)));
-    });
-    if (titleLines) {
-      axisTitle(svg, x0,
-                axisY + axisTitleBaseline(axPx, titlePx, tickLabels.length > 0),
-                spec.title, w - x0, titlePx);
-    }
-
     var rowTop = function (i) { return i * rowH; };
     var markTop = function (i) {
       return stacked ? rowTop(i) + catPx * 1.45 : rowTop(i) + (rowH - markH) / 2;
     };
     var rowMid = function (i) { return markTop(i) + markH / 2; };
 
+    /* A stacked label sits above its own mark, inside the band a gridline runs
+       down, so one line from the top of the plot to the axis strikes through
+       the words. Draw a segment per row from that row's mark instead, which
+       leaves the label's line clear and still rules every mark. */
+    var gridSegments = stacked
+      ? items.map(function (unused, i) {
+          return { y1: markTop(i), y2: rowTop(i) + rowH };
+        })
+      : [{ y1: 0, y2: axisY }];
+
+    var tickStep = tickStride(tickLabels, (spec.ticks || []).map(sx), axPx, axSp, w);
+    (spec.ticks || []).forEach(function (t, i) {
+      var cx = sx(t);
+      gridSegments.forEach(function (seg) {
+        svg.appendChild(S("line", { x1: cx, x2: cx, y1: seg.y1, y2: seg.y2 },
+                          "gridline"));
+      });
+      if (i % tickStep) return;
+      svg.appendChild(T(cx, axisY + tickBaseline, tickLabels[i], "ax",
+                        edgeAnchor(cx, monoW(tickLabels[i], axPx, 400, axSp) / 2, w)));
+    });
+    if (titleLines) {
+      axisTitle(svg, x0,
+                axisY + axisTitleBaseline(axPx, titlePx, tickLabels.length > 0),
+                spec.title, w - x0, titlePx, null, titleSp);
+    }
+
     items.forEach(function (r, i) {
       var room = stacked ? w : x0 - base * 0.5;
-      var label = fitText(r.label, room, catPx);
+      var label = fitText(r.label, room, catPx, textW, catSp);
       if (stacked) {
         svg.appendChild(T(0, rowTop(i) + catPx * 1.05, label, "cat"));
       } else {
@@ -624,7 +725,7 @@
          following the end of its own mark. padR is sized for that column, so a
          long value on a near-full-width mark cannot push past the edge. */
       if (showValues && values[i] !== "") {
-        svg.appendChild(T(x1 + gap, rowMid(i) + valPx * 0.34, values[i], "val"));
+        svg.appendChild(T(x1 + valueGap, rowMid(i) + valPx * 0.34, values[i], "val"));
       }
     });
 
@@ -661,12 +762,13 @@
     parseCSV: parseCSV,
     showTip: showTip, hideTip: hideTip, hoverable: hoverable,
     pearson: pearson, fitLine: fitLine, floorR: floorR, rng: rng,
-    baseFont: baseFont, classFontPx: classFontPx,
+    baseFont: baseFont, classFontPx: classFontPx, classSpacing: classSpacing,
     textW: textW, monoW: monoW, titleW: titleW, widest: widest,
     S: S, T: T, frame: frame, barRight: barRight, barUp: barUp,
     legend: legend, tableInto: tableInto, tooFew: tooFew,
     fitText: fitText, wrapLines: wrapLines, axisTitle: axisTitle,
     edgeAnchor: edgeAnchor, niceTicks: niceTicks, rangeTicks: rangeTicks,
+    tickStride: tickStride,
     cartesian: cartesian, rows: rows, rowHit: rowHit
   };
 })(window);
