@@ -106,6 +106,21 @@ yourself writing "this is the user's call" or "doesn't block."
 
 **Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. Measured: in one run, three assertions survived mutation — a four-cell shape cut to three cells, and an entire rotation state replaced with garbage, both left a 17-test suite fully green — and all three sat under assertions their author had judged not to matter.
 
+**Putting it back.** Copy the file aside before you mutate it and restore from
+that copy, not from git. `git checkout <path>` and `git restore <path>` both
+restore from the index, which holds nothing you have written since the last
+`git add` — and at this point in the cycle that is the whole change you just
+made green. Measured: a session wrote a new CSS rule, mutated the file a minute
+later, restored with `git checkout`, and the next two mutations in the same run
+died on an assertion that their search text was missing, because the rule was
+gone; it had to write the rule again from memory.
+
+```bash
+cp <path> /tmp/<name>.keep     # before the first mutation
+...                            # mutate, run the test, read the result
+cp /tmp/<name>.keep <path>     # after the last one, then delete the copy
+```
+
 **The receipt.** Name the mutation and paste the line the run printed:
 
 ```
