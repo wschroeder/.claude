@@ -61,6 +61,23 @@ by the one below.
 This template is new. If a section fights the work rather than catching
 something, say so in the response instead of quietly skipping it.
 
+## 0. Before Section 1, read your own room
+
+    $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
+
+Past the ceiling it reports, hand off BEFORE starting this template rather than
+after finishing it: say so, say that no section has run, and let the operator
+clear, per `clear-task`. A template is a session's worth of work, so a session
+that begins one already over the line ends it far over, and every section it
+writes on the way is written in a session that should have stopped. Measured: a
+session printed "turn 72, context 231,229 of 170,000 — hand off", quoted that
+verdict back in its own evidence block, created ten cards over the next two
+hours, printed the same verdict again at 251,737, and ended at 263,205.
+
+This is the only budget check in this template, and it is deliberately at the
+front: planning a slice is where a session's context grows fastest, so the
+question worth asking is whether to start, not whether to carry on.
+
 ## 1. Setup, boundaries, and what "released" means here
 
 Real output, not paraphrase:
