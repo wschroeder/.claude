@@ -446,6 +446,14 @@ while :; do
   if head -n 1 "$HANDOFF_PATH" | grep -qE '^DONE([[:space:]:]|$)'; then
     if [ -z "$PENDING_FINDINGS" ]; then
       printf 'stopping: the handoff says the work is complete.\n  %s\n' "$(head -n 1 "$HANDOFF_PATH")"
+      # The file is a spent worker prompt now, and it is gitignored, so leaving
+      # it means every later tree check reports clean with a stale prompt
+      # sitting there telling the next reader to continue a run that ended.
+      # Measured: one run finished at 22:16 and its handoff was still saying
+      # "DONE - S3 is deployed" three commits later. Only this exit removes it;
+      # a BLOCKED or failed run leaves the file because it IS the message the
+      # person now has to read.
+      rm -f "$HANDOFF_PATH"
       exit 0
     fi
     # A session that keeps declaring victory against a reviewer that keeps

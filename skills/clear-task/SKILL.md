@@ -321,6 +321,17 @@ assembled prompt to `HANDOFF.md`, and report the path and its line count in
 place of printing the block. Everything else holds: considerations first,
 one artifact, nothing after it.
 
+**What decides it is who reads the prompt next, not how convenient the file
+looks.** The file is how the loop hands a prompt to a worker that has no other
+way to receive one. A session clearing its own context is not that case: the
+operator reads the prompt and pastes it, so the operator gets a block. Do not
+recommend the file for your own clear, and do not reason your way to it from a
+stale `HANDOFF.md` lying around — a leftover is a reason to delete that file,
+never a reason to write over it. Measured: a retrospective session recommended
+writing the file for its own clear, having argued that a block alone would
+leave the stale one as a trap, and the operator overrode it by typing
+`/clear-task instead`.
+
 ## Notes on what this template does NOT do
 
 - Does not run /clear or start a new session — that is the operator's

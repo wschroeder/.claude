@@ -266,6 +266,17 @@ check "the completion is reported" 0 $?
 case "$(cat "$ROOT/out.txt")" in *"changed nothing"*) ok=1 ;; *) ok=0 ;; esac
 check "a finished project is not reported as a failure to commit" 0 "$ok"
 check "the finished work is kept" 2 "$(git -C "$REPO" rev-list --count HEAD)"
+check "a spent handoff is not left behind" 1 "$([ -e "$REPO/HANDOFF.md" ]; echo $?)"
+drop_fixture
+
+# --- the handoff a blocked run leaves is the message a person has to read, so
+#     it stays. Only the clean finish removes it: there the file is a spent
+#     worker prompt, and a later session that reads it acts on a run that ended.
+new_fixture
+export STUB_MODE=blocked
+status="$(run_loop)"
+check "a blocked handoff exits 0 and stays put" 0 "$status"
+check "the blocked handoff is kept for the person" 0 "$([ -e "$REPO/HANDOFF.md" ]; echo $?)"
 drop_fixture
 
 # --- a session that commits nothing must not be run again ---
