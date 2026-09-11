@@ -55,8 +55,10 @@ step 3 now, and come back here once the tree is clean.
 
 In order, without stopping between them:
 
-1. Run `clear-task`, telling it the artifact is `HANDOFF.md` in this
-   repository rather than a block to paste. It writes the file.
+1. Run `clear-task`, telling it this is `session-loop` step 2 and the
+   repository has no handoff yet. Its §0 check resolves that to the file.
+   Do not name the artifact for it; §0 treats a form supplied in the
+   arguments as an input to check rather than as the answer.
 2. Where `/HANDOFF.md` is not already ignored, add that line to
    `.gitignore` and commit it on its own. Committing carries the standing
    permission in `git-commit`.

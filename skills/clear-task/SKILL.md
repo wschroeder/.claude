@@ -1,6 +1,6 @@
 ---
 name: clear-task
-description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the prompt to HANDOFF.md instead of printing it when session-loop asks. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Checks whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 ---
 
 # clear-task — frontload the handoff, then emit the prompt
@@ -25,6 +25,44 @@ regenerate the prompt. You never append to the prompt.
 The output discipline is recursive: this skill follows the rule it
 teaches — all considerations come before the artifact, and the
 artifact is terminal.
+
+## 0. Who reads this next (run the check before writing anything)
+
+This template emits one of two artifacts, and one question separates them:
+does a `session-loop` worker read this prompt next, or does the operator? A
+worker has no other way to receive a prompt, so a worker gets `HANDOFF.md`.
+The operator copies a block, so the operator gets the block.
+
+Answer from a check rather than from memory. Run it and paste its output
+before writing §1:
+
+```bash
+pgrep -f run-loop.sh
+```
+
+No match means no driver is running, so no worker is waiting to be handed
+anything. Where the driver ran as a background task of this session, read its
+last printed line too — a driver that has printed `stopping:` has exited,
+whatever it was doing earlier in the same session.
+
+Then write one line naming the reader and what settled it:
+
+    reader: the operator — pgrep found no run-loop.sh, and the driver's last
+    line read "stopping: the handoff is blocked"
+
+Two cases resolve to `HANDOFF.md` with no driver yet running, and both are a
+loop about to exist rather than a loop that has ended: `session-loop` step 2
+seeding a repository that has no handoff, and a worker handing off from
+inside the loop's own contract. In both the next reader is a worker.
+
+**A form named in this skill's arguments is an input to check, not the
+answer.** The caller writes those arguments before this text loads, so
+"session-loop is asking" is a decision reached without the check in front of
+it. Run the check anyway. Where the two disagree, follow the check and say so
+in one line. Measured: a session read its driver's own "stopping: the handoff
+is blocked" at 18:37, told this skill at 18:40 that session-loop was asking,
+wrote a 245-line `HANDOFF.md` that nobody would read, and deleted it again
+once the operator asked why.
 
 ## 1. Objective
 
@@ -235,6 +273,8 @@ Before writing the prompt, interrogate §1–§10 out loud. Answer each:
   session?
 - What could change between now and when this prompt is read, that §8's
   first step does not tell the reader to re-check?
+- Did §0's check actually run this session, and does the artifact I am about
+  to emit match what it found?
 
 Every gap found here is integrated into the relevant section above —
 §1–§10 — NOT appended to the prompt. Proceed to §12 only when this
@@ -242,7 +282,7 @@ interrogation surfaces nothing new. This section is the entire point of
 the template: it is where "remembering" is supposed to happen, before
 the prompt is committed.
 
-Write §1 through §11 as eleven separate headings, in order, every time.
+Write §0 through §11 as twelve separate headings, in order, every time.
 Do not merge neighbours into a combined heading such as "8–10" or "9–11",
 and never skip §11 — the tail sections are the ones the momentum of a long
 session eats first, and §11 is the one that catches the rest.
@@ -254,7 +294,7 @@ English for the reader — a fresh AI plus the operator (~/.claude/CLAUDE.md
 "Communication Style"). It is the LAST thing in your response: no prose,
 no postscript, no "let me know if..." after it.
 
-Where `session-loop` asked for `HANDOFF.md`, this same assembled text goes
+Where §0 found that a worker reads this next, this same assembled text goes
 to that file and the path and line count take the block's place as the last
 thing in the response. See "Stop" below. Nothing else about this section
 changes. Every line in the prompt
@@ -308,28 +348,24 @@ the fresh chat must not need this conversation. Nothing follows it.
 
 This template produces text and nothing else. It does NOT run /clear, does
 NOT begin executing the next steps, and does NOT write the prompt to a file
-unless the operator explicitly asks, or `session-loop` asks on their behalf.
-The operator copies the block and starts the new chat.
+unless §0's check found a worker reading it next, or the operator explicitly
+asks. The operator copies the block and starts the new chat.
 
-**One caller gets a file instead of a block.** `session-loop` step 2 runs
-this template when a repository has no `HANDOFF.md`, and there the artifact
-is that file: the driver hands it to every fresh session, nobody copies
-anything, and a block printed beside it would be a second copy going stale
-from the moment it appeared. Write §1-§10 exactly as always, because they
-are the forcing function and nothing about them changes. Then write the
+**Where §0 found a worker, the artifact is that file.** The driver hands it
+to every fresh session, nobody copies anything, and a block printed beside it
+would be a second copy going stale from the moment it appeared. Write §1-§10
+exactly as always, because they are the forcing function and nothing about
+them changes. Then write the
 assembled prompt to `HANDOFF.md`, and report the path and its line count in
 place of printing the block. Everything else holds: considerations first,
 one artifact, nothing after it.
 
-**What decides it is who reads the prompt next, not how convenient the file
-looks.** The file is how the loop hands a prompt to a worker that has no other
-way to receive one. A session clearing its own context is not that case: the
-operator reads the prompt and pastes it, so the operator gets a block. Do not
-recommend the file for your own clear, and do not reason your way to it from a
-stale `HANDOFF.md` lying around — a leftover is a reason to delete that file,
-never a reason to write over it. Measured: a retrospective session recommended
-writing the file for its own clear, having argued that a block alone would
-leave the stale one as a trap, and the operator overrode it by typing
+**A stale `HANDOFF.md` lying in the repository decides nothing.** A leftover
+is a reason to delete that file, never a reason to write over it, and §0's
+check is what says whether anyone is coming for it. Measured: a retrospective
+session recommended writing the file for its own clear, having argued that a
+block alone would leave the stale one as a trap, and the operator overrode it
+by typing
 `/clear-task instead`.
 
 ## Notes on what this template does NOT do
@@ -338,8 +374,7 @@ leave the stale one as a trap, and the operator overrode it by typing
   manual step.
 - Does not begin the next steps; it only describes them.
 - Does not write, commit, push, or post anything, save the one
-  `HANDOFF.md` that `session-loop` step 2 asks for. No destructive action
-  either way.
+  `HANDOFF.md` that §0's check calls for. No destructive action either way.
 - Does not append anything after the prompt code block. A late
   consideration is a §11 miss, fixed by regenerating the block — never by a
   postscript.
@@ -348,8 +383,8 @@ leave the stale one as a trap, and the operator overrode it by typing
 - Does not hand a diagnosis to the fresh chat as a measurement. An
   explanation you did not measure goes across as `hypothesis:`, separate
   from the reading it explains, in §4 and §6 alike.
-- Does not merge or drop sections. Eleven headings before the block, in
-  order, §11 included.
+- Does not merge or drop sections. Twelve headings before the block, in
+  order, §0 and §11 included.
 - Does not print an empty section. A `None` in §7 means the credentials
   heading does not appear in the prompt at all.
 - Does not chain to any other skill. It emits the artifact and stops,
