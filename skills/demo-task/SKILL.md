@@ -66,6 +66,11 @@ If the plan has no definition of released, stop — Section 3 cannot say
 whether the slice is finished without it, and inventing one here would
 answer a question that belongs to the operator.
 
+If `project-definition-of-done` appears in the available skills, load it
+here. A project that has one has written down what its released state
+actually is and what proving it takes, and Section 3 is built on that
+answer. If nothing is listed, work from the plan's own definition alone.
+
 **Then check that there is a slice to close.** If the current slice has no
 closed bead and not one of its proof commands passes, the slice has not
 started, and this is the wrong template. Say so in one line, say that
@@ -160,6 +165,26 @@ One record:
 
 Rules:
 
+- **The artifact comes from the thing the definition of released names, not
+  from a stand-in for it.** Read what that definition points at and drive
+  that: on one project it is a script on this machine, on another a local
+  server, on another a service behind a remote URL, on another an operator
+  running in a cluster. None of those is more real than the others — what
+  makes a demo wrong is driving something the definition does not name while
+  reporting it as the slice being released. So the record says which thing
+  the definition names and which thing you drove, and where they are not the
+  same thing it says so on its own line rather than in a footnote. Measured:
+  a session quoted its plan's definition, which named a URL, in the same
+  evidence block that recorded it driving a container on localhost, and the
+  operator caught it rather than the template.
+- **Where you cannot reach that thing, say which link is unproven and hand
+  the last one to the operator.** Some released states cannot be driven from
+  here at all — a sign-in a person completes, a cluster only they can reach,
+  hardware on their desk. That is not a reason to demo the nearest reachable
+  substitute and let it stand: name each link of the chain from what you
+  drove to what the definition names, say which links you proved and which
+  you did not, and make the unproven one the thing you ask the operator to do
+  at Section 4.
 - **The operator may drive it themselves, so the reproduction command is
   part of the demo.** An artifact nobody else can regenerate is a claim,
   not proof. Both commands above are required, and both have been run.
@@ -217,9 +242,12 @@ four phases in order, this stop's capitalized:
 plan -> build -> DEMO -> retro
 ```
 
-**Ask for one thing: that the operator run the demo themselves and say what
-is wrong with it.** Give them the exact command from Section 3 and name the
-two or three things worth looking at. Do not ask what they would like to do
+**Ask for one thing: that the operator work the demo themselves and say what
+is wrong with it.** Give them whatever Section 3's record says they act on —
+the command where the released state is something to run, and the thing to
+open where it is something they reach instead, such as a URL only they can
+sign in to. Where a link of the chain went unproven, that link is what you
+ask them to close. Name the two or three things worth looking at. Do not ask what they would like to do
 next — deciding what comes after this slice is Planning's job, not this
 stop's. The ask is the last thing in the message, per CLAUDE.md "When you
 need an answer, the ask goes last and says what to do".
