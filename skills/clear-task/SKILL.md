@@ -215,6 +215,20 @@ that step still owes. Put that first, owed work ahead of new work, in the words
 it used. Where nothing said, write that nothing did, and let the fresh chat
 find out rather than assume.
 
+**Owed work belongs to the phase that owes it, and a finished phase files it in
+the backlog rather than handing it to the next session.** The paragraph above is
+for a step the next session is still inside. Where the phase that owed the work
+has ended — the build is over, the demo is given, the findings are signed off —
+create the card before you generate the prompt, and name that card here instead
+of writing the work in as a numbered step. A numbered step is the first thing the
+next session does, and it does that inside a template written for a different
+phase, so the session handed the new phase spends its budget finishing the old
+one. Measured: a retro handoff opened with "Run `quick-review` and then
+`security-review` over plan/demo/s5/drive-demo.js ... This is owed work from the
+demo, ahead of anything new", and the session that read it spent 21 of its 31
+turns on that review, about two thirds of its cost, before it loaded
+`retro-task` at turn 24.
+
 **And no sentence says what the product can do unless a command showed it.**
 "A person can play a whole turn with the mouse" is the same unchecked claim as
 "the demo is over", and it reads worse: the fresh chat takes it as the ground it
@@ -374,7 +388,8 @@ by typing
   manual step.
 - Does not begin the next steps; it only describes them.
 - Does not write, commit, push, or post anything, save the one
-  `HANDOFF.md` that §0's check calls for. No destructive action either way.
+  `HANDOFF.md` that §0's check calls for and the backlog card §8 requires for
+  a finished phase's owed work. No destructive action either way.
 - Does not append anything after the prompt code block. A late
   consideration is a §11 miss, fixed by regenerating the block — never by a
   postscript.
