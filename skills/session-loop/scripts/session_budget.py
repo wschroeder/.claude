@@ -1254,7 +1254,15 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
     over = past_handoff_point(stats, threshold)
     # The in-flight turn is not written until it completes, so this reads the
     # last finished one.
-    verdict = "hand off" if over else "keep going"
+    # The action rides on the verdict because a check fired mid-template has no
+    # instruction beside it, where a template's Section 0 states one. Measured: a
+    # session read "turn 57, context 211,725 of 170,000 - hand off", quoted it
+    # back in its own evidence block, and carried on to end at 231,172.
+    verdict = (
+        "hand off: commit what you have with a subject saying it is unfinished, "
+        "write HANDOFF.md through clear-task, and stop."
+        if over else "keep going"
+    )
 
     if as_json:
         print(json.dumps({

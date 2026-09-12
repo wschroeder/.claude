@@ -359,6 +359,15 @@ class SelfCheck(unittest.TestCase):
         self.assertNotIn("keep going", out)
         self.assertEqual(code, 3)
 
+    def test_the_hand_off_verdict_names_what_to_do(self):
+        self.write("s-big", 250_000)
+        _, out, _ = self.run_check()
+        self.assertEqual(
+            out.strip(),
+            "s-big: turn 1, context 250,000 of 200,000 \u2014 hand off: commit what "
+            "you have with a subject saying it is unfinished, write HANDOFF.md "
+            "through clear-task, and stop.")
+
     def test_the_line_carries_the_turn_the_context_and_the_threshold(self):
         self.write("s-small", 30_000)
         _, out, _ = self.run_check()
@@ -383,6 +392,13 @@ class SelfCheck(unittest.TestCase):
         self.assertEqual(payload["context"], 250_000)
         self.assertTrue(payload["past_handoff_point"])
         self.assertEqual(code, 3)
+
+    def test_json_mode_says_a_session_under_the_threshold_is_not_past_it(self):
+        self.write("s-small", 30_000)
+        code, out, _ = self.run_check(as_json=True)
+        payload = json.loads(out)
+        self.assertFalse(payload["past_handoff_point"])
+        self.assertEqual(code, 0)
 
     def test_a_project_directory_with_no_transcripts_is_an_error_not_a_verdict(self):
         # Reachable when the project directory exists but the session has not
