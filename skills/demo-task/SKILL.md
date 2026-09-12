@@ -219,6 +219,17 @@ Rules:
   `project-drive` appears in the available skills, load it for how to send
   this product real input. If nothing is listed, work it out and say in one
   line what you did.
+- **A script the demo writes and commits goes through `quick-review` and
+  `security-review` in this session, before that commit.** Driving the product
+  the way a person does often takes a script of your own — a driver, a capture
+  harness, or a fixture generator — and a script committed to the repository is
+  code wherever it sits. Load both skills here, and apply what they find under
+  the review skill's own gate. Leaving the review for whoever comes next does
+  not work, because the next session is inside a different template and spends
+  its budget on the phase before it. Measured: a demo committed a driver no test
+  covered and neither review had read, and the retro session that inherited it
+  spent 21 of its 31 turns reviewing and fixing that driver, reaching its own
+  first section at turn 24.
 - **Being unable to drive it is a finding, not a caveat.** Where the
   definition of released says the operator operates the thing and you cannot
   send it the input a person sends, the slice is not built: say so as the
