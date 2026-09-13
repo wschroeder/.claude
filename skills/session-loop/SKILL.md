@@ -326,9 +326,14 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 Never below about 100,000 context. Asking is itself a full-context turn, and down
 there the answer cannot be anything but keep going.
 
-It prints `<session>: turn N, context X of 170,000 — hand off` or `— keep going`. On
-`keep going`, carry on here; stopping earlier is not thrift, because the next session
-pays about 104,000 tokens to read its way back to where you already are.
+It prints `<session>: turn N, context X of 170,000 — hand off` or `— keep going;
+R of room, and a handoff through clear-task measured about C`, where C is
+`HANDOFF_ALLOWANCE` in `session_budget.py`. On `keep going`, carry on here;
+stopping earlier is not thrift, because the next session pays about 104,000
+tokens to read its way back to where you already are. The room and the handoff's
+cost are printed so the session knows what the handoff will take once the verdict
+changes; they are not a second verdict, and the verdict does not move when the
+room falls under the cost.
 
 On `hand off`, stop where you are. A piece of work does not have to be finished
 first: commit what you have with a subject saying it is unfinished, and write the

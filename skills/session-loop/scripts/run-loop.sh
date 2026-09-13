@@ -238,17 +238,22 @@ anything but keep going.
 It prints your context so far and one of two verdicts. On "keep going", carry on
 here: you have already paid to load this context, and a fresh session would
 spend about a hundred thousand tokens re-reading its way back to where you
-already are.
+already are. Beside that verdict it prints the room left and what a handoff
+through clear-task cost when it was measured. That is information about what
+your own handoff will cost once the verdict changes, not a second verdict, so do
+not stop early on it. Measured: a run's readings said "keep going" up to 140,372
+of 170,000 and the session handed off anyway at about 157,000, on its own guess
+of what the next step would cost.
 
 On "hand off", stop where you are. You do not have to finish the piece of work
 first — inside this loop a commit records where you got to, and does not have to
 mean the work is finished and reviewed. Commit what you have with a subject that
-says it is unfinished, then rewrite $HANDOFF as the continuation prompt for the
-next fresh session: the same thing you would write for a person picking this up
-cold, and on top of that, exactly where in the cycle you stopped and what the
-piece of work still owes — the test that is written and failing, the reviews not
-yet run, what the probe showed. The next session amends that commit or builds on
-it.
+says it is unfinished, then write $HANDOFF through the clear-task skill as the
+continuation prompt for the next fresh session: the same thing you would write
+for a person picking this up cold, and on top of that, exactly where in the
+cycle you stopped and what the piece of work still owes — the test that is
+written and failing, the reviews not yet run, what the probe showed. The next
+session amends that commit or builds on it.
 
 Hand off on the same terms when one check has failed three times running,
 whatever your context number says. Count a single command — the same test, the

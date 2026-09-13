@@ -941,6 +941,13 @@ def hit_session_limit(records: List[dict]) -> bool:
     return False
 
 
+# What writing the handoff itself costs, measured on the S5 muskets run: 15,372
+# through clear-task, 25,678 for the commit and clear-task together once the hook
+# had fired. It is printed beside the verdict and never moves the verdict: a
+# verdict that fires this much early teaches the session to stop that much early.
+HANDOFF_ALLOWANCE = 20_000
+
+
 def past_handoff_point(stats: SessionStats, threshold: int) -> bool:
     """Whether the session has grown past where it should hand off.
 
@@ -1252,6 +1259,7 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
 
     stats = session_stats(read_records(path))
     over = past_handoff_point(stats, threshold)
+    room = threshold - stats.ctx_end
     # The in-flight turn is not written until it completes, so this reads the
     # last finished one.
     # The action rides on the verdict because a check fired mid-template has no
@@ -1261,7 +1269,9 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
     verdict = (
         "hand off: commit what you have with a subject saying it is unfinished, "
         "write the handoff through clear-task, and stop."
-        if over else "keep going"
+        if over else
+        "keep going; %s of room, and a handoff through clear-task measured about %s"
+        % ("{:,}".format(room), "{:,}".format(HANDOFF_ALLOWANCE))
     )
 
     if as_json:
@@ -1272,6 +1282,8 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
             "peak_context": stats.ctx_peak,
             "handoff_at": threshold,
             "past_handoff_point": over,
+            "room_left": room,
+            "handoff_allowance": HANDOFF_ALLOWANCE,
         }, indent=2))
     else:
         # The session id is here because the lookup above can land on a

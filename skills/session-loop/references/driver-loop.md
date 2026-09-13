@@ -255,12 +255,15 @@ The worker measures itself:
 python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 ```
 
-It prints `<session>: turn N, context X of Y — hand off` or `— keep going`,
-and exits 3 when it is over. The session name is there because the lookup can
-land on a neighbouring transcript, and a verdict with no name on it gives the
-reader no way to notice that it did. Claude Code puts the running session's id in
-`CLAUDE_CODE_SESSION_ID` and names the transcript after it, so a session can
-find its own record; that holds in headless `claude -p` runs too, and the
+It prints `<session>: turn N, context X of Y — hand off` or `— keep going;
+R of room, and a handoff through clear-task measured about C`, where C is
+`HANDOFF_ALLOWANCE` in `session_budget.py`, and exits 3 when it is over. The
+room and the handoff's measured cost ride beside `keep going` as information,
+and never turn it into `hand off`. The session name is there because the lookup
+can land on a neighbouring transcript, and a verdict with no name on it gives
+the reader no way to notice that it did. Claude Code puts the running session's
+id in `CLAUDE_CODE_SESSION_ID` and names the transcript after it, so a session
+can find its own record; that holds in headless `claude -p` runs too, and the
 transcript is flushed as the session goes, so the number is current rather than
 whatever it was when the process started.
 

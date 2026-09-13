@@ -371,7 +371,33 @@ class SelfCheck(unittest.TestCase):
     def test_the_line_carries_the_turn_the_context_and_the_threshold(self):
         self.write("s-small", 30_000)
         _, out, _ = self.run_check()
-        self.assertEqual(out.strip(), "s-small: turn 1, context 30,000 of 200,000 — keep going")
+        self.assertEqual(
+            out.strip(),
+            "s-small: turn 1, context 30,000 of 200,000 — keep going; 170,000 of "
+            "room, and a handoff through clear-task measured about 20,000")
+
+    def test_keep_going_holds_to_the_threshold_with_the_handoff_cost_beside_it(self):
+        # 15,000 of room is under the allowance, and the answer is still keep going.
+        self.write("s-late", 155_000)
+        code, out, _ = self.run_check(threshold=170_000)
+        self.assertEqual(code, 0)
+        self.assertIn("keep going; 15,000 of room, and a handoff through clear-task "
+                      "measured about 20,000", out)
+
+    def test_the_json_carries_the_room_and_the_allowance(self):
+        self.write("s-late", 155_000)
+        _, out, _ = self.run_check(threshold=170_000, as_json=True)
+        data = json.loads(out)
+        self.assertEqual(data["room_left"], 15_000)
+        self.assertEqual(data["handoff_allowance"], 20_000)
+
+    def test_the_room_follows_the_latest_context_not_the_peak(self):
+        path = self.write("s-compacted", 250_000)
+        with open(path, "a") as fh:
+            fh.write(json.dumps(assistant("2026-08-10T00:05:00Z", cr=150_000)) + "\n")
+        code, out, _ = self.run_check(threshold=170_000)
+        self.assertEqual(code, 0)
+        self.assertIn("context 150,000 of 170,000 — keep going; 20,000 of room", out)
 
     def test_the_threshold_is_the_one_passed_not_the_default(self):
         self.write("s-mid", 100_000)

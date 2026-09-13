@@ -543,7 +543,7 @@ check "one session ran and then blocked" 0 "$status"
 # Flattened, so an assertion is about what the contract says rather than about
 # where the paragraph happened to wrap.
 PROMPT="$(tr '\n' ' ' < "$ROOT/last-prompt.txt" | tr -s ' ')"
-for phrase in "DO THE NEXT THING." "rewrite HANDOFF.md" "BLOCKED: " "DONE" "do not invoke the" \
+for phrase in "DO THE NEXT THING." "write HANDOFF.md through the clear-task skill" "BLOCKED: " "DONE" "do not invoke the" \
               "session_budget.py" "--self" "hand off" "keep going"; do
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the child session is told: $phrase" 0 "$ok"
