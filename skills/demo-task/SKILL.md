@@ -31,6 +31,16 @@ to describe something nobody checked, so it is the last one that should be
 citing less. Where the two pull against each other, write the plain sentence
 and put its tag on it.
 
+**An id is a tag, never a part of the sentence.** Where a sentence the operator
+reads has to touch a requirement, state what that requirement asks for and put
+the bracketed id after the clause, in the tag position the evidence rules
+already want it in. When an id carries the sentence's own grammar instead —
+"the run that [R23] describes", "we still owe [R19]" — the operator has to look
+it up before the sentence says anything at all. Measured: an S4 demo told the
+operator "I could not drive the one continuous run that [R23] describes".
+Writing it as "I could not drive a single run from the world map into a battle
+and back out [R23]" costs one clause and no lookup.
+
 Order is enforced because each section is built from the one above it. A
 status tag written before Section 2's commands have run is a claim rather
 than a measurement.
