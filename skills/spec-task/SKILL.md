@@ -174,7 +174,10 @@ out of it. A slice that failed this test, and what it cost:
 **On a returning initiative, stop here before Section 2's research
 begins.** Nothing past this point has been written yet, which is what
 makes this the cheap place to catch a wrong slice — catching it after
-Sections 2 through 9 have run costs the whole pass.
+Sections 2 through 9 have run costs the whole pass. This stop asks one
+question, the one below. Section 3's open questions wait for Section 3;
+carrying them into this stop puts them to the operator before the check
+that would have answered some of them has run.
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
 nobody reads a question in the transcript, so write `HANDOFF.md` through
@@ -225,16 +228,24 @@ system depends on is unavailable; what happens at the limits (empty, one,
 very many, concurrent); who is allowed to do it; and what is deliberately
 not being built.
 
-Each question gets one of two outcomes, and no third:
+Each question gets one of three outcomes, and no fourth. Check the first
+before either of the others:
 
+- The slice's own scope — what the operator approved in Section 1 and what
+  it leaves out — or a source line in Section 2 already settles it. Answer
+  it from that line, quoted, and do not put it to the operator. Measured:
+  a handoff listed "turning a battalion at deployment" among what the
+  slice leaves out and, further down, asked the operator whether a
+  battalion may turn at deployment.
 - The operator answers it, and the answer becomes a new source line in
   Section 2.
 - Nobody answers it, and it goes verbatim into the out-of-scope list in
   Section 5.
 
-Do not answer them yourself. If an unanswered question would change what
-the requirements say, stop and ask — CLAUDE.md rule 2, a missing
-precondition is a stop rather than a guess.
+Do not answer them yourself. Quoting the slice's own scope or a source line
+is not answering yourself; it is reading an answer already given. If an
+unanswered question would change what the requirements say, stop and ask —
+CLAUDE.md rule 2, a missing precondition is a stop rather than a guess.
 
 **End this section by saying which it was.** Either the numbered questions
 the operator has to answer, asked with AskUserQuestion, with nothing
