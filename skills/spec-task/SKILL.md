@@ -162,6 +162,15 @@ a starting point rather than a decision — resize or split it if it no
 longer fits now that something real exists to compare it against. Only the
 next slice is decided here.
 
+**One slice is one feature.** Write the `a person can` line as a single
+sentence naming one capability, and where that sentence needs an "and" to
+join two capabilities a player would think of separately, cut it there and
+specify the first half. The operator has to be able to hold the slice in
+mind as one coherent step of progress when they open the project, so what
+decides the cut is what the sentence names rather than how many tasks fall
+out of it. A slice that failed this test, and what it cost:
+[references/slice-size.md](references/slice-size.md).
+
 **On a returning initiative, stop here before Section 2's research
 begins.** Nothing past this point has been written yet, which is what
 makes this the cheap place to catch a wrong slice — catching it after
