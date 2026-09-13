@@ -411,6 +411,68 @@ DONE_OVERRIDES=0
 MAX_SAME_FILE_FINDINGS=3
 LATCHED_PATHS=""
 LATCH_COUNT=0
+# Seconds until the usage limit a run summary names resets, on stdout. Exit 1
+# when the summary is not a usage limit; exit 2, with the limit's own words on
+# stdout, when its reset time cannot be read. Read whatever claude's exit status
+# was: on a limit it exits 1 with the reset time in the JSON, so the status alone
+# reports an hour the run could have slept through as a failure.
+seconds_until_reset() {
+  python3 - "$1" <<'RESET'
+import json, re, sys
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+
+NOT_A_LIMIT = 1
+UNREADABLE = 2
+
+try:
+    with open(sys.argv[1]) as fh:
+        result = json.load(fh)
+except Exception:
+    sys.exit(NOT_A_LIMIT)
+if result.get("api_error_status") != 429:
+    sys.exit(NOT_A_LIMIT)
+
+# "You've hit your session limit · resets 10:20pm (America/Chicago)", or for
+# the weekly limit "resets Aug 13 at 8am (America/Chicago)".
+text = str(result.get("result", ""))
+named = re.search(r"resets (.+?) \(([^)]+)\)", text)
+when = named and re.fullmatch(
+    r"(?:(\w{3}) (\d{1,2}) at )?(\d{1,2})(?::(\d{2}))?(am|pm)", named.group(1))
+try:
+    zone = ZoneInfo(named.group(2)) if named else None
+except Exception:
+    zone = None
+if not (named and when and zone):
+    print(text)
+    sys.exit(UNREADABLE)
+
+month, day, hour, minute, half = when.groups()
+now = datetime.now(zone)
+reset = now.replace(hour=int(hour) % 12 + (12 if half == "pm" else 0),
+                    minute=int(minute or 0), second=0, microsecond=0)
+# The time named is rounded to ten minutes, so one a few minutes gone is a
+# limit that has just lifted, not one that lifts tomorrow.
+if month:
+    reset = reset.replace(month=datetime.strptime(month, "%b").month, day=int(day))
+    if reset < now - timedelta(days=1):
+        reset = reset.replace(year=reset.year + 1)
+elif reset < now - timedelta(minutes=10):
+    reset += timedelta(days=1)
+wait = (reset - now).total_seconds()
+if wait > 8 * 86400:
+    print(text)
+    sys.exit(UNREADABLE)
+print(max(0, int(wait)) + 60)
+RESET
+}
+
+wait_out_limit() {
+  printf '  %s hit the usage limit; it resets in %s minutes. Waiting, then trying once more.\n' \
+    "$1" "$(($2 / 60))"
+  sleep "$2"
+}
+
 i=0
 while :; do
   i=$((i + 1))
@@ -513,10 +575,32 @@ while :; do
     exit 0
   fi
 
-  RUN_STAMP="$(date -u +%Y%m%dT%H%M%S)"
-  RUN_LOG="$LOGS/run-$RUN_STAMP-$i.json"
-  STATUS=0
-  ( cd "$REPO" && claude "$@" ) > "$RUN_LOG" || STATUS=$?
+  # Measured on 2026-09-12: the run stopped at 21:17 on a limit that reset at
+  # 22:20, and nobody relaunched it until 23:16. One hour was the limit and the
+  # second was the stop, and the second is the one a driver exists to remove.
+  WAITED=0
+  while :; do
+    RUN_STAMP="$(date -u +%Y%m%dT%H%M%S)"
+    RUN_LOG="$LOGS/run-$RUN_STAMP-$i.json"
+    STATUS=0
+    ( cd "$REPO" && claude "$@" ) > "$RUN_LOG" || STATUS=$?
+
+    LIMIT=0
+    RESET_IN="$(seconds_until_reset "$RUN_LOG")" || LIMIT=$?
+    case "$LIMIT" in
+      1) break ;;
+      0) if [ "$WAITED" -eq 0 ]; then
+           WAITED=1
+           wait_out_limit "the session" "$RESET_IN"
+           continue
+         fi
+         printf 'stopping: the session hit the usage limit again after waiting it out once. See %s\n' "$RUN_LOG"
+         exit 1 ;;
+      *) printf 'stopping: the session hit the usage limit and this cannot tell when it resets.\n'
+         printf '  the limit says: %s\n  relaunch after that. See %s\n' "$RESET_IN" "$RUN_LOG"
+         exit 1 ;;
+    esac
+  done
 
   if [ "$STATUS" -ne 0 ]; then
     printf 'stopping: claude exited %s. See %s\n' "$STATUS" "$RUN_LOG"
@@ -638,18 +722,32 @@ RECORD
     # in 3s, proceeding without it" on every iteration — three seconds of stall
     # each time, and a hang rather than a stall if the driver's own stdin is a
     # pipe that nobody closes.
-    EVAL_LOG="$LOGS/eval-$(date -u +%Y%m%dT%H%M%S)-$i.json"
-    EVAL_STATUS=0
-    (
-      cd "$REPO" && claude \
-        -p "$(eval_prompt "$HEAD_BEFORE..HEAD")" \
-        --output-format json \
-        --permission-mode dontAsk \
-        --allowed-tools Bash Read Grep Glob \
-        --disallowed-tools Edit Write NotebookEdit \
-        --model "$EVAL_MODEL" \
-        < /dev/null
-    ) > "$EVAL_LOG" || EVAL_STATUS=$?
+    WAITED=0
+    while :; do
+      EVAL_LOG="$LOGS/eval-$(date -u +%Y%m%dT%H%M%S)-$i.json"
+      EVAL_STATUS=0
+      (
+        cd "$REPO" && claude \
+          -p "$(eval_prompt "$HEAD_BEFORE..HEAD")" \
+          --output-format json \
+          --permission-mode dontAsk \
+          --allowed-tools Bash Read Grep Glob \
+          --disallowed-tools Edit Write NotebookEdit \
+          --model "$EVAL_MODEL" \
+          < /dev/null
+      ) > "$EVAL_LOG" || EVAL_STATUS=$?
+
+      # A limit the reviewer hit is one the next session would hit too, so the
+      # wait happens here rather than at the start of a session run into a wall.
+      LIMIT=0
+      RESET_IN="$(seconds_until_reset "$EVAL_LOG")" || LIMIT=$?
+      if [ "$LIMIT" -eq 0 ] && [ "$WAITED" -eq 0 ]; then
+        WAITED=1
+        wait_out_limit "the reviewer" "$RESET_IN"
+        continue
+      fi
+      break
+    done
 
     # A reviewer that fell over is not a reason to stop building. Say so and
     # carry on: the alternative is that one flaky read halts a run that is

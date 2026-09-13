@@ -63,6 +63,10 @@ case " $* " in
     printf '%s\n' "$*" > "$STUB_EVAL_ARGV_FILE"
     n=$(( $(cat "$STUB_EVAL_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
     echo "$n" > "$STUB_EVAL_COUNT_FILE"
+    if [ -n "${STUB_EVAL_LIMIT_FIRST:-}" ] && [ "$n" -eq 1 ]; then
+      printf '{"type":"result","subtype":"success","is_error":true,"num_turns":16,"terminal_reason":"api_error","api_error_status":429,"result":"You\u0027ve hit your session limit \u00b7 resets %s (America/Chicago)"}\n' "$STUB_RESET_AT"
+      exit 1
+    fi
     # STUB_VERDICT_FIRST lets a run go FAIL then PASS, which is the only way to
     # see whether findings are cleared once they stop being found.
     if [ -n "${STUB_VERDICT_FIRST:-}" ] && [ "$n" -eq 1 ]; then
@@ -195,6 +199,30 @@ case "${STUB_MODE:-commit}" in
     printf '{"is_error":true,"num_turns":4,"terminal_reason":"completed","total_cost_usd":2.0}\n'
     exit 0
     ;;
+  limitonce)
+    # Hits the usage limit on the first call and does the work on the second:
+    # the shape a run takes when the driver waits the limit out. The JSON and
+    # the exit status are what claude wrote on 2026-09-13 at 02:17Z.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -eq 1 ]; then
+      printf '{"type":"result","subtype":"success","is_error":true,"num_turns":1,"terminal_reason":"api_error","api_error_status":429,"result":"You\u0027ve hit your session limit \u00b7 resets %s (America/Chicago)"}\n' "$STUB_RESET_AT"
+      exit 1
+    fi
+    echo "$RANDOM" >> file.txt
+    printf 'BLOCKED: nothing more to decide.\nrest of handoff\n' > HANDOFF.md
+    git add -A && git commit -qm "stub: worked once the limit reset"
+    ;;
+  limitalways)
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    printf '{"type":"result","subtype":"success","is_error":true,"num_turns":1,"terminal_reason":"api_error","api_error_status":429,"result":"You\u0027ve hit your session limit \u00b7 resets %s (America/Chicago)"}\n' "$STUB_RESET_AT"
+    exit 1
+    ;;
+  limitunreadable)
+    printf '{"type":"result","subtype":"success","is_error":true,"num_turns":1,"terminal_reason":"api_error","api_error_status":429,"result":"You\u0027ve hit your session limit \u00b7 resets when it resets"}\n'
+    exit 1
+    ;;
   garbage)
     echo "$RANDOM" >> file.txt
     # Then block, so an unreadable summary does not stop the loop on its own but
@@ -216,7 +244,21 @@ esac
 printf '{"is_error":false,"num_turns":7,"terminal_reason":"completed","total_cost_usd":1.25}\n'
 STUB
   chmod +x "$ROOT/bin/claude"
+  cat > "$ROOT/bin/sleep" <<'STUB'
+#!/usr/bin/env bash
+printf '%s\n' "$1" >> "$STUB_SLEEP_FILE"
+STUB
+  chmod +x "$ROOT/bin/sleep"
   export PATH="$ROOT/bin:$PATH"
+  export STUB_SLEEP_FILE="$ROOT/sleeps.txt"
+  # Two hours from now in the zone the limit names, written the way claude
+  # writes it: "3:40pm", no leading zero.
+  export STUB_RESET_AT="$(python3 -c '
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+t = datetime.now(ZoneInfo("America/Chicago")) + timedelta(hours=2)
+print(t.strftime("%I:%M%p").lstrip("0").lower())
+')"
   export STUB_PROMPT_FILE="$ROOT/last-prompt.txt"
   export STUB_ARGV_FILE="$ROOT/last-argv.txt"
   export STUB_COUNT_FILE="$ROOT/stub-count.txt"
@@ -377,6 +419,83 @@ status="$(run_loop)"
 check "an errored session stops the loop" 1 "$status"
 grep -q "reported an error" "$ROOT/out.txt"
 check "the error is reported" 0 $?
+drop_fixture
+
+# --- a usage limit is waited out and the iteration tried once more, rather
+#     than stopping on "claude exited 1" with the reset time sitting unread in
+#     the run JSON ---
+#
+# Measured on 2026-09-12/13: the driver stopped at 21:17 on a limit that reset
+# at 22:20, and nobody relaunched until 23:16. One hour was the limit; the
+# second hour was the stop. Twenty-seven run and eval records in the muskets
+# logs carry api_error_status 429 with "resets <time> (<zone>)" in the result.
+new_fixture
+export STUB_MODE=limitonce
+status="$(run_loop)"
+check "a session that hit the limit is tried again after the reset" 0 "$status"
+check "the retry did the work" 2 "$(git -C "$REPO" rev-list --count HEAD)"
+check "claude was called twice for the one iteration" 2 "$(cat "$STUB_COUNT_FILE")"
+check "the driver slept once" 1 "$(wc -l < "$STUB_SLEEP_FILE" | tr -d ' ')"
+SLEPT="$(cat "$STUB_SLEEP_FILE")"
+# Two hours to the reset, a minute of margin past it, and the seconds the
+# clock moved between the fixture writing the time and the driver reading it.
+check "and slept until the reset, not a fixed interval" 1 \
+  "$([ "$SLEPT" -ge 7140 ] && [ "$SLEPT" -le 7320 ] && echo 1 || echo "0 ($SLEPT)")"
+grep -q "the session hit the usage limit" "$ROOT/out.txt"
+check "the wait is reported" 0 $?
+drop_fixture
+
+# --- a reset time a few minutes gone is a limit that has just lifted: the retry
+#     is immediate, not tomorrow ---
+new_fixture
+export STUB_MODE=limitonce
+export STUB_RESET_AT="$(python3 -c '
+from datetime import datetime, timedelta
+from zoneinfo import ZoneInfo
+t = datetime.now(ZoneInfo("America/Chicago")) - timedelta(minutes=3)
+print(t.strftime("%I:%M%p").lstrip("0").lower())
+')"
+status="$(run_loop)"
+check "a limit whose reset has just passed is tried again at once" 0 "$status"
+check "after the margin alone" 60 "$(cat "$STUB_SLEEP_FILE")"
+drop_fixture
+
+# --- but only once: a limit that is still there after the wait stops the run ---
+new_fixture
+export STUB_MODE=limitalways
+status="$(run_loop)"
+check "a limit hit again after the wait stops the loop" 1 "$status"
+check "the iteration was tried exactly twice" 2 "$(cat "$STUB_COUNT_FILE")"
+check "the driver slept only once" 1 "$(wc -l < "$STUB_SLEEP_FILE" | tr -d ' ')"
+grep -q "stopping: the session hit the usage limit again" "$ROOT/out.txt"
+check "the second limit is reported as the stop" 0 $?
+drop_fixture
+
+# --- a reset time this cannot read stops the run and shows the limit's own
+#     words, so the person relaunching knows when ---
+new_fixture
+export STUB_MODE=limitunreadable
+status="$(run_loop)"
+check "an unreadable reset time stops the loop" 1 "$status"
+check "without sleeping" 0 "$(cat "$STUB_SLEEP_FILE" 2>/dev/null | wc -l | tr -d ' ')"
+grep -q "stopping: the session hit the usage limit" "$ROOT/out.txt"
+check "the limit is reported as the stop" 0 $?
+grep -q "resets when it resets" "$ROOT/out.txt"
+check "in the limit's own words" 0 $?
+drop_fixture
+
+# --- the reviewer hitting the limit gets the same wait, so the next session is
+#     not started into a wall ---
+new_fixture
+export STUB_MODE=blocked
+export STUB_EVAL_LIMIT_FIRST=1
+status="$(run_loop)"
+unset STUB_EVAL_LIMIT_FIRST
+check "the loop still exits cleanly when the reviewer hit the limit" 0 "$status"
+check "the review was tried again after the reset" 2 "$(cat "$STUB_EVAL_COUNT_FILE")"
+check "the driver slept once for the reviewer" 1 "$(wc -l < "$STUB_SLEEP_FILE" | tr -d ' ')"
+grep -q "the reviewer hit the usage limit" "$ROOT/out.txt"
+check "the reviewer's wait is reported" 0 $?
 drop_fixture
 
 # --- an unreadable summary is not treated as success ---

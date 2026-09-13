@@ -248,7 +248,11 @@ another session instead, twice at most before the run stops and asks for a
 person. It also stops when the handoff says `BLOCKED:`, when the tree is dirty, when
 `claude` exits non-zero, when a session ended for any reason other than
 finishing, when the session reported an error, or when the code came out
-unchanged — never on a count. `claude -p` exits 0 even when it was cut off part
+unchanged — never on a count. The one non-zero exit it does not stop on is the
+usage limit: the run summary names when the limit resets, and the driver sleeps
+until then and tries the same iteration once more, for the session and for the
+reviewer alike. It stops on a limit only when the reset time is one it cannot
+read, or when the limit is still there after the wait. `claude -p` exits 0 even when it was cut off part
 way, so the driver reads the summary rather than trusting the exit code. It
 compares tree hashes rather than commit ids, because a session may amend the
 unfinished commit it was handed, and an amend that changes no file still

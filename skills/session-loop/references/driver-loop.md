@@ -48,7 +48,9 @@ something.
    file it writes into the logs directory, registering the handoff hook
    described below.
 6. Stop if claude exited non-zero, or if the run's summary says it ended for
-   any reason other than finishing.
+   any reason other than finishing. The exception is the usage limit: the
+   summary names when it resets, so the driver sleeps until then and runs the
+   same iteration once more before it would stop.
 7. Stop if the tree hash did not move. A session that changed nothing would
    hand the next one the same starting position, and the loop would spin. The
    tree rather than the commit id, because a session may amend the unfinished
