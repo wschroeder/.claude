@@ -155,16 +155,23 @@ sessions, four of them closing exactly one card each, while a session that kept
 going closed its second and third cards for 21,239 and 14,670 tokens against the
 114,028 its first one cost.
 
-Before either handoff, read your own room:
+Before invoking it, read your own room:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-Past the ceiling it reports, hand off instead of starting to build: say so and
-let the operator clear, per `clear-task`. Tell it which section you stopped at
-and what that section still owes — a record you have not worked, an answer
-the operator is waiting on — so the handoff cannot write this phase down as
-finished, and make invoking `session-loop` the first of its next steps.
-Planning a slice and building it are two sessions' work, and this is the seam.
+**Then invoke `session-loop`, in this turn, whatever that number says.** Naming
+it in a handoff is not handing to it: the next session reads a prompt whose
+first step names `tdd-cycle`, loads that instead, and the build becomes the
+string of hand-cleared sessions this rule exists to prevent. Measured: one
+planning session wrote a handoff naming `session-loop` zero times, and the
+operator pasted eleven more prompts over the thirteen hours that followed.
+
+Being past the ceiling changes nothing here. The loop's own step 2 writes the
+handoff through `clear-task`, which is the work handing off would have cost
+anyway, so say which section you stopped at and what it still owes — a record
+you have not worked, an answer the operator is waiting on — and let the loop
+carry it rather than the operator. Planning a slice and building it are two
+sessions' work, and this is the seam.
 
 ## 6. Notes on what this template does NOT do
 
