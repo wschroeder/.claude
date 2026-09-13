@@ -261,6 +261,18 @@ Anything unresolved that needs an operator decision before or during the
 next steps. If there are none, write `None`. Do not invent decisions; do
 not bury a real blocker inside §8.
 
+**A question that already rode the last handoff leaves this list.** Read the
+previous prompt's §10 before writing this one, and for every question that
+appears in both, do one of three things: file it as a card, so the backlog
+holds it and a session can be scheduled to answer it; write the answer into
+the design document that should have held it, where the session settled the
+question and nobody recorded it; or strike it, where nobody needs it answered.
+Carrying it a third time is not one of the three. A question copied forward
+reads as though someone is tracking it, when no card holds it and no session
+owns answering it, and every fresh chat pays to read it again. Measured:
+"whether weapons stay in the game" appears in 29 of one project's transcripts,
+and its backlog holds no card for it.
+
 ## 11. Completeness gate (the frontloading forcing function)
 
 Before writing the prompt, interrogate §1–§10 out loud. Answer each:
