@@ -377,6 +377,14 @@ NOT begin executing the next steps, and does NOT write the prompt to a file
 unless §0's check found a worker reading it next, or the operator explicitly
 asks. The operator copies the block and starts the new chat.
 
+**A written handoff is a document, not a stop signal.** The stop above is the
+template's, and it says only that the template does not start the next steps
+on its own. A session that has written its handoff and is still under the
+ceiling has not lost the right to keep working when the operator asks it to;
+it rewrites the prompt when it does stop. Measured: a supervising session at
+about 157,000 of 170,000 declined to open a signoff gate at 10:46 because it
+had written its handoff, and the operator overrode it at 13:32.
+
 **Where §0 found a worker, the artifact is that file.** The driver hands it
 to every fresh session, nobody copies anything, and a block printed beside it
 would be a second copy going stale from the moment it appeared. Write §1-§10
