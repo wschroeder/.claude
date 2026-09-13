@@ -365,7 +365,7 @@ class SelfCheck(unittest.TestCase):
         self.assertEqual(
             out.strip(),
             "s-big: turn 1, context 250,000 of 200,000 \u2014 hand off: commit what "
-            "you have with a subject saying it is unfinished, write HANDOFF.md "
+            "you have with a subject saying it is unfinished, write the handoff "
             "through clear-task, and stop.")
 
     def test_the_line_carries_the_turn_the_context_and_the_threshold(self):
@@ -577,7 +577,19 @@ class HookCheck(unittest.TestCase):
         path = self.transcript(180_000)
         err = self.run_hook({"transcript_path": path})[2]
         self.assertIn("commit", err)
-        self.assertIn("HANDOFF.md", err)
+        self.assertIn("handoff", err)
+
+    def test_the_message_leaves_the_artifact_to_clear_task(self):
+        # Whether the handoff is a file or a block the operator copies depends
+        # on who reads it next, and clear-task's own section 0 settles that
+        # from a pgrep. Naming the file here answers that question before the
+        # check has run. Measured: eleven sessions in one run read a verdict
+        # naming HANDOFF.md, and all eleven wrote a block for the operator
+        # instead, because clear-task ran afterwards and overrode it. Nothing
+        # broke, and nothing was stopping it from breaking.
+        path = self.transcript(180_000)
+        err = self.run_hook({"transcript_path": path})[2]
+        self.assertNotIn("HANDOFF.md", err)
 
     def test_the_message_names_the_skill_that_writes_the_handoff(self):
         # Measured on the run that prompted this: two work sessions wrote

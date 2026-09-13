@@ -1260,7 +1260,7 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
     # back in its own evidence block, and carried on to end at 231,172.
     verdict = (
         "hand off: commit what you have with a subject saying it is unfinished, "
-        "write HANDOFF.md through clear-task, and stop."
+        "write the handoff through clear-task, and stop."
         if over else "keep going"
     )
 
@@ -1325,6 +1325,13 @@ def hook_check(threshold: int) -> int:
     # worker told only that it is over stops where it stands, and the dirty tree
     # it leaves trips the driver's dirty-tree gate, halting the whole run.
     #
+    # Neither message names HANDOFF.md. Whether the handoff is a file or a block
+    # the operator copies depends on who reads it next, and clear-task's own
+    # section 0 settles that from a pgrep — so naming the file here would answer
+    # that question before the check ran. Measured: eleven sessions in one run
+    # read a verdict naming the file and all eleven wrote a block instead,
+    # because clear-task ran afterwards and overrode it.
+    #
     # Naming the skill is what stops the second step being improvised. Measured:
     # two sessions in one run wrote HANDOFF.md with a heredoc instead, one of
     # them reasoning at 160,121 that loading `clear-task` would not leave room
@@ -1334,9 +1341,9 @@ def hook_check(threshold: int) -> int:
     sys.stderr.write(
         "You are at %s context against a handoff point of %s. Stop here rather "
         "than finishing the piece of work: commit what you have with a subject "
-        "that says it is unfinished, then write HANDOFF.md through the "
+        "that says it is unfinished, then write the handoff through the "
         "clear-task skill. That point is a budget, not a limit, and the window "
-        "has room left, so load the skill and write the file properly rather "
+        "has room left, so load the skill and write it properly rather "
         "than by hand.\n"
         % ("{:,}".format(stats.ctx_end), "{:,}".format(threshold)))
     return 2
