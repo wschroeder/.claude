@@ -96,9 +96,19 @@ the change would have succeeded.
 Hear them before interpreting. Nothing above this line is offered as a
 conclusion yet, and nothing below it is written until they have answered.
 
-Say what Section 3 found, in at most a screen, then ask what they saw that is
-not in it. That is the whole ask. Do not propose a change here, and do not ask
+**Open with what they already said.** Quote the operator's own turns from the
+supervising session's transcript — their typed messages and their
+AskUserQuestion answers, each with its timestamp — as their account taken in
+the moment. Then say what Section 3 found, in at most a screen, and ask only
+what is in neither: what they saw that their own turns and the transcripts do
+not show. That is the whole ask. Do not propose a change here, and do not ask
 them to choose between changes whose case they have not heard.
+
+"I can't remember" is an answer. Record it as the absence — their account is
+the quoted turns and nothing more — and carry on to Section 5; it does not
+stop the retro. Measured: asked what they saw, the operator answered "I can't
+remember exactly."; three hours later, with one proposed change in front of
+them, they gave the account that amended it.
 
 They sat through the run and you read its transcripts. Those are different
 evidence, and theirs is heard first because yours would otherwise frame it.
