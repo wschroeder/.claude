@@ -296,10 +296,19 @@ render, a PDF: the operator may be reading this on a phone, where a path on
 this machine is not something they can open. Send it and give the path, so
 either route works.
 
-Record what comes back verbatim, one record per point:
+**Ask one more thing beside it, in these words: "Did you work the demo
+yourself, or is this from the captures?"** Send the captures as always; the
+question is what tells the two apart, because feedback on a capture and
+feedback from working the thing read the same on the page. Measured: three
+captures went out at 23:55, the feedback arrived the next morning, and
+nothing in it said which it was.
+
+Record what comes back verbatim, one record per point, with the answer to
+that question beside them:
 
 ```
 [F<n>] "<the operator's own words>"
+worked: <"yes" or "from the captures", in the operator's words>
 ```
 
 Feedback you paraphrase is feedback you have already decided about. Quote
@@ -333,6 +342,11 @@ requirement whose command failed or ran nothing goes back to `planned` even
 if it was `built` last iteration. `stubbed` and `demoed` are the two a
 person declares: a stub is an authoring decision, and acceptance is the
 operator's.
+
+**`demoed` is read from Section 4's `worked` line, not from the absence of a
+launch record.** Where the operator said they worked the demo, the
+requirements they accepted are `demoed`; where the feedback came from the
+captures, they stay `built`, and the feedback is still recorded in full.
 
 A stub whose successor slice no longer exists in the slice map is a
 finding. Name it.
