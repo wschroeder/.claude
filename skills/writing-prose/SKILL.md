@@ -38,6 +38,19 @@ graph for a two-sentence comment is worse than loading nothing, because it spend
 the reader's patience and yours on a structure with one node. When the tier is
 genuinely unclear, take the lower one and say in one line which you took.
 
+## A reference names a thing, never a line
+
+Every tier. Anything a reader follows — in prose, in a heading, in a commit
+message — names something they can grep for: a heading, a function, a quoted
+phrase. Never a line number and never a line range. The file moves, the number
+does not, and it then points at real text saying something else, which a reader
+trusts. Measured: one document carried 122 line-number citations, four of them
+already resolving to nothing and the rest untrustworthy the moment nine of the
+fourteen files they pointed into had text moved.
+
+A line range in your own working notes is fine, because you print the lines it
+names and throw the notes away.
+
 ---
 
 ## Tier one — one point, no sections

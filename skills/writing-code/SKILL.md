@@ -135,6 +135,11 @@ structural mechanism it exercises.
 
 **Never leave commented-out code.** Delete it. Git has it.
 
+**A reference in a comment names a thing, never a line.** A heading, a symbol, a
+quoted phrase — something the reader can grep for. A line number is wrong the
+next time anybody edits the file it points into, and it stays confidently wrong,
+which is worse than absent.
+
 **No dead code.** Do not leave branches the change made unreachable, helpers nothing
 calls, or temporary variables nothing reads. A comment explaining why something is
 kept but unused is not a substitute for deleting it.
