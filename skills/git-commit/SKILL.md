@@ -76,6 +76,16 @@ GOOD: `Replace the hand-rolled Phoenix.Token bearer envelope at /oauth/token wit
 
 **Length:** as long as needed for the WHY, no longer. Trivial diffs warrant a one-line subject and no body. Multi-paragraph bodies are appropriate when there are real design decisions worth recording.
 
+## How many commits
+
+**A commit is one claim, not one file you finished editing.** Write the subject line before you stage anything. Where two files would take the same subject, they belong in one commit, however many sittings you spent on them and however far apart they sit in the tree.
+
+One change of mind usually reaches several files. A rule that changes what four skills do is one commit naming the rule, not four commits each naming a skill: the reader wants to know what changed about the work, and the file list is already in the diff.
+
+**While the branch is unpushed, growing a commit is an amend.** `git branch -r --contains HEAD` prints nothing, so put the next file of the same sweep into the commit already sitting there rather than beside it, under the section below. That amend needs nobody's words.
+
+Measured: a sweep that took the plan document out of four task skills, corrected two measurements in the reference behind them, and added one citation rule to two more, landed as eight commits. Two subjects covered all eight.
+
 ## Fixing work you already committed
 
 When you fix something a commit on this branch already covers, fold the fix into that commit with `git commit --amend` rather than adding a separate `fix: address review feedback` commit. Each commit is a section of an essay written for the next reader. A standalone follow-up commit records the chronology of your mistakes — "I wrote a bug, then patched it" — and buries the structure the reader actually wants.
