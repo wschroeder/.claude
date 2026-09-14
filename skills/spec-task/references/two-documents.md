@@ -1,9 +1,10 @@
-# Why the design documents and the plan are separate files
+# Why a design document holds the product and never points at code
 
 - [The rule](#the-rule)
 - [Why prose may not point at code](#why-prose-may-not-point-at-code)
 - [What the research supports, and what it does not](#what-the-research-supports-and-what-it-does-not)
 - [The run that produced this rule](#the-run-that-produced-this-rule)
+- [The second run, and what it cost](#the-second-run-and-what-it-cost)
 - [The edge nobody has settled yet](#the-edge-nobody-has-settled-yet)
 
 ## The rule
@@ -19,10 +20,19 @@ no slice, ticket or card, because those describe a schedule rather than a
 product. One exception stands on purpose: a tag on an element saying the
 build holds it, so a reader can tell what exists now from what is coming.
 
-A plan describes what is being built next: problem, definition of released,
-solution, slices, requirements, test seams, implementation decisions, out
-of scope. It holds exactly what a design document may not, it goes stale on
-purpose, and it is rewritten every slice.
+What is being built next is a set of cards, not a document. A card holds one
+task, its acceptance criteria, and the command that proves it; it goes stale
+on purpose and it closes. There is no third artifact between the design and
+the cards.
+
+A decision about how the product behaves goes into the design document in the
+run that settles it, because the conversation that settled it was the approval.
+The line is literal code: a source file, a function, a test, a stylesheet
+value, a configuration key. The test to apply is whether a person using the
+thing can tell the difference.
+
+That last rule was learned the hard way, and the measurement is in "The run
+that produced this rule" below, second case.
 
 ## Why prose may not point at code
 
@@ -69,6 +79,9 @@ prose, which is the case this rule is about.
 
 ## The run that produced this rule
 
+Two runs, and they pull in opposite directions. The first is why prose may not
+point at code. The second is why a behaviour may not sit outside the design.
+
 Measured, on a game project in September 2026. The operator asked for a
 one-time comparison of the design documents against the code — "we may need
 to audit". The session answered itself four minutes later with "the audit is
@@ -87,6 +100,28 @@ references, and most of the checker's work fell on a survey that a later
 slice was already scheduled to delete. The checker, its gate step and the
 file references were removed together.
 
+## The second run, and what it cost
+
+Measured, on a text-mode art editor in September 2026. That project ran six
+slices against a plan directory holding requirement records, quoted source
+lines, and a file named for implementation decisions. Twenty-eight decisions
+about how the product behaves accumulated there: the blink rate and the fact
+that there is only one of it, where the cursor lands on Enter, that the arrow
+keys move it at all, what a save does when browser storage is full, what an
+import does with a file it cannot finish reading.
+
+None of them was an implementation detail. Every one was something a person
+using the editor could see. They sat outside the design set because this
+template said it never writes to a design document and that correcting one is
+the operator's call, and no step anywhere put the call in front of anybody. Six
+slices later the operator read the design documents and found them describing a
+product that was not the one deployed.
+
+The cost of moving them was one session. The cost of the plan directory that
+held them was 4,191 deleted lines, 122 citations into the design that had to be
+stripped of their line numbers because nine of fourteen documents had just
+moved, and three cards that named a deleted file as the thing they were about.
+
 ## The edge nobody has settled yet
 
 The done tags are the one implementation-related thing a design document
@@ -94,7 +129,7 @@ carries, and nothing yet verifies them. A tag saying the build holds an
 element rots exactly the way a file path rots, and a counter that reads the
 tag's own words counts claims rather than measuring the build.
 
-No template here writes those tags, either. `spec-task` may not write to a
-design document at all, and `demo-task` reconciles the plan's requirement
-statuses rather than the product's. Whoever settles this should decide who
-writes a done tag and what checks it, before the tags spread.
+No template here writes those tags. `spec-task` and `demo-task` both write
+design documents now, and neither writes a status into one, because a status
+belongs to the card. Whoever settles this should decide who writes a done tag
+and what checks it, before the tags spread.

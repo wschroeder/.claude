@@ -1,9 +1,20 @@
 # What bd actually stores
 
+- [`bd init` is not a quiet command](#bd-init-is-not-a-quiet-command)
+- [Why Section 1 requires `--skip-agents --skip-hooks`](#why-section-1-requires---skip-agents---skip-hooks)
+- [The per-issue form stores what a spec needs](#the-per-issue-form-stores-what-a-spec-needs)
+- [`bd create --file` works, but only on the section format](#bd-create---file-works-but-only-on-the-section-format)
+- [The flat key-value shape is what demotes everything to prose](#the-flat-key-value-shape-is-what-demotes-everything-to-prose)
+- [Custom statuses are real, and unsetting one does not remove it](#custom-statuses-are-real-and-unsetting-one-does-not-remove-it)
+- [`bd create --graph` drops unknown fields](#bd-create---graph-drops-unknown-fields-and-creates-the-issues-anyway)
+
 Measured against `bd version 1.2.2 (dev)` on 2026-09-01, in a throwaway
 repository created with `git init && bd init --non-interactive --prefix sp`.
-Re-run these probes if bd's version changes; every rule in SKILL.md
-Sections 1 and 7, and every rule in `backlog-task`, rests on them.
+The section-format, custom-status and dependency findings were measured on
+2026-09-14 against a live project database, and the probe card was deleted and
+the tracked file restored afterwards. Re-run these probes if bd's version
+changes; every rule in SKILL.md Sections 1 and 7, and every rule in
+`backlog-task`, rests on them.
 
 ## `bd init` is not a quiet command
 
@@ -89,12 +100,14 @@ back from `git log --format=%B` as exactly that. And `bd doctor`, which
 checks for missing hooks, does not run at all in embedded mode: it returns
 "Note: 'bd doctor' is not yet supported in embedded mode."
 
-**What no flag prevents.** bd commits on init regardless. And `bd close`
-writes the tracked file `.beads/interactions.jsonl` — `bd create`,
-`bd ready` and `bd update --claim` all leave the tree clean, `bd close`
-does not. Since `tdd-cycle` 4c commits and then closes, a following
-`git add -u` sweeps that record into the next card's commit; nine
-consecutive card commits in one run carried the previous card's close.
+**What no flag prevents.** bd commits on init regardless. And **any change to a
+card's status writes the tracked file** `.beads/interactions.jsonl`, as an
+`int-...` record naming the field, the old value and the new one. `bd close` does
+it, and so does `bd update --status <anything>`; measured on a throwaway card
+moved from open to demoable, which appended one line. `bd create` and `bd ready`
+leave the tree clean. Since `tdd-cycle` 4c commits and then moves the card, a
+following `git add -u` sweeps that record into the next card's commit; nine
+consecutive card commits in one run carried the previous card's status change.
 That is why 4c stages by path.
 
 bd also ships a metrics endpoint, `https://gastownhall-eventsapi.com/mp/collect`,
@@ -146,7 +159,65 @@ $ bd ready
 Ready: 1 issues with no active blockers
 ```
 
-## `bd create --file` silently demotes everything to prose
+## `bd create --file` works, but only on the section format
+
+Cards are `##` headings and fields are `###` sections. Measured on this shape:
+the description, the design, the acceptance criteria, the labels, the priority
+and the type all store, and `bd show` prints the criteria under their own
+heading.
+
+```markdown
+## Paint along a held pointer drag
+
+### Description
+In the glyph brush, holding the button down and dragging should stamp along
+the path dragged.
+
+### Design
+public/js/editor.js registers pointerdown and nothing follows the pointer.
+
+### Acceptance Criteria
+A browser test presses on one cell, drags across three more, and reads four
+stamped cells.
+
+### Labels
+slice:S7
+
+### Priority
+1
+
+### Type
+task
+```
+
+```
+$ bd create -f s7.md
+✓ Created 5 issues from s7.md:
+  ANSI-73n: Paint along a held pointer drag [P1, task]
+  ...
+
+$ bd show ANSI-73n
+○ ANSI-73n · Paint along a held pointer drag   [● P1 · OPEN]
+DESCRIPTION
+  In the glyph brush, holding the button down and dragging should stamp
+  along the path dragged.
+DESIGN
+  public/js/editor.js registers pointerdown and nothing follows the pointer.
+ACCEPTANCE CRITERIA
+  A browser test presses on one cell, drags across three more, and reads
+  four stamped cells.
+LABELS: slice:S7
+```
+
+**No batch form stores a dependency or a spec id.** Both need their own command
+after the create — `bd dep <blocker> --blocks <blocked>` and
+`bd update <id> --spec-id <path>` — and nothing warns you. `--dry-run` is
+rejected with `--file`, so there is no way to preview either.
+
+## The flat key-value shape is what demotes everything to prose
+
+This is the input that produced the finding below, and it is not the format bd
+parses. It reports success and lands every field in the description.
 
 Input file:
 
@@ -181,8 +252,52 @@ sp-3ey has no dependencies
 ```
 
 The priority stayed at the P2 default, the acceptance criteria became
-description prose, and the dependency was never created. Note also that
-`--dry-run` is rejected with `--file`, so there is no way to preview it.
+description prose, and the dependency was never created. The fields were never
+read, because bd was looking for `###` headings and found none.
+
+## Custom statuses are real, and unsetting one does not remove it
+
+`bd statuses` lists the built-ins and names the mechanism:
+`bd config set status.custom "name:category,..."`, with categories `active`,
+`wip`, `done` and `frozen`. Measured end to end with `demoable:wip`:
+
+```
+$ bd config set status.custom "demoable:wip"
+$ bd statuses
+Custom statuses:
+  ◐ demoable       [wip   ]
+
+$ bd update <id> --status demoable
+✓ Updated issue: <id>
+
+$ bd ready | grep -c <id>
+0
+
+$ bd list --status demoable
+◇ <id> ● P2 <title>
+Total: 1 issues (0 open, 0 in progress)
+```
+
+Three things that matter. A card in a custom status is **excluded from
+`bd ready`**, even though `bd ready --help` names only the built-in exclusions,
+so it is not handed back as work to pick up. `bd list --status <name>` filters
+to exactly that column. And two cosmetic wrinkles: `bd list` draws it with the
+`hooked` glyph rather than the one `bd statuses` shows, and the totals line does
+not count it.
+
+**`bd config unset status.custom` does not remove the status.** It reports
+success and `bd config get` then reads `(not set)`, while `bd statuses` still
+lists it. Setting it to an empty string is what removes it:
+
+```
+$ bd config set status.custom ""
+$ bd statuses
+No custom statuses configured.
+```
+
+Do not reach for `bd config apply` to force it. That command reinstalls the
+repository's git hooks as a side effect, which is the thing
+`bd init --skip-hooks` exists to avoid.
 
 ## `bd create --graph` drops unknown fields and creates the issues anyway
 

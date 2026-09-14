@@ -1,14 +1,13 @@
 ---
 name: backlog-task
-description: Creates and verifies the bd (beads) backlog for one approved slice from a plan that already exists — checks preconditions against the plan, reprints the slice's stories for a single approval, runs the create, dependency and label commands one at a time, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has written and reviewed a plan, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
+description: Creates and verifies the bd (beads) backlog for one slice spec-task has already cut — checks preconditions against the design documents the cards will serve, reprints the slice's stories for a single approval, runs the create, dependency, label and spec-id commands, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has cut and reviewed a slice, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
 ---
 
-# backlog-task — a reviewed plan in, a verified backlog out
+# backlog-task — a cut slice in, a verified backlog out
 
-For the plan and slice named in $ARGUMENTS, respond with the
-sections below in order. If $ARGUMENTS is empty, the plan is the one
-`spec-task` just wrote and the slice is the one it marked `building` — say
-which, with its path.
+For the slice named in $ARGUMENTS, respond with the sections below in order.
+If $ARGUMENTS is empty, the slice is the one `spec-task` just cut — say which,
+and name the design documents its cards serve.
 
 `spec-task` produces the input and stops here. The first bd write happens
 after Section 2 is approved, and Section 2 is this template's only stop.
@@ -35,23 +34,33 @@ The check below at the end of this template governs the hand to the next phase.
 This one governs whether this phase starts here at all, and they are not the
 same question.
 
-## 1. Preconditions, read from the document
+## 1. Preconditions
 
 Real output, not paraphrase:
 
 ```
 $ pwd && git rev-parse --show-toplevel
 $ ls -d .beads 2>&1
-$ git status --short <document path>
-$ grep -c '^\[R' <document path>
+$ git status --short
+$ bd statuses
 ```
 
-State four things: the document's path, the slice being created, whether
-bd is initialized here, and whether the document is committed.
+State four things: the slice being created, the design documents its cards will
+name as their spec id, whether bd is initialized here, and whether the tree is
+clean.
 
-**Stop when the document has uncommitted changes.** `spec-task` Section 8
-commits it, and on a dirty tree the beads would point at a path whose
-content is absent from history. Say which file is dirty and wait.
+**Stop when the tree has uncommitted changes.** `spec-task` Section 8 commits
+the design document edits, and on a dirty tree a card's spec id would name a
+document whose content is absent from history. Say which file is dirty and
+wait.
+
+**Say whether `demoable` is among the statuses.** `tdd-cycle` moves a built card
+there and `demo-task` closes it from there, so a project without it has cards
+going straight from in progress to done with nobody having watched them work.
+Registering it is `bd config set status.custom "demoable:wip"`, one line, and
+it belongs in the same approval Section 2 asks for. Measured: unsetting that key
+reports success and leaves the status registered, and only setting it to an
+empty string removes it.
 
 Where `.beads/` is absent, the first line of Section 3's list is
 `bd init --skip-agents --skip-hooks -p <prefix>`. `spec-task` Section 1
@@ -102,19 +111,30 @@ budget and not a limit. A section that prints the stories and then runs
 Approval here covers this creation. A later slice asks again, and pushing
 asks separately — `git-commit`, "Safety".
 
-## 3. Creation, one command at a time
+## 3. Creation
 
 Run the Section 1 list and paste the real ids as they come back.
 
-Create them one at a time, in the per-issue form. The batch forms
-`bd create --file` and `bd create --graph` report success while dropping
-the acceptance criteria and the dependency, which is the one field this
-work exists to produce:
+Two forms work. The per-issue form, one command per card. Or `bd create --file`
+with a markdown file whose cards are `##` headings and whose fields are `###`
+sections — Description, Design, Acceptance Criteria, Labels, Priority, Type.
+Measured: in that shape it stores all six, and `bd show` prints the acceptance
+criteria under its own heading.
+
+**What no batch form stores is a dependency or a spec id.** Both need their own
+command afterwards, `bd dep <blocker> --blocks <blocked>` and
+`bd update <id> --spec-id <document>`, and Section 4 is what catches you
+forgetting. Do not use `bd create --graph` at any size: it drops the acceptance
+criteria and warns rather than failing.
+
+The flat `Key: value` shape is the trap. bd does not parse it, reports success,
+and lands every field in the description as prose. Measured output for all three
+forms:
 [../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
 Everything stays on this machine.
 
-The created ids live in bd alone. A copy in the plan goes stale
-the first time a card splits.
+Write the file outside the repository — a scratchpad, not a new markdown file in
+the project. The created ids live in bd alone.
 
 ## 4. Verification, by reading bd back
 
@@ -123,14 +143,20 @@ Real output, not a claim that it worked:
 ```
 $ bd ready
 $ bd show <first created id>
+$ bd show <an id you expect to be blocked>
 $ bd list --label slice:S<n> --status open
 ```
 
-Check three things against what Section 3 pasted: that `ACCEPTANCE
-CRITERIA` is present on the issue and matches the requirement text, that
-the ready list holds exactly the tasks with no blocker, and that the slice
-lane holds exactly the cards this run created. The batch forms fail
-silently in this exact spot, and this read-back is what catches it.
+Check four things against what Section 3 pasted: that `ACCEPTANCE CRITERIA` is
+present on the issue and matches the requirement text, that `Spec:` names the
+design document the card serves, that the ready list holds exactly the tasks
+with no blocker, and that the slice lane holds exactly the cards this run
+created.
+
+The dependency and the spec id are the two a batch create does not store, and
+this read-back is the only thing standing between a silent drop and a slice of
+cards carrying neither. Check them on a card you expect to be blocked as well as
+on the first one.
 
 Report a mismatch and leave it for `spec-task` to fix.
 
@@ -175,7 +201,8 @@ sessions' work, and this is the seam.
 
 ## 6. Notes on what this template does NOT do
 
-- Does not write or revise the plan. That is `spec-task`.
+- Does not write or revise a design document. That is `spec-task`, which
+  commits its edits before this template runs.
 - Does not write to a design document. Nothing here does; see `spec-task`,
   "Two documents".
 - Does not re-cut the slice or re-review the document. A gap found here is

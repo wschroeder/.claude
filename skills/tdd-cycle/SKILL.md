@@ -1,6 +1,6 @@
 ---
 name: tdd-cycle
-description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle closes, and closes it after the commit with a reason carrying what the code does, the mutation receipt and the commit id.
+description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, the mutation receipt and the commit id — closing it belongs to demo-task, once somebody has watched it work.
 ---
 
 ## Purpose
@@ -27,7 +27,7 @@ The cycle is **Probe → Gray → Red → Green → Refactor**. Probe observes u
 
 ### Before the cycle: name the card you are building
 
-If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will close — its id, its title, and the proof command in its acceptance criteria. `backlog-task` created these cards from a plan and put that proof command there; `bd show <id>` prints its `--spec-id` when you need the requirement behind it. That proof command is the test to drive to red in step 1. You are not choosing what to build here; you are reading which card is unblocked.
+If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will build — its id, its title, and the proof command in its acceptance criteria. `backlog-task` created these cards and put that proof command there; `bd show <id>` prints its spec id, which names the design document holding the product rule behind it. That proof command is the test to drive to red in step 1. You are not choosing what to build here; you are reading which card is unblocked.
 
 If `bd ready` returns nothing while open cards exist, name the blocker holding them and stop rather than picking one anyway. If there is no `.beads` directory, say so in one line and carry on — the cycle does not require a backlog.
 
@@ -128,25 +128,39 @@ mutated <file>:<line>  <original expression> -> <mutated expression>
   15 successes / 2 failures        caught
 ```
 
-"Assertions mutation-verified" is a summary, and a summary cannot be checked without redoing the work. Five beads in that same run closed carrying exactly that phrase; three of them do not survive checking. The receipt goes wherever the next reader looks — the commit message, the issue's close reason, or the handoff.
+"Assertions mutation-verified" is a summary, and a summary cannot be checked without redoing the work. Five beads in that same run closed carrying exactly that phrase; three of them do not survive checking. The receipt goes wherever the next reader looks — the commit message, the note on the card, or the handoff.
 
 **4b. Scope.** You implemented exactly the ask — no drive-by refactors, no
 speculative abstractions, no unrelated cleanup. Every file in `git diff --stat` is
 directly required by the change; if one isn't, revert it. Line count proportional to
 the ask: a one-line bug does not carry a 200-line diff.
 
-**4c. The close, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
+**4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit before closing, and name the issue in the subject. **Stage by path, never `git add -u`** — `bd close` writes `.beads/interactions.jsonl`, so the close you are about to run dirties a tracked file that the next card would otherwise sweep into its commit. Then close with a reason carrying three things: what the code now does, the 4a receipt, and the commit. Nothing is closed on a working tree that still holds the change:
+Commit first, and name the issue in the subject. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change:
 
 ```
 $ git commit -m "<id>: <what changed>"
-$ bd close <id> --reason "Board.can_move_down checks is_free(col, row+1) for
-  every cell. Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures,
-  caught. Commit a1b2c3d."
+$ bd update <id> --status demoable
+$ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
+  Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
+  Commit a1b2c3d."
 ```
 
-A closed issue with no commit is a claim that work happened, contradicted by the repository. Measured: one run closed six issues while the tree held one commit — `bd init` — and five files that had never been committed at all.
+**Built is not done, and this loop cannot say it is.** The card goes to
+`demoable`, where it waits for somebody to watch it work; `demo-task` closes it
+once the operator has. A card this loop closed itself would reach Done having
+been seen by nobody, which is how six requirements on one project were marked
+accepted off two screenshots. A demoable card is excluded from `bd ready`, so
+the next cycle does not pick it up again.
+
+Where `bd update --status demoable` is rejected, the project has not registered
+the status. Say so in one line, close the card with `bd close --reason` carrying
+the same three things, and carry on — the reason is the record either way. The
+command that registers it is `bd config set status.custom "demoable:wip"`, and
+it is the project's to run rather than this loop's.
+
+A card moved with no commit is a claim that work happened, contradicted by the repository. Measured: one run closed six issues while the tree held one commit — `bd init` — and five files that had never been committed at all.
 
 Everything else the finished diff owes — doc and code agreeing, sibling symmetry,
 duplication across near-identical helpers, names and comments that lie, behavioral
@@ -154,13 +168,13 @@ regression, whether a test reaches the branch it names, empty-value semantics �
 `quick-review`'s catalog, walked once by the review that follows this loop instead
 of twice. How the code and its logs are written is `writing-code`.
 
-**4d. The slice, when the card you just closed was its last.** Run `bd ready`
+**4d. The slice, when the card you just moved was its last.** Run `bd ready`
 and `bd list --label slice:S<n> --status open`. When the slice's lane comes
-back empty, **the slice is finished and this loop is over — hand to
+back empty, **the slice is built and this loop is over — hand to
 `demo-task`.** It runs every proof command, builds the demo the
 operator operates themselves, and takes their feedback; none of that is
 this skill's job and none of it happens if you go straight to the next
-slice. Say in one line that the slice closed, then **invoke
+slice. Say in one line that the slice is built, then **invoke
 `demo-task` in that same turn**. Do not end the turn first: naming the
 hand-off and stopping leaves the operator to type the instruction this step
 exists to make unnecessary. Do not specify the next slice, and do not
@@ -208,7 +222,7 @@ When activated:
 5. **Implement minimum code**: Write just enough to pass
 6. **Run it (should pass)**: Verify it works
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
-8. **Self-Review**: Close the Step 4 gates — mutation, scope, and the commit-and-close receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
+8. **Self-Review**: Close the Step 4 gates — mutation, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 10. **Run the review sequence**: once the feature is done, run `quick-review` then `security-review` against the diff and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 

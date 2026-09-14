@@ -1,16 +1,16 @@
 ---
 name: demo-task
-description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, reconciles the plan's requirement statuses from measured results, and records what that feedback changed before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
 ---
 
 # demo-task — the slice is shown, the feedback is recorded
 
 For the slice named in $ARGUMENTS, respond with the sections below in
-order. If $ARGUMENTS is empty, the slice is the one the plan
-marks as building — say which one, and where you read it.
+order. If $ARGUMENTS is empty, the slice is the one whose cards are demoable
+— say which one, and quote the query that found it.
 
-The deliverables are the demo in Section 3 and the revised plan
-in Section 6. Section 4 is this template's one stop; everything after it
+The deliverables are the demo in Section 3, the cards moved in Section 5, and
+the design document edits in Section 6. Section 4 is this template's one stop; everything after it
 records what the operator already said there rather than asking something
 new.
 
@@ -74,29 +74,40 @@ $ pwd && git rev-parse --show-toplevel
 $ ls docs design specs 2>/dev/null
 $ bd list --label slice:<current> --status open
 $ bd list --label slice:<current> --status in_progress
+$ bd list --label slice:<current> --status demoable
 $ bd list --label slice:<current> --status closed
 $ bd list --no-labels
 ```
 
-Those four queries are the board. Name which slice is current, and state
-the counts:
+Those five queries are the board. Name which slice is current, and state the
+counts:
 
 ```
   Backlog      bd list --no-labels                              known, not pulled
   TODO         bd list --label slice:<n> --status open          pulled, not started
   In progress  bd list --label slice:<n> --status in_progress
-  Done         bd list --label slice:<n> --status closed
+  Demoable     bd list --label slice:<n> --status demoable      built, nobody has seen it
+  Done         bd list --label slice:<n> --status closed        demoed and accepted
 ```
 
-State the plan's path and the definition of released it records.
-If the plan has no definition of released, stop — Section 3 cannot say
-whether the slice is finished without it, and inventing one here would
-answer a question that belongs to the operator.
+**Demoable is this template's own input.** `tdd-cycle` leaves a card there when
+its commit lands, and closing it is what this template does once the operator
+has seen it work. A card cannot reach Done without passing through a demo, which
+is the point of the column.
+
+Where `bd list --status demoable` errors or returns nothing on a slice whose
+cards are closed, the project has not registered the status. Say so in one line
+and read Done as this template's input instead; the command that registers it is
+`bd config set status.custom "demoable:wip"`, and it is the project's to run.
+
+State the definition of released this project records. Where nothing records
+one, stop — Section 3 cannot say whether the slice is finished without it, and
+inventing one here would answer a question that belongs to the operator.
 
 If `project-definition-of-done` appears in the available skills, load it
 here. A project that has one has written down what its released state
 actually is and what proving it takes, and Section 3 is built on that
-answer. If nothing is listed, work from the plan's own definition alone.
+answer. If nothing is listed, say so and stop, per the paragraph above.
 
 **Then check that there is a slice to close.** If the current slice has no
 closed bead and not one of its proof commands passes, the slice has not
@@ -201,7 +212,7 @@ Rules:
   reporting it as the slice being released. So the record says which thing
   the definition names and which thing you drove, and where they are not the
   same thing it says so on its own line rather than in a footnote. Measured:
-  a session quoted its plan's definition, which named a URL, in the same
+  a session quoted a definition of released that named a URL, in the same
   evidence block that recorded it driving a container on localhost, and the
   operator caught it rather than the template.
 - **Where you cannot reach that thing, say which link is unproven and hand
@@ -325,31 +336,30 @@ looking at the thing produces; they stay `built` until someone has looked. A
 section that posts the demo and then carries on into Section 5 has not
 stopped.
 
-## 5. Status reconciliation
+## 5. Move the cards the operator accepted
 
-Rewrite each requirement's status tag in the plan from
-Section 2's results. The four values:
+The card is the requirement, so reconciling is moving cards rather than
+rewriting status tags in a document. Three moves and no fourth:
 
 ```
-  planned       no proof command yet, or it fails
-  stubbed→S<n>  deliberately faked, naming the slice that will fill it
-  built         the proof command passes
-  demoed        the operator accepted it at Section 4
+  demoable -> closed      the operator accepted it at Section 4
+  demoable -> open        its proof command failed or ran nothing at Section 2
+  stays demoable          built, and the operator has not seen it
 ```
 
-**`built` is derived, never typed.** It is what Section 2 measured, and a
-requirement whose command failed or ran nothing goes back to `planned` even
-if it was `built` last iteration. `stubbed` and `demoed` are the two a
-person declares: a stub is an authoring decision, and acceptance is the
-operator's.
+Close with `bd close --reason`, and put Section 2's measured output in the
+reason. A card closed with no evidence in its reason is a card nobody can
+audit later.
 
-**`demoed` is read from Section 4's `worked` line, not from the absence of a
-launch record.** Where the operator said they worked the demo, the
-requirements they accepted are `demoed`; where the feedback came from the
-captures, they stay `built`, and the feedback is still recorded in full.
+**Acceptance is read from Section 4's `worked` line, never from the absence
+of a complaint.** Where the operator said they worked the demo themselves, the
+cards they accepted close. Where the feedback came from looking at captures,
+the cards stay demoable and the feedback is still recorded in full. Measured:
+one project marked six requirements accepted by reading two screenshots, and
+the card asking whether those six stand is still open a year of slices later.
 
-A stub whose successor slice no longer exists in the slice map is a
-finding. Name it.
+A card that is still `open` or `in_progress` at this point did not ship in this
+slice. Name it, and leave it where it is.
 
 ## 6. What the feedback changed
 
@@ -364,13 +374,20 @@ Work every Section 4 record to one of six outcomes, and no seventh:
   and no research.
 - Accepted as it stands, changing nothing. Say so in one line. This is the
   ordinary answer to a demo that worked, and it is not a rejection.
-- A new requirement. Write it into the plan, coarse — one
-  sentence, no EARS text and no proof command, unless it lands in the next
-  slice.
-- A revision to the solution or the definition of released. Change that
-  section and quote what it said before.
-- A requirement that is dropped. Move it to out of scope with the `[F<n>]`
-  that killed it.
+- **A decision about how the product behaves. Write it into the design
+  document, in this run.** The operator settling something at a demo is the
+  same act as settling it in a design conversation, so it lands the same way,
+  in the document's own voice and with no mention of this demo. `spec-task`,
+  "The design documents hold the product", holds the rule and the line between
+  a product decision and a literal implementation detail. Measured: one demo
+  produced seventeen quoted records, six of which changed how the product
+  behaves, and carrying them into the design took a hand-written commit outside
+  every template because no template claimed the job.
+- A new requirement nobody has specified. One line in the repository's
+  look-ahead sketch, or a card where it is concrete enough to title. No
+  requirement text and no proof command unless it lands in the next slice.
+- A requirement that is dropped. Close its card as won't-do, with the
+  operator's words in the reason.
 - Rejected, with one line saying why.
 
 **The slice just demoed is closed, and no outcome above reopens it.** A new
@@ -378,11 +395,11 @@ requirement or a revision is work for a later slice; `spec-task` places it
 and writes its EARS text once Planning decides to pull that slice. Never
 file a card carrying the demoed slice's label to fix what the demo found.
 Doing what the operator asked for before this phase ends is not reopening the
-slice: it closes no card and changes no code, and it writes to the same plan
-this section already revises.
+slice: it closes no card and changes no code.
 
-Then revise the plan and say what changed. State the path and
-the byte count before and after.
+Then say what changed and where. Name every design document edited and quote
+the sentence each one gained or lost, name every card created or closed by its
+id, and commit both through `git-commit`.
 
 ## 7. Hand to `retro-task`
 
@@ -417,5 +434,6 @@ retro that waits to be asked for does not happen.
 - Does not close beads or repair failing proof commands.
 - Does not decide the definition of released. The operator settles it, and
   `spec-task` Section 1 is where that conversation happens.
-- Does not push anything outward. The backlog and the plan stay
-  local.
+- Does not write a status, a card id, or a slice number into a design
+  document. Section 6 writes product behaviour there and nothing else.
+- Does not push anything outward. The backlog and the documents stay local.
