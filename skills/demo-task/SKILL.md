@@ -251,6 +251,15 @@ Rules:
   covered and neither review had read, and the retro session that inherited it
   spent 21 of its 31 turns reviewing and fixing that driver, reaching its own
   first section at turn 24.
+- **A demo driver is code and lives where the project's other driving code
+  lives. Its captures do not live in the repository at all.** Commit the driver
+  and review it like any other script. The captures are output of running it:
+  write them where the project already ignores test output, and send them to
+  the operator with `SendUserFile`, which is how they reach a person reading on
+  a phone regardless. Do not commit a directory of past captures, and do not
+  write a caption sheet describing them. Measured: the operator's verdict on
+  five slices of shipped work kept in the tree was "Useless. This work is in
+  the past."
 - **Being unable to drive it is a finding, not a caveat.** Where the
   definition of released says the operator operates the thing and you cannot
   send it the input a person sends, the slice is not built: say so as the
