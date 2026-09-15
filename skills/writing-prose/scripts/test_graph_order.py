@@ -6,16 +6,18 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SCRIPT = os.path.join(HERE, "graph_order.py")
 
 IDEAS_HEADER = "idea\tsource\tlocator\tthe one sentence it supports\n"
+GRAPH_HEADER = "from\trel\tto\n"
 
 
-def run(ideas, edges):
+def run(ideas, edges, graph_header=""):
     """Run the derivation over a throwaway ideas file and graph."""
     tmp = tempfile.mkdtemp()
     ideas_path = os.path.join(tmp, "ideas.tsv")
     graph_path = os.path.join(tmp, "graph.tsv")
     open(ideas_path, "w").write(
         IDEAS_HEADER + "".join("%s\t-\t-\tsentence\n" % i for i in ideas))
-    open(graph_path, "w").write("".join("%s\t%s\t%s\n" % e for e in edges))
+    open(graph_path, "w").write(
+        graph_header + "".join("%s\t%s\t%s\n" % e for e in edges))
     try:
         proc = subprocess.run(
             [sys.executable, SCRIPT, "--ideas", ideas_path, "--graph", graph_path],
@@ -23,6 +25,13 @@ def run(ideas, edges):
     finally:
         shutil.rmtree(tmp, ignore_errors=True)
     return proc.returncode, proc.stdout + proc.stderr
+
+
+def test_a_graph_header_row_is_skipped_not_refused_as_an_edge():
+    code, out = run(["claim", "case-a"], [("case-a", "example-of", "claim")],
+                    graph_header=GRAPH_HEADER)
+    assert code == 0, out
+    assert "REFUSED" not in out, out
 
 
 def test_example_of_groups_children_under_their_hub():

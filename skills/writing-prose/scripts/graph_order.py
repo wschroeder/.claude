@@ -37,6 +37,8 @@ def read_graph(path, known):
             refused.append(tuple(parts) + ("<missing>",) * (3 - len(parts)))
             continue
         src, relation, dst = parts[0], parts[1], parts[2]
+        if (src, relation, dst) == ("from", "rel", "to"):
+            continue
         if (relation not in RELATIONS or src not in known or dst not in known
                 or src == dst):
             refused.append((src, relation, dst))
