@@ -247,9 +247,12 @@ The lookup table that saves the fresh chat from rediscovering what you
 already found. These are exactly the "oh, also remember to..." items —
 enumerate them HERE, not after the prompt:
 
-- file:line references central to the work. Confirm each one this session
-  before listing it — open the file, or run the grep. A path you remember
-  is a guess, and a wrong directory sends the fresh chat hunting.
+- Paths, each with the greppable identifier inside it that the work turns on
+  — a function name, a heading, a constant, a quoted phrase. Never a line
+  number: it is wrong the next time anybody edits that file, and it stays
+  confidently wrong. Confirm each one this session — open the file, or run
+  the grep. A path you remember is a guess, and a wrong directory sends the
+  fresh chat hunting.
 - Links — PR, ticket / Trello, design doc, the relevant chat.
 - Skills the fresh chat should load first, by name, and why.
 - Setup to reach a working state — workspace dir, `eval "$(direnv export bash)"`,
@@ -296,8 +299,9 @@ Before writing the prompt, interrogate §1–§10 out loud. Answer each:
   "because", "so", "due to", "caused by", "which is why" in those two
   sections: each one starts a claim of its own. Split it out and mark it
   `hypothesis:`.
-- Which file:line in §9 did I write from memory rather than confirm this
-  session?
+- Which reference anywhere in §1–§10 names a line rather than something the
+  reader can grep for? Rewrite each one as the identifier sitting at that
+  line, and confirm it this session rather than recalling it.
 - What could change between now and when this prompt is read, that §8's
   first step does not tell the reader to re-check?
 - Did §0's check actually run this session, and does the artifact I am about
@@ -359,7 +363,7 @@ Next steps, in order:
 2. ...
 
 Pointers:
-- Paths: <file:line ...>
+- Paths: <path, and the identifier to grep for inside it>
 - Links: <PR / ticket / doc>
 - Load these skills first: <names>
 - Setup: <cd ...; direnv; test/dev command; port; env>
