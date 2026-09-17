@@ -1,6 +1,6 @@
 ---
 name: clear-task
-description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Checks whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the sections from what the session already holds rather than re-probing for it. Settles whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 model: sonnet
 ---
 
@@ -27,43 +27,40 @@ The output discipline is recursive: this skill follows the rule it
 teaches — all considerations come before the artifact, and the
 artifact is terminal.
 
-## 0. Who reads this next (run the check before writing anything)
+## 0. Who reads this next (settle it before writing anything)
 
 This template emits one of two artifacts, and one question separates them:
 does a `session-loop` worker read this prompt next, or does the operator? A
 worker has no other way to receive a prompt, so a worker gets `HANDOFF.md`.
 The operator copies a block, so the operator gets the block.
 
-Answer from a check rather than from memory. Run it and paste its output
-before writing §1:
+Read the prompt this session opened with. It is already in context, so settling
+this costs nothing:
 
-```bash
-pgrep -f run-loop.sh
-```
-
-No match means no driver is running, so no worker is waiting to be handed
-anything. Where the driver ran as a background task of this session, read its
-last printed line too — a driver that has printed `stopping:` has exited,
-whatever it was doing earlier in the same session.
+- That opening prompt carries the unattended-loop protocol — the words "You are
+  one iteration of an unattended loop", and an instruction to write `HANDOFF.md`
+  through this skill. A worker reads this next, and the artifact is the file.
+- `session-loop` step 2 is seeding a repository that holds no handoff yet, or
+  the operator asked for the file in their own words. A worker reads this next.
+- Anything else, the operator included. The artifact is the block.
 
 Then write one line naming the reader and what settled it:
 
-    reader: the operator — pgrep found no run-loop.sh, and the driver's last
-    line read "stopping: the handoff is blocked"
+    reader: the operator — this session opened on a request they typed, and
+    nothing in it carried the loop protocol
 
-Two cases resolve to `HANDOFF.md` with no driver yet running, and both are a
-loop about to exist rather than a loop that has ended: `session-loop` step 2
-seeding a repository that has no handoff, and a worker handing off from
-inside the loop's own contract. In both the next reader is a worker.
+**Do not run `pgrep` to decide this.** That check asks whether any driver is
+alive anywhere on the machine, and the question here is whether a worker is
+waiting on *this* session's handoff. The two come apart whenever a loop runs
+against one repository while you work in another. Measured on 2026-09-17:
+`pgrep -af run-loop.sh` matched a driver on `ansimation-editor` while the
+session asking the question was an interactive one in a different directory,
+whose only reachable `HANDOFF.md` belonged to the loop that was mid-run.
 
-**A form named in this skill's arguments is an input to check, not the
-answer.** The caller writes those arguments before this text loads, so
-"session-loop is asking" is a decision reached without the check in front of
-it. Run the check anyway. Where the two disagree, follow the check and say so
-in one line. Measured: a session read its driver's own "stopping: the handoff
-is blocked" at 18:37, told this skill at 18:40 that session-loop was asking,
-wrote a 245-line `HANDOFF.md` that nobody would read, and deleted it again
-once the operator asked why.
+The opening prompt settles it because nobody retypes it, and it is the text the
+driver itself wrote. Measured across 183 runs of this skill: 59 of the 64
+sessions a driver launched wrote the file, against 19 of the 119 interactive
+ones, and five runs wrote it and then deleted it again.
 
 ## 1. Objective
 
@@ -72,25 +69,30 @@ the overall task, and what does "done" look like? If the session had
 several goals, list them and mark each complete / in-flight. No process
 recap — state the goal, not the history of how you got here.
 
-## 2. Verified state (real tool output, not memory)
+## 2. Verified state (the tool output this session already produced)
 
-The ground truth the fresh chat inherits. Paste actual output — not a
-paraphrase — for each repo touched this session:
+The ground truth the fresh chat inherits, quoted from what the commands printed
+when this session ran them: the branch, the commit subjects and hashes, what the
+last `git status` said, the test counts the suite reported, the query result,
+the file written. Say when each one ran, because the reader needs to know how
+old it is.
 
-```bash
-git -C <repo> branch --show-current
-git -C <repo> status --porcelain
-git -C <repo> log --oneline -5
-git -C <repo> diff --stat HEAD
-```
+Where this session never ran the command, say that instead of filling the gap
+in. "No `git status` since the commit at f30be46" is a fact the fresh chat can
+act on; an invented status line is not.
 
-Run the block once per repo if the work spans several. If no repo is
-involved (an infra change, an investigation), substitute the equivalent
-state probe — the file written, the query result, the resource queried —
-and paste its output. This section is the measurement that every
-"completed work" claim in §3 must reconcile against. A "done" claim with
-no matching line here is unverified (~/.claude/CLAUDE.md rule 1, "Verify
-before claiming").
+**Do not re-run anything to fill this section in.** This skill fires at the
+fullest point of a session — measured at a median of 187,000 tokens of context
+already loaded — where one more turn re-reads all of it, and the turns beyond
+the first account for 61% of what this skill costs. Re-running buys the reader
+nothing either, because the state moves between writing the prompt and reading
+it. §8's first step is what protects them, and it also catches a fabricated
+"done", since the fresh chat's own `git log` shows the commit is absent.
+
+This section is what every "completed work" claim in §3 must reconcile against.
+A "done" claim with no command output behind it is unverified
+(~/.claude/CLAUDE.md rule 1, "Verify before claiming"), and it is labelled that
+way rather than probed into shape.
 
 ## 3. Completed work (each item reconciled against §2)
 
@@ -250,9 +252,10 @@ enumerate them HERE, not after the prompt:
 - Paths, each with the greppable identifier inside it that the work turns on
   — a function name, a heading, a constant, a quoted phrase. Never a line
   number: it is wrong the next time anybody edits that file, and it stays
-  confidently wrong. Confirm each one this session — open the file, or run
-  the grep. A path you remember is a guess, and a wrong directory sends the
-  fresh chat hunting.
+  confidently wrong. Take these from what this session actually opened rather
+  than re-opening files to confirm them. A path you are recalling, that nothing
+  this session touched, is a guess — mark it `hypothesis:` and let the fresh
+  chat find out.
 - Links — PR, ticket / Trello, design doc, the relevant chat.
 - Skills the fresh chat should load first, by name, and why.
 - Setup to reach a working state — workspace dir, `eval "$(direnv export bash)"`,
@@ -265,9 +268,9 @@ Anything unresolved that needs an operator decision before or during the
 next steps. If there are none, write `None`. Do not invent decisions; do
 not bury a real blocker inside §8.
 
-**A question that already rode the last handoff leaves this list.** Read the
-previous prompt's §10 before writing this one, and for every question that
-appears in both, do one of three things: file it as a card, so the backlog
+**A question that already rode the last handoff leaves this list.** For every
+question this session inherited in the prompt it opened with, and is about to
+send on unanswered, do one of three things: file it as a card, so the backlog
 holds it and a session can be scheduled to answer it; write the answer into
 the design document that should have held it, where the session settled the
 question and nobody recorded it; or strike it, where nobody needs it answered.
@@ -300,12 +303,10 @@ Before writing the prompt, interrogate §1–§10 out loud. Answer each:
   sections: each one starts a claim of its own. Split it out and mark it
   `hypothesis:`.
 - Which reference anywhere in §1–§10 names a line rather than something the
-  reader can grep for? Rewrite each one as the identifier sitting at that
-  line, and confirm it this session rather than recalling it.
+  reader can grep for? Rewrite each one as the identifier sitting at that line.
 - What could change between now and when this prompt is read, that §8's
   first step does not tell the reader to re-check?
-- Did §0's check actually run this session, and does the artifact I am about
-  to emit match what it found?
+- Does the artifact I am about to emit match what §0 settled?
 
 Every gap found here is integrated into the relevant section above —
 §1–§10 — NOT appended to the prompt. Proceed to §12 only when this
@@ -325,7 +326,7 @@ English for the reader — a fresh AI plus the operator (~/.claude/CLAUDE.md
 "Communication Style"). It is the LAST thing in your response: no prose,
 no postscript, no "let me know if..." after it.
 
-Where §0 found that a worker reads this next, this same assembled text goes
+Where §0 settled that a worker reads this next, this same assembled text goes
 to that file and the path and line count take the block's place as the last
 thing in the response. See "Stop" below. Nothing else about this section
 changes. Every line in the prompt
@@ -379,7 +380,7 @@ the fresh chat must not need this conversation. Nothing follows it.
 
 This template produces text and nothing else. It does NOT run /clear, does
 NOT begin executing the next steps, and does NOT write the prompt to a file
-unless §0's check found a worker reading it next, or the operator explicitly
+unless §0 settled that a worker reads it next, or the operator explicitly
 asks. The operator copies the block and starts the new chat.
 
 **A written handoff is a document, not a stop signal.** The stop above is the
@@ -390,7 +391,7 @@ it rewrites the prompt when it does stop. Measured: a supervising session at
 about 157,000 of 170,000 declined to open a signoff gate at 10:46 because it
 had written its handoff, and the operator overrode it at 13:32.
 
-**Where §0 found a worker, the artifact is that file.** The driver hands it
+**Where §0 settled on a worker, the artifact is that file.** The driver hands it
 to every fresh session, nobody copies anything, and a block printed beside it
 would be a second copy going stale from the moment it appeared. Write §1-§10
 exactly as always, because they are the forcing function and nothing about
@@ -400,8 +401,8 @@ place of printing the block. Everything else holds: considerations first,
 one artifact, nothing after it.
 
 **A stale `HANDOFF.md` lying in the repository decides nothing.** A leftover
-is a reason to delete that file, never a reason to write over it, and §0's
-check is what says whether anyone is coming for it. Measured: a retrospective
+is a reason to delete that file, never a reason to write over it, and §0 is
+what says whether anyone is coming for it. Measured: a retrospective
 session recommended writing the file for its own clear, having argued that a
 block alone would leave the stale one as a trap, and the operator overrode it
 by typing
@@ -413,7 +414,7 @@ by typing
   manual step.
 - Does not begin the next steps; it only describes them.
 - Does not write, commit, push, or post anything, save the one
-  `HANDOFF.md` that §0's check calls for and the backlog card §8 requires for
+  `HANDOFF.md` that §0 calls for and the backlog card §8 requires for
   a finished phase's owed work. No destructive action either way.
 - Does not append anything after the prompt code block. A late
   consideration is a §11 miss, fixed by regenerating the block — never by a
