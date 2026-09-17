@@ -1,6 +1,7 @@
 ---
 name: retro-task
 description: Closes the process cycle after a slice ships — reads the run's own transcripts to find what each of last round's changes actually did, hears the operator's experience before interpreting it, answers their feedback against transcript evidence, then proposes the next batch of skill and CLAUDE.md changes as named options and stops for signoff. Inspects the process, not the product; the demo and the product's feedback belong to `demo-task`. Investigate-only until signoff, and every accepted change ends as a commit rather than a note. Use after a slice is demoed and its feedback taken, when asked to retro a run or hold a retrospective, to review how the process itself went, to work out what should change about the skills or a CLAUDE.md, or when a run's transcripts need reading to find why a rule did or did not fire — "retro this run", "how did that go", "what should we change".
+model: opus
 ---
 
 # retro-task — the process cycle closes, the next one opens

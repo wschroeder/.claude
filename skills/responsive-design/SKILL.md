@@ -1,6 +1,7 @@
 ---
 name: responsive-design
 description: Makes a page work on a phone and a desktop without naming device widths — type and space in rem with clamp() so one fluid scale replaces a second scale hand-written at a breakpoint, layout that wraps on content with auto-fit and flex-wrap, a container query where a component should answer to its own column rather than the window, dvh instead of vh, and a disclosure control where fluid layout would otherwise fill the screen with widgets. Carries the numbers the standards already settled rather than invented ones: reflow at 320 CSS pixels, text resize to 200%, the four text-spacing overrides, and 24-pixel pointer targets. Ends in a review checklist naming what to test, at what width, and what a headless render cannot show you at all. Use when a page has to work on mobile and desktop, when CSS breakpoints, fluid type, viewport units, media or container queries are in question, and when reviewing a built page for how it behaves at widths nobody designed for.
+model: sonnet
 ---
 
 # responsive-design

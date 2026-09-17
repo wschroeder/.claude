@@ -1,6 +1,7 @@
 ---
 name: demo-task
 description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+model: sonnet
 ---
 
 # demo-task — the slice is shown, the feedback is recorded

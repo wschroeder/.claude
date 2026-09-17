@@ -1,6 +1,7 @@
 ---
 name: backlog-task
 description: Creates and verifies the bd (beads) backlog for one slice spec-task has already cut — checks preconditions against the design documents the cards will serve, reprints the slice's stories for a single approval, runs the create, dependency, label and spec-id commands, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has cut and reviewed a slice, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
+model: sonnet
 ---
 
 # backlog-task — a cut slice in, a verified backlog out

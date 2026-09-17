@@ -1,6 +1,7 @@
 ---
 name: session-loop
 description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its context reaches the 170,000 handoff ceiling or the same check fails three times running. Invoking it checks the repository, writes the handoff through clear-task when none exists, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, the context bands where delegating starts to pay at this ceiling, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, or when sessions keep running out of context. Whether to delegate at all, and what a subagent prompt must carry, is in the subagents skill.
+model: sonnet
 ---
 
 # session-loop — run the work as a series of fresh sessions

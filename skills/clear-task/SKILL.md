@@ -1,6 +1,7 @@
 ---
 name: clear-task
 description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Checks whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+model: sonnet
 ---
 
 # clear-task — frontload the handoff, then emit the prompt

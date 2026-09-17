@@ -1,6 +1,7 @@
 ---
 name: systematize
 description: Turns work you have repeated into machinery, and keeps the skill library from growing past the point where the model stops finding things. Covers the whole lifecycle — deciding between a script and a skill, where a script lives and when to extend an existing one rather than write another, creating a skill, extending one, merging two, and retiring one — plus the slot pattern that lets a global skill reach project-specific mechanics without naming them. Use when a workflow keeps recurring, when something done by hand three times should become a script, when asked to capture or save something as a skill, when a skill is outdated or wrong, when two skills overlap, or when the library needs pruning.
+model: opus
 ---
 
 # systematize — machinery for what you repeat, without a library nobody can search
