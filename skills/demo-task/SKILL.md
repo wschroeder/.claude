@@ -317,12 +317,16 @@ render, a PDF: the operator may be reading this on a phone, where a path on
 this machine is not something they can open. Send it and give the path, so
 either route works.
 
-**Ask one more thing beside it, in these words: "Did you work the demo
-yourself, or is this from the captures?"** Send the captures as always; the
+**Ask one more thing beside it, and say in the same breath what turns on the
+answer: "Did you work the demo yourself, or is this from the captures? It
+decides whether the cards close, because a capture cannot tell a working button
+from one that only looks like it works."** Send the captures as always; the
 question is what tells the two apart, because feedback on a capture and
 feedback from working the thing read the same on the page. Measured: three
 captures went out at 23:55, the feedback arrived the next morning, and
-nothing in it said which it was.
+nothing in it said which it was. Measured again, on the reason: an operator who
+had answered this question for several rounds said "honestly I'm not sure why
+it's important", having never been told what it decided.
 
 Record what comes back verbatim, one record per point, with the answer to
 that question beside them:

@@ -192,6 +192,14 @@ against step 4 before you pass it on, because a question about what to do next
 is one you answer yourself. If it really is the operator's, put it to them and
 offer to resume.
 
+**Where that question is asking for a demo, load `demo-task` first and let its
+Section 4 compose the ask.** That section carries the question about whether the
+operator worked the demo or read the captures, and the answer to it decides
+whether a single card can close. An ask written here instead leaves the question
+out, because nothing in this step names it. Measured: a run stopped for a demo,
+the ask written here carried no such question, and the operator answered it
+unprompted to save the round trip it would otherwise have cost.
+
 **Open the ask with the phase line**, directly above the question, or closing
 the report where nothing needs deciding — the four phases in order, with the
 one the loop stopped in capitalized:
