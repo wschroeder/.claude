@@ -20,7 +20,7 @@ the operator, who copies only the block, never sees it. The fix is
 structural: every consideration is dumped into the ordered sections
 below FIRST, and the prompt is assembled from them LAST. If you
 discover a missing consideration while writing the prompt, that is a
-defect in the Completeness gate (§11) — return there, add it, and
+defect in the Completeness gate (§12) — return there, add it, and
 regenerate the prompt. You never append to the prompt.
 
 The output discipline is recursive: this skill follows the rule it
@@ -164,6 +164,19 @@ principle should name the concrete behavior, not a label for it
 (~/.claude/CLAUDE.md "Communication Style"). If the operator highlighted
 no principle this session, write `None` — do not invent one.
 
+**A directive that already rode the last handoff does not leave this list in
+silence.** For every directive this session inherited in the prompt it opened
+with, do one of three things and say in one line which: carry it forward here,
+where it still binds; record it where it belongs, as a card or as a line in
+the design document, where it has become part of the plan or the product; or
+strike it, where the session carried it out or the operator withdrew it.
+Dropping it without a word is not one of the three, and neither is deciding
+that a directive you did not hear the operator speak was never yours. Measured:
+the operator typed "let's undo that commit" at 08:51; the handoff written at
+08:54 carried those words; the handoffs written at 09:12 and 09:32 did not
+mention them; and the commit is still in the log. Nobody undid it, and nobody
+told the operator it had not been undone.
+
 ## 6. Learned this session
 
 The significant, durable discoveries — facts about the system that hold
@@ -186,10 +199,10 @@ session, so the fresh chat can reach the same systems without asking
 again: test logins, sandbox API keys, a sample account id, the
 environment they belong to. Capture the literal values — these are
 throwaway test credentials, and the continuation prompt's whole purpose is
-to be self-contained (§12). Note which environment each credential is for
+to be self-contained (§13). Note which environment each credential is for
 and what it unlocks. If the operator handed over no credentials, write
 `None` here — and then leave the whole credentials heading OUT of the
-prompt in §12. An empty section in the prompt costs the reader a heading
+prompt in §13. An empty section in the prompt costs the reader a heading
 and tells them nothing.
 
 ## 8. Next steps (ordered, next action first)
@@ -280,11 +293,33 @@ owns answering it, and every fresh chat pays to read it again. Measured:
 "whether weapons stay in the game" appears in 29 of one project's transcripts,
 and its backlog holds no card for it.
 
-## 11. Completeness gate (the frontloading forcing function)
+## 11. The operator's last words, verbatim
 
-Before writing the prompt, interrogate §1–§10 out loud. Answer each:
+The operator's final turn before the clear, quoted exactly — all of it, in a
+block quote, with its timestamp. Not a summary, not the half that looked
+relevant to the next steps, and not your reading of what they were asking for.
+If they wrote three paragraphs, all three go here.
 
-- If the fresh chat read only §1–§10, what would it still get wrong or
+Quote it even where §5 and §8 already carry what it said. The duplication is
+the point: a directive rewritten as a next step has been through your judgment
+about what it asked for, and this is the copy that has not.
+
+Where the session ends with no final operator turn — a `session-loop` worker
+handing off on its own budget — write `None`, and leave the heading out of the
+prompt in §13, the way §7 works.
+
+The operator asked for this section themselves: "This isn't the first time
+I've seen my final prompt be lost, so maybe it deserves a word-for-word
+section in clear-task final output." On the run where they said it, their
+final turn had in fact been carried across and the next session read past it
+anyway, so treat this as the second lock rather than the only one. The first
+is §5's rule about directives this session inherited.
+
+## 12. Completeness gate (the frontloading forcing function)
+
+Before writing the prompt, interrogate §1–§11 out loud. Answer each:
+
+- If the fresh chat read only §1–§11, what would it still get wrong or
   have to ask?
 - What did this session try that failed, that §4 does not yet name?
 - What rule or preference did the operator state that §5 does not yet
@@ -302,26 +337,28 @@ Before writing the prompt, interrogate §1–§10 out loud. Answer each:
   "because", "so", "due to", "caused by", "which is why" in those two
   sections: each one starts a claim of its own. Split it out and mark it
   `hypothesis:`.
-- Which reference anywhere in §1–§10 names a line rather than something the
+- Which reference anywhere in §1–§11 names a line rather than something the
   reader can grep for? Rewrite each one as the identifier sitting at that line.
 - What could change between now and when this prompt is read, that §8's
   first step does not tell the reader to re-check?
+- Is §11 the operator's final turn word for word, or a version of it I
+  shortened, tidied, or cut to the part I thought mattered?
 - Does the artifact I am about to emit match what §0 settled?
 
 Every gap found here is integrated into the relevant section above —
-§1–§10 — NOT appended to the prompt. Proceed to §12 only when this
+§1–§11 — NOT appended to the prompt. Proceed to §13 only when this
 interrogation surfaces nothing new. This section is the entire point of
 the template: it is where "remembering" is supposed to happen, before
 the prompt is committed.
 
-Write §0 through §11 as twelve separate headings, in order, every time.
+Write §0 through §12 as thirteen separate headings, in order, every time.
 Do not merge neighbours into a combined heading such as "8–10" or "9–11",
-and never skip §11 — the tail sections are the ones the momentum of a long
-session eats first, and §11 is the one that catches the rest.
+and never skip §12 — the tail sections are the ones the momentum of a long
+session eats first, and §12 is the one that catches the rest.
 
-## 12. The continuation prompt (terminal output)
+## 13. The continuation prompt (terminal output)
 
-A single fenced code block, assembled from §1–§10, written in plain
+A single fenced code block, assembled from §1–§11, written in plain
 English for the reader — a fresh AI plus the operator (~/.claude/CLAUDE.md
 "Communication Style"). It is the LAST thing in your response: no prose,
 no postscript, no "let me know if..." after it.
@@ -331,7 +368,7 @@ to that file and the path and line count take the block's place as the last
 thing in the response. See "Stop" below. Nothing else about this section
 changes. Every line in the prompt
 must trace to a consideration already written above; if while assembling
-it you reach for something not in §1–§10, STOP — that is a §11 miss.
+it you reach for something not in §1–§11, STOP — that is a §12 miss.
 Return to the relevant section, add it, regenerate the whole block.
 
 Shape:
@@ -358,6 +395,9 @@ Learned this session (tags intact — `verified` names the probe,
 
 Credentials / test access (paste literal values):
 <from §7 — omit this heading entirely if §7 is None>
+
+The last thing the operator said, word for word:
+<from §11 — omit this heading entirely if §11 is None>
 
 Next steps, in order:
 1. <next concrete action, and what to re-check first in case it moved>
@@ -393,7 +433,7 @@ had written its handoff, and the operator overrode it at 13:32.
 
 **Where §0 settled on a worker, the artifact is that file.** The driver hands it
 to every fresh session, nobody copies anything, and a block printed beside it
-would be a second copy going stale from the moment it appeared. Write §1-§10
+would be a second copy going stale from the moment it appeared. Write §1-§11
 exactly as always, because they are the forcing function and nothing about
 them changes. Then write the
 assembled prompt to `HANDOFF.md`, and report the path and its line count in
@@ -439,7 +479,7 @@ by typing
   `HANDOFF.md` that §0 calls for and the backlog card §8 requires for
   a finished phase's owed work. No destructive action either way.
 - Does not append anything after the prompt code block. A late
-  consideration is a §11 miss, fixed by regenerating the block — never by a
+  consideration is a §12 miss, fixed by regenerating the block — never by a
   postscript.
 - Does not take a second turn after writing `HANDOFF.md`. The tool call forces
   one turn, that turn reports the path and the line count, and the run ends on
@@ -449,8 +489,8 @@ by typing
 - Does not hand a diagnosis to the fresh chat as a measurement. An
   explanation you did not measure goes across as `hypothesis:`, separate
   from the reading it explains, in §4 and §6 alike.
-- Does not merge or drop sections. Twelve headings before the block, in
-  order, §0 and §11 included.
+- Does not merge or drop sections. Thirteen headings before the block, in
+  order, §0 and §12 included.
 - Does not print an empty section. A `None` in §7 means the credentials
   heading does not appear in the prompt at all.
 - Does not chain to any other skill. It emits the artifact and stops,
