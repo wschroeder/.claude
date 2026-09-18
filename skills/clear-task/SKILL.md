@@ -400,6 +400,28 @@ assembled prompt to `HANDOFF.md`, and report the path and its line count in
 place of printing the block. Everything else holds: considerations first,
 one artifact, nothing after it.
 
+**Writing the file costs exactly one more turn, and that turn is the whole
+report.** A tool call ends the response that makes it, so a session that writes
+`HANDOFF.md` always gets one turn after the write and cannot decline it. That
+turn carries the path and the line count and nothing else: no recap of the
+sections, no summary of what the handoff says, no reprint of its text. The run
+ends there: take no further turn of your own. If the operator types something
+after it, that is a new instruction, and the paragraph above on a handoff not
+being a stop signal is what governs it.
+
+Nobody is waiting for that recap. A driver sends the session's whole output to
+a log file — grep `RUN_LOG` in `session-loop/scripts/run-loop.sh` — and the
+summary that reads the log back takes `terminal_reason`, `num_turns`,
+`permission_denials`, and `is_error` out of it, never the assistant's text.
+
+Measured across 187 runs of this skill on 2026-09-17: all 164 responses that
+wrote the file ended on the tool call, so every one of them forced a turn.
+Those forced turns ran to a median of 2,281 characters against the one line
+they owed, and cost $18.13. Eleven runs then took a further turn beyond the
+forced one, writing a median of 27,831 characters each — the whole handoff
+again, beside the copy already on disk — for another $3.99. Together that is
+10.2% of what this skill costs.
+
 **A stale `HANDOFF.md` lying in the repository decides nothing.** A leftover
 is a reason to delete that file, never a reason to write over it, and §0 is
 what says whether anyone is coming for it. Measured: a retrospective
@@ -419,6 +441,9 @@ by typing
 - Does not append anything after the prompt code block. A late
   consideration is a §11 miss, fixed by regenerating the block — never by a
   postscript.
+- Does not take a second turn after writing `HANDOFF.md`. The tool call forces
+  one turn, that turn reports the path and the line count, and the run ends on
+  it.
 - Does not fabricate completed work: a claim with no backing line in §2 is
   labelled `unverified` (~/.claude/CLAUDE.md rule 1).
 - Does not hand a diagnosis to the fresh chat as a measurement. An
