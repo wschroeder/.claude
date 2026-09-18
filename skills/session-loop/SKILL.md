@@ -14,8 +14,8 @@ that on a loop.
 Ending too early is its own waste, though: a fresh session spends about 104,000
 tokens re-reading its way back to where the last one already was. So a session
 runs until its context reaches 170,000, checking itself at three points along
-the way, and hands off then — not after one piece of work. A hook the driver
-installs checks the same number on every tool call, so the ceiling holds even
+the way, and hands off then — not after one piece of work. A hook in the operator's
+own settings checks the same number on every tool call, so the ceiling holds even
 when a session never reaches one of those three points. A session also hands
 off after three consecutive failures of the same check, whatever its context
 number says.
@@ -243,13 +243,13 @@ handoff file, waits, then decides what to do next from `git status`,
 transcript. That is what keeps it free of context: it accumulates nothing, so
 it cannot fill up and become an orchestrator.
 
-It also hands each session a `--settings` file it writes into the logs
-directory, registering `session_budget.py --hook` as a PostToolUse hook. That is
-what enforces the ceiling on a session that works for eighty turns without
-reaching any of the three points the contract names — the hook reads the
-session's own transcript on every tool call, says nothing while there is room,
-and exits 2 with the number when there is not. It adds to the operator's own
-settings rather than replacing them.
+A PostToolUse hook in the operator's own `~/.claude/settings.json` runs
+`session_budget.py --hook` on every tool call, in every session on this machine.
+That is what enforces the ceiling on a session that works for eighty turns
+without reaching any of the three points the contract names — the hook reads the
+session's own transcript, says nothing while there is room, and exits 2 with the
+number when there is not. The driver registers no hook of its own, so a tool call
+inside a worker runs the check once rather than twice.
 
 It stops when the handoff says `DONE` and the reviewer is holding nothing
 against the last commit — a `DONE` with findings outstanding goes back for

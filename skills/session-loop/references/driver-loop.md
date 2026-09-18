@@ -44,9 +44,7 @@ something.
    not finish, and a fresh one would build on half-applied work.
 4. Note the current tree hash.
 5. Run `claude -p` with the handoff file as its entire prompt, plus a short
-   protocol block appended, and wait. It also passes `--settings` at a small
-   file it writes into the logs directory, registering the handoff hook
-   described below.
+   protocol block appended, and wait.
 6. Stop if claude exited non-zero, or if the run's summary says it ended for
    any reason other than finishing. The exception is the usage limit: the
    summary names when it resets, so the driver sleeps until then and runs the
@@ -136,12 +134,15 @@ repositories: every worker committed exactly once, between turn 27 and turn 86,
 and the single check it ran landed a turn or two after that commit at 145,000 to
 204,000 context. 29% of one run's tokens still went above the line.
 
-So the driver also enforces the ceiling from outside the session. It writes a
-settings file registering `session_budget.py --hook` as a PostToolUse hook and
-passes it with `--settings`, which adds to whatever the operator already has
-rather than replacing it. The hook fires on every tool call and is handed the
-path to the session's own transcript, so the number gets read whether or not the
-session thought to read it. Under the line it prints nothing — anything it wrote
+So the ceiling is enforced from outside the session as well, by a PostToolUse
+hook registering `session_budget.py --hook` in the operator's own
+`~/.claude/settings.json`. It fires on every tool call in every session on the
+machine and is handed the path to the session's own transcript, so the number
+gets read whether or not the session thought to read it. That file is the
+operator's and not this skill's, so a machine that has this skill without that
+hook runs the loop with the three contract points and nothing else — check for
+it before trusting the ceiling on a machine you have not run this on. Under the
+line it prints nothing — anything it wrote
 would enter the context and be re-paid by every later turn. Over the line it
 exits 2 with one line on stderr naming the context, the ceiling, and the two
 steps that make this a handoff rather than an abort: commit what you have marked

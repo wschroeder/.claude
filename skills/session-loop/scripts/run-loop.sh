@@ -42,6 +42,12 @@ REPO="."
 HANDOFF="HANDOFF.md"
 # Where a session hands off, in context tokens. A safety rail set by the
 # operator, not a cost knob. session_budget.py holds the same number.
+#
+# The operator's own PostToolUse hook in ~/.claude/settings.json is what holds a
+# session to it, and it carries its own copy of the number. The driver registers
+# no hook, so a tool call inside a worker runs the check once rather than twice.
+# Raising this with --handoff-at moves what the worker is told and self-checks
+# against; what the hook blocks at moves only in that settings file.
 HANDOFF_AT=170000
 # The loop exists to commit unattended, and a headless session cannot answer a
 # permission prompt — the prompt becomes a silent denial, HEAD never moves, and
@@ -152,45 +158,6 @@ case "$LOGS" in
        and its own files would look like the latter. Move it out, or ignore it."
     ;;
 esac
-
-# The ceiling, enforced from outside the session rather than by the session
-# remembering to ask about it.
-#
-# The contract below names three moments to check at: after each commit, before
-# the reviews a piece of work owes, and after the probing that opens one. All
-# three are milestones in the work cycle, so a session that spends its whole life
-# on one piece of work reaches them once, at the end. Measured across the last
-# run of two repositories: every worker committed exactly once, between turn 27
-# and turn 86, and the single check it ran landed a turn or two later at 145,000
-# to 204,000 context — after which 29% of one run's tokens went on turns already
-# past the line.
-#
-# A PostToolUse hook fires on every tool call and is handed the path to the
-# session's own transcript, so the number gets read whether or not the session
-# thought to read it. PostToolUse and not PreToolUse: a PreToolUse hook exiting 2
-# denies the call, which would refuse a session over the line the very Bash calls
-# it needs to commit and write its handoff.
-#
-# Written here rather than into the repository, because a settings file in the
-# working tree is dirt, and the loop refuses to start a session on a dirty tree.
-#
-# Built by python3 rather than a heredoc because two layers of quoting have to be
-# right and a heredoc gets neither. The script path is embedded in JSON, so it
-# needs JSON escaping; Claude Code then runs the resulting "command" string
-# through a shell, so it needs shell quoting as well. Probed: `--settings` at a
-# malformed file prints no warning and runs the session anyway, so getting this
-# wrong would not stop the loop or announce itself — it would quietly stop
-# enforcing the ceiling, which looks exactly like enforcing it.
-HOOK_SETTINGS="$LOGS/hook-settings.json"
-BUDGET_SCRIPT="$BUDGET_SCRIPT" HANDOFF_AT="$HANDOFF_AT" python3 - > "$HOOK_SETTINGS" <<'SETTINGS' \
-  || die "could not write the handoff hook settings: $HOOK_SETTINGS"
-import json, os, shlex
-command = "python3 %s --hook --handoff-at %s" % (
-    shlex.quote(os.environ["BUDGET_SCRIPT"]), os.environ["HANDOFF_AT"])
-print(json.dumps({"hooks": {"PostToolUse": [
-    {"matcher": "*", "hooks": [{"type": "command", "command": command}]}]}}, indent=2))
-SETTINGS
-chmod 600 "$HOOK_SETTINGS"
 
 # The contract every session runs under. Appended to the handoff so the
 # handoff itself stays a plain continuation prompt a human can also paste.
@@ -568,15 +535,12 @@ while :; do
   set -- -p "$PENDING_FINDINGS$(cat "$HANDOFF_PATH")$(protocol)"
   set -- "$@" --output-format json
   set -- "$@" --permission-mode "$PERMISSION_MODE"
-  # Additional settings, not a replacement: whatever the operator already has in
-  # ~/.claude/settings.json still applies, and this adds the handoff hook on top.
-  set -- "$@" --settings "$HOOK_SETTINGS"
   [ -n "$MODEL" ] && set -- "$@" --model "$MODEL"
 
   if [ "$DRY_RUN" -eq 1 ]; then
     printf 'would run: claude -p <%s bytes of handoff> %s\n' \
       "$(wc -c < "$HANDOFF_PATH" | tr -d ' ')" \
-      "--output-format json --permission-mode $PERMISSION_MODE --settings $HOOK_SETTINGS${MODEL:+ --model $MODEL}"
+      "--output-format json --permission-mode $PERMISSION_MODE${MODEL:+ --model $MODEL}"
     exit 0
   fi
 

@@ -769,75 +769,39 @@ case "$(cat "$ROOT/out.txt")" in *'$'*) ok=1 ;; *) ok=0 ;; esac
 check "the driver reports no dollar figure" 0 "$ok"
 drop_fixture
 
-# --- the ceiling is enforced from outside the session, by a hook ---
+# --- the ceiling is enforced by the operator's own hook, not a second one ---
 #
-# Measured across the last run of repo-a and of repo-b: every worker committed
-# exactly once, between turn 27 and turn 86, and the single budget check it ran
-# landed a turn or two later at 145,000 to 204,000 context. 29% of repo-a's run
-# went on turns already past the line. The three moments the contract names to
-# check at are all milestones in the work cycle, so a session that spends its
-# life on one piece of work reaches them once, at the end.
-#
-# A PostToolUse hook fires on every tool call instead, and is handed the path to
-# the session's own transcript, so the number gets read whether or not the
-# session thought to read it. Probed on this machine: hooks do fire in headless
-# `claude -p` runs, plain hook stdout never reaches the model, and exit 2 with a
-# line on stderr arrives as a blocking error the session cannot skim past.
+# A PostToolUse hook reads a session's own transcript on every tool call, so the
+# ceiling holds even when the session never reaches one of the three points the
+# contract names. That hook belongs to the operator's settings.json, where it
+# fires in every session on the machine. A driver registering a second one would
+# make every tool call inside a worker run the same check twice.
 new_fixture
 export STUB_MODE=blocked
 status="$(run_loop --logs "$ROOT/logs")"
-check "a run with the hook wired up still completes" 0 "$status"
+check "a run completes with no settings file of the driver's own" 0 "$status"
 ARGV="$(cat "$ROOT/last-argv.txt")"
-case "$ARGV" in *"--settings "*) ok=0 ;; *) ok=1 ;; esac
-check "the child session is launched with --settings" 0 "$ok"
-
-SETTINGS="$(printf '%s\n' "$ARGV" | sed -n 's/.*--settings \([^ ][^ ]*\).*/\1/p')"
-check "a settings path was parsed out of the invocation" 0 \
-  "$([ -n "$SETTINGS" ] && echo 0 || echo 1)"
-check "the settings file the driver named exists" 0 \
-  "$([ -f "$SETTINGS" ] && echo 0 || echo 1)"
-# Outside the repository. A settings file written into the working tree is dirt,
-# and the driver refuses to start a session on a dirty tree — wiring the hook up
-# that way would stop the loop on its own first iteration. Mutation-checked: this
-# has to fail on an EMPTY path too, or a run that never launched a session at all
-# satisfies it by having nothing to place, and the assertion reads green on the
-# exact breakage it exists to catch.
-case "${SETTINGS:-$REPO/unset}" in "$REPO"/*) ok=1 ;; *) ok=0 ;; esac
-check "the settings file lives outside the repository" 0 "$ok"
-python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$SETTINGS" 2>/dev/null
-check "the settings file is valid JSON" 0 "$?"
-
-SETTINGS_TEXT="$(tr '\n' ' ' < "$SETTINGS" | tr -s ' ')"
+case "$ARGV" in *"--settings"*) ok=1 ;; *) ok=0 ;; esac
+check "the child session is launched with no --settings" 0 "$ok"
+# The file as well as the flag. A driver that still wrote the settings file and
+# merely stopped passing it would leave the same dirt in the logs directory, and
+# an assertion reading the flag alone would report that as success.
+check "the driver writes no hook-settings.json into the logs" 0 \
+  "$([ -e "$ROOT/logs/hook-settings.json" ] && echo 1 || echo 0)"
+# The worker self-checks against the number the contract quotes, so a contract
+# quoting a number the script does not carry would name a ceiling nothing uses.
 LOOP_HANDOFF_AT="$(awk -F= '/^HANDOFF_AT=/ { print $2; exit }' "$LOOP")"
-# The absolute path, because the hook runs with the repository as its working
-# directory and would never find a relative one.
-for phrase in "PostToolUse" "$HERE/session_budget.py" "--hook" \
-              "--handoff-at $LOOP_HANDOFF_AT"; do
-  case "$SETTINGS_TEXT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
-  check "the hook settings carry $phrase" 0 "$ok"
-done
-# PostToolUse and not PreToolUse. A PreToolUse hook exiting 2 denies the tool
-# call, so a session over the line would be refused the very Bash calls it needs
-# to commit and write the handoff — it would be trapped rather than retired.
-# PostToolUse lets the call through and tells the session afterwards.
-case "$SETTINGS_TEXT" in *PreToolUse*) ok=1 ;; *) ok=0 ;; esac
-check "the driver registers no PreToolUse hook, which would deny the commit" 0 "$ok"
-# The threshold the hook enforces is the one the contract quotes. Two numbers
-# that drift apart would tell a worker one ceiling and hold it to another.
 PROMPT="$(tr '\n' ' ' < "$ROOT/last-prompt.txt" | tr -s ' ')"
 case "$PROMPT" in *"--handoff-at $LOOP_HANDOFF_AT"*) ok=0 ;; *) ok=1 ;; esac
-check "the contract quotes the same threshold the hook enforces" 0 "$ok"
+check "the contract quotes the threshold the script carries" 0 "$ok"
 drop_fixture
 
-# --- the hook survives an awkward path, because a broken one fails silently ---
+# --- the driver runs from a path with a space and a quote in it ---
 #
-# Probed: `claude -p --settings <malformed json>` prints no warning and runs the
-# session anyway. So a settings file the driver mangles does not stop the loop or
-# announce itself — it just quietly stops enforcing the ceiling, which is
-# indistinguishable from working. Two layers have to be right for that not to
-# happen. The path is embedded in JSON, so it needs JSON escaping; and Claude Code
-# runs the resulting "command" string through a shell, so it needs shell quoting
-# too. A directory name with a space and a quote in it exercises both at once.
+# A directory name carrying a space and a double quote at once is the cheapest
+# way to catch a path the script interpolates without quoting it. The driver
+# writes its own script directory into the protocol it hands each session, and
+# that protocol reaches the session as one shell argument.
 new_fixture
 ODD="$ROOT/od d\"ir"
 mkdir -p "$ODD"
@@ -845,17 +809,6 @@ cp "$HERE/run-loop.sh" "$HERE/session_budget.py" "$ODD/"
 export STUB_MODE=blocked
 ( cd "$REPO" && bash "$ODD/run-loop.sh" "$REPO" --logs "$ROOT/logs2" ) > "$ROOT/odd.txt" 2>&1
 check "the driver runs from a path with a space and a quote in it" 0 "$?"
-ODD_SETTINGS="$ROOT/logs2/hook-settings.json"
-python3 -c "import json,sys; json.load(open(sys.argv[1]))" "$ODD_SETTINGS" 2>/dev/null
-check "the settings file is still valid JSON from an awkward path" 0 "$?"
-# Round-trip rather than a substring match: the point is that what a shell will
-# actually execute names the real script, not that the raw bytes look plausible.
-python3 - "$ODD_SETTINGS" "$ODD/session_budget.py" <<'ODDCHECK'
-import json, shlex, sys
-cmd = json.load(open(sys.argv[1]))["hooks"]["PostToolUse"][0]["hooks"][0]["command"]
-sys.exit(0 if shlex.split(cmd)[1] == sys.argv[2] else 1)
-ODDCHECK
-check "the command in it resolves to the real script path once a shell splits it" 0 "$?"
 drop_fixture
 
 # --- the threshold the worker is told to use is the one the script defaults to ---
@@ -984,11 +937,6 @@ case "$EVAL_ARGV" in *"--model sonnet"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator runs on the cheap model by default" 0 "$ok"
 case "$EVAL_ARGV" in *"--output-format json"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator's verdict is read as json, not scraped from prose" 0 "$ok"
-# The handoff hook belongs to a builder. An evaluator that hit a context ceiling
-# would be told to commit and rewrite the handoff, which is exactly what it has
-# no tools to do, so it would spend turns failing instead of answering.
-case "$EVAL_ARGV" in *"--settings"*) ok=1 ;; *) ok=0 ;; esac
-check "the evaluator does not get the builder's handoff hook" 0 "$ok"
 # The mode stays dontAsk rather than the builder's bypassPermissions, and the
 # reviewer keeps its explicit denial of every tool that edits a file.
 case "$EVAL_ARGV" in *"--permission-mode dontAsk"*) ok=0 ;; *) ok=1 ;; esac
