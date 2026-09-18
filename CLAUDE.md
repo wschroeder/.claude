@@ -244,7 +244,12 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 Every row above resolves on any machine carrying this repository. A machine
 may add rows through `CLAUDE-private.md`.
 
-Always use TDD principles for code additions, changes, and deletions.
+Always use TDD principles for code additions, changes, and deletions. The one
+exception is the rapid mode in `demo-task`: while the operator has that mode
+on, they have chosen speed over rigor for the tweaks they are trying, and the
+tests get written once they approve rather than before the change. This line
+is where that precedence is settled, so that neither rule wins merely by
+sitting nearer the work.
 
 @~/.claude/CLAUDE-environment.md
 @~/.claude/CLAUDE-private.md

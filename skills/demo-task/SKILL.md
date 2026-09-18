@@ -1,6 +1,6 @@
 ---
 name: demo-task
-description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
 model: sonnet
 ---
 
@@ -66,6 +66,58 @@ The check below at the end of this template governs the hand to the next phase.
 This one governs whether this phase starts here at all, and they are not the
 same question.
 
+## Rapid mode — when the operator pauses the formality
+
+The operator can suspend most of this template at any point in the demo
+phase, including before Section 1, by saying so in their own words: "let's do
+some rapid stuff here", "quick tweak", "just try it and I'll look", "skip the
+formality for a minute". There is no keyword to wait for. When they ask for
+speed over rigor, the mode is on, and your next message says in one line that
+it is on, so they can see you heard them.
+
+While it is on:
+
+- **Section 2's proof commands and Section 3's capture machinery are
+  suspended.** Do not run the suite, do not build a capture record, and do
+  not write a reproduction command. The operator is sitting in front of the
+  thing, and they are the test.
+- **CLAUDE.md's "Always use TDD principles for code additions, changes, and
+  deletions." is suspended too.** CLAUDE.md says so itself, at that line, so
+  that the two rules do not have to be settled by whichever one sits nearer
+  the work. Write the change now; the tests come after they approve.
+- **Your whole job is to make the change and tell the operator it is ready to
+  look at.** A sentence or two: what you changed, and what to look at. Not a
+  record, not an evidence table of proof commands you did not run.
+- **Do not commit.** They have approved nothing yet, and a commit made during
+  the mode takes that decision away from them. Measured: a session committed
+  mid-tweak and the operator's next turn was "Wait, I wasn't ready for commit!
+  We were doing some quick experimenting/tweaking in our demo phase!"
+- **There is no size limit on what the mode may cover.** A colour change and a
+  rework of how the product records an entire behaviour are both allowed in
+  it. The operator decides what is small enough to take this way, so do not
+  argue that a request has outgrown the mode. Measured: the operator took a
+  whole padding rework in rapid mode on purpose, and said afterwards they had
+  prioritized speed over rigor knowing what it cost.
+
+**The operator turns the mode off by approving.** Their approval is the
+signal — not the passage of time, not a number of rounds, and not your own
+sense that the change has grown. Until they approve, stay in the mode, however
+many tweaks it takes.
+
+**Their approval is what starts the polish**, in this order, in this session:
+
+1. Write the tests the changes should have had. They are late, and that was
+   the operator's call to make.
+2. Load `quick-review`, then `security-review`, over everything the mode
+   produced, and apply what they find under the review skill's own gate.
+3. Commit, through `git-commit`.
+4. Go back to Section 2, run the proof commands over the changed product,
+   rebuild Section 3's demo record from what they print, and carry on to
+   Section 4's stop.
+
+Those four are not optional and are not the next session's. The mode buys the
+operator speed while they are trying ideas; it does not delete the work.
+
 ## 1. Setup and boundaries
 
 Real output, not paraphrase:
@@ -118,6 +170,9 @@ There is no demo to assemble, no status to reconcile from a measurement,
 and no feedback to take on work nobody has seen.
 
 ## 2. Where the slice actually stands
+
+**Suspended while rapid mode is on** — see "Rapid mode" above. Run none of
+these commands and write none of these records until the operator approves.
 
 Run every proof command belonging to the current slice's requirements, then
 write this section in three parts, in this order — the order the operator
@@ -188,6 +243,10 @@ blue, in progress orange, blocked red, closed green. `--dot` is the
 alternative when a static image is wanted, piped to `dot -Tsvg`.
 
 ## 3. The demo
+
+**Suspended while rapid mode is on** — see "Rapid mode" above. The operator is
+looking at the thing themselves, so there is no artifact to produce and no
+reproduction command to write until they approve.
 
 The demo shows the definition of released being met. Not the tests
 passing — the thing itself, doing what the slice promised.
@@ -293,6 +352,9 @@ Rules:
 
 Post Sections 2 and 3 and stop. Do not continue to status reconciliation,
 do not propose a next slice, and do not start fixing anything.
+
+**While rapid mode is on, this stop is the sentence or two that "Rapid mode"
+above calls for**, and nothing below returns until the operator approves.
 
 **Open the ask with the phase line**, directly above the question — the
 four phases in order, this stop's capitalized:
@@ -434,6 +496,18 @@ its own signoff, commits what was accepted, and hands on to `spec-task`,
 which decides and specifies whatever slice comes next. Do not skip the
 hand-off because the slice was small, and do not ask whether to run it — a
 retro that waits to be asked for does not happen.
+
+**One exception, and it is the operator's own words.** Where they said they
+would do something themselves — open the deployed page, complete a sign-in,
+look at the output on their own machine — and have not reported back, stop
+here and wait for them. Say in one line what you are waiting on and that the
+retro follows it. An operator who says they will do a thing has told you to
+stop, because that thing is usually the last unproven link in Section 3's
+chain, and handing on turns their check into something nobody ever collects.
+Measured: the operator's turn ended "I'll doublecheck that the deployment
+matches", the session reported the deploy and handed to `retro-task` in the
+same message, and their verdict was "I expected to look at the deployed demo,
+and suddenly we're doing retro."
 
 ## What this template does NOT do
 
