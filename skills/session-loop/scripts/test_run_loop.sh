@@ -34,6 +34,8 @@ new_fixture() {
   ROOT="$(mktemp -d)"
   REPO="$ROOT/repo"
   mkdir -p "$REPO" "$ROOT/bin"
+  # The driver's default logs directory hangs off $HOME.
+  export HOME="$ROOT/home"
   git -C "$REPO" init -q
   git -C "$REPO" config user.email test@example.com
   git -C "$REPO" config user.name Test
@@ -270,6 +272,18 @@ print(t.strftime("%I:%M%p").lstrip("0").lower())
 drop_fixture() { rm -rf "$ROOT"; }
 
 run_loop() { ( cd "$REPO" && "$LOOP" "$REPO" "$@" ) > "$ROOT/out.txt" 2>&1; echo $?; }
+
+# --- a case that names no --logs still writes inside its own fixture ---
+#
+# The driver falls back to $HOME/.claude/session-loop/<repo> when --logs is
+# absent, and the fixture repo's basename is one a real repository also claims.
+new_fixture
+export STUB_MODE=blocked
+status="$(run_loop)"
+check "a run naming no --logs exits 0" 0 "$status"
+check "its run summary landed under the fixture's own home" 1 \
+  "$(ls "$ROOT/home/.claude/session-loop/repo"/run-*.json 2>/dev/null | wc -l | tr -d ' ')"
+drop_fixture
 
 # --- with no cap, the loop runs session after session and stops only on a real
 #     exit condition, not on a count. Six units is past the old five-iteration
@@ -888,7 +902,6 @@ drop_fixture
 # --- the default logs directory is private; a named one is left alone ---
 new_fixture
 export STUB_MODE=blocked
-export HOME="$ROOT/home"
 status="$(run_loop)"
 check "the default logs directory works" 0 "$status"
 check "the default logs directory is owner-only" 700 \
