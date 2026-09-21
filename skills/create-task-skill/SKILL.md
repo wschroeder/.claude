@@ -204,8 +204,8 @@ only when the operator types its name, which is the one condition under
 which it never gets the real-task exposure the discipline below asks for.
 
 Write the row's topic column in the words the operator would actually
-use, and check it against every row already in the table. A topic that
-restates a neighbour is how the wrong skill gets picked.
+use, and check it against every row already in the table. The model
+picks the wrong skill when a topic restates its neighbour.
 
 ## Stop — awaiting approval before writing
 

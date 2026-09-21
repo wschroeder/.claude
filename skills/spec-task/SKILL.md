@@ -339,8 +339,8 @@ Rules for this section:
   proof command.
 - Run every proof command now, and **read the count of tests it ran, not
   its exit code**: a command that runs nothing can still exit 0.
-- A command that already passes means the requirement is `built` — mark it
-  and keep it out of Section 6. One that fails with "no such test" is the
+- If a proof command already passes, then the requirement is `built` — mark
+  it and keep it out of Section 6. One that fails with "no such test" is the
   expected shape of unbuilt work.
 - A command that cannot be run yet says so and says why, per CLAUDE.md
   rule 3. Do not paste an imagined result.
@@ -352,8 +352,8 @@ Rules for this section:
 - **Every slice ends in a requirement whose proof produces something a
   person can look at and operate.** It is written like any other
   requirement, and its proof command is the one that produces the artifact.
-  A slice whose requirements are all internal modules cannot produce one,
-  and that is the signal the cut was horizontal.
+  A slice cannot produce one when every requirement it holds is an internal
+  module, and that is the signal the cut was horizontal.
 - **Where the definition of released says a person operates the thing, one
   requirement in the slice is proved by the input that person sends.** Not
   by calling the code that input would have reached — by the press, the
@@ -476,7 +476,7 @@ only helps the developer stays in the slice — the test suite, the local run,
 the pinned toolchain — attached to the story whose behavior it proves and
 named on that story's `proof` line.
 
-A task that fits no story is a module rather than a step toward something a
+When a task fits no story, it is a module rather than a step toward something a
 person can do. Say so instead of inventing a story around it. Writing "As a
 developer" is inventing one.
 

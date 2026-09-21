@@ -237,9 +237,9 @@ naming that command, its latest output, and each fix you already tried, so the
 next session does not spend its first turns repeating them.
 
 Stopping just before the reviews is a good place to stop rather than a lapse.
-Review turns cost the most where the context is fullest, and the session that
-wrote the code is the worst-placed one to read it back: a fresh session reads the
-diff for what it says instead of for what it was meant to say.
+Review turns cost the most where the context is fullest. A session reads its own
+diff for what it meant to write; a fresh session reads the same diff for what it
+says.
 
 This rule holds inside the loop and nowhere else. Outside it, a piece of work is
 finished and reviewed before it is committed, and nothing here changes that.

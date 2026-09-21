@@ -40,9 +40,9 @@ hypothesis: any claim without a REF gets this prefix
 
 The Evidence block comes FIRST because task momentum kills compliance when it's last. You enumerate what you checked BEFORE writing conclusions. A Category B response without a leading Evidence block is structurally invalid — like a function missing its return statement.
 
-**Last-sentence audit.** Task momentum peaks as a response closes. Prose that wraps up correct analysis is where ungrounded narrative sneaks in — the answer feels "done" and the final sentence becomes color commentary. Before submitting any Category B response, re-read the final sentence: is it a REF'd fact, or is it appended flavor text that attributes, explains, or speculates without its own REF? If it's the latter, delete it or demote it to a `hypothesis:` line.
+**Audit the last sentence.** Task momentum peaks as a response closes. Prose that wraps up correct analysis is where ungrounded narrative sneaks in — the answer feels "done" and the final sentence becomes color commentary. Before submitting any Category B response, re-read the final sentence: is it a REF'd fact, or is it appended flavor text that attributes, explains, or speculates without its own REF? If it's the latter, delete it or demote it to a `hypothesis:` line.
 
-**First-structure audit.** Task momentum at turn-start is symmetric to turn-end and just as dangerous. Before generating the first token of any response, ask: is this turn going to assert anything project-specific? If yes, the literal first characters of the response are `## Evidence` — not a conclusion sentence, not a status summary, not a tool-result paraphrase. This applies *especially* to post-tool-result wrap-ups: the natural shape there is "status update," and once the opening token commits to status-summary shape there is no slot to insert the Evidence block later. Skill-loaded narratives and clean-looking agent reports are the highest-risk case — the report's own [REF] tags belong to the agent, not to you. Re-deriving them in your own Evidence block is the discipline that prevents passing through fabrication. The trigger is "I'm about to summarize what a tool just told me," not "I just finished a complicated investigation."
+**Audit how the response opens.** Task momentum at turn-start is symmetric to turn-end and just as dangerous. Before generating the first token of any response, ask: is this turn going to assert anything project-specific? If yes, the literal first characters of the response are `## Evidence` — not a conclusion sentence, not a status summary, not a tool-result paraphrase. This applies *especially* to post-tool-result wrap-ups: the natural shape there is "status update," and once the opening token commits to status-summary shape there is no slot to insert the Evidence block later. Skill-loaded narratives and clean-looking agent reports are the highest-risk case — the report's own [REF] tags belong to the agent, not to you. Re-deriving them in your own Evidence block is the discipline that prevents passing through fabrication. The trigger is "I'm about to summarize what a tool just told me," not "I just finished a complicated investigation."
 
 ### Rules
 
@@ -54,9 +54,9 @@ The Evidence block comes FIRST because task momentum kills compliance when it's 
    - GOOD: "The job ran on `api-worker-8core-nightly`. [LOG1] hypothesis: nightly pods may have different timeout settings."
    - BAD:  "The plan is updated in all three places, and the install is now marked as waiting on a credential. [T6]" — where T6 is `xcrun devicectl list devices` reporting state `unavailable`. It proves the credential is missing and says nothing about three files being edited.
    - GOOD: "The install is now marked as waiting on a credential [T6], and the plan is updated in all three places [T7]." — putting T7 where it belongs is what surfaces that T7 does not exist.
-   - **Coordination pass, on finished text.** The detector above runs while you draft, so it only reaches sentences you were already writing clause by clause. This one runs after. Before submitting a Category B response, take every sentence that joins items with "and", "or", a comma series, or a semicolon. Count the items; count the tags. Each item carries its own tag or its own `hypothesis:`. A sentence whose brackets appear only after the final item is done only when the sentence asserts one thing. Splitting the sentence and leaving it split is always a valid outcome.
+   - **Run a coordination pass on finished text.** The detector above runs while you draft, so it only reaches sentences you were already writing clause by clause. This one runs after. Before submitting a Category B response, take every sentence that joins items with "and", "or", a comma series, or a semicolon. Count the items; count the tags. Each item carries its own tag or its own `hypothesis:`. If a sentence's brackets appear only after its final item, then that sentence is done only when it asserts one thing. Splitting the sentence and leaving it split is always a valid outcome.
 5. **Don't escalate under pressure.** Caught wrong? Say what was wrong, re-verify from scratch, report what you find. Do not reframe, type-coerce, or eyeball-and-declare-fixed.
-6. **Every column, every row.** "Exact match" = programmatic full comparison. Checking a subset and claiming full match is fabrication.
+6. **Compare every column and every row.** "Exact match" = programmatic full comparison. Checking a subset and claiming full match is fabrication.
 7. **Pattern labels are hypotheses (correlation ≠ causation).** Matching an observation to a previously-seen pattern is itself an unverified causal claim — not recognition. Co-occurrence with a familiar category is not a mechanism. The observation is one REF; the attribution requires a SEPARATE REF identifying the specific mechanism in this instance. Without that mechanism REF, prefix with `hypothesis:`. Name the specific cause or call it unverified.
 8. **Recognition is a starting point, not a conclusion.** When an observation matches a familiar pattern, treat that match as a hypothesis to investigate — not a fact to report. The moment you're ready to label something, that's the signal to trace the specific mechanism in this instance. Investigate, then label. **Skill-loaded narratives are especially dangerous** — if you loaded a skill and it gave you a plausible story, that is the moment you are most at risk of skipping verification. The skill gives you context, not conclusions.
 9. **Metric claims require metric data.** Claims about what causes a metric change (cost, traffic, latency, error rate) require metric data as a REF — not infrastructure configs, not code that "could" cause it, not pattern recognition. Configs prove capability, not causation. `hypothesis:` until you have the numbers. When the user provides numerical data, your FIRST action must be to query the source system for the underlying breakdown, not to explain the numbers from memory or pattern matching.
@@ -120,6 +120,32 @@ Before you reach for the passive, name the actor you are about to hide. If you c
 
 An abstract noun with an active verb of motion is the same defect wearing a disguise. "Duplication goes to the review", "the fix goes back into the sections", "a late realisation has to go back" — each sounds more energetic than the passive while still hiding who acts, and none of those subjects can move. Ask what would have to be true for the subject to perform that verb; if the answer is nothing, you have found the missing actor.
 
+### Get to the main verb quickly
+
+English takes a long, complicated phrase much better after the verb than before it. When a clause grows inside the subject, the reader carries all of it unresolved until the main verb arrives, and until then they cannot tell what the sentence is doing with any of it. The same clause placed after the verb gets understood as it is read.
+
+**Read the junction where the subject ends and the main verb begins.** Take the last noun phrase of the subject together with the main verb, and ask whether a reader could take those words alone as a subject and its own verb. If they could, then they will, and the rest of the sentence forces them to back up and start over.
+
+- "Everything the application shows a lender sits somewhere on the valuation chain." — the junction reads "a lender sits", so the reader hands the verb to the lender and then has to take it back.
+- "A sentence whose brackets appear only after the final item is done only when the sentence asserts one thing." — the junction reads "the final item is done", a complete thought, and the real main clause turns out to start back at "is".
+
+**A dropped "that" usually sets this up.** "Everything the application shows" reads as finished at "shows", so "a lender" arrives with nowhere to go until the reader reopens the clause. Restore the "that" whenever the clause's verb could take a further object. When that verb can take none, the dropped "that" costs nothing, so "the ordered line every number travels" needs no repair.
+
+A clause inside the subject is fine when the reader cannot misattach it. "A response that claims nothing about the project gets no special format" signposts its clause with "that" and offers the main verb nothing it would plausibly take, so it reads in one pass. A subordinate clause standing in front of the subject and closed by a comma is fine for the same reason: the comma finishes it before the subject starts.
+
+Do not count words. A word count between the sentence's first word and its main verb fires on "Once the evidence is on the page, an unsupported claim has nowhere to sit", which reads perfectly well. The misreading is the defect, not the distance.
+
+Reach for these repairs in this order:
+
+- Make the actor the grammatical subject, which "Name the actor and the verb" asks for anyway.
+- Give the sentence a short subject and let the heavy phrase follow the verb.
+- Restore the dropped "that".
+- Split the sentence, giving each half its own short subject.
+
+- BAD:  "Everything the application shows a lender sits somewhere on the valuation chain."
+- GOOD: "The application shows a lender only what already sits on the valuation chain."
+- GOOD: "The valuation chain holds every number the application shows a lender."
+
 ### Ordinary sentences only
 
 Say "because", not "rationale:". Say "one line of code and one new test", not "one-line change plus one test". Do not use arithmetic operators (+, →, /, =, ::) inside prose. Do not use "plus" as a connector for English lists or sums. Reserve those symbols and the word "plus" for code snippets.
@@ -162,6 +188,23 @@ When the second sentence completes the first, or gives its content, a full stop 
 
 - BAD:  "The skill has one rule. Considerations come before the artifact."
 - GOOD: "The skill has one rule: considerations come before the artifact."
+
+Never close a bare noun phrase with a period. "The valuation chain." names a thing and says nothing about it, so the period lands while the reader is still waiting for a verb, and they have to work out whether you truncated a sentence or inlined a heading. Bold does not rescue it: a term set in bold and closed by a period, opening the paragraph it labels, is a typesetting device out of printed reference books, and readers now take it as a sign that a model wrote the paragraph. Do not write either form — not in prose, not in bullets, not in commit messages, and not in a skill file's own body.
+
+A bold run-in label is fine when what you bolded is a complete clause, which is what the numbered rules above do: "**Verify before claiming.**" carries a verb and an implied subject, so nothing is missing when the period arrives.
+
+Reach for these repairs in this order:
+
+- Put the term inside the sentence that needs it. This is usually the best answer, because the label existed only to announce a word the following sentence already used.
+- Give the noun phrase a verb when the reader genuinely needs the term defined.
+- Use a colon when the second half delivers the content the label announced.
+- Promote it to a real heading, carrying no period, when what it labels is a whole section.
+
+- BAD:  "The valuation chain. The application shows a lender only what already sits on it."
+- BAD:  "**The valuation chain.** The application shows a lender only what already sits on it."
+- GOOD: "The application shows a lender only what already sits on the valuation chain."
+- GOOD: "The valuation chain is the ordered line every number travels before a lender sees it."
+- GOOD: "The valuation chain: the application shows a lender only what already sits on it."
 
 ### Do not inflate the setup, and cut the boring half
 

@@ -18,15 +18,15 @@ from, on a schedule. So does a cron job created inside a session. Both are
 useful — polling a build, checking a deploy, a standing review — and both
 keep every earlier turn.
 
-That makes them the wrong shape here. A loop whose whole purpose is to retire
-a context cannot be built out of a mechanism that preserves it: after eight
-iterations you have one session at half a million tokens, which is the
-problem, not the fix.
+That makes them the wrong shape here. The loop exists to retire a context, so
+you cannot build it out of a mechanism that preserves one: after eight
+iterations you have one session at half a million tokens, which is the problem,
+not the fix.
 
-The thing that actually resets a context is a new operating system process.
-`claude -p "<prompt>"` starts a fresh session, runs to completion, prints a
-result, and exits. Its transcript lands under `~/.claude/projects/` like any
-other, so the same tools read it.
+Only a new operating system process resets a context. `claude -p "<prompt>"`
+starts a fresh session, runs to completion, prints a result, and exits. Its
+transcript lands under `~/.claude/projects/` like any other, so the same tools
+read it.
 
 Use `/loop` for watching something. Use a driver process for building
 something.
@@ -159,11 +159,10 @@ calls it needs to commit and hand off, and would be trapped rather than retired.
 
 The point before the reviews is the one that pays. In those same sessions the
 review sequence began at 191,278 to 212,848 context and added 34,514 to 77,358
-of growth, so it ran at the most expensive part of the session; run from a fresh
-one it costs a fraction of that. It also reads better there. The session that
-wrote the code is the worst-placed one to read it back, because it reads the diff
-for what it meant; a session that did not write it reads the diff for what it
-says.
+of growth, so it ran at the most expensive part of the session; run from a
+fresh one it costs a fraction of that. It also reads better there. A session
+reads its own diff for what it meant to write; a fresh session reads the same
+diff for what it says.
 
 Sessions that already fit are unaffected. Over the same run the repo-b sessions
 reached their first commit at 141,066 to 158,717 and ended at 154,881 to 172,453,
@@ -190,8 +189,8 @@ per-action authorization." The driver then halts the whole run on "the session
 changed nothing," so the finished work sits in a dirty tree and every remaining
 iteration is thrown away.
 
-That last rule is what makes an unattended run safe to leave. A session that
-hits a real question halts the loop instead of guessing, and the first line of
+That last rule is what makes an unattended run safe to leave. When a session
+hits a real question, it halts the loop instead of guessing. The first line of
 the handoff tells you what it wanted.
 
 Keep the handoff honest about what is measured and what is believed, keep the
@@ -348,10 +347,10 @@ finished session from a cut one, which is why the driver reads
 
 ## The second reader
 
-The session that wrote a diff is the worst-placed one to read it back: it reads
-for what it meant to write. It is also the most expensive reader available,
-because by the time a piece of work is finished its context is at its fullest
-and every review turn is billed at that.
+A session reads its own diff back for what it meant to write, which makes it
+the worst-placed reader of that diff. It is also the most expensive reader
+available, because by the time a piece of work is finished its context is at
+its fullest and every review turn is billed at that.
 
 So after each iteration commits, the driver runs a second session over just that
 diff. It gets `HEAD_BEFORE..HEAD` and nothing else — no handoff, no protocol, no
@@ -417,18 +416,18 @@ inherits whatever mode the logs directory has, exactly as the run summaries do,
 so a `--logs` directory you made world-readable makes the findings and the run
 summaries world-readable with it.
 
-It can run things, and the prompt rather than an allowlist is what bounds
-that. It used to hold `Bash(git :*)` plus Read, Grep and Glob, and that scope
-failed twice over. An evaluator that wanted to execute the function it doubted
-was refused — measured in the first end-to-end run, where it tried `python3 -c`
-on a buggy function to confirm an off-by-one and reached the right answer by
-reading instead, so its finding was reasoning rather than measurement. Then a
-later run took 13 refusals over 104 reviewer turns, `npm test` among them, and
-one refusal came from the pattern itself: `Bash(git :*)` denied
-`git -C <repo> log --oneline -1` where `Bash(git:*)` ran it, the space being
-the whole of the difference. Naming commands also cannot survive a second
-language, since the same reviewer needs `mix test` in one repository and
-`go test` in the next.
+It can run things, and the prompt rather than an allowlist is what bounds that.
+It used to hold `Bash(git :*)` plus Read, Grep and Glob, and that scope failed
+twice over. The allowlist refused an evaluator that wanted to execute the
+function it doubted — measured in the first end-to-end run, where it tried
+`python3 -c` on a buggy function to confirm an off-by-one and reached the right
+answer by reading instead, so its finding was reasoning rather than
+measurement. Then a later run took 13 refusals over 104 reviewer turns,
+`npm test` among them, and one refusal came from the pattern itself:
+`Bash(git :*)` denied `git -C <repo> log --oneline -1` where `Bash(git:*)` ran
+it, the space being the whole of the difference. Naming commands also cannot
+survive a second language, since the same reviewer needs `mix test` in one
+repository and `go test` in the next.
 
 So `Bash` is allowed whole, and the prompt tells the reviewer to investigate
 only, to run nothing the review does not need and nothing that installs,

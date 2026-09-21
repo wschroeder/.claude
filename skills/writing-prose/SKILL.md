@@ -85,8 +85,9 @@ Write every point you might make, one per line, in your working notes. No
 numbers, no headings, no ordering, and no count of how many there will be. The
 dump is allowed to be longer than the output.
 
-A point that came from your own knowledge rather than from a source gets a line
-saying so. That list is allowed to be long. It is not allowed to be invisible.
+Give a line of its own to any point that came from your own knowledge rather
+than from a source. That list is allowed to be long. It is not allowed to be
+invisible.
 
 ### 2. Order the parts by what each needs the reader to already have
 

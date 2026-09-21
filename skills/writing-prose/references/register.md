@@ -171,12 +171,13 @@ the difference. If you cannot point at a sent message for a rule, then you
 invented it.
 
 Run `scripts/voice_stats.py` over both the sent message and the rejected draft
-before you write the rule, then look at which tokens produced each score. A band
-that one passes and the other misses looks like it has named the difference, and
-what it has named is whatever its own vocabulary matched, which may be a phrase
-sitting in the part of the message this file tells you to cut. One rule here was
-written from a 16.7 against a 0.0 before anyone checked that the 16.7 came from
-two words in a closing aside, and it claimed a gate that does not exist.
+before you write the rule, then look at which tokens produced each score. When
+the sent message passes a band that the draft misses, the band looks like it
+has named the difference. What it has actually named is whatever its own
+vocabulary matched, which may be a phrase sitting in the part of the message
+this file tells you to cut. One rule here was written from a 16.7 against a 0.0
+before anyone checked that the 16.7 came from two words in a closing aside, and
+it claimed a gate that does not exist.
 
 A rule you cannot follow without inventing content does not belong here at all.
 The closing personal aside was one: it called for an anecdote out of the

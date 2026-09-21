@@ -34,8 +34,8 @@ effect but no trigger. The cross-cutting sweeps (Section 4) catch a gap
 that lives in the *cross-product* of two or more systems and belongs to
 no single entity's lifecycle: a rule that sorts units into who-qualifies
 without covering every case, or a boundary of the play space that some
-mechanic can reach with no stated result. A run that does only the
-per-entity loop asymptotes at "a couple left" and never reaches a
+mechanic can reach with no stated result. When a run does only the
+per-entity loop, it asymptotes at "a couple left" and never reaches a
 defensible stop, because its frame structurally under-samples
 interactions — the sweeps are what let the count actually close.
 
@@ -249,9 +249,9 @@ right.
 
 **Never ask whether a decision belongs in the design document.** The
 document is the source of truth, so a confirmed finding goes into it and
-gets committed, per `spec-task` Section 8. A decision that lives only in
-the conversation is gone at the next clear, and asking about it spends a
-turn on something already settled.
+gets committed, per `spec-task` Section 8. The next clear erases any
+decision that lives only in the conversation, and asking about it spends
+a turn on something already settled.
 
 What does reach the operator is a real choice between competing product
 answers: which of two behaviors the product should have, never whether to

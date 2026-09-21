@@ -86,7 +86,7 @@ Recommend `:dbg.p(specific_pid, :c)` scoped to the test's spawned process, or a 
 
 ## 7.18 Literal-integer call-count assertions
 
-`assert 4 == :counters.get(...)`, `assert 2 == length(call_history)`, `assert N == Enum.count(...)` patterns are brittle to UNRELATED PR changes. A refactor that legitimately reduces a call count by one breaks the test even when behavior is correct, and a refactor that legitimately ADDS a call (e.g. a new audit log) does the same.
+`assert 4 == :counters.get(...)`, `assert 2 == length(call_history)`, `assert N == Enum.count(...)` patterns are brittle to UNRELATED PR changes. A refactor breaks the test even when behavior is correct, whether it legitimately reduces a call count by one or legitimately ADDS a call (e.g. a new audit log).
 
 Prefer asserting outcome correctness (the right row exists, the right response shape is returned) plus, if Redis-traffic / call-count regression guards are genuinely needed, a SEPARATE telemetry-counted test isolated from outcome tests. When you see a literal-integer count assertion in a test, ask: "what does this break on if someone adds an unrelated call site?" — the answer is usually "this test, silently, in a different PR's CI."
 
