@@ -73,6 +73,12 @@ MODEL="claude-opus-5"
 # deliberate here where MODEL pins a full id — the evaluator is cheap enough to
 # re-probe whenever it drifts, and its job is the one that benefits from newer.
 EVAL_MODEL="sonnet"
+# A subscription defaults the cache to a one-hour lifetime, whose writes bill at
+# twice the base input rate. The loop's turns run seconds apart, so nothing here
+# needs an entry to survive five minutes, and the hour is bought for nothing.
+# Exported rather than set in the hook settings, which the reviewer below is
+# launched without.
+export CLAUDE_CODE_PROMPT_CACHE_TTL="5m"
 EVAL=1
 LOGS=""
 DRY_RUN=0
