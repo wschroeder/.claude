@@ -91,6 +91,10 @@ Every label, abbreviation, and compound shorthand from skills, agent reports, or
 - "H2 is the stronger hypothesis" → "the second explanation — that the cache is stale — fits the timing better"
 - "the review-fix loop converged" → "the last two review passes found nothing new"
 
+A name you coin during the work counts too: a name for a module, a file, a technique, or a mechanism that the reader never used themselves. "Cassette" for a file of recorded API responses is one.
+
+The first appearance that counts is the first one in a response that ends waiting on the reader. They skim the narration between tool calls, and they read the message they have to answer. So define the term in the first response that hands them the turn, even where you already defined it mid-turn, and use the plain phrase with it: "the cassette, the file of recorded OpenAI responses that replay reads instead of calling the API". Once a response that waited on them has defined it, later responses can use the term alone.
+
 ### Describe concerns as sentences, not labels
 
 A compound-noun label — a noun phrase gluing two or more nouns together to describe a DECISION, CONCERN, RISK, SHAPE, SURFACE, or BOUNDARY rather than a concrete physical thing — is almost certainly one you invented. Never produce "module-boundary decision", "review surface", "fix shape", "attack surface", "decision surface", "context budget", "scope discipline", "happy path", "urgent-path review surface". Rewrite as a sentence describing the concrete thing. "The choice of introducing a new shared module that both files would import from" beats "module-boundary decision".
