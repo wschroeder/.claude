@@ -52,15 +52,8 @@ Then write one line naming the reader and what settled it:
 **Do not run `pgrep` to decide this.** That check asks whether any driver is
 alive anywhere on the machine, and the question here is whether a worker is
 waiting on *this* session's handoff. The two come apart whenever a loop runs
-against one repository while you work in another. Measured on 2026-09-17:
-`pgrep -af run-loop.sh` matched a driver on `ansimation-editor` while the
-session asking the question was an interactive one in a different directory,
-whose only reachable `HANDOFF.md` belonged to the loop that was mid-run.
-
-The opening prompt settles it because nobody retypes it, and it is the text the
-driver itself wrote. Measured across 183 runs of this skill: 59 of the 64
-sessions a driver launched wrote the file, against 19 of the 119 interactive
-ones, and five runs wrote it and then deleted it again.
+against one repository while you work in another. The opening prompt settles
+it because nobody retypes it, and it is the text the driver itself wrote.
 
 ## 1. Objective
 
@@ -151,7 +144,20 @@ never covered. Name the tool, the call, or the path that failed. Where
 another route to the same evidence exists, name that route instead of
 closing the subject.
 
-## 5. Principles the operator highlighted
+**Something the operator approved is a decision, and it goes here in their
+terms.** A design they signed off, a layout they accepted, or a scope they
+agreed to goes into this section with the time of the approval, stated in full.
+It never goes in as a clause inside a next step in §8: that list gets reordered
+and rewritten every session, and a design that lives there shrinks with each
+rewrite.
+
+**A decision that already rode the last handoff does not leave this list in
+silence.** For every decision in the prompt this session opened with, do one of
+three things and say in one line which. Carry it forward word for word, where
+it still holds. Record it in the project's own design documents, and point to
+the file, where someone should have written it down already. Or strike it,
+naming what replaced it or who withdrew it. A shorter restatement is not one of
+the three: it drops whatever the restatement left out, and nobody notices.
 
 The operating rules the operator stated this session — how they want the
 work done, not what the work is. These are the "always do it this way" /
@@ -171,11 +177,7 @@ where it still binds; record it where it belongs, as a card or as a line in
 the design document, where it has become part of the plan or the product; or
 strike it, where the session carried it out or the operator withdrew it.
 Dropping it without a word is not one of the three, and neither is deciding
-that a directive you did not hear the operator speak was never yours. Measured:
-the operator typed "let's undo that commit" at 08:51; the handoff written at
-08:54 carried those words; the handoffs written at 09:12 and 09:32 did not
-mention them; and the commit is still in the log. Nobody undid it, and nobody
-told the operator it had not been undone.
+that a directive you did not hear the operator speak was never yours.
 
 ## 6. Learned this session
 
@@ -221,10 +223,10 @@ assumed `<X>`, act only if that still holds."
 **Nothing here declares a stage of the work finished.** This template sees one
 session, not the checklist the work is running against, so a sentence saying a
 stage is over is a claim it cannot check — and the fresh chat reads it as
-settled and never looks again. Measured: a handoff written five minutes after
-the operator asked for research before the current stage ended opened its next
-steps with "the demo is over and its feedback is recorded", and the session
-that read it went straight on to the following stage.
+settled and never looks again.
+
+A step that builds something the operator approved points to that decision in
+§4, or to the file that holds it, and does not restate it.
 
 Where a skill handed off to this one, it says which step it was on and what
 that step still owes. Put that first, owed work ahead of new work, in the words
@@ -239,11 +241,7 @@ create the card before you generate the prompt, and name that card here instead
 of writing the work in as a numbered step. A numbered step is the first thing the
 next session does, and it does that inside a template written for a different
 phase, so the session handed the new phase spends its budget finishing the old
-one. Measured: a retro handoff opened with "Run `quick-review` and then
-`security-review` over plan/demo/s5/drive-demo.js ... This is owed work from the
-demo, ahead of anything new", and the session that read it spent 21 of its 31
-turns on that review, about two thirds of its cost, before it loaded
-`retro-task` at turn 24.
+one.
 
 **And no sentence says what the product can do unless a command showed it.**
 "A person can play a whole turn with the mouse" is the same unchecked claim as
@@ -251,10 +249,7 @@ turns on that review, about two thirds of its cost, before it loaded
 is standing on and spends the session confirming rather than testing. So every
 capability sentence carries the command that demonstrated it and what that
 command printed, or it comes out. Closed cards, a passing suite and a green gate
-are what you can write instead, because those are what you ran. Measured: a
-handoff opened "A person can launch the game and play a whole turn with the
-mouse and keyboard", written the evening before the operator opened that game
-and found that no press reached a battalion.
+are what you can write instead, because those are what you ran.
 
 ## 9. Pointers (paths, links, skills, commands, environment)
 
@@ -289,9 +284,15 @@ the design document that should have held it, where the session settled the
 question and nobody recorded it; or strike it, where nobody needs it answered.
 Carrying it a third time is not one of the three. A question copied forward
 reads as though someone is tracking it, when no card holds it and no session
-owns answering it, and every fresh chat pays to read it again. Measured:
-"whether weapons stay in the game" appears in 29 of one project's transcripts,
-and its backlog holds no card for it.
+owns answering it, and every fresh chat pays to read it again.
+
+**A decision that lives only in handoffs is an open question.** Where §4
+carries something the operator approved and no design document in the project
+holds it yet, list it here: what was approved, when, and that the project's
+design documents do not hold it. Use the project's own name for those
+documents, whatever that is ("the spec" and `docs/spec/` in one repository,
+"the design docs" in another). The three outcomes above then apply to it, so
+the next session either writes it in, files a card for it, or strikes it.
 
 ## 11. The operator's last words, verbatim
 
@@ -308,12 +309,8 @@ Where the session ends with no final operator turn — a `session-loop` worker
 handing off on its own budget — write `None`, and leave the heading out of the
 prompt in §13, the way §7 works.
 
-The operator asked for this section themselves: "This isn't the first time
-I've seen my final prompt be lost, so maybe it deserves a word-for-word
-section in clear-task final output." On the run where they said it, their
-final turn had in fact been carried across and the next session read past it
-anyway, so treat this as the second lock rather than the only one. The first
-is §5's rule about directives this session inherited.
+Treat this section as the second lock rather than the only one. The first is
+§5's rule about directives this session inherited.
 
 ## 12. Completeness gate (the frontloading forcing function)
 
@@ -344,6 +341,14 @@ Before writing the prompt, interrogate §1–§11 out loud. Answer each:
 - Is §11 the operator's final turn word for word, or a version of it I
   shortened, tidied, or cut to the part I thought mattered?
 - Does the artifact I am about to emit match what §0 settled?
+- Going through the prompt this session opened with, item by item: which of
+  its decisions, directives, and questions have I carried, recorded, or
+  struck, and which have I dropped or shortened? Write the list out. Compare
+  each line against the inherited text, not against your memory of it.
+- Which term in §1–§11 did a session coin, a word the operator never used for
+  the thing it names? Each one gets a plain definition at its first appearance
+  in this response and again at its first appearance in the block, because
+  both are output the operator reads. Or replace the term with the plain words.
 
 Every gap found here is integrated into the relevant section above —
 §1–§11 — NOT appended to the prompt. Proceed to §13 only when this
@@ -355,6 +360,11 @@ Write §0 through §12 as thirteen separate headings, in order, every time.
 Do not merge neighbours into a combined heading such as "8–10" or "9–11",
 and never skip §12 — the tail sections are the ones the momentum of a long
 session eats first, and §12 is the one that catches the rest.
+
+Each section holds its own content. A section whose body only points at the
+block ("they are in the block below") has been skipped under its own heading:
+§12 has nothing there to check, and the block is then written from nothing
+§1–§11 hold. Where a section is genuinely empty, write `None`.
 
 ## 13. The continuation prompt (terminal output)
 
@@ -454,21 +464,12 @@ a log file — grep `RUN_LOG` in `session-loop/scripts/run-loop.sh` — and the
 summary that reads the log back takes `terminal_reason`, `num_turns`,
 `permission_denials`, and `is_error` out of it, never the assistant's text.
 
-Measured across 187 runs of this skill on 2026-09-17: all 164 responses that
-wrote the file ended on the tool call, so every one of them forced a turn.
-Those forced turns ran to a median of 2,281 characters against the one line
-they owed, and cost $18.13. Eleven runs then took a further turn beyond the
-forced one, writing a median of 27,831 characters each — the whole handoff
-again, beside the copy already on disk — for another $3.99. Together that is
-10.2% of what this skill costs.
-
 **A stale `HANDOFF.md` lying in the repository decides nothing.** A leftover
 is a reason to delete that file, never a reason to write over it, and §0 is
-what says whether anyone is coming for it. Measured: a retrospective
-session recommended writing the file for its own clear, having argued that a
-block alone would leave the stale one as a trap, and the operator overrode it
-by typing
-`/clear-task instead`.
+what says whether anyone is coming for it.
+
+The measured cases behind the rules in §0, §4, §5, §8, §10, §11, §12, and this
+section are in [references/measurements.md](references/measurements.md).
 
 ## Notes on what this template does NOT do
 
