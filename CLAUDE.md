@@ -279,9 +279,9 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Writing a spec, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
 | Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |
 | Demoing a finished slice, showing what was built, taking feedback on it, closing out an iteration | `demo-task` |
-| Retro of a run or of the process, how a run went, what should change about the skills or a CLAUDE.md, reading a run's transcripts to find why a rule fired | `retro-task` |
+| Closing a slice after `demo-task` has run: the retro of that run, how it went, and what its transcripts show about why a rule fired | `retro-task` |
 | Finding gaps in a design doc set, design holes, "what's missing from this design" | `design-gap-task` |
-| Creating, updating, merging, or retiring a skill; capturing a repeated workflow | `systematize` |
+| Creating, updating, merging, or retiring a skill; capturing a repeated workflow; what should change about a skill or a CLAUDE.md outside a slice's retro | `systematize` |
 | Handing work to a subagent, delegating, forking, spawning an agent or a workflow | `subagents` |
 
 Every row above resolves on any machine carrying this repository. A machine
