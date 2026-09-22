@@ -225,9 +225,9 @@ know this codebase; the bot does not.
    Why this exists: the most expensive misses in this workflow have
    been cross-file mechanism claims where reading-the-code missed a
    detail that a 5-line probe would have surfaced in seconds. The
-   bug-confirmation probe in `~/.claude/CLAUDE.md` "Probe Before
-   Build" is the same discipline applied to *building*; this rule
-   applies it to *evaluating bot findings*.
+   probe in `writing-code`'s "Probe before you build" section is the
+   same discipline applied to *building*; this rule applies it to
+   *evaluating bot findings*.
 
 For each finding, output the disposition with its evidence:
 

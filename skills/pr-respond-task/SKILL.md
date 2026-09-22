@@ -283,10 +283,10 @@ After the plans above, decide whether anything is left for the operator
 to weigh. If NOTHING is, you are authorized to execute the whole tail —
 post the replies, amend each fix into its owning commit, and
 `git push --force-with-lease` — without pausing, then report what was
-done. This is the operator's explicit, durable grant: it overrides the
-global `~/.claude/CLAUDE.md` "fresh per-action authorization" default for
-THIS bounded, decision-free case only, and matches how the task is run in
-practice.
+done. This is the operator's explicit, durable grant: it overrides
+`git-commit`'s "Safety" rule that every push needs the user's words for
+that specific push, for THIS bounded, decision-free case only, and matches
+how the task is run in practice.
 
 "Nothing to decide" requires ALL of these to hold — if any is false, the
 gate fails:

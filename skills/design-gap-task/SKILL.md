@@ -258,7 +258,7 @@ answers: which of two behaviors the product should have, never whether to
 write the answer down. Ask that as the choice itself, with the options
 named, per CLAUDE.md "When the answer is a choice among named options
 rather than a yes, use AskUserQuestion". Research the options first, per
-the Probe Before Build note above.
+`writing-code`'s "Probe before you build" section.
 
 Once the report is delivered, move straight into resolving the findings
 in a sensible order — report order is fine — without asking permission
