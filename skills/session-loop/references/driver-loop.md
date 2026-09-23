@@ -118,8 +118,8 @@ could not. The check ran after a commit, and a commit meant a piece of work that
 was finished and reviewed — so the nearest legal stopping point was however far
 away the end of the current piece of work happened to be. Measured across four
 repo-a sessions, the first commit landed at 182,032, 268,636 and 271,695
-context against a 170,000 ceiling. Every verdict those sessions got was correct
-and arrived up to 100,000 tokens too late. Over the same run, 61% to 70% of each
+context against a 170,000 ceiling. Every answer the check gave those sessions
+was correct and arrived up to 100,000 tokens too late. Over the same run, 61% to 70% of each
 session's tokens were spent above the line.
 
 So the session now asks at three points — after each commit, before starting the
@@ -260,7 +260,7 @@ R of room, and a handoff through clear-task measured about C`, where C is
 `HANDOFF_ALLOWANCE` in `session_budget.py`, and exits 3 when it is over. The
 room and the handoff's measured cost ride beside `keep going` as information,
 and never turn it into `hand off`. The session name is there because the lookup
-can land on a neighbouring transcript, and a verdict with no name on it gives
+can land on a neighbouring transcript, and an answer with no name on it gives
 the reader no way to notice that it did. Claude Code puts the running session's
 id in `CLAUDE_CODE_SESSION_ID` and names the transcript after it, so a session
 can find its own record; that holds in headless `claude -p` runs too, and the

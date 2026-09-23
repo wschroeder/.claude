@@ -123,7 +123,7 @@ Language-specific shape catalogs: `details/language-typescript.md`, `details/lan
 
 ## Demonstration discipline (anti-satisficing v2)
 
-A disposition is an **observation, not a verdict**. Why that is the rule, and what a
+A disposition is an **observation, not a conclusion**. Why that is the rule, and what a
 narrated absence costs, is in [details/why-the-gates.md](details/why-the-gates.md).
 
 Every in-scope angle resolves to exactly one of three states. There is no fourth.
@@ -174,7 +174,7 @@ Error-return shape     Trigger the error path (probe or test); show the return i
                        surrounding transaction.
 ```
 
-The deliverable of the review IS these artifacts. The Fix/Flag/Note verdict is a summary *derived* from them, never a substitute for them.
+The deliverable of the review IS these artifacts. The Fix/Flag/Note label is a summary *derived* from them, never a substitute for them.
 
 ---
 

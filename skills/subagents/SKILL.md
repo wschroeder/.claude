@@ -28,8 +28,8 @@ The agent's context genuinely replaces one you would otherwise have loaded:
 
 - research against sources you will never open yourself
 - wide or mechanical searches where only the answer comes back
-- independent checking of a list of claims, where you read verdicts and not
-  the material behind them
+- independent checking of a list of claims, where you read a yes or no for
+  each claim and not the material behind them
 
 ## When it does not
 

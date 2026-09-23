@@ -340,8 +340,8 @@ R of room, and a handoff through clear-task measured about C`, where C is
 `HANDOFF_ALLOWANCE` in `session_budget.py`. On `keep going`, carry on here;
 stopping earlier is not thrift, because the next session pays about 104,000
 tokens to read its way back to where you already are. The room and the handoff's
-cost are printed so the session knows what the handoff will take once the verdict
-changes; they are not a second verdict, and the verdict does not move when the
+cost are printed so the session knows what the handoff will take once the answer
+changes; they are not a second answer, and the answer does not move when the
 room falls under the cost.
 
 On `hand off`, stop where you are. A piece of work does not have to be finished

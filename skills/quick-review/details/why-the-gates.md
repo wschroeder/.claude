@@ -10,7 +10,7 @@ not fight the other. `NONE FOUND because the guard above runs first` is prose
 *about* absence, and it is satisfiable by writing a plausible sentence. That is
 the slot real bugs slip through.
 
-So a disposition is an observation, not a verdict — the same rule the Evidence
+So a disposition is an observation, not a conclusion — the same rule the Evidence
 Format applies to every other claim, turned on the review itself. CodeRabbit
 out-catches a read-only review because it runs scripts against the repo before
 each finding: its dispositions are demonstrated rather than narrated.

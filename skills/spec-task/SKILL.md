@@ -87,8 +87,8 @@ clear, per `clear-task`. A template is a session's worth of work, so a session
 that begins one already over the line ends it far over, and every section it
 writes on the way is written in a session that should have stopped. Measured: a
 session printed "turn 72, context 231,229 of 170,000 — hand off", quoted that
-verdict back in its own evidence block, created ten cards over the next two
-hours, printed the same verdict again at 251,737, and ended at 263,205.
+line back in its own evidence block, created ten cards over the next two
+hours, printed the same line again at 251,737, and ended at 263,205.
 
 This is the only budget check in this template, and it is deliberately at the
 front: planning a slice is where a session's context grows fastest, so the

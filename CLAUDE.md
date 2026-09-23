@@ -150,6 +150,19 @@ Reach for these repairs in this order:
 
 Say "because", not "rationale:". Say "one line of code and one new test", not "one-line change plus one test". Do not use arithmetic operators (+, →, /, =, ::) inside prose. Do not use "plus" as a connector for English lists or sums. Reserve those symbols and the word "plus" for code snippets.
 
+### Leave out courtroom words
+
+Do not borrow a trial's vocabulary for an ordinary finding: verdict, ruling, rests on, the case for, weighs the evidence, burden of proof, testimony, exhibit, or the jury is out. These words dress a plain claim up to sound weightier than it is, and nobody talks that way about a data field or a code path. A person can decide or rule on something; an answer, a script, or a column cannot. Say what you found, where it came from, and what would change it.
+
+- BAD:  "Each answer settles a verdict in the gap list."
+- GOOD: "Each answer tells us where the app can get a field, or whether we can get it before the SOW ends."
+- BAD:  "The verdicts under "Advance rate" rest mostly on column names."
+- GOOD: "What the gap list says about the advance rate comes mostly from column names."
+- BAD:  "Under your 22 September ruling, those lines count as hedges."
+- GOOD: "You said on 22 September that those lines count as hedges."
+- BAD:  "The answer decides "Officer email"."
+- GOOD: "The answer tells us whether MBC has to keep an officer email list for the app."
+
 ### Commas
 
 Every list of three or more items takes a comma before the final "and" or "or" — in prose, in bullets, in headings, in commit messages, and in anything else you write. The one exception is quoted text: reproduce a quotation exactly as its source wrote it, missing comma and all.

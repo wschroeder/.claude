@@ -59,8 +59,8 @@ clear, per `clear-task`. A template is a session's worth of work, so a session
 that begins one already over the line ends it far over, and every section it
 writes on the way is written in a session that should have stopped. Measured: a
 session printed "turn 72, context 231,229 of 170,000 — hand off", quoted that
-verdict back in its own evidence block, created ten cards over the next two
-hours, printed the same verdict again at 251,737, and ended at 263,205.
+line back in its own evidence block, created ten cards over the next two
+hours, printed the same line again at 251,737, and ended at 263,205.
 
 The check below at the end of this template governs the hand to the next phase.
 This one governs whether this phase starts here at all, and they are not the
@@ -317,9 +317,9 @@ Rules:
   write them where the project already ignores test output, and send them to
   the operator with `SendUserFile`, which is how they reach a person reading on
   a phone regardless. Do not commit a directory of past captures, and do not
-  write a caption sheet describing them. Measured: the operator's verdict on
-  five slices of shipped work kept in the tree was "Useless. This work is in
-  the past."
+  write a caption sheet describing them. Measured: the operator said of five
+  slices of shipped work kept in the tree, "Useless. This work is in the
+  past."
 - **Being unable to drive it is a finding, not a caveat.** Where the
   definition of released says the operator operates the thing and you cannot
   send it the input a person sends, the slice is not built: say so as the
@@ -506,7 +506,7 @@ stop, because that thing is usually the last unproven link in Section 3's
 chain, and handing on turns their check into something nobody ever collects.
 Measured: the operator's turn ended "I'll doublecheck that the deployment
 matches", the session reported the deploy and handed to `retro-task` in the
-same message, and their verdict was "I expected to look at the deployed demo,
+same message, and they replied, "I expected to look at the deployed demo,
 and suddenly we're doing retro."
 
 ## What this template does NOT do
