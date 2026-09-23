@@ -28,11 +28,11 @@ record.
 
 ## Commit Messages
 
-**The subject follows the repository, not a house style.** Read the log before
-writing one:
+**The subject follows the repository, not a house style.** Read enough of the
+log to see its established style, not only its latest run:
 
 ```bash
-git log --format='%s' -20
+git log --no-merges --format='%s' -60
 ```
 
 Match what those subjects do: a `<type>(<scope>):` prefix if they carry one, a
@@ -40,42 +40,67 @@ plain sentence if they do not, and their capitalization, tense and length either
 way. Where the log is empty or shows no pattern, write a plain sentence saying
 what the change does, and say in one line that there was nothing to match.
 
+**Where the recent subjects break from the older ones, match the older ones.** A
+run of recent commits can be one session's habit rather than the repository's
+style. A commit message the operator wrote or reworded themselves outranks the
+log: it sets the pattern for every commit after it, subject and body alike.
+
 Only the subject follows the repository. Everything under Body Content holds
 everywhere.
 
-**Guidelines:**
-- Focus on WHY, not HOW - the code shows the how
-- **NEVER include AI attributions** - no "Co-Authored-By: Claude", no "Generated with Claude Code", no "via Happy", nothing. Clean commits only.
+**NEVER include AI attributions** - no "Co-Authored-By: Claude", no "Generated with Claude Code", no "via Happy", nothing. Clean commits only.
 
 ## Body Content
 
-The subject line goes in the header. The body is for the WHY — design decisions, rejected alternatives, and mandatory constraints. The diff already shows what changed; the body records what the diff cannot.
+**The body records what the diff cannot show.** Most commits need only the
+subject. Write a body only when the change carries something neither the
+subject nor the diff can show.
 
-**Structure:** each body paragraph answers one of:
-- What was wrong with the prior state ("the legacy bearer had no refresh path…")
-- What the new approach gets that the old couldn't ("library-backed flow gets us token rotation, RFC 7009 revocation…")
-- Why a tempting alternative was rejected ("replacing those would have been UX and security regressions…")
-- Why something that looks optional is actually mandatory ("…preconditions for partner-facing rollout, not optional polish")
+**On a small commit, the diff shows what changed, so the body is the why:** the
+reason for the change, a decision behind it, or a constraint that looks optional
+and is not. Where there is no reason beyond the subject, write no body.
 
-**Lead with replacement framing, not action narration.**
+**On a large feature, the diff is too big to read the change from, so open with
+one or two sentences saying what it is and does.** Then give the major decisions
+and the reasons behind them.
+
+**When there is a body, make it as short as it can reasonably be.** Aim for
+about 100 words on a feature. Treat that as a target to check against, not a
+limit to fill: a body that runs past it is usually carrying something from the
+list below.
+
+**A why has to be a real reason.** "Nothing measured X" or "X had no rules
+written down" restates the feature as a gap and gives no reason for it. A fix
+names what was broken, because for a fix that is the reason.
+
+BAD: `Nothing measured how the importer handles real uploads, so nobody knew how many needed a person.`
+GOOD: `The harness runs real uploads through the importer and reports how many went through without a person, compared against the hand-kept ledger.`
 
 BAD: `Wires per-IP rate limiting on the three POST endpoints and revokes the descendant chain on refresh-token reuse`
-GOOD: `Per-IP rate limiting and RFC 6749 §10.4 chain revocation land here because client-secret brute-force defense and refresh-reuse detection are preconditions for partner-facing rollout, not optional polish.`
+GOOD: `Per-IP rate limiting and refresh-token chain revocation are preconditions for partner-facing rollout, not optional polish.`
 
-BAD: `Adds /oauth/refresh and /oauth/revoke endpoints and configures ex_oauth2_provider in the :lol_user_oauth otp_app config`
-GOOD: `Replace the hand-rolled Phoenix.Token bearer envelope at /oauth/token with library-backed OAuth2 (ex_oauth2_provider). The legacy bearer had no refresh path, no real revocation, and pinned token lifetime to the cookie session.`
+**Record the major decisions, and leave out the small ones.** A major decision
+is significant to the feature, and a later reader would want it called out:
+flipping a feature flag from false to true, or measuring against a hand-kept
+spreadsheet while a system of record exists that will replace it. A helper's
+name, the order of two steps, or where a file lives is not one.
 
 **What belongs in the body:**
-- High-level surface area: affected route names, public modules, external contracts, RFC references
+- The why behind the change, where a real one exists
+- On a large feature, what the change is, stated as an assertion
+- The major decisions, including an alternative you rejected where a later reader would reach for it
 - Constraints that look optional but aren't, with the reason
+- High-level surface area: affected route names, public modules, external contracts, RFC references
 
 **What does NOT belong in the body:**
 - Action narration ("wires", "adds", "implements") — readable from `git show`
 - Internal mechanism names that may rot: config block names, private helper names, file paths
+- The reasons behind internal wiring, such as why a factory takes an injected dependency
 - Restated diffstat content
+- Measurements from the session: run times, token counts, test counts
+- A pointer to a document the same commit adds
+- An opener saying nothing did this before
 - Current-session framing — the mission, investigation, or task you happen to be in the middle of. A trailing "this is part of fixing X" or "doesn't touch the Y we're chasing" sentence is the tell; delete it. Every sentence must stand on its own years later, with no knowledge of today's work.
-
-**Length:** as long as needed for the WHY, no longer. Trivial diffs warrant a one-line subject and no body. Multi-paragraph bodies are appropriate when there are real design decisions worth recording.
 
 ## How many commits
 
