@@ -71,9 +71,9 @@ and stop. Do not review the whole repository because the diff came back blank.
 ## Step 2 — Read everything in scope
 
 Read the complete diff, no truncation and no `| head -N`, plus every untracked
-file. Read surrounding context for each touched file — callers, callees, sibling
-functions — because a vulnerability is usually a mismatch between what a function
-assumes and what its callers actually pass.
+file. Test files are in scope. Read surrounding context for each touched file —
+callers, callees, sibling functions — because a vulnerability is usually a
+mismatch between what a function assumes and what its callers actually pass.
 
 ## Objective
 
@@ -100,16 +100,25 @@ security concerns except where the change interacts with them.
 - Template injection
 - NoSQL injection
 - Path traversal in file operations
+- SSRF where untrusted input controls the host or protocol
 
 **Authentication and authorization**
 - Authentication bypass logic
 - Privilege escalation paths
 - Session management flaws
+- Session fixation: a session ID that survives login unchanged
+- Session IDs carried in URLs
+- Sessions that stay valid after the account is deleted, disabled, or demoted
+- CSRF on a state-changing request authenticated by cookie
+- Checks that fail open, where an exception, timeout, or missing value lets the
+  request through
 - JWT vulnerabilities
 - Authorization logic bypasses
 
 **Crypto and secrets**
 - Hardcoded API keys, passwords, or tokens
+- Passwords stored in plaintext or under a fast, unsalted hash
+- Credentials or sensitive data sent over an unencrypted connection
 - Weak cryptographic algorithms or implementations
 - Improper key storage or management
 - Insufficient cryptographic randomness
@@ -163,7 +172,9 @@ exploit.
    concretely problematic.
 7. Outdated third-party libraries; these are managed separately.
 8. Memory safety issues in memory-safe languages.
-9. Files that are only tests or only used to run tests.
+9. Files that are only tests or only used to run tests. This drops findings
+   about how test code behaves and nothing more: still read every test file in
+   scope, and report any committed secret or real customer data you find in one.
 10. Log spoofing. Unsanitized input in logs is not a vulnerability.
 11. SSRF that controls only the path — SSRF matters when it controls host or
     protocol.
@@ -204,7 +215,9 @@ specific code locations? Would a security team act on it?
 
 ## Output
 
-Markdown. One section per finding, most severe first:
+Markdown, in this order: the resolved scope in one line, then one section per
+finding with the most severe first, then the files, then the checklist. When
+there are no findings, say so plainly where the finding sections would go.
 
 ```
 # Vuln 1: XSS: `foo.py:42`
@@ -224,10 +237,65 @@ has significant impact. LOW is defense-in-depth.
 
 **Confidence**, 1 to 10. Report nothing below 8.
 
-State the resolved scope in one line above the findings. When there are no
-findings, say so plainly and name what you reviewed — a clean report has to be
-distinguishable from a review that looked at nothing, which is the exact failure
-this skill was rewritten to prevent.
+### Files
+
+Give every file in scope its own line, marked read or skipped. Every skip names
+its reason in a few words.
+
+```
+## Files
+- `foo.py`: read
+- `templates/search.html`: read
+- `tests/test_search.py`: read
+- `static/search-icon.png`: skipped, binary image
+```
+
+### Checklist
+
+Give every bullet under "Security categories to examine" one line, named in a
+few words, under its category and in the same order. Each line takes one of
+three statuses:
+
+- `n/a`: no line in scope does what the bullet names. Decide from the code you
+  read, never from file names or from how the change describes itself. Changing
+  who holds a role, or editing a check that gates access, is authorization code
+  even when no login code appears.
+- `clear`: the change does what the bullet names, and no candidate survived the
+  false-positive filter.
+- `found`: name the Vuln section that holds it.
+
+A category whose bullets are all `n/a` takes one line. Add a note after a status
+only when there is something worth reading, such as a candidate the filter
+dropped, and then name the exclusion or precedent that dropped it.
+
+```
+## Checklist
+Input validation
+- SQL injection: clear
+- Command injection: n/a
+- XXE: n/a
+- Template injection: clear
+- NoSQL injection: n/a
+- Path traversal: n/a
+- SSRF: n/a
+Authentication and authorization: n/a
+Crypto and secrets: n/a
+Injection and code execution
+- Deserialization RCE: n/a
+- Pickle injection: n/a
+- YAML deserialization: n/a
+- Eval injection: n/a
+- XSS: found, Vuln 1
+Data exposure
+- Sensitive data logging: clear. Precedent 1 dropped `foo.py:57`, a logged URL.
+- PII handling: n/a
+- API data leakage: n/a
+- Debug information: n/a
+```
+
+The files and the checklist are what make a clean report distinguishable from a
+review that looked at nothing, which is the exact failure this skill was
+rewritten to prevent.
 
 ## Running it
 
