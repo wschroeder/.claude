@@ -1,31 +1,20 @@
 ---
 name: clear-task
-description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the sections from what the session already holds rather than re-probing for it. Settles whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the sections from what the session already holds rather than re-probing for it. Settles whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Carries the words typed after /clear-task into the prompt word for word, as the next session's first step. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 model: sonnet
 ---
 
 # clear-task — frontload the handoff, then emit the prompt
 
-For the current session's work, produce a continuation prompt that a
-fresh chat (after /clear) can act on without re-reading this
-conversation. Respond with the sections below in order. The
-continuation prompt is the LAST thing in your response — a single
-fenced code block with nothing after it.
+For the current session's work, produce a continuation prompt that a fresh chat
+(after /clear) can act on without re-reading this conversation. Respond with the
+sections below in order. The continuation prompt is the LAST thing in your
+response — a single fenced code block with nothing after it.
 
-This template exists to defeat one specific failure mode. Because
-tokens are generated left to right, once you start writing the prompt
-you cannot revise its earlier lines; a consideration that surfaces
-mid-prompt gets tacked on as a postscript after the code block — where
-the operator, who copies only the block, never sees it. The fix is
-structural: every consideration is dumped into the ordered sections
-below FIRST, and the prompt is assembled from them LAST. If you
-discover a missing consideration while writing the prompt, that is a
-defect in the Completeness gate (§12) — return there, add it, and
-regenerate the prompt. You never append to the prompt.
-
-The output discipline is recursive: this skill follows the rule it
-teaches — all considerations come before the artifact, and the
-artifact is terminal.
+Write every consideration into the ordered sections below FIRST, and assemble
+the prompt from them LAST. If you discover a missing consideration while
+writing the prompt, that is a defect in the Completeness gate (§12): return
+there, add it, and regenerate the prompt. Never append to the prompt.
 
 ## 0. Who reads this next (settle it before writing anything)
 
@@ -51,9 +40,7 @@ Then write one line naming the reader and what settled it:
 
 **Do not run `pgrep` to decide this.** That check asks whether any driver is
 alive anywhere on the machine, and the question here is whether a worker is
-waiting on *this* session's handoff. The two come apart whenever a loop runs
-against one repository while you work in another. The opening prompt settles
-it because nobody retypes it, and it is the text the driver itself wrote.
+waiting on *this* session's handoff.
 
 ## 1. Objective
 
@@ -75,12 +62,11 @@ in. "No `git status` since the commit at f30be46" is a fact the fresh chat can
 act on; an invented status line is not.
 
 **Do not re-run anything to fill this section in.** This skill fires at the
-fullest point of a session — measured at a median of 187,000 tokens of context
-already loaded — where one more turn re-reads all of it, and the turns beyond
-the first account for 61% of what this skill costs. Re-running buys the reader
-nothing either, because the state moves between writing the prompt and reading
-it. §8's first step is what protects them, and it also catches a fabricated
-"done", since the fresh chat's own `git log` shows the commit is absent.
+fullest point of a session, where one more turn re-reads all of it. Re-running
+buys the reader nothing either, because the state moves between writing the
+prompt and reading it. §8's first step is what protects them, and it also
+catches a fabricated "done", since the fresh chat's own `git log` shows the
+commit is absent.
 
 This section is what every "completed work" claim in §3 must reconcile against.
 A "done" claim with no command output behind it is unverified
@@ -96,11 +82,6 @@ What was actually accomplished. Tag every item:
 - `unverified` — done in narrative but not reflected in §2 (an unsaved
   edit, a claim you cannot back with tool output). Say so plainly; do
   not let it read as done.
-
-The §2/§3 split is the load-bearing separation: your memory of "what we
-did" is narrative; §2 is the measurement. Conflating them is the same
-error as citing a design doc for a runtime claim (~/.claude/CLAUDE.md
-rule 11).
 
 ## 4. Decisions, constraints, and dead-ends
 
@@ -158,6 +139,8 @@ it still holds. Record it in the project's own design documents, and point to
 the file, where someone should have written it down already. Or strike it,
 naming what replaced it or who withdrew it. A shorter restatement is not one of
 the three: it drops whatever the restatement left out, and nobody notices.
+
+## 5. Principles the operator highlighted
 
 The operating rules the operator stated this session — how they want the
 work done, not what the work is. These are the "always do it this way" /
@@ -220,6 +203,17 @@ Name the specific thing that could have changed and the command that
 settles it — not "confirm state," but "run `<command>`; the handoff
 assumed `<X>`, act only if that still holds."
 
+**The operator's instruction for the next session is the first step.** Where
+§11 says what the next session should do, step 1 is that instruction in the
+operator's words. Only the re-check above runs before it: no owed work, no
+review, and no re-measurement. Where it asks for a conversation, such as "let's
+discuss", "I want to understand where we are", or "wait for my feedback", step 1
+tells the fresh chat to say where things stand and what is left, and then to
+stop and wait for the operator. List the work this session would have scheduled
+as what is left, for the operator to decide on, and do not file cards for it
+first, even where the phase has ended: the conversation decides what happens to
+that list.
+
 **Nothing here declares a stage of the work finished.** This template sees one
 session, not the checklist the work is running against, so a sentence saying a
 stage is over is a claim it cannot check — and the fresh chat reads it as
@@ -229,9 +223,9 @@ A step that builds something the operator approved points to that decision in
 §4, or to the file that holds it, and does not restate it.
 
 Where a skill handed off to this one, it says which step it was on and what
-that step still owes. Put that first, owed work ahead of new work, in the words
-it used. Where nothing said, write that nothing did, and let the fresh chat
-find out rather than assume.
+that step still owes. Put that right after the operator's instruction above,
+owed work ahead of new work, in the words it used. Where nothing said, write
+that nothing did, and let the fresh chat find out rather than assume.
 
 **Owed work belongs to the phase that owes it, and a finished phase files it in
 the backlog rather than handing it to the next session.** The paragraph above is
@@ -301,12 +295,25 @@ block quote, with its timestamp. Not a summary, not the half that looked
 relevant to the next steps, and not your reading of what they were asking for.
 If they wrote three paragraphs, all three go here.
 
+**Words the operator typed after `/clear-task` are that final turn.** Where the
+line that invoked this skill carries text after the command, quote that text,
+not the turn before it. Operators use those words to say what the next session
+does first, as in "and we'll discuss how we can wrap this up" or "wait for me
+to give my feedback", and §8's first step carries it out. Where the invocation
+carries no text, the final turn is the one before it.
+
 Quote it even where §5 and §8 already carry what it said. The duplication is
 the point: a directive rewritten as a next step has been through your judgment
 about what it asked for, and this is the copy that has not.
 
-Where the session ends with no final operator turn — a `session-loop` worker
-handing off on its own budget — write `None`, and leave the heading out of the
+**A quote that rode the last handoff stays until a session does what it
+asked.** Where nobody typed anything this session beyond the pasted handoff, as
+with a `session-loop` worker handing off on its own budget, carry the last
+handoff's quote forward word for word, with its original timestamp, and say
+that it is inherited. Once
+a session has done what the quote asked, that session strikes it in one line
+naming what it did. Write `None` only where this session has no final turn and
+the prompt it opened with carried no quote. Then leave the heading out of the
 prompt in §13, the way §7 works.
 
 Treat this section as the second lock rather than the only one. The first is
@@ -340,6 +347,10 @@ Before writing the prompt, interrogate §1–§11 out loud. Answer each:
   first step does not tell the reader to re-check?
 - Is §11 the operator's final turn word for word, or a version of it I
   shortened, tidied, or cut to the part I thought mattered?
+- Did the line that invoked this skill carry words after `/clear-task`? Is
+  that the text §11 quotes, and does the block carry it under its own heading?
+- Is §8's first step what §11 asks for? Name anything placed ahead of it, and
+  move it behind that step or into the list of what is left.
 - Does the artifact I am about to emit match what §0 settled?
 - Going through the prompt this session opened with, item by item: which of
   its decisions, directives, and questions have I carried, recorded, or
@@ -352,14 +363,11 @@ Before writing the prompt, interrogate §1–§11 out loud. Answer each:
 
 Every gap found here is integrated into the relevant section above —
 §1–§11 — NOT appended to the prompt. Proceed to §13 only when this
-interrogation surfaces nothing new. This section is the entire point of
-the template: it is where "remembering" is supposed to happen, before
-the prompt is committed.
+interrogation surfaces nothing new.
 
 Write §0 through §12 as thirteen separate headings, in order, every time.
 Do not merge neighbours into a combined heading such as "8–10" or "9–11",
-and never skip §12 — the tail sections are the ones the momentum of a long
-session eats first, and §12 is the one that catches the rest.
+and never skip §12.
 
 Each section holds its own content. A section whose body only points at the
 block ("they are in the block below") has been skipped under its own heading:
@@ -376,15 +384,20 @@ no postscript, no "let me know if..." after it.
 Where §0 settled that a worker reads this next, this same assembled text goes
 to that file and the path and line count take the block's place as the last
 thing in the response. See "Stop" below. Nothing else about this section
-changes. Every line in the prompt
-must trace to a consideration already written above; if while assembling
-it you reach for something not in §1–§11, STOP — that is a §12 miss.
-Return to the relevant section, add it, regenerate the whole block.
+changes. Every line in the prompt must trace to a consideration already written
+above; if while assembling it you reach for something not in §1–§11, STOP —
+that is a §12 miss. Return to the relevant section, add it, regenerate the
+whole block.
 
 Shape:
 
 ```
 We are continuing work on <objective + definition of done>.
+
+The operator's last words are below, word for word. Do what they ask before
+anything else in this prompt, running only step 1's re-check first. Treat every
+line marked verified as settled, and do not re-measure it:
+<from §11 — omit this heading entirely if §11 is None>
 
 Where things stand:
 <verified state + completed work; verified vs unverified marked>
@@ -405,9 +418,6 @@ Learned this session (tags intact — `verified` names the probe,
 
 Credentials / test access (paste literal values):
 <from §7 — omit this heading entirely if §7 is None>
-
-The last thing the operator said, word for word:
-<from §11 — omit this heading entirely if §11 is None>
 
 Next steps, in order:
 1. <next concrete action, and what to re-check first in case it moved>
@@ -437,18 +447,13 @@ asks. The operator copies the block and starts the new chat.
 template's, and it says only that the template does not start the next steps on
 its own. When a session has written its handoff and is still under the ceiling,
 it has not lost the right to keep working if the operator asks it to; it
-rewrites the prompt when it does stop. Measured: a supervising session at about
-157,000 of 170,000 declined to open a signoff gate at 10:46 because it had
-written its handoff, and the operator overrode it at 13:32.
+rewrites the prompt when it does stop.
 
-**Where §0 settled on a worker, the artifact is that file.** The driver hands it
-to every fresh session, nobody copies anything, and a block printed beside it
-would be a second copy going stale from the moment it appeared. Write §1-§11
-exactly as always, because they are the forcing function and nothing about
-them changes. Then write the
-assembled prompt to `HANDOFF.md`, and report the path and its line count in
-place of printing the block. Everything else holds: considerations first,
-one artifact, nothing after it.
+**Where §0 settled on a worker, the artifact is that file.** Print no block
+beside it. Write §1-§11 exactly as always, then write the assembled prompt to
+`HANDOFF.md`, and report the path and its line count in place of printing the
+block. Everything else holds: considerations first, one artifact, nothing after
+it.
 
 **Writing the file costs exactly one more turn, and that turn is the whole
 report.** A tool call ends the response that makes it, so a session that writes
@@ -459,17 +464,13 @@ ends there: take no further turn of your own. If the operator types something
 after it, that is a new instruction, and the paragraph above on a handoff not
 being a stop signal is what governs it.
 
-Nobody is waiting for that recap. A driver sends the session's whole output to
-a log file — grep `RUN_LOG` in `session-loop/scripts/run-loop.sh` — and the
-summary that reads the log back takes `terminal_reason`, `num_turns`,
-`permission_denials`, and `is_error` out of it, never the assistant's text.
-
 **A stale `HANDOFF.md` lying in the repository decides nothing.** A leftover
 is a reason to delete that file, never a reason to write over it, and §0 is
 what says whether anyone is coming for it.
 
-The measured cases behind the rules in §0, §4, §5, §8, §10, §11, §12, and this
-section are in [references/measurements.md](references/measurements.md).
+The argument for the template's shape, and the measured cases behind the rules
+in §0, §2, §4, §5, §8, §10, §11, §12, and this section, are in
+[references/measurements.md](references/measurements.md).
 
 ## Notes on what this template does NOT do
 
