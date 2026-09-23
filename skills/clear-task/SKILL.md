@@ -214,6 +214,16 @@ as what is left, for the operator to decide on, and do not file cards for it
 first, even where the phase has ended: the conversation decides what happens to
 that list.
 
+**A question the operator asked in their final turn is still open when this
+response answers it.** Where §11 is a question and the response writing this
+handoff answers it, the operator has not read the answer. Step 1 tells the fresh
+chat to put that answer in front of the operator and wait, and the subject of
+their question becomes the next session's subject, ahead of any objective an
+earlier handoff carried. Do not write that the question is already answered. Do
+not turn a "not yet" or "hold off" inside it into a deferral either: quote it,
+because in the middle of a discussion it can mean "not before we finish
+talking".
+
 **Nothing here declares a stage of the work finished.** This template sees one
 session, not the checklist the work is running against, so a sentence saying a
 stage is over is a claim it cannot check — and the fresh chat reads it as
@@ -288,6 +298,14 @@ documents, whatever that is ("the spec" and `docs/spec/` in one repository,
 "the design docs" in another). The three outcomes above then apply to it, so
 the next session either writes it in, files a card for it, or strikes it.
 
+**The operator saying they do not care is the strike.** Where the operator says
+they are not interested in an item, that it does not matter at this stage, or
+that it waits for a later phase without naming where to track it, strike it:
+quote their words once, with the time, and drop the item from every section. A
+"no" to one way of keeping it, such as adding it to the design documents, is
+not a request to offer the next way. Quote them rather than paraphrase: "stays
+recorded" turns a dismissal into an obligation the next writer keeps alive.
+
 ## 11. The operator's last words, verbatim
 
 The operator's final turn before the clear, quoted exactly — all of it, in a
@@ -351,6 +369,11 @@ Before writing the prompt, interrogate §1–§11 out loud. Answer each:
   that the text §11 quotes, and does the block carry it under its own heading?
 - Is §8's first step what §11 asks for? Name anything placed ahead of it, and
   move it behind that step or into the list of what is left.
+- Is §11 a question that this response answers? If so, does §8's first step put
+  that answer in front of the operator and wait, instead of calling it answered?
+- Which items did the operator say they do not care about, or leave for a later
+  phase with nowhere named to track them? Is each one struck in their words, or
+  did I turn their "no" into a new open question?
 - Does the artifact I am about to emit match what §0 settled?
 - Going through the prompt this session opened with, item by item: which of
   its decisions, directives, and questions have I carried, recorded, or

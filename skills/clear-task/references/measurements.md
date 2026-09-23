@@ -97,10 +97,27 @@ It gave the reason as work "owed after the recording ends" in the prior
 handoff. The session that read it ran those steps and never opened the
 conversation.
 
+A question answered in the handoff's own response was treated as closed. The
+operator's final turn asked whether a reworded commit changed a proposal for a
+skill, said "We aren't going to update git-commit yet", and invoked
+`/clear-task` in the same message. The handoff answered the question, recorded
+the skill work as "deferred by the operator", and told the next session the
+question was "already answered". The next session opened on the project's
+status, and the operator had to say they were still discussing the skill.
+
 ## §10 — a question carried forward with nobody owning it
 
 "Whether weapons stay in the game" appears in 29 of one project's transcripts,
 and its backlog holds no card for it.
+
+The operator's "no" never became a strike. They said a session was "overly
+concerned about the failures at this stage", and the next handoff recorded
+three deferred problems as staying "recorded and unfixed". The §10 rule then
+made them an open question. Asked whether to add them to the spec, the operator
+answered "(Not interested in adding the problems.)". The next handoff recorded
+only "stay out of the spec" and asked whether to file a Jira ticket instead.
+Mentions of the problems in five consecutive opening handoffs ran 2, 3, 5, 8,
+and 8.
 
 ## §11 — the operator's last words
 
