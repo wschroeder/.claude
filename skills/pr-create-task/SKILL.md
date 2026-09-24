@@ -1,9 +1,9 @@
 ---
 name: pr-create-task
-description: Opens a pull request end to end — readiness gate, full-diff scan, a body authored to content discipline (what IS, the why, and the operational facts the diff can't show; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when creating or opening a pull request, writing a PR body or description, or running `gh pr create` — "make the PR", "open a PR", "create the PR".
+description: Opens a draft pull request end to end — readiness gate, full-diff scan, a body authored to content discipline (what IS, the why, and the operational facts the diff can't show; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when creating or opening a pull request, writing a PR body or description, or running `gh pr create` — "make the PR", "open a PR", "create the PR".
 ---
 
-# pr-create-task — author and open a pull request
+# pr-create-task — author and open a draft pull request
 
 For the PR-create task in $ARGUMENTS (or the current branch's unpushed
 work if none specified), respond with the following sections in order.
@@ -137,15 +137,19 @@ git log origin/<base>..HEAD --oneline
 git push --dry-run -u origin HEAD:<branch>   # explicit refspec; never push the default branch
 ```
 
-Show the final title and body. **Await an explicit "push" / "make the
-PR."** Prior approval for the commit or amend does NOT carry to the push.
+Show the final title and body, and say the PR will open as a draft.
+**Await an explicit "push" / "make the PR."** Prior approval for the
+commit or amend does NOT carry to the push.
 
 After approval:
 
 ```bash
 git push -u origin HEAD:<branch>
-gh pr create --base <base> --title "<title>" --body-file <tempfile>
+gh pr create --draft --base <base> --title "<title>" --body-file <tempfile>
 ```
+
+If `gh` refuses to open a draft, stop and report its error. Do not retry
+without `--draft`.
 
 Report the PR URL.
 
@@ -153,6 +157,8 @@ Report the PR URL.
 
 - Does not push or open the PR before the Push gate is explicitly
   approved. Each destructive git action is its own authorization.
+- Does not mark the PR ready for review. It opens as a draft, and
+  `gh pr ready` is the operator's own step.
 - Does not decide merge strategy. Whether the stack is squash-collapsed or
   preserved as sections is a separate, merge-time decision.
 - Does not treat CI-green as PR-body content.
