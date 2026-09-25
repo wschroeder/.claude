@@ -173,6 +173,17 @@ untrusted caller rather than the one you designed around. Where it relies on "my
 caller validates X before calling me", guard X here too — a later refactor can break
 the caller's validation without touching this function.
 
+## Anyone can rebuild what the code reads
+
+If code or a test reads a file, a committed script makes that file. A fixture, an
+answers file, a seeded database, or a harness directory that you built by hand in
+the shell exists only on your machine, and nobody else can rebuild it. Write the
+script, commit it beside the code, and have the test or the setup step run it.
+
+A README tells the reader which commands to run, and those commands run committed
+scripts. It never carries a block of code for the reader to paste into a shell or
+an editor.
+
 ## Measure before declaring done
 
 Comment share of the lines you added, working tree:
