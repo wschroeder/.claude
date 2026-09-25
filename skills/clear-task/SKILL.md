@@ -48,6 +48,12 @@ the overall task, and what does "done" look like? If the session had
 several goals, list them and mark each complete / in-flight. No process
 recap — state the goal, not the history of how you got here.
 
+Name the one task this prompt continues, and its issue id when it has one,
+in the first line. List every other issue, card, or topic the session
+touched under "Mentioned, not ours", one line each, so the next session
+cannot mistake a neighbouring card for the work. A handoff that named
+MBG-108 where the task was MBG-106 sent the next session to the wrong card.
+
 ## 2. Verified state (the tool output this session already produced)
 
 The ground truth the fresh chat inherits, quoted from what the commands printed
@@ -373,6 +379,8 @@ Before writing the prompt, interrogate §1–§11 out loud. Answer each:
 - Which items did the operator say they do not care about, or leave for a later
   phase with nowhere named to track them? Is each one struck in their words, or
   did I turn their "no" into a new open question?
+- Does §1 name exactly one task, with its issue id, and does every other
+  issue id anywhere in §1–§11 appear under "Mentioned, not ours"?
 - Does the artifact I am about to emit match what §0 settled?
 - Going through the prompt this session opened with, item by item: which of
   its decisions, directives, and questions have I carried, recorded, or
@@ -414,7 +422,10 @@ whole block.
 Shape:
 
 ```
-We are continuing work on <objective + definition of done>.
+We are continuing work on <the one task, and its issue id> — <definition of done>.
+
+Mentioned, not ours (do not work on these):
+<every other issue or topic from §1, one per line, or "None">
 
 The operator's last words are below, word for word. Do what they ask before
 anything else in this prompt, running only step 1's re-check first. Treat every
