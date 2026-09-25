@@ -1,7 +1,6 @@
 ---
 name: subagents
 description: Whether to hand work to a subagent, and what its prompt must carry. One question settles the first half — will you open the same material after it returns? The second half is a fixed contract: file paths, output format, scope, failure instructions, and a footer forbidding the agent from delegating onward. Also holds the standing exception that investigation is done directly, the cases where delegating genuinely pays, when a fork is the right tool and when it is the wrong one, and how to match the model to the task. Use before spawning an agent, a fork or a workflow, before handing a review, search, migration or investigation to one, and whenever deciding whether to delegate at all.
-model: sonnet
 ---
 
 # subagents — whether to hand it over, and what to say if you do

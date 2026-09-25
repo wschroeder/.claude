@@ -1,7 +1,6 @@
 ---
 name: tdd-cycle
 description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, the mutation receipt and the commit id — closing it belongs to demo-task, once somebody has watched it work.
-model: opus
 ---
 
 ## Purpose

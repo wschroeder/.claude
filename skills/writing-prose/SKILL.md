@@ -1,7 +1,6 @@
 ---
 name: writing-prose
 description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, or a proposal; when organizing a brain dump; when settling section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
-model: opus
 ---
 
 ## Purpose

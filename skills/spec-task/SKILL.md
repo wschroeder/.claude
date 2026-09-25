@@ -1,7 +1,6 @@
 ---
 name: spec-task
 description: Turns a design conversation into two things and no third — the design documents updated with whatever the conversation settled about the product, and a slice of cards whose acceptance criteria are EARS requirements, each carrying the command that proves it and a status derived from running that command. Writes the design documents itself, because the conversation was the approval, and draws the line at literal code: a source file, a function, a test, a stylesheet value, a configuration key. Takes the definition of released from the project where it states one. On a returning initiative it also decides and sizes the next slice, from the design, the backlog, and the last retro's findings, then cuts it into sized tasks with the exact bd (beads) commands that will create them, while everything beyond it stays one line and a dependency edge. Hands those commands to backlog-task, which creates and verifies the cards. Use when asked to write a spec, spec something out, turn a design or a discussion into requirements, define acceptance criteria, decide or size the next slice, or break designed work into tickets or a backlog — and when work has been designed but nothing durable has been written down.
-model: opus
 ---
 
 # spec-task — design conversation in, a changed design and a backlog out
