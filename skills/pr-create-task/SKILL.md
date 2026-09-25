@@ -123,6 +123,15 @@ way. Where the repository has no PRs to read, fall back to its commit
 subjects (`git log --format='%s' -20`), and say in one line which of the
 two you matched.
 
+If the work is for a particular Jira issue, put its key in the title, in
+parentheses at the end — `feat(evals): measure accuracy per carrier
+(MBG-106)` — unless the repository's titles already place keys another
+way, in which case match them. A link to the issue in the body is not
+enough on its own, because the Jira integration looks for the key in the
+title, the branch, or the commits. Take the key from the branch name, the commits, or the
+conversation. If none of them names one, leave the key out rather than
+guess.
+
 Whatever the form, the title describes what IS. No roadmap tag ("step 1
 of…") unless a reviewer genuinely cannot make sense of the change without
 it — prefer to convey staging in one body sentence ("reads still use the
