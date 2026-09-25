@@ -21,7 +21,7 @@
 #
 #   --handoff FILE        handoff file, relative to REPO (default: HANDOFF.md)
 #   --handoff-at N        context at which a session hands off (default: 170000)
-#   --model NAME          model for each session (default: claude-opus-5)
+#   --model NAME          model for each session (default: claude-opus-5-5)
 #   --eval-model NAME     model for the reviewer that reads each session's diff
 #                         (default: sonnet)
 #   --no-eval             do not run the reviewer between sessions
@@ -55,11 +55,10 @@ HANDOFF_AT=170000
 # which the session's own commit is not prompted. This is why the file is a
 # program the loop runs, not a note it reads: see "Permissions" in the reference.
 PERMISSION_MODE="bypassPermissions"
-# Opus 5. The `opus` alias resolves to whatever the latest Opus is when it runs,
+# Opus 5.5. The `opus` alias resolves to whatever the latest Opus is when it runs,
 # which would change the driver under a long run, so the full id is pinned.
-# Measured across 35 loop runs: Opus 5 and Opus 4.8 price within 2% per token, so
-# there is nothing to save by running the older one. Override with --model.
-MODEL="claude-opus-5"
+# Override with --model.
+MODEL="claude-opus-5-5"
 # After each iteration a second session reads the diff the first one just made,
 # with no memory of writing it and no tools to change it. The builder is the
 # worst-placed reader of its own work, and it was reading it at the fullest and

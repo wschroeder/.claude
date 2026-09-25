@@ -326,7 +326,7 @@ Measured against `claude --help` and one live `claude -p` run:
                            terminal_reason, is_error, session_id
   --permission-mode M      bypassPermissions (default) | acceptEdits | auto |
                            dontAsk | manual | plan
-  --model NAME             claude-opus-5 (default); an alias like opus or
+  --model NAME             claude-opus-5-5 (default); an alias like opus or
                            sonnet is the latest of that family, not a fixed one
   --effort LEVEL           low | medium | high | xhigh | max
   --autocompact auto|N     when to compact rather than stop
@@ -443,7 +443,7 @@ that is still not built.
 
 ## Which model runs what
 
-The driver runs Opus 5, pinned by full id rather than the `opus` alias, because
+The driver runs Opus 5.5, pinned by full id rather than the `opus` alias, because
 an alias resolves to whatever is newest when it runs and would change the driver
 underneath a long build.
 

@@ -770,13 +770,12 @@ done
 # one mode under which the session's own commit is not prompted.
 case "$ARGV" in *"--permission-mode bypassPermissions"*) ok=0 ;; *) ok=1 ;; esac
 check "the child session runs under bypassPermissions, so its commit is not prompted" 0 "$ok"
-# Opus 5 specifically. The `opus` alias resolves to whatever the latest Opus is
+# Opus 5.5 specifically. The `opus` alias resolves to whatever the latest Opus is
 # at the time it runs, which silently changes the driver under a long run, so the
-# full model id is pinned rather than the alias. Measured across 35 loop runs:
-# Opus 5 and Opus 4.8 price within 2% of each other per token, so the driver
-# takes the more capable of the two rather than the older one.
-case "$ARGV" in *"--model claude-opus-5"*) ok=0 ;; *) ok=1 ;; esac
-check "the child session runs on Opus 5" 0 "$ok"
+# full model id is pinned rather than the alias. The id is matched whole, because
+# claude-opus-5 is a prefix of claude-opus-5-5.
+case "$ARGV " in *"--model claude-opus-5-5 "*) ok=0 ;; *) ok=1 ;; esac
+check "the child session runs on Opus 5.5" 0 "$ok"
 case "$ARGV" in *--max-budget-usd*) ok=1 ;; *) ok=0 ;; esac
 check "the child session is launched with no dollar cap" 0 "$ok"
 case "$(cat "$ROOT/out.txt")" in *'$'*) ok=1 ;; *) ok=0 ;; esac
