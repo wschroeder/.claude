@@ -106,6 +106,8 @@ yourself writing "this is the user's call" or "doesn't block."
 
 **Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. Measured: in one run, three assertions survived mutation — a four-cell shape cut to three cells, and an entire rotation state replaced with garbage, both left a 17-test suite fully green — and all three sat under assertions their author had judged not to matter.
 
+**No conditional assertions, and no skipped tests.** When the test controls its data, it asserts on that data every time it runs. An assertion wrapped in `if result:` or `if rows:` passes by asserting nothing whenever the condition is false. If the test does not control its data yet, give it a setup step that does. If a test is marked skip, delete it: a skipped test reports nothing and still reads like coverage.
+
 **Putting it back.** Copy the file aside before you mutate it and restore from
 that copy, not from git. `git checkout <path>` and `git restore <path>` both
 restore from the index, which holds nothing you have written since the last
