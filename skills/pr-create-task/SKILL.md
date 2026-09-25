@@ -34,18 +34,19 @@ Report:
 - Commits:        <list — each is a section of the PR; is the stack the
                    shape you mean to ship, or does it need a reorder/split
                    first?>
-- Reviews:        <quick-review + security-review ran against the CURRENT
-                   tree, per CLAUDE.md Change → Review — done / not done>
 - Tests:          <green — a PRECONDITION recorded here, NOT a PR-body
                    section>
 - Base branch:    <origin/master (or origin/main) — never the local ref>
 ```
 
 **GO/NO-GO:**
-- **GO** if the working tree holds only intended changes, both mandatory
-  reviews ran against the current tree, and tests are green.
-- **NO-GO** if reviews haven't run on the current tree, junk is staged, or
-  the stack isn't the shape you mean to ship — fix that first, here.
+- **GO** if the working tree holds only intended changes and tests are
+  green.
+- **NO-GO** if junk is staged or the stack isn't the shape you mean to
+  ship — fix that first, here.
+
+Reviewing the code is the operator's call, not this template's. Do not
+run quick-review or security-review here, and do not ask whether they ran.
 
 ## Diff Scan
 
