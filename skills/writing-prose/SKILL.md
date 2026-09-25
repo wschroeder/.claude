@@ -51,6 +51,27 @@ fourteen files they pointed into had text moved.
 A line range in your own working notes is fine, because you print the lines it
 names and throw the notes away.
 
+## Text that leaves the team
+
+Every tier. When the reader is outside the team — a customer, a client
+stakeholder, anyone who will read the words without you there — switch from the
+internal register before you draft, and check the draft against this list:
+
+- Cut the history: when a rule was written, what a field used to hold, how the
+  data reaches the app today. Name a thing as it stands now ("our current rule").
+- Cut the supporting evidence the reader will not act on. Keep one number when it
+  is the finding; drop the counts that only prove it.
+- Turn every `hypothesis:` into a question to the reader, and never into a flat
+  claim. "Suggesting a bank rule?" hands the guess to the people who can answer it.
+- Write your findings in the first person: "I found", "I haven't found", "I
+  believe". "It isn't there" claims more than you searched.
+- Give each number its so-what in the same sentence, and close any arithmetic the
+  reader would otherwise do: if 436 of 488 are found, say where the other 52 went.
+- Use the reader's own names for things, such as the label on their screen, and
+  never your description of it.
+- Leave out what is not a gap, a problem, or a finding for this reader, even when
+  it cost you work to rule out.
+
 ---
 
 ## Tier one — one point, no sections
