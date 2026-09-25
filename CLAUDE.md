@@ -269,6 +269,10 @@ Four ways to get this wrong:
 
 When the answer is a choice among named options rather than a yes, use AskUserQuestion.
 
+### Keep explanations short
+
+When I ask for an explanation, give me the findings and what they mean, at the length of a few short paragraphs or a short list. Leave out the process and the supporting detail. I will ask when I want more.
+
 ### Tables and dense layout
 
 Never use markdown tables in a chat session or Slack. Use a code block and ASCII art. For small amounts of information, prefer lists with sublists, record style.
