@@ -360,12 +360,15 @@ Probed: told directly to fix a bug it had just found, it came back with "Edit is
 disabled for this session, in subagents as well as here" and the file was
 untouched.
 
-It runs on `sonnet` rather than the builder's model. Reviewing a stated diff
-against a stated intent is the repeated, well-scoped shape a cheaper model
-handles, and the measurement supports it: against a two-function diff carrying a
-planted off-by-one and a planted shell injection, it found both, in 3 turns, for
-$0.28 — against $6 to $8 for the session that wrote the code. `--eval-model`
-moves it and `--no-eval` turns it off.
+It runs on `claude-opus-5-5` at `--effort medium`. It first ran on `sonnet`:
+against a two-function diff carrying a planted off-by-one and a planted shell
+injection, it found both, in 3 turns, for $0.28, against $6 to $8 for the
+session that wrote the code. Measured on 2026-09-26 across four repositories, it
+still answered FAIL on 31 of the 92 diffs it read that had already passed both
+inline reviews, and took 10% to 17% of each run's spend. The operator moved it
+to the builder's model on 2026-09-26 because it is the one reader in the loop
+that did not write the code. `--eval-model` moves it and `--no-eval` turns it
+off; the effort is fixed at medium.
 
 It answers `PASS` alone, or `FAIL` and one line per finding, each line naming
 what executes the code it is about and when that last ran. It is not asked

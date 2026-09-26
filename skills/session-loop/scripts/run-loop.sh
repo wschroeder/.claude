@@ -23,7 +23,7 @@
 #   --handoff-at N        context at which a session hands off (default: 170000)
 #   --model NAME          model for each session (default: claude-opus-5-5)
 #   --eval-model NAME     model for the reviewer that reads each session's diff
-#                         (default: sonnet)
+#                         (default: claude-opus-5-5, at medium effort)
 #   --no-eval             do not run the reviewer between sessions
 #   --permission-mode M   bypassPermissions (default), acceptEdits, dontAsk, ...
 #   --logs DIR            where to keep each run's JSON summary
@@ -64,14 +64,12 @@ MODEL="claude-opus-5-5"
 # worst-placed reader of its own work, and it was reading it at the fullest and
 # so most expensive part of its context.
 #
-# `sonnet` rather than the builder's model, because reviewing a stated diff
-# against a stated intent is the repeated, well-scoped shape a cheaper model
-# handles. Probed before this was written: an evaluator on sonnet found a
-# planted off-by-one and a planted shell injection in a two-function diff, in 3
-# turns for $0.28, against a builder session measured at $6 to $8. The alias is
-# deliberate here where MODEL pins a full id — the evaluator is cheap enough to
-# re-probe whenever it drifts, and its job is the one that benefits from newer.
-EVAL_MODEL="sonnet"
+# The builder's model at medium effort. It is the only reader in the loop that
+# did not write the code, and on sonnet it still failed a third of the diffs
+# that had passed both inline reviews; see "The second reader" in the
+# reference.
+EVAL_MODEL="claude-opus-5-5"
+EVAL_EFFORT="medium"
 # A subscription defaults the cache to a one-hour lifetime, whose writes bill at
 # twice the base input rate. The loop's turns run seconds apart, so nothing here
 # needs an entry to survive five minutes, and the hour is bought for nothing.
@@ -175,11 +173,11 @@ You are one iteration of an unattended loop. Seven rules govern how you work.
 
 Load the skill the work matches before you start the work, not after. Code or a
 comment in any language loads writing-code; the test that opens a piece of work
-loads tdd-cycle; the reviews load quick-review and security-review; the commit
-message loads git-commit. The handoff you were handed may name skills of its
-own, and that list is not the whole of it: it was written by a session that
-named the skills it happened to load, so a skill missing from it is not a skill
-the work does not need. Measured on the run that prompted this line: a session
+loads tdd-cycle; the reviews load quick-review, and security-review when
+writing-code says the diff needs one; the commit message loads git-commit. The
+handoff you were handed may name skills of its own, and that list is not the
+whole of it: it was written by a session that named the skills it happened to
+load, so a skill missing from it is not a skill the work does not need. Measured on the run that prompted this line: a session
 loaded three skills, every one of them named by its handoff and none of them
 writing-code, which the handoff did not name; of the thirteen lines it added to
 the code, ten were comment.
@@ -708,6 +706,7 @@ RECORD
           --allowed-tools Bash Read Grep Glob \
           --disallowed-tools Edit Write NotebookEdit \
           --model "$EVAL_MODEL" \
+          --effort "$EVAL_EFFORT" \
           < /dev/null
       ) > "$EVAL_LOG" || EVAL_STATUS=$?
 

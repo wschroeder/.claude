@@ -226,7 +226,7 @@ When activated:
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
 8. **Self-Review**: Close the Step 4 gates — mutation, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
-10. **Run the review sequence**: once the feature is done, run `quick-review` then `security-review` against the diff and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
+10. **Run the review sequence**: once the feature is done, run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 
 ## Example Flow
 

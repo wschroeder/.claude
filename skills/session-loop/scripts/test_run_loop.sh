@@ -656,7 +656,8 @@ check "the contract counts its own rules correctly" 0 "$ok"
 # recounting the run that went without it — matching the bare name passes on the
 # anecdote alone, with the instruction deleted.
 for phrase in "loads writing-code" "loads tdd-cycle" \
-              "load quick-review and security-review" "loads git-commit"; do
+              "load quick-review" "security-review when writing-code says the diff needs one" \
+              "loads git-commit"; do
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the contract tells the session what loads: $phrase" 0 "$ok"
 done
@@ -945,8 +946,10 @@ check "the evaluator ran once for the one iteration" 1 "$(cat "$STUB_EVAL_COUNT_
 EVAL_ARGV="$(cat "$STUB_EVAL_ARGV_FILE" 2>/dev/null || echo "")"
 case "$EVAL_ARGV" in *"--disallowed-tools Edit Write NotebookEdit"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator is denied every tool that could change the tree" 0 "$ok"
-case "$EVAL_ARGV" in *"--model sonnet"*) ok=0 ;; *) ok=1 ;; esac
-check "the evaluator runs on the cheap model by default" 0 "$ok"
+case "$EVAL_ARGV" in *"--model claude-opus-5-5"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator runs on Opus 5.5 by default" 0 "$ok"
+case "$EVAL_ARGV" in *"--effort medium"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator runs at medium effort" 0 "$ok"
 case "$EVAL_ARGV" in *"--output-format json"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator's verdict is read as json, not scraped from prose" 0 "$ok"
 # The mode stays dontAsk rather than the builder's bypassPermissions, and the

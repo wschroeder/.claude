@@ -158,9 +158,9 @@ to change it, and it answers PASS or a list of findings, each naming what
 executes the code it is about. Anything it finds goes in front of the next
 session's handoff as a proposal that session may put down. Three rounds running
 on the same file stop the run instead, because a reader with no mission cannot
-tell when the file it keeps failing has stopped mattering. It runs on `sonnet`
-and cost $0.28 in the run that was measured, against $6 to $8 for the session it
-read. Move it with `--eval-model`, or turn it off with `--no-eval`.
+tell when the file it keeps failing has stopped mattering. It runs on
+`claude-opus-5-5` at medium effort. Move it with `--eval-model`, or turn it off
+with `--no-eval`.
 
 ### 7. When it stops, report what happened
 

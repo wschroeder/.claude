@@ -5,8 +5,8 @@ Nothing here is needed to run a review — SKILL.md carries every rule.
 
 ## Why a disposition has to be an observation
 
-The 108-attempt floor fights one failure: stopping at the first finding. It does
-not fight the other. `NONE FOUND because the guard above runs first` is prose
+Walking every live angle fights one failure: stopping at the first finding. It
+does not fight the other. `NONE FOUND because the guard above runs first` is prose
 *about* absence, and it is satisfiable by writing a plausible sentence. That is
 the slot real bugs slip through.
 

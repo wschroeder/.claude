@@ -1,6 +1,6 @@
 ---
 name: writing-code
-description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the quick-review then security-review sequence the finished diff owes. Routes to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
+description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the review sequence the finished diff owes: quick-review always, security-review when the diff touches outside input, auth, the network, a shell, a query, a secret, or a dependency. Routes to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
 ---
 
 ## Purpose
@@ -211,9 +211,17 @@ changes in the session were approved — owes a review sequence before the commi
 decision arises:
 
 1. `quick-review` against the change.
-2. `security-review` against the change.
+2. `security-review` against the change, when the diff touches any of these:
+   input from outside the program (a request, a file, the clipboard, a message,
+   a command-line argument), authentication or authorization, a network call or
+   a listening server, a shell or subprocess command, a SQL or other query
+   string, a secret, token or credential, a file path built from input,
+   deserialization, or an added or changed dependency. When it touches none of
+   them, say so in one line and skip it. Measured on 2026-09-26 across four
+   repositories: of ten sampled security reviews run on every card regardless,
+   one found an issue, and no path in the shipped code reached it.
 
-Run both inline in this session rather than handing them to subagents — see
+Run them inline in this session rather than handing them to subagents — see
 `subagents`, which carries the measurement. Present the findings to the user
 and wait for explicit per-action authorization before any commit, amend or push
 — `git-commit` owns those rules. What happens to the findings themselves is

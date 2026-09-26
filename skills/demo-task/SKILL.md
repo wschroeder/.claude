@@ -107,8 +107,9 @@ many tweaks it takes.
 
 1. Write the tests the changes should have had. They are late, and that was
    the operator's call to make.
-2. Load `quick-review`, then `security-review`, over everything the mode
-   produced, and apply what they find under the review skill's own gate.
+2. Load `quick-review` over everything the mode produced, then
+   `security-review` when `writing-code`'s list says the diff needs one, and
+   apply what they find under the review skill's own gate.
 3. Commit, through `git-commit`.
 4. Go back to Section 2, run the proof commands over the changed product,
    rebuild Section 3's demo record from what they print, and carry on to
@@ -299,11 +300,12 @@ Rules:
   `project-drive` appears in the available skills, load it for how to send
   this product real input. If nothing is listed, work it out and say in one
   line what you did.
-- **A script the demo writes and commits goes through `quick-review` and
-  `security-review` in this session, before that commit.** Driving the product
+- **A script the demo writes and commits goes through `quick-review` in this
+  session, before that commit, and through `security-review` when
+  `writing-code`'s list says it needs one.** Driving the product
   the way a person does often takes a script of your own — a driver, a capture
   harness, or a fixture generator — and a script committed to the repository is
-  code wherever it sits. Load both skills here, and apply what they find under
+  code wherever it sits. Load the reviews here, and apply what they find under
   the review skill's own gate. Leaving the review for whoever comes next does
   not work, because the next session is inside a different template and spends
   its budget on the phase before it. Measured: a demo committed a driver no test

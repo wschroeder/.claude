@@ -1,6 +1,6 @@
 ---
 name: quick-review
-description: Fast single-agent code review in nine structured angle passes, each having to say where it landed. Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Also holds the Yes-to-any gate that every fix has to clear — security, performance, maintainability, spec compliance — and the loop that re-runs both reviews until the working tree comes back clean. Use when reviewing code changes, diffs or PRs, when asked for a quick review or a code review, and when deciding what to do with the findings afterwards.
+description: Fast single-agent code review in nine structured angle passes, each having to say where it landed. Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Also holds the Yes-to-any gate that every fix has to clear — security, performance, maintainability, spec compliance — and the loop that re-runs the reviews until the working tree comes back clean. Use when reviewing code changes, diffs or PRs, when asked for a quick review or a code review, and when deciding what to do with the findings afterwards.
 ---
 
 # Quick Review
@@ -17,7 +17,7 @@ Your prompt should contain only: (a) the diff scope or path, (b) one sentence de
 2. **Load skills.** Language skill if applicable; project guideline skills matching the diff; every `CLAUDE.md` from repo root to the diff's directory. See "Skills to load."
 3. **State Mission** in one sentence. If diff touches an auth surface (`oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `signin`, `signout`, `/.well-known/`, routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`), Read `details/rfc-oauth.md` BEFORE passes start and list the RFC sections governing each touched endpoint in the mission line.
 4. **Walk Class Checklist** — mark each CWE as IN SCOPE / N/A. Every IN-SCOPE class is a mandatory angle in its pass.
-5. **Run 9 passes × 12+ named angles each** = 108+ attempts minimum. For each pass: walk every named angle below. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed. Repeating an angle name across passes does NOT count toward the minimum — pull fresh angles from siblings, the language skill, or the loaded project skill.
+5. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed.
 6. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
 7. **Output** per template.
 
@@ -106,13 +106,9 @@ Pass 4 — Data correctness:
 
 Language-specific shape catalogs: `details/language-typescript.md`, `details/language-elixir.md`.
 
-## Distinct-angle rule (anti-satisficing)
+## Scope and context
 
-**12 named angles per pass minimum = 108 attempts minimum.** Each attempt targets a DIFFERENT named angle. Rephrasing does not count. If you run out before 12, pull from sibling code patterns, the language skill, the loaded project skill, or a CLAUDE.md rule that fits.
-
-**The 108 is a FLOOR, not a ceiling.** Security-sensitive diffs do more.
-
-**Enumerate attempts before classify.** Before the Classify step, internally list every angle name you attempted. If two passes share an angle name, you are repeating — replace one with a fresh angle. This list stays internal; the Classify step reads it.
+**No angle count.** Walk the named angles that are live in this diff and mark the rest `N/A`. There is no minimum number of attempts: the demonstration discipline below, not a count, is what stops a review at its first finding.
 
 **Scope rule.** Pre-existing code on the call path is in scope. "Not my diff" is not a dismissal. Question: does this diff INTERACT with a problem?
 
@@ -127,7 +123,7 @@ narrated absence costs, is in [details/why-the-gates.md](details/why-the-gates.m
 
 Every in-scope angle resolves to exactly one of three states. There is no fourth.
 
-- **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: a mutation the test caught, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact.
+- **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: the mutation receipt `tdd-cycle` 4a left, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact.
 - **N/A** — the angle is not live in this diff. One line of why (`no SQL here`, `no auth surface touched`).
 - **`hypothesis:`** — you suspect a problem but could not produce the artifact. Flag it anyway, labeled. Honest, not hidden.
 
@@ -135,7 +131,7 @@ Every in-scope angle resolves to exactly one of three states. There is no fourth
 
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
-Demonstrating all 108 angles bankrupts the review, so the burden is tiered by blast radius:
+Demonstrating every angle bankrupts the review, so the burden is tiered by blast radius:
 
 - **Every Fix and every Flag always demonstrates.** Assert a bug → prove it runs or breaks. Findings are few; this is cheap.
 - **A clean bill demonstrates only for these five classes** when in scope. For them, `DEMONSTRATED` REQUIRES the artifact below; bare prose is an invalid disposition:
@@ -149,11 +145,13 @@ Demonstrating all 108 angles bankrupts the review, so the burden is tiered by bl
 ### Proof-shape catalog — the artifact that licenses each clean bill
 
 ```
-Assertion strength /   MUTATION. Edit the production code to a wrong-but-plausible
-test coverage          value; re-run the test; paste the result.
-                       Stays GREEN → FINDING (the assertion doesn't pin behavior).
-                       Goes RED → DEMONSTRATED clean. Never judge an assertion
-                       "specific enough" by reading it.
+Assertion strength /   RECEIPT. Quote the tdd-cycle 4a mutation receipt for each
+test coverage          assertion the diff adds, from the commit message, the card
+                       note, or this session. Do not mutate again here.
+                       Receipt present and "caught" → DEMONSTRATED clean.
+                       Receipt missing, or "survived" with no tightened
+                       assertion after it → FINDING, fixed by running 4a.
+                       Never judge an assertion "specific enough" by reading it.
 
 Injection / untrusted  Feed the adversarial input through the REAL entry point and
 input                  show it rejected/escaped, OR quote the exact line that
@@ -452,15 +450,14 @@ Surviving candidates get one of three:
 
 ## Demonstrations (the artifacts behind the clean bills)
   One line per demonstrate-line class that was in scope: <class>: <what ran> → <result>
-  e.g. assertion-strength: flipped redirect target to evil.com in
-       auth_controller.ex:512 → auth_controller_test.exs:535 stayed GREEN → FINDING
+  e.g. assertion-strength: commit a1b2c3d carries no 4a receipt for
+       auth_controller_test.exs:535 → FINDING
   e.g. authz-scope: ran district_search as teacher subject with foreign state_id
        → 0 rows returned → DEMONSTRATED clean
   An in-scope class with no artifact here is an incomplete review, not a clean one.
 
 ## Coverage
-  N candidates after 108+ attempts across 9 passes × 12+ distinct angles,
-  M survived classification; K demonstrate-line classes in scope, all with artifacts above
+  N candidates across 9 passes, M survived classification; K demonstrate-line classes in scope, all with artifacts above
 ```
 
 ## Re-review and the fix loop
@@ -469,13 +466,13 @@ The caller runs this loop; the passes above are one iteration of it.
 
 **First, name what runs it.** For each finding, say what executes the code it is about and when that last happened — the caller, the recipe, the test, the request path. If nothing will reach it again — a one-shot tool whose job is finished, a branch no caller takes, a guarantee the surrounding system already makes — record it where the next reader will look (the handoff, the PR thread, the report to the user), say in one line why it is not being fixed, and move on. A correct finding about code that will not run again is the most expensive kind, because its correctness is what gets it fixed.
 
-**Then filter what is left through the Yes-to-any gate above.** If the fix improves any one axis, apply it without pausing for user confirmation, then re-run BOTH `quick-review` and `security-review` against the updated tree. Repeat until a pass against the current working tree surfaces no findings that clear the gate. Only then does the commit decision arise. Do not pause to ask the user between iterations unless there is a genuine design question that cannot be resolved from existing context.
+**Then filter what is left through the Yes-to-any gate above.** If the fix improves any one axis, apply it without pausing for user confirmation, then re-run `quick-review` against the updated tree, and `security-review` too when `writing-code`'s list says the diff needs one. Repeat until a pass against the current working tree surfaces no findings that clear the gate. Only then does the commit decision arise. Do not pause to ask the user between iterations unless there is a genuine design question that cannot be resolved from existing context.
 
 The four rules that decide when the loop is actually finished: [details/review-fix-loop.md](details/review-fix-loop.md).
 
 If the review leads to code changes, those changes get a targeted pass before done.
 
-**Anti-anchoring:** When re-reviewing after amends, the prior round's "triaged and dropped" list is informational context, not binding precedent. For any surface TOUCHED by the current amend, re-run the full 9-pass × 12-angle discipline on THAT surface. Previous dismissals applied to previous code; amended code is new evidence. An orchestrator passing "don't re-surface these" into the subagent prompt is a shortcut that saves tokens but erodes coverage — re-enumerate the angles and let the classify gate drop duplicates.
+**Anti-anchoring:** When re-reviewing after amends, the prior round's "triaged and dropped" list is informational context, not binding precedent. For any surface TOUCHED by the current amend, re-run all nine passes on THAT surface. Previous dismissals applied to previous code; amended code is new evidence. An orchestrator passing "don't re-surface these" into the subagent prompt is a shortcut that saves tokens but erodes coverage — re-enumerate the angles and let the classify gate drop duplicates.
 
 Targeted re-checks for the fix:
 - Test coverage for the fix
