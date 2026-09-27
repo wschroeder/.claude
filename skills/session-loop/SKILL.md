@@ -136,8 +136,9 @@ unattended, that each session runs under `bypassPermissions`, editing and
 running whatever it decides to with no prompt. A few lines, not a page. That
 last line is the operator's cue to confirm this is a repository where write
 access already means trust; the reasoning is under "Permissions" in
-[references/driver-loop.md](references/driver-loop.md). Then wait for one word
-unless the operator already said `go`.
+[references/driver-loop.md](references/driver-loop.md). Then ask for the one
+word with AskUserQuestion, offering `go` and `no`, unless the operator already
+said `go`.
 
 ```bash
 bash ~/.claude/skills/session-loop/scripts/run-loop.sh <repo>

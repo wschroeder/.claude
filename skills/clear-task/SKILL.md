@@ -37,6 +37,10 @@ Then write one line naming the reader and what settled it:
     reader: the operator — this session opened on a request they typed, and
     nothing in it carried the loop protocol
 
+**Where the operator has to answer something before the handoff can be
+written, ask it with AskUserQuestion**, not in the response's text: the reader,
+when the list above leaves it open, or whether to hand off now.
+
 **Do not run `pgrep` to decide this.** That check asks whether any driver is
 alive anywhere on the machine, and the question here is whether a worker is
 waiting on *this* session's handoff.
