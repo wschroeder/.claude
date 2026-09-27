@@ -160,7 +160,9 @@ inventing one here would answer a question that belongs to the operator.
 If `project-definition-of-done` appears in the available skills, load it
 here. A project that has one has written down what its released state
 actually is and what proving it takes, and Section 3 is built on that
-answer. If nothing is listed, say so and stop, per the paragraph above.
+answer. If nothing is listed, use what the project's design documents or
+README record, quote it with its file and line, and go on. Stop only when
+neither exists, per the paragraph above.
 
 **Then check that there is a slice to close.** If the current slice has no
 closed bead and not one of its proof commands passes, the slice has not
