@@ -348,6 +348,16 @@ Rules for this section:
   "matching Y", or any claim about a protocol, format or product this work
   reproduces carries a source: a URL, a file path, a command whose output
   shows it.
+- **A requirement to compare the work against reference material carries a
+  proof that fails when no reference is saved.** Name the directory outside
+  the repository where the reference images go, and make the proof command
+  list at least one image there beside the capture, for example
+  `ls "$TMPDIR/ref"/*.png && node tests/capture.js "$TMPDIR/shots"`. The
+  requirement also says that the card's note names each reference image the
+  comparison used. A search result with no picture in it is not a reference.
+  Measured: a card whose proof checked only that the captures were saved
+  passed a "comparison" that saw nothing but a list of page titles, and the
+  demo found pincers that looked like cat paws.
 - **Every slice ends in a requirement whose proof produces something a
   person can look at and operate.** It is written like any other
   requirement, and its proof command is the one that produces the artifact.
