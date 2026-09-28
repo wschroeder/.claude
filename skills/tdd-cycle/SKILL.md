@@ -106,6 +106,8 @@ yourself writing "this is the user's call" or "doesn't block."
 
 **Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. Measured: in one run, three assertions survived mutation — a four-cell shape cut to three cells, and an entire rotation state replaced with garbage, both left a 17-test suite fully green — and all three sat under assertions their author had judged not to matter.
 
+**Every clause of every criterion.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "at least six", "every", "none covering"). For each clause, make one mutation that breaks that clause alone, and confirm a test fails. A bound over a random or repeated process gets a mutation that breaks it on some runs, not all of them. When a clause survives, tighten the test until that mutation fails it. Measured: on one project, the reviewer failed the first review of every slice on a test that a mutation of one clause would have exposed, such as "ten or fewer" checked on one random round, and a float back that would still have passed as an instant jump.
+
 **No conditional assertions, and no skipped tests.** When the test controls its data, it asserts on that data every time it runs. An assertion wrapped in `if result:` or `if rows:` passes by asserting nothing whenever the condition is false. If the test does not control its data yet, give it a setup step that does. If a test is marked skip, delete it: a skipped test reports nothing and still reads like coverage.
 
 **Putting it back.** Copy the file aside before you mutate it and restore from
@@ -123,10 +125,10 @@ cp <path> /tmp/<name>.keep     # before the first mutation
 cp /tmp/<name>.keep <path>     # after the last one, then delete the copy
 ```
 
-**The receipt.** Name the mutation and paste the line the run printed:
+**The receipt.** Name each mutation, with the clause it broke, and paste the line the run printed:
 
 ```
-mutated <file>:<line>  <original expression> -> <mutated expression>
+clause "<clause>"  mutated <file>:<line>  <original expression> -> <mutated expression>
   15 successes / 2 failures        caught
 ```
 
@@ -224,7 +226,7 @@ When activated:
 5. **Implement minimum code**: Write just enough to pass
 6. **Run it (should pass)**: Verify it works
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
-8. **Self-Review**: Close the Step 4 gates — mutation, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
+8. **Self-Review**: Close the Step 4 gates — a mutation for each clause of each criterion, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 10. **Run the review sequence**: once the feature is done, run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 
