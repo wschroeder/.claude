@@ -132,3 +132,40 @@ When a function performs a wide lookup (e.g., `Repo.get_by(Token, value: x)`, `R
 Fix is to scope the lookup query by the authorization predicate at the DATABASE level, not after the fetch — `get_by_token_for(token, application_id)` uses `WHERE value = ? AND application_id = ?`, so cross-tenant hits return `nil` and look identical to "doesn't exist". RFC 7009 §2.2 specifically requires this collapse for token revocation.
 
 Once folded, the post-fetch authorization check often becomes dead code — remove it.
+
+## 2.14 N+1 calls
+
+For every loop the diff adds or changes (`for`, `Enum.map`, `Enum.each`, `.map`, `.forEach`, `for await`, a list comprehension), check whether its body makes a database query, an HTTP request, or any other remote call. One call per element turns a page of 50 rows into 51 round trips, and the cost grows with the data rather than the code.
+
+**Discovery method:** grep the loop bodies for `Repo.`, `from(`, `fetch(`, `axios`, `prisma.`, `.query(`, `Req.`, `HTTPoison`, and the project's own API client names. For Ecto, also look for association access inside a loop that has no `preload` upstream.
+
+**Fix:** batch the call (`where: x.id in ^ids`, a bulk endpoint, `Repo.preload`, a dataloader) and join the results in memory. Construct the input that shows it: the row count at which the loop exceeds the request timeout.
+
+## 2.15 Quadratic scans
+
+Two shapes:
+
+- A nested pass over the same collection, or over two collections that grow together: `for a in xs, for b in xs`, `Enum.find` inside `Enum.map`, `.filter` inside `.map`.
+- A membership test on a list inside a loop: `x in list`, `Enum.member?/2`, `.includes()`, `.indexOf()`, `list.contains`. Each test is a linear scan.
+
+**Fix:** build a `MapSet`, `Set`, or map keyed on the lookup field once, before the loop. Repeated `++` onto the end of a list inside a loop is the same shape in Elixir and Erlang; prepend and reverse once instead.
+
+A collection bounded by a small constant (the five states of an enum) is `N/A` for this angle; say what bounds it.
+
+## 2.16 Resource not released
+
+For every resource the diff opens, find the line that releases it on every exit path, including the error path:
+
+- files, sockets, and database connections checked out by hand
+- event listeners, subscriptions, observers, and PubSub subscriptions
+- timers and intervals (`setInterval`, `setTimeout` held in a ref, `Process.send_after` loops, `:timer.send_interval`)
+- processes and tasks started outside a supervisor (`spawn`, `Task.start`, a bare `GenServer.start`)
+- React effects that attach anything without returning a cleanup function
+
+A resource with no release line, or one released only on the success path, is the finding. The artifact is the line that opens it and the absence of a close on the error branch.
+
+## 2.17 Unbounded growth
+
+Any structure the diff adds to without a bound: a module-level cache or array, a map held in process state, an ETS table, a `Map.put` accumulator that lives across requests, a memoization table. Check for an eviction rule, a TTL, or a size cap.
+
+If none exists, construct the input that fills it: the key the caller controls (a user id, a URL, a query string) and the rate at which a caller can mint new keys. A key the caller controls with no cap is also CWE-770 and a denial-of-service shape; route it through the security axis of the Yes-to-any gate.

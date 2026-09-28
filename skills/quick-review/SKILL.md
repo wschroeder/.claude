@@ -16,10 +16,11 @@ Your prompt should contain only: (a) the diff scope or path, (b) one sentence de
 1. **Pass 0 — Determine diff scope.** Cumulative `<merge-base>..HEAD` against `origin/<default_branch>` (`git fetch` first), plus uncommitted working tree. Full read; no truncation, no `| head -N`. If the orchestrator passed a delta scope (e.g., `HEAD~1..HEAD` on an amended commit), STOP and request cumulative.
 2. **Load skills.** Language skill if applicable; project guideline skills matching the diff; every `CLAUDE.md` from repo root to the diff's directory. See "Skills to load."
 3. **State Mission** in one sentence. If diff touches an auth surface (`oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `signin`, `signout`, `/.well-known/`, routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`), Read `details/rfc-oauth.md` BEFORE passes start and list the RFC sections governing each touched endpoint in the mission line.
-4. **Walk Class Checklist** — mark each CWE as IN SCOPE / N/A. Every IN-SCOPE class is a mandatory angle in its pass.
-5. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed.
-6. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
-7. **Output** per template.
+4. **Check the requirement.** Find the issue, card, or spec the diff serves and check the diff against each of its acceptance criteria. Method: [details/00-requirement.md](details/00-requirement.md).
+5. **Walk Class Checklist** — mark each CWE as IN SCOPE / N/A. Every IN-SCOPE class is a mandatory angle in its pass.
+6. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed.
+7. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
+8. **Output** per template.
 
 ## Diff scope
 
@@ -38,8 +39,11 @@ Empty diff → stop.
 Load each that matches. Each becomes additional named angles in the relevant pass.
 
 - **Any `.ex` / `.exs`** → `elixir-development` (Pass 5 conventions, Pass 7 tests)
-- **Any backend change** → `code-quality-checklist` (lint, console-log removal, duplicate detection, testing requirements; `capture_log` rule)
 - **Raw SQL / `Repo.query` / ClickHouse / untrusted input** → `security-review`
+
+These live in one project only. Load each when it appears in the available skills; otherwise the angles in Pass 5 and Pass 7 cover the same ground by hand:
+
+- **Any backend change** → `code-quality-checklist` (lint, console-log removal, duplicate detection, testing requirements; `capture_log` rule)
 - **Frontend null/race/XSS/GraphQL errors** → `security-review-fe`
 - **TypeScript** → `quality-checks`, `eslint`
 - **Migrations** → `safe-migration`, `elixir-migrations`
@@ -142,34 +146,9 @@ Demonstrating every angle bankrupts the review, so the burden is tiered by blast
   5. Error-return shape (raise vs `{:error, _}`)
 - **All other angles** may use a prose disposition — but it must be an *observation that cites the line*, never a story. (This boundary is the tunable knob. Widen it for security-sensitive diffs; the five above are the floor.)
 
-### Proof-shape catalog — the artifact that licenses each clean bill
+### Proof-shape catalog
 
-```
-Assertion strength /   RECEIPT. Quote the tdd-cycle 4a mutation receipt for each
-test coverage          assertion the diff adds, from the commit message, the card
-                       note, or this session. Do not mutate again here.
-                       Receipt present and "caught" → DEMONSTRATED clean.
-                       Receipt missing, or "survived" with no tightened
-                       assertion after it → FINDING, fixed by running 4a.
-                       Never judge an assertion "specific enough" by reading it.
-
-Injection / untrusted  Feed the adversarial input through the REAL entry point and
-input                  show it rejected/escaped, OR quote the exact line that
-                       parameterizes/neutralizes and show the value cannot reach a
-                       raw sink. "No literal DROP found" is NOT proof.
-
-Authorization scope    Construct the row the new gate should exclude; run the
-                       query/resolver AS the unprivileged subject; show it is absent
-                       from the result. "The gate looks correct" is NOT proof.
-
-Atomicity / TOCTOU     Show the single-transaction boundary in the code (one call /
-                       advisory lock / CAS). Two separate calls with a read between
-                       them is a FINDING, not a clean bill.
-
-Error-return shape     Trigger the error path (probe or test); show the return is the
-                       {:error, _} callers destructure, not a raise that aborts the
-                       surrounding transaction.
-```
+Each of the five classes above has one artifact that licenses its clean bill, listed in [details/proof-shapes.md](details/proof-shapes.md). Read it before you mark any of the five `DEMONSTRATED`.
 
 The deliverable of the review IS these artifacts. The Fix/Flag/Note label is a summary *derived* from them, never a substitute for them.
 
@@ -241,6 +220,14 @@ Error swallowing:
   2.11  Discarded error tuple            TS/JS and Elixir shapes: see 2.11-2.12
   2.13  Lookup-then-filter cardinality   wide lookup + post-auth-filter leaks
                                           existence across tenants
+
+Cost and resource shapes (CWE-400 / CWE-770):
+  2.14  N+1 calls                        query or remote call inside a loop
+  2.15  Quadratic scans                  nested pass over one collection;
+                                          membership test on a list in a loop
+  2.16  Resource not released            handle / socket / listener / timer /
+                                          process opened with no close path
+  2.17  Unbounded growth                 cache / map / table / state only added to
 ```
 
 ## Pass 3 — Error handling / information exposure
@@ -287,7 +274,7 @@ CWE class checks:
 
 ## Pass 5 — Conventions
 
-Module patterns, naming, def/defp visibility, sibling function symmetry. Worked examples: `details/05-conventions.md`. ARIA contracts: `details/accessibility-aria.md`. RFC compliance: `details/rfc-oauth.md`.
+Module patterns, naming, def/defp visibility, sibling function symmetry, reuse, and hygiene. Worked examples: `details/05-conventions.md`. ARIA contracts: `details/accessibility-aria.md`. RFC compliance: `details/rfc-oauth.md`.
 
 ```
 Sibling consistency:
@@ -311,6 +298,17 @@ Frontend / UI:
   5.13  ARIA role/contract correctness   declared role → keyboard contract;
                                           modal-shape → declared role
   5.14  Button hygiene                   `type="button"` + icon-only a11y name
+
+Reuse and hygiene:
+  5.15  Codebase-wide reuse              grep repo for an existing function that
+                                          already does, or could do, the new job
+  5.16  Leftover code                    debug prints, commented-out code, focused
+                                          tests, TODO without a ticket
+  5.17  Deprecated API calls             compiler / linter deprecation warnings
+                                          on touched files
+  5.18  Readability                      name that needs a comment; wrapper that
+                                          adds nothing; mixed abstraction levels
+  5.19  Project linter and formatter     run the repo's own check on touched files
 ```
 
 ## Pass 6 — Doc/code coherence
@@ -396,7 +394,7 @@ Enumerate every candidate finding internally. For each, walk these gates IN ORDE
 ### Screen (silent drops)
 
 1. Is this actually a problem, or did I realize mid-write it's fine? → **Drop silently.**
-2. Is this the intended effect described in Mission? → **Drop silently.**
+2. Is this an effect the requirement check confirmed the requirement asks for? → **Drop silently.** An effect that only the PR text or the Mission describes is not dropped on intent grounds; it continues through the Screen like any other candidate.
 3. Is this hypothetical ("if someone later adds X...")? → **Drop silently.** Review what exists, not what might.
 4. Positive observation ("good pattern", "properly handles X")? → **Drop silently.** The job is finding problems, not complimenting code.
 5. Does the developer need to act on or be aware of this for THIS change? → **Keep.**
@@ -415,15 +413,7 @@ If YES to at least one, recommend the fix. The bar is "positive signal on any ax
 
 ### Destructive-recommendation gate (irreversibility ratchet)
 
-Any finding that proposes DELETE / UPDATE / DROP / TRUNCATE / schema rewrite / data migration to "cleanse"/"reject"/"purge" rows / any other IRREVERSIBLE operation on USER-AUTHORED data must clear an additional precondition:
-
-The finding MUST name the SPECIFIC invariant the existing rows violate AND cite the evidence those rows actually violate it. Acceptable invariants: NOT NULL violation, unique-key violation, FK dangling reference, content-validation rule (regex/length/format), schema-type mismatch, referential-integrity break.
-
-NOT acceptable as "invariant": a new filter, a new authorization predicate, a new visibility scope, an ABAC subject narrowing, an ownership column added to a query. Rows excluded by a filter are legitimate data outside the caller's view — not "leaked," not "invalid," not "stale," not "orphaned."
-
-If the finding cannot name a violated invariant AND cite specific affected rows: **DROP the destructive recommendation entirely**, OR downgrade to Flag with explicit caveats: "the diff filters X; rows excluded by the filter are NOT recommended for deletion, only for visibility scoping."
-
-The default for any irreversible operation on user data is **preserve-and-flag**, never **recommend-deletion-from-pattern-match**.
+A finding that proposes an irreversible operation on user-authored data (DELETE, UPDATE, DROP, TRUNCATE, a schema rewrite, a cleansing migration) must name the specific invariant the existing rows violate and cite rows that violate it. A new filter or authorization predicate is never such an invariant. If the finding cannot do both, drop the recommendation or downgrade it to a Flag. Read [details/destructive-gate.md](details/destructive-gate.md) whenever a finding proposes one.
 
 ### Author-acknowledged deviation is not exempt
 
@@ -442,6 +432,7 @@ Surviving candidates get one of three:
 # Quick Review
 
 **Mission:** <one sentence>
+**Requirement:** <source, or "none found"> — <each criterion: met / partly met / not met>
 **Scope:** <N files, M lines, against <merge-base>>
 
 ## Fixes

@@ -111,3 +111,46 @@ Two cheap regressions that ARIA reviews tend to skip:
 - **Icon-only buttons without an accessible name.** A button whose visible content is an SVG icon (lucide-react, heroicons, custom inline SVG, font-awesome) has no accessible name — screen readers announce "button" with no further context. Required mitigations, any one of: `aria-label="Push token"`, `aria-labelledby={titleId}`, `<span className="sr-only">Push token</span>` inside the button, or a `<title>` element inside the SVG. The visible `title` HTML attribute is a TOOLTIP not an accessible name — most screen readers ignore it as the accessible name source.
 
 **Discovery method:** grep `<button` in the diff. For each occurrence, check (a) `type=` attribute presence, (b) child content — is the only child an SVG/icon? — and (c) accessibility props. Fix-class per the "yes to any" gate.
+
+## 5.15 Codebase-wide reuse
+
+5.5 compares helpers inside one module. This angle searches the rest of the repository. For every new public function, module, component, hook, or query the diff adds:
+
+1. Take the core of what it does: the query it runs, the API it calls, the transformation it applies, the regex it matches.
+2. Grep the repository for that core, and for the name's stem (`format_currency` → `currency`, `format_money`, `to_money`). Include `lib/`, `src/`, shared packages, and utility directories.
+3. Read each hit.
+
+If an existing function already does the job, the new one is a Fix: call the existing one and delete the copy. If an existing function would do the job with one more parameter or option, it is a Flag naming that function and the extension. The artifact is the grep command and its hits; "no similar function exists" without the grep is not a disposition.
+
+## 5.16 Leftover code
+
+Grep the added lines for:
+
+- debug output: `IO.inspect`, `dbg(`, `IEx.pry`, `console.log`, `console.debug`, `debugger`, `print(`, `pp `, `puts `, `fmt.Println`, `binding.pry`
+- commented-out code: a comment whose body parses as code
+- focused tests: `.only(`, `fit(`, `fdescribe(`, `@tag :focus`, `@moduletag :focus`
+- `TODO`, `FIXME`, `XXX`, or `HACK` with no ticket reference
+
+A debug print is a Fix unless the surrounding file uses that call as its deliberate logging, which Pass 3 logging discipline then governs. Commented-out code is a Fix: delete it, since version control keeps it. A focused test is a Fix, because it silently skips the rest of the suite in CI. A `TODO` without a ticket is a Flag asking for one.
+
+## 5.17 Deprecated API calls
+
+Run the project's compiler or type checker over the touched files and read the warnings for the word "deprecated": `mix compile --force` for Elixir, `tsc --noEmit` for TypeScript, `python -W error::DeprecationWarning -m pytest <touched tests>` for Python. Where the project's linter has a deprecation rule (`@typescript-eslint/no-deprecated`), its output counts too.
+
+A deprecation warning on a line the diff added is a Fix: use the replacement the warning names. One on a line the diff only touched is a Flag. The artifact is the command and the warning text, or the command and its clean output.
+
+## 5.18 Readability
+
+Three shapes, each checked by pointing at the line:
+
+- **A name that needs its comment.** If a comment above a function or variable exists only to say what the name should have said, rename it and delete the comment.
+- **A wrapper that adds nothing.** A function whose whole body calls one other function with the same arguments, used in one place, is indirection a reader has to follow for no gain. Inline it.
+- **Mixed levels of abstraction.** A function that calls two high-level helpers and then does byte-level string slicing between them makes the reader switch levels mid-read. Extract the low-level part and name it.
+
+These go through the maintainability axis of the Yes-to-any gate. A prose disposition is enough, but it must cite the line.
+
+## 5.19 Project linter and formatter
+
+Find the repository's own lint and format checks: the task runner (`justfile`, `Makefile`, `package.json` scripts, `mix.exs` aliases), then CI config. Run them over the touched files, for example `mix format --check-formatted`, `mix credo`, `npx eslint <files>`, or `ruff check <files>`.
+
+A failure is a Fix. If the repository has no lint or format check, mark the angle `N/A` and say so. The artifact is the command and its output.
