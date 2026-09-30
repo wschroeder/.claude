@@ -35,6 +35,14 @@ rule for where Enter lands, and twenty-six other behaviours sat in a plan file
 across six slices, because a rule reading "correcting it is the operator's
 call" gave nobody a moment to make the call in.
 
+**Write only what the conversation has settled.** While the operator is still
+talking the design through, do not put into the design document a rule they
+never stated or an open question they never raised. Settle it with them
+first, and the text follows. Measured: a session wrote a rule of its own and
+two new open questions into the documents mid-design, and the operator
+replied, "Maybe we should finish designing our solution here before slapping
+around text like that?"
+
 **The line is literal code.** An implementation detail is a source file, a
 function, a test, a stylesheet value, a configuration key — the things that
 change when somebody refactors and the product does not. Everything else is the
@@ -248,7 +256,7 @@ system depends on is unavailable; what happens at the limits (empty, one,
 very many, concurrent); who is allowed to do it; and what is deliberately
 not being built.
 
-Each question gets one of three outcomes, and no fourth. Check the first
+Each question gets one of four outcomes, and no fifth. Check the first two
 before either of the others:
 
 - The slice's own scope — what the operator approved in Section 1 and what
@@ -257,6 +265,13 @@ before either of the others:
   a handoff listed "turning a battalion at deployment" among what the
   slice leaves out and, further down, asked the operator whether a
   battalion may turn at deployment.
+- It is a question of fact that the project can already answer: the
+  recorded data, the code, or the work done so far. Research it, and answer
+  it from what you found, quoted. Only a question about how the product
+  should behave goes to the operator. Measured: asked whether to check the
+  recorded page readings for a case, the operator replied, "things like that
+  aren't real open questions; you can research it based on what you've
+  already done."
 - The operator answers it, and the answer becomes a new source line in
   Section 2.
 - Nobody answers it, and it goes verbatim into the out-of-scope list in
