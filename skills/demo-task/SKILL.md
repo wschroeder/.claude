@@ -263,8 +263,18 @@ One record:
   operate it: $ <the exact command the operator runs to drive it themselves>
 ```
 
+Where the operator reaches the thing by clicking rather than by running a
+command, `operate it` is a numbered list of steps. Each step says where to
+click, what to check before, what to do, and what to check after.
+
 Rules:
 
+- **A bug your own driving finds means the demo is not ready.** Do not post
+  it. Send the work back to build, through `tdd-cycle`, and start again at
+  Section 2 once the fix is committed. Section 4's "do not start fixing
+  anything" covers what the operator finds, not what you find before they
+  see it. Measured: no build session in one run opened the app, and the
+  demo's own first drive found two bugs.
 - **The artifact comes from the thing the definition of released names, not
   from a stand-in for it.** Read what that definition points at and drive
   that: on one project it is a script on this machine, on another a local
