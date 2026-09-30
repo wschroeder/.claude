@@ -162,6 +162,11 @@ principle should name the concrete behavior, not a label for it
 (~/.claude/CLAUDE.md "Communication Style"). If the operator highlighted
 no principle this session, write `None` — do not invent one.
 
+**Carry the operator's definition of released here, word for word, whenever no
+project document holds it.** An operator working in a repository they do not
+own may keep it in the handoff on purpose, and `demo-task` and `spec-task`
+read it from there.
+
 **A directive that already rode the last handoff does not leave this list in
 silence.** For every directive this session inherited in the prompt it opened
 with, do one of three things and say in one line which: carry it forward here,

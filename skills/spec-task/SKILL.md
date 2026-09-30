@@ -147,7 +147,11 @@ this machine".
   it as settled, and do not ask. That sentence is the answer.
 - If a `project-definition-of-done` skill is listed in the available
   skills, load it and use what it says. Say that you did.
-- If neither exists, ask the operator with AskUserQuestion and quote the
+- If the handoff this session opened on quotes the operator's definition of
+  released, use it and say that it came from the handoff. An operator
+  working in a repository they do not own may keep it there on purpose,
+  and offering to record it in the project is then theirs to raise.
+- If none of these exists, ask the operator with AskUserQuestion and quote the
   answer as a source line in Section 2. Then offer to record it as that
   skill so the next initiative in this repository inherits it — make that
   offer in the same turn, not as something noted for later.

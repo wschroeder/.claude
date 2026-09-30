@@ -161,8 +161,11 @@ If `project-definition-of-done` appears in the available skills, load it
 here. A project that has one has written down what its released state
 actually is and what proving it takes, and Section 3 is built on that
 answer. If nothing is listed, use what the project's design documents or
-README record, quote it with its file and line, and go on. Stop only when
-neither exists, per the paragraph above.
+README record, quote it with its file and line, and go on. Failing those,
+use the definition the handoff this session opened on quotes from the
+operator, and say it came from the handoff: an operator in a repository they
+do not own may keep it there on purpose. Stop only when none of these
+exists, per the paragraph above.
 
 **Then check that there is a slice to close.** If the current slice has no
 closed bead and not one of its proof commands passes, the slice has not
