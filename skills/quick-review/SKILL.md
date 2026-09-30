@@ -441,7 +441,7 @@ Surviving candidates get one of three:
 
 ## Demonstrations (the artifacts behind the clean bills)
   One line per demonstrate-line class that was in scope: <class>: <what ran> → <result>
-  e.g. assertion-strength: commit a1b2c3d carries no 4a receipt for
+  e.g. assertion-strength: the card note carries no 4a receipt for
        auth_controller_test.exs:535 → FINDING
   e.g. authz-scope: ran district_search as teacher subject with foreign state_id
        → 0 rows returned → DEMONSTRATED clean
@@ -450,6 +450,8 @@ Surviving candidates get one of three:
 ## Coverage
   N candidates across 9 passes, M survived classification; K demonstrate-line classes in scope, all with artifacts above
 ```
+
+Print this output in the session, and carry the Requirement and Coverage lines into the handoff. They never go into a commit message, because `git-commit` keeps session measurements out of the body.
 
 ## Re-review and the fix loop
 

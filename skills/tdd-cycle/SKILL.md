@@ -132,7 +132,7 @@ clause "<clause>"  mutated <file>:<line>  <original expression> -> <mutated expr
   15 successes / 2 failures        caught
 ```
 
-"Assertions mutation-verified" is a summary, and a summary cannot be checked without redoing the work. Five beads in that same run closed carrying exactly that phrase; three of them do not survive checking. The receipt goes wherever the next reader looks — the commit message, the note on the card, or the handoff.
+"Assertions mutation-verified" is a summary, and a summary cannot be checked without redoing the work. Five beads in that same run closed carrying exactly that phrase; three of them do not survive checking. The receipt goes in the note on the card or the handoff, and never in the commit message: `git-commit` keeps session measurements out of the body, and it wins here.
 
 **4b. Scope.** You implemented exactly the ask — no drive-by refactors, no
 speculative abstractions, no unrelated cleanup. Every file in `git diff --stat` is
