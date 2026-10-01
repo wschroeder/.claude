@@ -283,6 +283,8 @@ without a single check, one of them to 374,944 tokens against a ceiling of
 170,000, and when it did stop it asked to hand off instead of doing it, then
 sat idle for two hours until the operator answered.
 
+**On `finish the step you are on`, finish the card in hand, commit it, write the handoff through `clear-task` yourself, and stop.** Do not start the next card.
+
 **On `keep going`, keep going.** The script has already compared your context
 to the ceiling, so there is no second estimate to make and no room to overrule
 it. In particular, do not price the next card at what this whole session has

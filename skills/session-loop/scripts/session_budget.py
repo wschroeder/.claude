@@ -943,8 +943,12 @@ def hit_session_limit(records: List[dict]) -> bool:
 
 # What writing the handoff itself costs, measured on the S5 muskets run: 15,372
 # through clear-task, 25,678 for the commit and clear-task together once the hook
-# had fired. It is printed beside the verdict and never moves the verdict: a
-# verdict that fires this much early teaches the session to stop that much early.
+# had fired. It never moves the hand-off verdict or its exit code: a verdict that
+# fires this much early teaches the session to stop that much early. Under it, the
+# line tells the session to finish its step and hand off rather than start
+# another. Measured: told "keep going; 8,818 of room", a session started a new
+# task and ended 11,571 over the ceiling; told "3,866 of room", another asked the
+# operator to run clear-task instead of writing the handoff itself.
 HANDOFF_ALLOWANCE = 20_000
 
 
@@ -1270,6 +1274,11 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
         "hand off: commit what you have with a subject saying it is unfinished, "
         "write the handoff through clear-task, and stop."
         if over else
+        "finish the step you are on, then write the handoff through clear-task "
+        "yourself and stop; do not start another. %s of room, and a handoff "
+        "through clear-task measured about %s"
+        % ("{:,}".format(room), "{:,}".format(HANDOFF_ALLOWANCE))
+        if room < HANDOFF_ALLOWANCE else
         "keep going; %s of room, and a handoff through clear-task measured about %s"
         % ("{:,}".format(room), "{:,}".format(HANDOFF_ALLOWANCE))
     )

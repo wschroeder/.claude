@@ -558,7 +558,7 @@ check "one session ran and then blocked" 0 "$status"
 # where the paragraph happened to wrap.
 PROMPT="$(tr '\n' ' ' < "$ROOT/last-prompt.txt" | tr -s ' ')"
 for phrase in "DO THE NEXT THING." "write HANDOFF.md through the clear-task skill" "BLOCKED: " "DONE" "do not invoke the" \
-              "session_budget.py" "--self" "hand off" "keep going"; do
+              "session_budget.py" "--self" "hand off" "keep going" "finish the step you are on"; do
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the child session is told: $phrase" 0 "$ok"
 done

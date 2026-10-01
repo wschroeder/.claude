@@ -221,6 +221,9 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 
 On `keep going`, carry on — report, and start the next run if there is one.
 
+On `finish the step you are on`, finish what is in hand, then hand off as below.
+Do not start another run.
+
 On `hand off`, stop. Do not launch another iteration, and do not start the next
 piece of work. Run the `clear-task` skill for the block to paste, not for
 `HANDOFF.md` — the driver rewrites that file every iteration for the workers,
@@ -339,10 +342,10 @@ It prints `<session>: turn N, context X of 170,000 — hand off` or `— keep go
 R of room, and a handoff through clear-task measured about C`, where C is
 `HANDOFF_ALLOWANCE` in `session_budget.py`. On `keep going`, carry on here;
 stopping earlier is not thrift, because the next session pays about 104,000
-tokens to read its way back to where you already are. The room and the handoff's
-cost are printed so the session knows what the handoff will take once the answer
-changes; they are not a second answer, and the answer does not move when the
-room falls under the cost.
+tokens to read its way back to where you already are. Once R falls under C, the
+line says `finish the step you are on` instead: finish it, write the handoff
+through `clear-task` yourself, and stop without starting another. The exit code
+stays 0 until the ceiling.
 
 On `hand off`, stop where you are. A piece of work does not have to be finished
 first: commit what you have with a subject saying it is unfinished, and write the

@@ -376,13 +376,23 @@ class SelfCheck(unittest.TestCase):
             "s-small: turn 1, context 30,000 of 200,000 — keep going; 170,000 of "
             "room, and a handoff through clear-task measured about 20,000")
 
-    def test_keep_going_holds_to_the_threshold_with_the_handoff_cost_beside_it(self):
-        # 15,000 of room is under the allowance, and the answer is still keep going.
+    def test_under_the_allowance_the_session_finishes_its_step_and_hands_off(self):
+        # Still under the ceiling, so the exit code a driver branches on is unchanged.
         self.write("s-late", 155_000)
         code, out, _ = self.run_check(threshold=170_000)
         self.assertEqual(code, 0)
-        self.assertIn("keep going; 15,000 of room, and a handoff through clear-task "
-                      "measured about 20,000", out)
+        self.assertEqual(
+            out.strip(),
+            "s-late: turn 1, context 155,000 of 170,000 — finish the step you "
+            "are on, then write the handoff through clear-task yourself and stop; "
+            "do not start another. 15,000 of room, and a handoff through "
+            "clear-task measured about 20,000")
+        self.assertNotIn("keep going", out)
+
+    def test_room_equal_to_the_allowance_is_still_keep_going(self):
+        self.write("s-edge", 150_000)
+        _, out, _ = self.run_check(threshold=170_000)
+        self.assertIn("keep going; 20,000 of room", out)
 
     def test_the_json_carries_the_room_and_the_allowance(self):
         self.write("s-late", 155_000)

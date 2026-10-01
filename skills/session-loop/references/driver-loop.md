@@ -257,9 +257,10 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 
 It prints `<session>: turn N, context X of Y — hand off` or `— keep going;
 R of room, and a handoff through clear-task measured about C`, where C is
-`HANDOFF_ALLOWANCE` in `session_budget.py`, and exits 3 when it is over. The
-room and the handoff's measured cost ride beside `keep going` as information,
-and never turn it into `hand off`. The session name is there because the lookup
+`HANDOFF_ALLOWANCE` in `session_budget.py`, and exits 3 when it is over. Once
+the room falls under C, `keep going` becomes `finish the step you are on, then
+write the handoff through clear-task yourself and stop; do not start another`,
+still with exit 0, and it never turns into `hand off` before the ceiling. The session name is there because the lookup
 can land on a neighbouring transcript, and an answer with no name on it gives
 the reader no way to notice that it did. Claude Code puts the running session's
 id in `CLAUDE_CODE_SESSION_ID` and names the transcript after it, so a session
