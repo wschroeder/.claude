@@ -41,9 +41,10 @@ new_fixture() {
   git -C "$REPO" config user.name Test
   echo "start" > "$REPO/file.txt"
   echo "Continue the work." > "$REPO/HANDOFF.md"
-  # Gitignored, the way the skill requires: the loop rewrites this file every
-  # iteration, and a tracked one would make every finished session look like
-  # unfinished work. Tracking it here would also let the dirty-tree check stand
+  # Ignored by git, the way the skill requires, through .gitignore here; the
+  # skill's other choice, .git/info/exclude, ignores it the same way. The loop
+  # rewrites this file every iteration, and a tracked one would make every
+  # finished session look like unfinished work. Tracking it here would also let the dirty-tree check stand
   # in for guards that have to hold on their own in real use.
   echo "/HANDOFF.md" > "$REPO/.gitignore"
   git -C "$REPO" add -A

@@ -167,6 +167,11 @@ project document holds it.** An operator working in a repository they do not
 own may keep it in the handoff on purpose, and `demo-task` and `spec-task`
 read it from there.
 
+**Carry the operator's answer on where git ignores `/HANDOFF.md` here, word
+for word, once `session-loop` step 2 has it.** Yes means `.gitignore`, no
+means `.git/info/exclude`. Every later handoff carries it too, so no session
+asks again.
+
 **A directive that already rode the last handoff does not leave this list in
 silence.** For every directive this session inherited in the prompt it opened
 with, do one of three things and say in one line which: carry it forward here,

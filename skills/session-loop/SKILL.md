@@ -44,28 +44,35 @@ ls -l HANDOFF.md 2>/dev/null && git check-ignore -v HANDOFF.md
 
 ### 2. No HANDOFF.md, or it is not gitignored
 
-Produce it here. `clear-task` writes the handoff, and `/HANDOFF.md` belongs
-in `.gitignore` so the loop's own rewrites do not read as unfinished work.
-Neither is a decision the operator makes, so do not stop to ask for either.
+Produce it here. `clear-task` writes the handoff, and git has to ignore
+`/HANDOFF.md` so the loop's own rewrites do not read as unfinished work.
+Where git ignores it is the operator's call: `.gitignore` changes the
+repository for everyone, and `.git/info/exclude` changes this clone only.
 
 **Step 3 goes first when the tree is dirty.** This step writes and commits,
 so run it on a clean tree or the handoff describes a repository that is
 already out of date. Where `git status --porcelain` returned anything, take
 step 3 now, and come back here once the tree is clean.
 
-In order, without stopping between them:
+In order:
 
-1. Run `clear-task`, telling it this is `session-loop` step 2 and the
-   repository has no handoff yet. Its §0 check resolves that to the file.
-   Do not name the artifact for it; §0 treats a form supplied in the
-   arguments as an input to check rather than as the answer.
-2. Where `/HANDOFF.md` is not already ignored, add that line to
-   `.gitignore` and commit it on its own. Committing carries the standing
-   permission in `git-commit`.
-3. Read the file back and confirm `git status --porcelain` comes back
+1. Where `/HANDOFF.md` is not already ignored, find the operator's answer.
+   A handoff that carries it, or a line in the session's opening prompt
+   that gives it, is the answer: follow it and do not ask again. Otherwise
+   ask once, yes or no, through AskUserQuestion: "Add /HANDOFF.md to
+   .gitignore? No puts it in .git/info/exclude, for this clone only."
+2. Run `clear-task`, telling it this is `session-loop` step 2, the
+   repository has no handoff yet, and the operator's answer from sub-step 1
+   word for word. Its §0 check resolves that to the file. Do not name the
+   artifact for it; §0 treats a form supplied in the arguments as an input
+   to check rather than as the answer.
+3. On yes, add `/HANDOFF.md` to `.gitignore` and commit that line on its
+   own. Committing carries the standing permission in `git-commit`. On no,
+   append `/HANDOFF.md` to `.git/info/exclude`, which commits nothing.
+4. Read the file back and confirm `git status --porcelain` comes back
    clean.
 
-**Then stop once, and this is the only stop this step makes.** Say the
+**Then stop once more, and this is the last stop this step makes.** Say the
 handoff is written, name its first next step, and ask the operator to
 `/clear` and invoke this skill again. The fresh session starts at step 1
 and everything in this step now passes, so it goes on to launch.
