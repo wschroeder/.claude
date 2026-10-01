@@ -1,6 +1,6 @@
 ---
 name: writing-code
-description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the review sequence the finished diff owes: quick-review always, security-review when the diff touches outside input, auth, the network, a shell, a query, a secret, or a dependency. Routes to the language-specific skill when one exists. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
+description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the review sequence the finished diff owes: quick-review always, security-review when the diff touches outside input, auth, the network, a shell, a query, a secret, or a dependency. Routes to the language-specific skill when one exists, and carries its own reference for PostgreSQL schema work: migrations, DDL, foreign keys, indexes, and COMMENT ON. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
 ---
 
 ## Purpose
@@ -14,6 +14,7 @@ governs what the code and its comments look like once the loop reaches Green.
 |----------|-------|----------------|
 | Elixir, Ecto, Phoenix | `elixir-development` | global |
 | CSS, HTML, any user interface that has to work at more than one width | `responsive-design` | global |
+| PostgreSQL schema: migrations, DDL, `COMMENT ON` | [references/sql-schema-postgres.md](references/sql-schema-postgres.md) | this skill's references |
 | Ecto migrations | `elixir-migrations`, `safe-migration` | one project only |
 | TypeScript, React | `quality-checks`, `eslint`, `security-review-fe` | one project only |
 
