@@ -75,6 +75,19 @@ and a reader that prefers the other copy shows stale data.
 
   An append-only audit log may keep the pair, because an audit record has to
   outlive the row it describes.
+- **When you replace the pair, drop it.** Do not keep `entity_type` and
+  `entity_id` as generated columns beside the per-target foreign keys so that
+  reads keep their old shape: the operator prefers real constraints to a generic
+  entity layer. Look rows up by the foreign key columns. If a rule says "once per
+  entity", such as a tag applied to a record at most once, then put a unique
+  constraint over the target columns that treats nulls as equal:
+
+  ```sql
+  constraint entity_tags_entity_unique
+    unique nulls not distinct (tag_id, client_id, loan_id)
+  ```
+
+  It also serves as the target of `on conflict (tag_id, client_id, loan_id)`.
 - **Reference a natural key with a composite foreign key.** When the parent
   already has a unique constraint on `(statement_id, section_key)`, a child's
   `foreign key (statement_id, section_key) references parent (statement_id,
