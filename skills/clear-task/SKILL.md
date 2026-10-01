@@ -256,9 +256,16 @@ that step still owes. Put that right after the operator's instruction above,
 owed work ahead of new work, in the words it used. Where nothing said, write
 that nothing did, and let the fresh chat find out rather than assume.
 
+**Where the session committed code or holds uncommitted code, walk what
+`writing-code` owes, whether or not a skill handed off.** Those items are
+`comment_share.py` with a disposition for every block it lists, `quick-review`,
+and `security-review` where `writing-code`'s list says the diff needs one. Record
+each as run, with the output it printed, or as "not run". Every "not run" becomes
+a numbered step right after the operator's instruction, ahead of new work.
+
 **Owed work belongs to the phase that owes it, and a finished phase files it in
-the backlog rather than handing it to the next session.** The paragraph above is
-for a step the next session is still inside. Where the phase that owed the work
+the backlog rather than handing it to the next session.** The two paragraphs above
+are for a step the next session is still inside. Where the phase that owed the work
 has ended — the build is over, the demo is given, the findings are signed off —
 create the card before you generate the prompt, and name that card here instead
 of writing the work in as a numbered step. A numbered step is the first thing the

@@ -187,23 +187,32 @@ an editor.
 
 ## Measure before declaring done
 
-Comment share of the lines you added, working tree:
+Before every commit, run this from the repository root:
 
 ```bash
-git diff -U0 | awk '/^\+/ && !/^\+\+\+/ { s=$0; sub(/^\+/,"",s); gsub(/^[ \t]+/,"",s); if (s=="") next; n++; if (s ~ /^(#|\/\/|--|\*|\/\*)/) c++ } END { printf "added non-blank lines %d, comment lines %d (%.0f%%)\n", n+0, c+0, (n?100*c/n:0) }'
+python3 ~/.claude/skills/writing-code/scripts/comment_share.py
 ```
 
-For a commit that already landed, swap `git diff -U0` for
-`git show --format='' -U0 <ref>`.
+It measures the lines each file added on the branch: commits since the merge
+base with origin's default branch, uncommitted changes, and untracked files.
+`--base <ref>` measures from another ref. It prints each file's comment share,
+then every added comment block with its first line. It skips prose files, and it
+does not count `COMMENT ON` text, which is catalog data a person reads in the
+database, not a comment on the code.
 
-**Above 10%, run the deletion test over every comment in the diff and re-measure.**
-The 10% comes from the one-comment-per-paragraph rule above, not from research: a
-paragraph of eight to twelve lines carrying one comment line lands near it. It is a
-trigger for a second look, not a hard cap — a diff that is genuinely one tricky
-function with one paragraph of justification can sit above it and say so.
+**Every listed block gets "keep" with the non-obvious why it explains, or
+"delete".** That is the deletion test above, run on each block, whatever the
+share. Delete what fails, then run the script again.
 
-Report the number when you report the change. A measurement nobody prints is a
-measurement nobody makes.
+**Above 10% in any one file, read that file's blocks a second time.** The share
+counts only the lines that file added on the branch, never the whole file. The
+10% comes from the one-comment-per-paragraph rule above, not from research: a
+paragraph of eight to twelve lines carrying one comment line lands near it. A
+file that is genuinely one tricky function with one paragraph of justification
+can sit above it and say so.
+
+Report the per-file numbers and each block's disposition when you report the
+change. A measurement nobody prints is a measurement nobody makes.
 
 ## After the edit: the review sequence is owed
 

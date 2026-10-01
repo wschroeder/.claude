@@ -321,7 +321,10 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
   6.3   Name-vs-body check               validate_*/verify_*/ensure_* perform action
   6.4   PR/commit-message-vs-diff check  claimed enforcement is present
   6.5   Distant-doc symbol drift         deleted symbol still named in distant docs/
+  6.6   Deletion test, every block       each listed comment block: keep plus its why, or delete
 ```
+
+For 6.6, run `python3 ~/.claude/skills/writing-code/scripts/comment_share.py` over Pass 0's scope; with no `--base` it already measures from the merge base, uncommitted and untracked work included. Paste its per-file lines. Give every block it lists "keep" with the non-obvious why it explains, or "delete", and read a file over 10% twice. The bill is not clean while any block lacks a disposition. `writing-code` "Measure before declaring done" owns the rule.
 
 Comment/code drift is how `hypothesis:` creeps into production code. Treat every comment in the diff as a testable assertion about the body below it.
 
