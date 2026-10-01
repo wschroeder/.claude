@@ -391,6 +391,26 @@ DONE_OVERRIDES=0
 MAX_SAME_FILE_FINDINGS=3
 LATCHED_PATHS=""
 LATCH_COUNT=0
+# Stops the run when the first line of the handoff is BLOCKED, naming the
+# reviewer's findings that no session will now be handed, and any work the
+# blocking session left uncommitted. Also read after a session that moved no
+# tree: git ignores the handoff, so a session that only writes the question
+# looks exactly like one that changed nothing.
+stop_if_blocked() {
+  head -n 1 "$HANDOFF_PATH" | grep -q '^BLOCKED:' || return 0
+  printf 'stopping: the handoff is blocked.\n  %s\n' "$(head -n 1 "$HANDOFF_PATH")"
+  if [ -n "$PENDING_FINDINGS" ]; then
+    printf 'the reviewer found something in the last commit that no session has acted on:\n  %s\n' \
+      "$FINDINGS_IN"
+  fi
+  LEFTOVER="$(git -C "$REPO" status --porcelain)"
+  if [ -n "$LEFTOVER" ]; then
+    printf 'it also left work uncommitted, which needs a person before anything else runs:\n%s\n' "$LEFTOVER"
+    exit 1
+  fi
+  exit 0
+}
+
 # Seconds until the usage limit a run summary names resets, on stdout. Exit 1
 # when the summary is not a usage limit; exit 2, with the limit's own words on
 # stdout, when its reset time cannot be read. Read whatever claude's exit status
@@ -467,10 +487,7 @@ while :; do
   [ -s "$HANDOFF_PATH" ] || die "handoff file is missing or empty: $HANDOFF_PATH
        The last session was supposed to rewrite it and left nothing behind."
 
-  if head -n 1 "$HANDOFF_PATH" | grep -q '^BLOCKED:'; then
-    printf 'stopping: the handoff is blocked.\n  %s\n' "$(head -n 1 "$HANDOFF_PATH")"
-    exit 0
-  fi
+  stop_if_blocked
 
   # A finished project is a clean stop, not a failure. Without this a session
   # that has done everything changes nothing, and the tree-moved check below
@@ -634,6 +651,7 @@ SUMMARY
 
   TREE_AFTER="$(git -C "$REPO" rev-parse 'HEAD^{tree}')"
   if [ "$TREE_BEFORE" = "$TREE_AFTER" ]; then
+    stop_if_blocked
     printf 'stopping: the session changed nothing, so the next one would start from the same place.\n'
     LEFTOVER="$(git -C "$REPO" status --porcelain)"
     if [ -n "$LEFTOVER" ]; then

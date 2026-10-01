@@ -168,6 +168,25 @@ case "${STUB_MODE:-commit}" in
       GIT_COMMITTER_DATE="2026-08-16T12:0$n:00" git commit -q --amend --no-edit
     fi
     ;;
+  blockednocommit)
+    # Raises a question and commits nothing, because it had nothing to commit:
+    # the handoff is gitignored, so writing BLOCKED leaves the tree unchanged.
+    printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
+    ;;
+  committhenblock)
+    # Commits a unit of work, then on the next call raises a question with
+    # nothing to commit, so the reviewer's findings on the first commit are
+    # still waiting when the run stops.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -eq 1 ]; then
+      echo "$RANDOM" >> file.txt
+      echo "Continue the work, again." > HANDOFF.md
+      git add -A && git commit -qm "stub: unit $n"
+    else
+      printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
+    fi
+    ;;
   blockeddirty)
     # Raises a question without committing the work it was in the middle of —
     # what a session does if it takes "stop where you are" to mean stopping
@@ -365,20 +384,70 @@ case "$(cat "$ROOT/out.txt")" in *"iteration 2"*) ok=1 ;; *) ok=0 ;; esac
 check "the rewrite is caught on the first iteration, not the second" 0 "$ok"
 drop_fixture
 
-# --- a question raised without committing the work is never read, which is why
-#     the contract tells a blocked session to commit first. The driver reads the
-#     first line of the handoff at the start of an iteration, so a BLOCKED line
-#     written during one is not seen until the next — and the did-anything-change
-#     test gets there first. Pinned because the contract now makes this promise
-#     to every session, and it holds only while the checks stay in this order. ---
+# --- a session that raises a question with nothing to commit is blocked, not
+#     stalled. The handoff is gitignored, so writing BLOCKED moves no tree, and a
+#     driver that compares trees before it reads the handoff calls the question
+#     "changed nothing" and exits 1. Measured on the first launch of a real run.
+new_fixture
+export STUB_MODE=blockednocommit
+status="$(run_loop)"
+check "blocking with nothing to commit exits 0" 0 "$status"
+grep -q "stopping: the handoff is blocked" "$ROOT/out.txt"
+check "blocking with nothing to commit is reported as blocked" 0 $?
+grep -q "changed nothing" "$ROOT/out.txt"
+check "blocking with nothing to commit is not reported as a stall" 1 $?
+drop_fixture
+
+# --- a question raised with the work left uncommitted is still printed, and the
+#     uncommitted work is named beside it, because both need a person ---
 new_fixture
 export STUB_MODE=blockeddirty
 status="$(run_loop)"
-check "blocking without committing exits 1, not 0" 1 "$status"
+check "blocking with work left uncommitted exits 1" 1 "$status"
 grep -q "pick a colour" "$ROOT/out.txt"
-check "the operator's question is never printed" 1 $?
-grep -q "changed nothing" "$ROOT/out.txt"
-check "what is reported instead is a session that changed nothing" 0 $?
+check "the operator's question is printed" 0 $?
+grep -q "left work uncommitted" "$ROOT/out.txt"
+check "the uncommitted work is reported beside the question" 0 $?
+drop_fixture
+
+# --- a blocked stop names the findings nobody has acted on yet ---
+#
+# The reviewer reads the blocking session's last commit, and the next session
+# that would have been handed its findings never runs. Without the path printed
+# here, the findings sit unread in the logs directory.
+new_fixture
+export STUB_MODE=runs
+export STUB_RUNS=1
+export STUB_VERDICT="FAIL
+- file.txt:1 — the widget count is off by one"
+mkdir -p "$ROOT/logs"
+status="$(run_loop --logs "$ROOT/logs")"
+check "a blocked stop with findings pending exits 0" 0 "$status"
+FINDINGS_NAME="$(basename "$(ls "$ROOT/logs"/findings-*.md 2>/dev/null | tail -n 1)")"
+# Read after the stop line only: the path is also printed when the reviewer
+# first reports, which says nothing about whether the stop names it.
+STOP_TEXT="$(sed -n '/stopping: the handoff is blocked/,$p' "$ROOT/out.txt")"
+case "$STOP_TEXT" in *"$FINDINGS_NAME"*) ok=0 ;; *) ok=1 ;; esac
+check "a blocked stop names the findings file still pending" 0 "$ok"
+unset STUB_RUNS STUB_VERDICT
+drop_fixture
+
+# The same, when the blocking session had nothing to commit: the findings are
+# the previous session's, still pending.
+new_fixture
+export STUB_MODE=committhenblock
+export STUB_VERDICT="FAIL
+- file.txt:1 — the widget count is off by one"
+mkdir -p "$ROOT/logs"
+status="$(run_loop --logs "$ROOT/logs")"
+check "a blocked stop with nothing committed and findings pending exits 0" 0 "$status"
+FINDINGS_NAME="$(basename "$(ls "$ROOT/logs"/findings-*.md 2>/dev/null | tail -n 1)")"
+# Read after the stop line only: the path is also printed when the reviewer
+# first reports, which says nothing about whether the stop names it.
+STOP_TEXT="$(sed -n '/stopping: the handoff is blocked/,$p' "$ROOT/out.txt")"
+case "$STOP_TEXT" in *"$FINDINGS_NAME"*) ok=0 ;; *) ok=1 ;; esac
+check "a blocked stop with nothing committed names the pending findings file" 0 "$ok"
+unset STUB_VERDICT
 drop_fixture
 
 # --- work left half-applied stops the loop before it starts another session ---

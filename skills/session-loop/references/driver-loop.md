@@ -39,7 +39,8 @@ something.
    rewrite it and left nothing behind. Because the handoff is gitignored, this
    does not show up as a dirty tree.
 2. Stop if the handoff's first line begins `BLOCKED:` (a decision the operator
-   has to make) or `DONE` (the work is complete).
+   has to make) or `DONE` (the work is complete). A blocked stop prints the
+   path of any reviewer findings no session has been handed yet.
 3. Stop if the working tree is dirty — that means the previous session did
    not finish, and a fresh one would build on half-applied work.
 4. Note the current tree hash.
@@ -49,9 +50,11 @@ something.
    any reason other than finishing. The exception is the usage limit: the
    summary names when it resets, so the driver sleeps until then and runs the
    same iteration once more before it would stop.
-7. Stop if the tree hash did not move. A session that changed nothing would
-   hand the next one the same starting position, and the loop would spin. The
-   tree rather than the commit id, because a session may amend the unfinished
+7. Stop if the tree hash did not move, as a blocked stop if the handoff now
+   begins `BLOCKED:` and as a failure otherwise. A session that only writes
+   the question moves no tree, because the handoff is ignored by git. A
+   session that changed nothing would hand the next one the same starting
+   position, and the loop would spin. The tree rather than the commit id, because a session may amend the unfinished
    commit it was handed, and an amend that touches no file still produces a new
    commit id as soon as it lands a second later than the commit it replaces.
 8. Otherwise loop, and the handoff the session just rewrote becomes the next
