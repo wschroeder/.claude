@@ -224,6 +224,11 @@ and `security-review` where `writing-code`'s list says the diff needs one. Recor
 each as run, with the output it printed, or as "not run". Every "not run" becomes
 a numbered step right after the operator's instruction, ahead of new work.
 
+**Where the steps finish the slice's last task, the last step is "load `demo-task`
+and run it for the slice".** The session that takes them may never load `tdd-cycle`,
+whose step 4d is the only other hand to the demo. Measured: a handoff ended at the
+commit, and the next session called the slice released without a demo.
+
 **Owed work belongs to the phase that owes it, and a finished phase files it in
 the backlog rather than handing it to the next session.** The two paragraphs above
 are for a step the next session is still inside. Where the phase that owed the work

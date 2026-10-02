@@ -175,7 +175,9 @@ regression, whether a test reaches the branch it names, empty-value semantics â€
 of twice. How the code and its logs are written is `writing-code`.
 
 **4d. The slice, when the card you just moved was its last.** Run `bd ready`
-and `bd list --label slice:S<n> --status open`. When the slice's lane comes
+and `bd list --label slice:S<n> --status open`. Where there is no `.beads` and
+the tasks live in the handoff, read its task list instead: every task done is
+the same empty lane. When the slice's lane comes
 back empty, **the slice is built and this loop is over â€” hand to
 `demo-task`.** It runs every proof command, builds the demo the
 operator operates themselves, and takes their feedback; none of that is
@@ -268,9 +270,15 @@ end
 
 And so on...
 
-## After each card closes, read your own room
+## After each task, read your own room
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
+
+Run it each time a card or a handoff task passes its proof, and after every
+commit, before you start the next one. A card this loop builds never closes, and
+where the tasks live in the handoff nothing moves at all. Measured: two build
+sessions finished eight handoff tasks, with no commit, without one check and
+crossed the ceiling unwarned, until the hook stopped them at 170,788 and 173,797.
 
 Past the ceiling it reports, hand off rather than starting the next card:
 write the handoff through `clear-task` and say you have, in the same turn.
