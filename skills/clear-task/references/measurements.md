@@ -106,6 +106,13 @@ Across 183 runs of this skill, 59 of the 64 sessions a driver launched wrote the
 file, against 19 of the 119 interactive ones. Five runs wrote it and then
 deleted it again.
 
+The branch for a stated preference exists because, before it, the last branch
+sent every interactive session to the operator. On 2026-10-02, eight handoffs
+written between 08:22 and 09:46 each quoted "We should use session-loop when
+possible." and still opened "reader: the operator", until the operator
+interrupted: "I interrupted because we have done a lot of clear-task, and it
+seems like that ought to be in a session-loop instead."
+
 ## §2 — why a re-run costs so much here
 
 This skill fires at the fullest point of a session: measured at a median of

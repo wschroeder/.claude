@@ -280,7 +280,11 @@ before either of the others:
   aren't real open questions; you can research it based on what you've
   already done."
 - The operator answers it, and the answer becomes a new source line in
-  Section 2.
+  Section 2. The question you ask them quotes every fact you already found
+  that bears on it, so they never have to ask you for it. Measured: a session
+  found "firm names are free text today", then asked the operator a question
+  that left the fact out, and they replied, "We currently don't track firms at
+  all, right?"
 - Nobody answers it, and it goes verbatim into the out-of-scope list in
   Section 5.
 

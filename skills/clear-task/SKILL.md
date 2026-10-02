@@ -28,6 +28,10 @@ Read the prompt this session opened with:
   through this skill. A worker reads this next, and the artifact is the file.
 - `session-loop` step 2 is seeding a repository that holds no handoff yet, or
   the operator asked for the file in their own words. A worker reads this next.
+- The operator has said they prefer `session-loop`, in this session or in the
+  prompt it opened with, and the next steps need no answer from them. Ask with
+  AskUserQuestion whether to hand to the loop. If they say yes, a worker reads
+  this next.
 - Anything else, the operator included. The artifact is the block.
 
 Then write one line naming the reader and what settled it:
