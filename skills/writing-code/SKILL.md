@@ -221,14 +221,18 @@ Any code change — regardless of how small, how confident, or how many prior
 changes in the session were approved — owes a review sequence before the commit
 decision arises:
 
-0. If the change reaches something a person sees or clicks, run it the way
-   the project runs locally, such as its dev server, and use it the way a
-   person would: open the page, click, type, and read what comes back. Do
-   this before the reviews, and fix what it finds first. If `project-drive`
+0. If the change reaches something a person sees, clicks, or plays, run it
+   the way the project runs locally — a dev server, a scene in the game
+   engine's editor, a desktop build, a terminal app — and use it the way a
+   person would: open it, click, type, play, and watch what comes back. Do
+   this after every change you can see, not only once, and again before the
+   reviews; fix what it finds first. If `project-drive`
    appears in the available skills, load it for how to send this product
    real input. If nothing is listed, work it out and say in one line what
    you did. Measured: no build session in one run started the app, and the
-   demo's first drive found two bugs.
+   demo's first drive found two bugs. Measured again on the next run: four
+   build sessions reached the reviews, none started the app, and the demo's
+   first drive found a refusal that showed nothing on the page.
 1. `quick-review` against the change.
 2. `security-review` against the change, when the diff touches any of these:
    input from outside the program (a request, a file, the clipboard, a message,

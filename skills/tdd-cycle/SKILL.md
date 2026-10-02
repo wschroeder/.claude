@@ -228,11 +228,11 @@ When activated:
 3. **Name the interface, then write one test**: say which public function or module the assertion attaches to, then create a focused test anchored to the probe output for that specific functionality
 4. **Run it (should fail)**: Verify the test fails as expected (Red is the result, not a phase you start in)
 5. **Implement minimum code**: Write just enough to pass
-6. **Run it (should pass)**: Verify it works
+6. **Run it (should pass)**: Verify it works. Where the change reaches something a person sees or plays — a web page, a game scene, a desktop window, a terminal screen — run that thing too and use it by hand, then look at what changed before the next test. Keep that loop tight: every green, not once at the end. `writing-code` step 0 says how
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
 8. **Self-Review**: Close the Step 4 gates — a mutation for each clause of each criterion, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
-10. **Run the review sequence**: once the feature is done, run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
+10. **Run the review sequence**: once the feature is done, use the running thing by hand one last time (`writing-code` step 0), then run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 
 ## Example Flow
 
