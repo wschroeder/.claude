@@ -49,7 +49,7 @@ everywhere.
 
 **NEVER include AI attributions** - no "Co-Authored-By: Claude", no "Generated with Claude Code", no "via Happy", nothing. Clean commits only.
 
-**NEVER reference a bd (beads) card in a commit message** — not its id, not in the subject, not in the body, not in a trailer. A card lives in this machine's tracker and nobody reading the history can look it up. The card's note names the commit instead. A Jira key or a PR number is not a card, and stays welcome.
+**NEVER reference a bd (beads) card in a commit message** — not its id, not in the subject, not in the body, not in a trailer. Beads are for developers; the card's note names the commit instead. An external issue (a Jira key, a GitHub issue) is how the history talks to everyone else, so when one tracks the work, name it, placed the way the repository's log already does: a subject prefix such as `MBG-6:` or a closing `Jira: MBG-6` line.
 
 ## Body Content
 
