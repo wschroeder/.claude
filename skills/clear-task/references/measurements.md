@@ -14,6 +14,7 @@ the argument where no single run did, for a reader who disputes one.
 - §11 — the operator's last words
 - §12 — a coined term, and sections that point at the block
 - Stop — a written handoff is not a stop signal
+- Stop — `HANDOFF.md` is replaced, not appended to
 - Stop — the forced turn after writing `HANDOFF.md`
 
 ## The template's shape
@@ -115,6 +116,10 @@ seems like that ought to be in a session-loop instead."
 
 ## §2 — why a re-run costs so much here
 
+§8's first step is what protects the reader from a stale reading, and it also
+catches a fabricated "done", since the fresh chat's own `git log` shows the
+commit is absent.
+
 This skill fires at the fullest point of a session: measured at a median of
 187,000 tokens of context already loaded, where one more turn re-reads all of
 it. The turns beyond the first account for 61% of what this skill costs.
@@ -139,6 +144,17 @@ mention them, and the commit is still in the log. Nobody undid it, and nobody
 told the operator it had not been undone.
 
 ## §8 — a stage declared over, owed work, and an unchecked capability
+
+A handoff cannot declare a stage finished because the template sees one
+session, not the checklist the work is running against. The paragraphs on
+`writing-code`'s owed items and on a skill that handed off cover a step the
+next session is still inside; owed work from a phase that has ended goes to the
+backlog instead.
+
+The last step names `demo-task` because the session that takes the steps may
+never load `tdd-cycle`, whose step 4d is the only other hand to the demo.
+Measured: a handoff ended at the commit, and the next session called the slice
+released without a demo.
 
 A handoff written five minutes after the operator asked for research before
 the current stage ended opened its next steps with "the demo is over and its
@@ -221,9 +237,20 @@ The handoff from session `e3b5deb5` reduced §6 through §11 to pointers such as
 
 ## Stop — a written handoff is not a stop signal
 
+The stop in the body is the template's, and it says only that the template does
+not start the next steps on its own.
+
 A supervising session at about 157,000 of 170,000 declined to open a signoff
 gate at 10:46 because it had written its handoff, and the operator overrode it
 at 13:32.
+
+## Stop — `HANDOFF.md` is replaced, not appended to
+
+On 2026-10-02 the `HANDOFF.md` in `mbc-brokeragecollateral-mbg-205` was 66,727
+bytes, with the status lines, tasks, and requirements of slices S1, S2, and S3
+stacked in it after the operator had accepted the first two. Git and the spec
+already held all of that. The working rules and the operator's standing
+decisions were the part a fresh worker still needed.
 
 ## Stop — the forced turn after writing `HANDOFF.md`
 

@@ -68,9 +68,7 @@ Where this session never ran the command, say that instead of filling the gap
 in. "No `git status` since the commit at f30be46" is a fact the fresh chat can
 act on; an invented status line is not.
 
-**Do not re-run anything to fill this section in.** §8's first step is what
-protects the reader, and it also catches a fabricated "done", since the fresh
-chat's own `git log` shows the commit is absent.
+**Do not re-run anything to fill this section in.**
 
 Every "completed work" claim in §3 reconciles against this section. A "done"
 claim with no command output behind it is labelled unverified rather than
@@ -210,8 +208,7 @@ their question becomes the next session's subject, ahead of any objective an
 earlier handoff carried. Do not write that the question is already answered. Do
 not turn a "not yet" or "hold off" inside it into a deferral either: quote it.
 
-**Nothing here declares a stage of the work finished.** This template sees one
-session, not the checklist the work is running against.
+**Nothing here declares a stage of the work finished.**
 
 A step that builds something the operator approved points to that decision in
 §4, or to the file that holds it, and does not restate it.
@@ -229,16 +226,13 @@ each as run, with the output it printed, or as "not run". Every "not run" become
 a numbered step right after the operator's instruction, ahead of new work.
 
 **Where the steps finish the slice's last task, the last step is "load `demo-task`
-and run it for the slice".** The session that takes them may never load `tdd-cycle`,
-whose step 4d is the only other hand to the demo. Measured: a handoff ended at the
-commit, and the next session called the slice released without a demo.
+and run it for the slice".**
 
 **Owed work belongs to the phase that owes it, and a finished phase files it in
-the backlog rather than handing it to the next session.** The two paragraphs above
-are for a step the next session is still inside. Where the phase that owed the work
-has ended — the build is over, the demo is given, the findings are signed off —
-create the card before you generate the prompt, and name that card here instead
-of writing the work in as a numbered step.
+the backlog rather than handing it to the next session.** Where the phase that
+owed the work has ended — the build is over, the demo is given, the findings
+are signed off — create the card before you generate the prompt, and name that
+card here instead of writing the work in as a numbered step.
 
 **And no sentence says what the product can do unless a command showed it.**
 Every capability sentence carries the command that demonstrated it and what
@@ -299,9 +293,7 @@ If they wrote three paragraphs, all three go here.
 
 **Words the operator typed after `/clear-task` are that final turn.** Where the
 line that invoked this skill carries text after the command, quote that text,
-not the turn before it. Operators use those words to say what the next session
-does first, as in "and we'll discuss how we can wrap this up" or "wait for me
-to give my feedback", and §8's first step carries it out. Where the invocation
+not the turn before it, and make it §8's first step. Where the invocation
 carries no text, the final turn is the one before it.
 
 Quote it even where §5 and §8 already carry what it said.
@@ -449,17 +441,21 @@ NOT begin executing the next steps, and does NOT write the prompt to a file
 unless §0 settled that a worker reads it next, or the operator explicitly
 asks. The operator copies the block and starts the new chat.
 
-**A written handoff is a document, not a stop signal.** The stop above is the
-template's, and it says only that the template does not start the next steps on
-its own. When a session has written its handoff and is still under the ceiling,
-it has not lost the right to keep working if the operator asks it to; it
-rewrites the prompt when it does stop.
+**A written handoff is a document, not a stop signal.** When a session has
+written its handoff and is still under the ceiling, it has not lost the right
+to keep working if the operator asks it to; it rewrites the prompt when it
+does stop.
 
 **Where §0 settled on a worker, the artifact is that file.** Print no block
 beside it. Write §1-§11 exactly as always, then write the assembled prompt to
 `HANDOFF.md`, and report the path and its line count in place of printing the
 block. Everything else holds: considerations first, one artifact, nothing after
 it.
+
+**Writing `HANDOFF.md` replaces the whole file, and never appends to it.** Once
+the operator has accepted a slice, carry its working rules and the operator's
+standing decisions into the new file. Leave out that slice's status lines,
+tasks, and requirements, because git and the spec already hold them.
 
 **Writing the file costs exactly one more turn, and that turn is the whole
 report.** It carries the path and the line count and nothing else: no recap
