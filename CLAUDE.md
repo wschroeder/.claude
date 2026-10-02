@@ -193,12 +193,24 @@ When the sentence already carries two or three commas, deleting one more is rare
 - BAD:  "If the model's first paragraph states something false, the model writes the rest of the answer to fit that claim, and usually goes on citing it as though someone had checked it."
 - GOOD: "If the model's first paragraph states something false, the model writes the rest of the answer to fit that claim. It usually goes on citing the claim as though someone had checked it."
 
-A subordinate clause that leads takes a comma after it. The same clause trailing takes none, so do not reach for a comma just because the sentence feels long. A negative main clause does not change that: if the reader can only take the trailing clause as the reason, then the comma buys nothing and costs a mark the sentence has to spend elsewhere.
+A subordinate clause that leads takes a comma after it. The same clause trailing takes none. A sentence that feels long is never a reason to add one.
 
 - GOOD: "Once the evidence is on the page, an unsupported claim has nowhere to sit."
 - BAD:  "An unsupported claim has nowhere to sit, once the evidence is on the page."
 - GOOD: "An unsupported claim has nowhere to sit once the evidence is on the page."
-- GOOD: "You cannot give a model more thinking per token because a transformer runs the same fixed stack of layers for every token it produces."
+
+A trailing "because" follows that rule, and so does a "since" that gives a reason. Before you put a comma in front of either, read the main clause and ask whether it is negative. If it is affirmative, then leave the comma out, however long the sentence runs.
+
+- BAD:  "The PR still says changes requested, because that is your last review on it."
+- GOOD: "The PR still says changes requested because that is your last review on it."
+
+If the main clause is negative, then ask whether a reader could take the reason as part of what is denied. "He didn't run because he was afraid" can mean he ran for some other reason. Where that misreading is possible, the comma is required: it puts the reason outside the negation. Where it is not possible, leave the comma out even after a negative.
+
+- BAD:  "I haven't approved it because approving is your decision." — it can read as "I approved it, but not for that reason".
+- GOOD: "I haven't approved it, because approving is your decision."
+- GOOD: "You cannot give a model more thinking per token because a transformer runs the same fixed stack of layers for every token it produces." — nobody reads the reason as the thing denied.
+
+A "since" that marks time never takes a comma: "the build has failed since the lockfile changed". If a reader could take a "since" as time when you meant a reason, then write "because" instead.
 
 ### A follow-on sentence takes a colon, not a full stop
 
