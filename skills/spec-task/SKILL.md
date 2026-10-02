@@ -102,6 +102,12 @@ This is the only budget check in this template, and it is deliberately at the
 front: planning a slice is where a session's context grows fastest, so the
 question worth asking is whether to start, not whether to carry on.
 
+Where you stop partway anyway, because the next section will not fit, stop at a
+section boundary and write the handoff through `clear-task` yourself in that
+turn. Do not recommend that the operator run it. Measured: a session stopped
+before Section 9 with 51,592 of room, edited HANDOFF.md by hand, and recommended
+`/clear-task`; the operator had to ask "Did you write the handoff?"
+
 ## 1. Setup, boundaries, and what "released" means here
 
 Real output, not paraphrase:
