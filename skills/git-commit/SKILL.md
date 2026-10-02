@@ -49,6 +49,8 @@ everywhere.
 
 **NEVER include AI attributions** - no "Co-Authored-By: Claude", no "Generated with Claude Code", no "via Happy", nothing. Clean commits only.
 
+**NEVER reference a bd (beads) card in a commit message** — not its id, not in the subject, not in the body, not in a trailer. A card lives in this machine's tracker and nobody reading the history can look it up. The card's note names the commit instead. A Jira key or a PR number is not a card, and stays welcome.
+
 ## Body Content
 
 **The body records what the diff cannot show.** Most commits need only the

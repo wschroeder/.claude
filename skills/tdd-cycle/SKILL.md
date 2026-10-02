@@ -143,10 +143,10 @@ the ask: a one-line bug does not carry a 200-line diff.
 
 **4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit first, and name the issue in the subject. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change:
+Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change:
 
 ```
-$ git commit -m "<id>: <what changed>"
+$ git commit -m "<what changed>"
 $ bd update <id> --status demoable
 $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
