@@ -330,6 +330,10 @@ class SelfCheck(unittest.TestCase):
         self.dir = tempfile.mkdtemp()
         self.addCleanup(shutil.rmtree, self.dir, True)
         self.addCleanup(os.environ.pop, "CLAUDE_CODE_SESSION_ID", None)
+        # The id lookup searches every project, so keep it out of the real one.
+        patcher = mock.patch.object(sb, "PROJECTS_ROOT", self.dir)
+        patcher.start()
+        self.addCleanup(patcher.stop)
 
     def write(self, session_id, context):
         path = os.path.join(self.dir, session_id + ".jsonl")
@@ -452,6 +456,21 @@ class SelfCheck(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual(out.getvalue(), "")
         self.assertIn("no transcript", err.getvalue())
+
+    def test_a_session_run_from_a_subdirectory_finds_its_own_transcript_by_id(self):
+        # A worker that cd'd into app/ has a cwd whose slug names no
+        # transcript directory, but its id still names exactly one file.
+        root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, root, True)
+        os.makedirs(os.path.join(root, "-repo"))
+        with open(os.path.join(root, "-repo", "s-mine.jsonl"), "w") as fh:
+            fh.write(json.dumps(assistant("2026-08-10T00:00:00Z", cr=30_000)) + "\n")
+        os.environ["CLAUDE_CODE_SESSION_ID"] = "s-mine"
+        with mock.patch.object(sb, "PROJECTS_ROOT", root):
+            code, out, err = self.run_check()
+        self.assertEqual(code, 0)
+        self.assertIn("s-mine", out)
+        self.assertEqual(err, "")
 
     def test_an_id_that_names_no_file_says_so_rather_than_answering_silently(self):
         # Falling back without a word is how a worker ends up acting on some

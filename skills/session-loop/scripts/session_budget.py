@@ -897,6 +897,19 @@ def spend_report(
     return report
 
 
+def transcript_by_session_id() -> Optional[str]:
+    """The running session's transcript, wherever its project directory is.
+
+    The id names one file across every project, so a session whose cwd has
+    moved into a subdirectory still finds itself.
+    """
+    session_id = os.environ.get("CLAUDE_CODE_SESSION_ID")
+    if not session_id:
+        return None
+    matches = glob.glob(os.path.join(PROJECTS_ROOT, "*", session_id + ".jsonl"))
+    return matches[0] if len(matches) == 1 else None
+
+
 def current_session_path(project_dir: str) -> Optional[str]:
     """The transcript of the session asking the question.
 
@@ -1256,7 +1269,7 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
     Exits 3 when the session is past the point where continuing costs more than
     starting fresh would, so a script can branch on it.
     """
-    path = current_session_path(transcript_dir(project))
+    path = transcript_by_session_id() or current_session_path(transcript_dir(project))
     if path is None:
         sys.stderr.write("no transcript found for the current session\n")
         return 1
