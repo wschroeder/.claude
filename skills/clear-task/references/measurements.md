@@ -4,6 +4,7 @@ The skill body states each rule. This file holds the run that prompted it, and
 the argument where no single run did, for a reader who disputes one.
 
 - The template's shape
+- The reason behind each rule, section by section
 - §0 — the opening prompt settles the reader, not `pgrep`
 - §2 — why a re-run costs so much here
 - §4 — an approved decision shrinks when a next step restates it
@@ -33,6 +34,62 @@ document for a runtime claim (`~/.claude/CLAUDE.md` rule 11).
 A worker gets the file and no block beside it because the driver hands the file
 to every fresh session and nobody copies anything. A printed block would be a
 second copy going stale from the moment it appeared.
+
+## The reason behind each rule, section by section
+
+- §0: a worker has no other way to receive a prompt, so it gets the file; the
+  operator copies a block, so they get the block. `pgrep` asks whether any
+  driver is alive anywhere on the machine, and the question is whether a
+  worker is waiting on *this* session's handoff.
+- §1: a handoff that named MBG-108 where the task was MBG-106 sent the next
+  session to the wrong card. "Mentioned, not ours" stops the next session
+  mistaking a neighbouring card for the work.
+- §2: the state moves between writing the prompt and reading it, so a re-run
+  buys the reader nothing (see "§2 — why a re-run costs so much here" for the
+  cost). A "done" claim with no output behind it is `~/.claude/CLAUDE.md` rule
+  1, "Verify before claiming".
+- §4: dead-ends are the highest-value, most-forgotten content; without them
+  the fresh chat repeats the same failed attempt. A constraint, a diagnosis, or
+  a reason a thing failed is a claim the fresh chat acts on without re-deriving
+  it, which is why each carries a tag. One `verified` covering a reading and
+  its diagnosis launders the diagnosis into a measurement, and the fresh chat
+  builds on it and finds out the hard way: that is `~/.claude/CLAUDE.md` rules
+  4 and 10 applied to the handoff. A ban written against a class of evidence
+  gets obeyed in cases the failure never covered. §8 gets reordered and
+  rewritten every session, so an approval that lives there shrinks with each
+  rewrite. A shorter restatement of an inherited decision drops whatever it
+  left out, and nobody notices.
+- §5: the operator's principles are meant to outrank the fresh chat's own
+  instincts, so they survive the clear verbatim. Naming the behavior rather
+  than a label is `~/.claude/CLAUDE.md` "Communication Style".
+- §6: §4's constraints and dead-ends exist to stop the fresh chat repeating
+  this session's mistakes; §6 is knowledge that stands on its own.
+- §7: these are throwaway test credentials, and the prompt's whole purpose is
+  to be self-contained. An empty section in the prompt costs the reader a
+  heading and tells them nothing.
+- §8: time passes between writing the prompt and reading it, which is why step
+  1 names a re-check. A "not yet" or "hold off" in the middle of a discussion
+  can mean "not before we finish talking". A sentence saying a stage is over is
+  a claim the template cannot check, and the fresh chat reads it as settled and
+  never looks again. A numbered step is the first thing the next session does,
+  inside a template written for a different phase, so the session handed the
+  new phase spends its budget finishing the old one. "A person can play a whole
+  turn with the mouse" is the same unchecked claim as "the demo is over", and
+  it reads worse: the fresh chat takes it as the ground it stands on and spends
+  the session confirming rather than testing. A line number is wrong the next
+  time anybody edits the file, and it stays confidently wrong.
+- §10: a question copied forward reads as though someone is tracking it, when
+  no card holds it and no session owns answering it, and every fresh chat pays
+  to read it again. A paraphrase such as "stays recorded" turns a dismissal
+  into an obligation the next writer keeps alive.
+- §11: a directive rewritten as a next step has been through your judgment
+  about what it asked for, and the quote is the copy that has not. §11 is the
+  second lock rather than the only one; the first is §5's rule about inherited
+  directives.
+- §12: a section that only points at the block leaves §12 nothing to check
+  there, and the block is then written from nothing §1–§11 hold.
+- Stop: a tool call ends the response that makes it, so a session that writes
+  `HANDOFF.md` always gets one turn after the write and cannot decline it.
 
 ## §0 — the opening prompt settles the reader, not `pgrep`
 

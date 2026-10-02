@@ -19,11 +19,9 @@ there, add it, and regenerate the prompt. Never append to the prompt.
 
 This template emits one of two artifacts, and one question separates them:
 does a `session-loop` worker read this prompt next, or does the operator? A
-worker has no other way to receive a prompt, so a worker gets `HANDOFF.md`.
-The operator copies a block, so the operator gets the block.
+worker gets `HANDOFF.md`, and the operator gets the block.
 
-Read the prompt this session opened with. It is already in context, so settling
-this costs nothing:
+Read the prompt this session opened with:
 
 - That opening prompt carries the unattended-loop protocol — the words "You are
   one iteration of an unattended loop", and an instruction to write `HANDOFF.md`
@@ -41,9 +39,7 @@ Then write one line naming the reader and what settled it:
 written, ask it with AskUserQuestion**, not in the response's text: the reader,
 when the list above leaves it open, or whether to hand off now.
 
-**Do not run `pgrep` to decide this.** That check asks whether any driver is
-alive anywhere on the machine, and the question here is whether a worker is
-waiting on *this* session's handoff.
+**Do not run `pgrep` to decide this.**
 
 ## 1. Objective
 
@@ -54,9 +50,7 @@ recap — state the goal, not the history of how you got here.
 
 Name the one task this prompt continues, and its issue id when it has one,
 in the first line. List every other issue, card, or topic the session
-touched under "Mentioned, not ours", one line each, so the next session
-cannot mistake a neighbouring card for the work. A handoff that named
-MBG-108 where the task was MBG-106 sent the next session to the wrong card.
+touched under "Mentioned, not ours", one line each.
 
 ## 2. Verified state (the tool output this session already produced)
 
@@ -70,17 +64,13 @@ Where this session never ran the command, say that instead of filling the gap
 in. "No `git status` since the commit at f30be46" is a fact the fresh chat can
 act on; an invented status line is not.
 
-**Do not re-run anything to fill this section in.** This skill fires at the
-fullest point of a session, where one more turn re-reads all of it. Re-running
-buys the reader nothing either, because the state moves between writing the
-prompt and reading it. §8's first step is what protects them, and it also
-catches a fabricated "done", since the fresh chat's own `git log` shows the
-commit is absent.
+**Do not re-run anything to fill this section in.** §8's first step is what
+protects the reader, and it also catches a fabricated "done", since the fresh
+chat's own `git log` shows the commit is absent.
 
-This section is what every "completed work" claim in §3 must reconcile against.
-A "done" claim with no command output behind it is unverified
-(~/.claude/CLAUDE.md rule 1, "Verify before claiming"), and it is labelled that
-way rather than probed into shape.
+Every "completed work" claim in §3 reconciles against this section. A "done"
+claim with no command output behind it is labelled unverified rather than
+probed into shape.
 
 ## 3. Completed work (each item reconciled against §2)
 
@@ -100,46 +90,34 @@ The context most often lost across a /clear:
   not relitigate them.
 - Constraints discovered — an API shape, a schema quirk, an env gotcha,
   a rule that bit.
-- Dead-ends — approaches tried that FAILED, and why they failed. This is
-  the highest-value, most-forgotten content: without it the fresh chat
-  repeats the same failed attempt.
+- Dead-ends — approaches tried that FAILED, and why they failed.
 
-Tag every item here the way §3 tags completed work. A constraint, a
-diagnosis, or a reason a thing failed is a claim about the system, and the
-fresh chat will act on it without re-deriving it:
+Tag every item here the way §3 tags completed work:
 
 - `verified` — name the probe, command, or query that showed it, and quote
   enough of the output that the claim stands on its own.
 - `hypothesis:` — everything else. An explanation you find convincing but
   did not measure is a hypothesis, however obvious it feels right now.
 
-Split the observation from the explanation BEFORE tagging either one. A
-reading and the diagnosis you drew from it are two claims; one `verified`
-covering both launders the diagnosis into a measurement, and the fresh
-chat builds on it and finds out the hard way. Write:
+Split the observation from the explanation BEFORE tagging either one: a
+reading and the diagnosis you drew from it are two claims. Write:
 
     verified: forward vs reversed field order diverges, 4 of 4 blocks, at
       cdfbe35 — sweep output above.
     hypothesis: the rout/flee path is what makes it order-dependent.
 
 NOT "MEASURED: order diverges because the rout path is order-dependent."
-That is ~/.claude/CLAUDE.md rules 4 and 10 applied to the handoff itself:
-one tag covers one fact, and a causal connector starts a new claim.
 
 **A dead-end is recorded against the mechanism that failed, never against
 the class of evidence it was serving.** "macOS `screencapture` returns a
-uniform black image in this sandbox" is a dead-end. "Do not retry pixel
-screenshots" is a ban, and the fresh chat will obey it in cases the failure
-never covered. Name the tool, the call, or the path that failed. Where
-another route to the same evidence exists, name that route instead of
-closing the subject.
+uniform black image in this sandbox" is a dead-end; "Do not retry pixel
+screenshots" is a ban. Name the tool, the call, or the path that failed. Where
+another route to the same evidence exists, name that route.
 
 **Something the operator approved is a decision, and it goes here in their
 terms.** A design they signed off, a layout they accepted, or a scope they
 agreed to goes into this section with the time of the approval, stated in full.
-It never goes in as a clause inside a next step in §8: that list gets reordered
-and rewritten every session, and a design that lives there shrinks with each
-rewrite.
+It never goes in as a clause inside a next step in §8.
 
 **A decision that already rode the last handoff does not leave this list in
 silence.** For every decision in the prompt this session opened with, do one of
@@ -147,20 +125,16 @@ three things and say in one line which. Carry it forward word for word, where
 it still holds. Record it in the project's own design documents, and point to
 the file, where someone should have written it down already. Or strike it,
 naming what replaced it or who withdrew it. A shorter restatement is not one of
-the three: it drops whatever the restatement left out, and nobody notices.
+the three.
 
 ## 5. Principles the operator highlighted
 
-The operating rules the operator stated this session — how they want the
-work done, not what the work is. These are the "always do it this way" /
-"never touch that" / "remember to X" instructions the operator emphasized
-in their own words: a preferred strategy, a guardrail, a sequencing rule.
-They are meant to outrank the fresh chat's own instincts, so they must
-survive the /clear verbatim. Distinguish from §4: §4 holds decisions you
-reached and why; §5 holds directives the operator handed you. Each
-principle should name the concrete behavior, not a label for it
-(~/.claude/CLAUDE.md "Communication Style"). If the operator highlighted
-no principle this session, write `None` — do not invent one.
+The operating rules the operator stated this session, carried verbatim — how
+they want the work done, not what the work is: a preferred strategy, a
+guardrail, a sequencing rule. §4 holds decisions you reached and why; §5 holds
+directives the operator handed you. Each principle names the concrete
+behavior, not a label for it. If the operator highlighted no principle this
+session, write `None` — do not invent one.
 
 **Carry the operator's definition of released here, word for word, whenever no
 project document holds it.** An operator working in a repository they do not
@@ -184,30 +158,22 @@ that a directive you did not hear the operator speak was never yours.
 ## 6. Learned this session
 
 The significant, durable discoveries — facts about the system that hold
-beyond this task and are worth carrying forward: a non-obvious behavior, a
-confirmed mechanism, a measured result, a corrected misconception. The
-test is durability: if the insight would matter to someone who is NOT
-doing this exact task, it belongs here. Contrast with §4 — §4's
-constraints and dead-ends exist to stop the fresh chat repeating this
-session's mistakes; §6 is knowledge that stands on its own. State each
+beyond this task: a non-obvious behavior, a confirmed mechanism, a measured
+result, a corrected misconception. If the insight would matter to someone who
+is NOT doing this exact task, it belongs here rather than in §4. State each
 learning specifically enough to act on, and say where it was verified — a
-probe, a query, a measurement (~/.claude/CLAUDE.md rule 1). The splitting
-rule from §4 applies here too: what you measured and what you concluded
-from it are two entries, tagged separately. If nothing rose to
-"significant," write `None`.
+probe, a query, a measurement. The splitting rule from §4 applies here too:
+what you measured and what you concluded from it are two entries, tagged
+separately. If nothing rose to "significant," write `None`.
 
 ## 7. Credentials and test access
 
 The test credentials and access details the operator handed over this
-session, so the fresh chat can reach the same systems without asking
-again: test logins, sandbox API keys, a sample account id, the
-environment they belong to. Capture the literal values — these are
-throwaway test credentials, and the continuation prompt's whole purpose is
-to be self-contained (§13). Note which environment each credential is for
-and what it unlocks. If the operator handed over no credentials, write
-`None` here — and then leave the whole credentials heading OUT of the
-prompt in §13. An empty section in the prompt costs the reader a heading
-and tells them nothing.
+session: test logins, sandbox API keys, a sample account id, the environment
+they belong to. Capture the literal values, and note which environment each
+credential is for and what it unlocks. If the operator handed over no
+credentials, write `None` here — and then leave the whole credentials heading
+OUT of the prompt in §13.
 
 ## 8. Next steps (ordered, next action first)
 
@@ -215,9 +181,8 @@ The remaining plan, ordered by execution sequence, not importance. The
 first item is the single concrete next action the fresh chat should
 take. If a step depends on an open question in §10, name the dependency.
 
-The first step also says what to re-check before acting on it. Time passes
-between writing this prompt and reading it, and a background agent, a
-running server, a branch, or a teammate's push can move underneath it.
+The first step also says what to re-check before acting on it: a background
+agent, a running server, a branch, or a teammate's push can move underneath it.
 Name the specific thing that could have changed and the command that
 settles it — not "confirm state," but "run `<command>`; the handoff
 assumed `<X>`, act only if that still holds."
@@ -239,14 +204,10 @@ handoff answers it, the operator has not read the answer. Step 1 tells the fresh
 chat to put that answer in front of the operator and wait, and the subject of
 their question becomes the next session's subject, ahead of any objective an
 earlier handoff carried. Do not write that the question is already answered. Do
-not turn a "not yet" or "hold off" inside it into a deferral either: quote it,
-because in the middle of a discussion it can mean "not before we finish
-talking".
+not turn a "not yet" or "hold off" inside it into a deferral either: quote it.
 
 **Nothing here declares a stage of the work finished.** This template sees one
-session, not the checklist the work is running against, so a sentence saying a
-stage is over is a claim it cannot check — and the fresh chat reads it as
-settled and never looks again.
+session, not the checklist the work is running against.
 
 A step that builds something the operator approved points to that decision in
 §4, or to the file that holds it, and does not restate it.
@@ -268,32 +229,23 @@ the backlog rather than handing it to the next session.** The two paragraphs abo
 are for a step the next session is still inside. Where the phase that owed the work
 has ended — the build is over, the demo is given, the findings are signed off —
 create the card before you generate the prompt, and name that card here instead
-of writing the work in as a numbered step. A numbered step is the first thing the
-next session does, and it does that inside a template written for a different
-phase, so the session handed the new phase spends its budget finishing the old
-one.
+of writing the work in as a numbered step.
 
 **And no sentence says what the product can do unless a command showed it.**
-"A person can play a whole turn with the mouse" is the same unchecked claim as
-"the demo is over", and it reads worse: the fresh chat takes it as the ground it
-is standing on and spends the session confirming rather than testing. So every
-capability sentence carries the command that demonstrated it and what that
-command printed, or it comes out. Closed cards, a passing suite and a green gate
-are what you can write instead, because those are what you ran.
+Every capability sentence carries the command that demonstrated it and what
+that command printed, or it comes out. Closed cards, a passing suite, and a
+green gate are what you can write instead, because those are what you ran.
 
 ## 9. Pointers (paths, links, skills, commands, environment)
 
-The lookup table that saves the fresh chat from rediscovering what you
-already found. These are exactly the "oh, also remember to..." items —
-enumerate them HERE, not after the prompt:
+The "oh, also remember to..." items, enumerated HERE rather than after the
+prompt:
 
 - Paths, each with the greppable identifier inside it that the work turns on
-  — a function name, a heading, a constant, a quoted phrase. Never a line
-  number: it is wrong the next time anybody edits that file, and it stays
-  confidently wrong. Take these from what this session actually opened rather
-  than re-opening files to confirm them. A path you are recalling, that nothing
-  this session touched, is a guess — mark it `hypothesis:` and let the fresh
-  chat find out.
+  — a function name, a heading, a constant, a quoted phrase, never a line
+  number. Take these from what this session actually opened rather than
+  re-opening files to confirm them. A path you are recalling, that nothing
+  this session touched, is a guess — mark it `hypothesis:`.
 - Links — PR, ticket / Trello, design doc, the relevant chat.
 - Skills the fresh chat should load first, by name, and why.
 - Setup to reach a working state — workspace dir, `eval "$(direnv export bash)"`,
@@ -312,9 +264,7 @@ send on unanswered, do one of three things: file it as a card, so the backlog
 holds it and a session can be scheduled to answer it; write the answer into
 the design document that should have held it, where the session settled the
 question and nobody recorded it; or strike it, where nobody needs it answered.
-Carrying it a third time is not one of the three. A question copied forward
-reads as though someone is tracking it, when no card holds it and no session
-owns answering it, and every fresh chat pays to read it again.
+Carrying it a third time is not one of the three.
 
 **A decision that lives only in handoffs is an open question.** Where §4
 carries something the operator approved and no design document in the project
@@ -329,8 +279,7 @@ they are not interested in an item, that it does not matter at this stage, or
 that it waits for a later phase without naming where to track it, strike it:
 quote their words once, with the time, and drop the item from every section. A
 "no" to one way of keeping it, such as adding it to the design documents, is
-not a request to offer the next way. Quote them rather than paraphrase: "stays
-recorded" turns a dismissal into an obligation the next writer keeps alive.
+not a request to offer the next way. Quote them rather than paraphrase.
 
 ## 11. The operator's last words, verbatim
 
@@ -346,9 +295,7 @@ does first, as in "and we'll discuss how we can wrap this up" or "wait for me
 to give my feedback", and §8's first step carries it out. Where the invocation
 carries no text, the final turn is the one before it.
 
-Quote it even where §5 and §8 already carry what it said. The duplication is
-the point: a directive rewritten as a next step has been through your judgment
-about what it asked for, and this is the copy that has not.
+Quote it even where §5 and §8 already carry what it said.
 
 **A quote that rode the last handoff stays until a session does what it
 asked.** Where nobody typed anything this session beyond the pasted handoff, as
@@ -359,9 +306,6 @@ a session has done what the quote asked, that session strikes it in one line
 naming what it did. Write `None` only where this session has no final turn and
 the prompt it opened with carried no quote. Then leave the heading out of the
 prompt in §13, the way §7 works.
-
-Treat this section as the second lock rather than the only one. The first is
-§5's rule about directives this session inherited.
 
 ## 12. Completeness gate (the frontloading forcing function)
 
@@ -420,10 +364,9 @@ Write §0 through §12 as thirteen separate headings, in order, every time.
 Do not merge neighbours into a combined heading such as "8–10" or "9–11",
 and never skip §12.
 
-Each section holds its own content. A section whose body only points at the
-block ("they are in the block below") has been skipped under its own heading:
-§12 has nothing there to check, and the block is then written from nothing
-§1–§11 hold. Where a section is genuinely empty, write `None`.
+Each section holds its own content: a section whose body only points at the
+block ("they are in the block below") has been skipped under its own heading.
+Where a section is genuinely empty, write `None`.
 
 ## 13. The continuation prompt (terminal output)
 
@@ -510,10 +453,8 @@ block. Everything else holds: considerations first, one artifact, nothing after
 it.
 
 **Writing the file costs exactly one more turn, and that turn is the whole
-report.** A tool call ends the response that makes it, so a session that writes
-`HANDOFF.md` always gets one turn after the write and cannot decline it. That
-turn carries the path and the line count and nothing else: no recap of the
-sections, no summary of what the handoff says, no reprint of its text. The run
+report.** It carries the path and the line count and nothing else: no recap
+of the sections, no summary of what the handoff says, no reprint of its text. The run
 ends there: take no further turn of your own. If the operator types something
 after it, that is a new instruction, and the paragraph above on a handoff not
 being a stop signal is what governs it.
@@ -522,8 +463,8 @@ being a stop signal is what governs it.
 is a reason to delete that file, never a reason to write over it, and §0 is
 what says whether anyone is coming for it.
 
-The argument for the template's shape, and the measured cases behind the rules
-in §0, §2, §4, §5, §8, §10, §11, §12, and this section, are in
+The argument for the template's shape, the reason behind each rule, and the
+measured cases behind them are in
 [references/measurements.md](references/measurements.md).
 
 ## Notes on what this template does NOT do
