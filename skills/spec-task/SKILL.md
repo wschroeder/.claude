@@ -11,10 +11,10 @@ session's own history — say so, and name where it starts. The deliverables are
 the two in Section 5: the design document edits, written and committed by
 Section 8, and the cards, created by `backlog-task`. Section 9 reviews both.
 Section 8 writes and commits without asking.
-This template touches bd only to read it; the backlog is created by
-`backlog-task`, which Section 10 hands to. Section 1 stops for approval
-of the slice itself on a returning initiative; `backlog-task` holds the
-other stop, approval of the cards built from it.
+Where the repository keeps its cards in bd, this template only reads it; the
+cards are created by `backlog-task`, which Section 10 hands to. Section 1
+stops for approval of the slice itself on a returning initiative;
+`backlog-task` holds the other stop, approval of the cards built from it.
 
 ## The design documents hold the product, and the cards hold the work
 
@@ -84,6 +84,27 @@ by the one below.
 This template is new. If a section fights the work rather than catching
 something, say so in the response instead of quietly skipping it.
 
+## Product rules every design starts from
+
+Apply these when Section 3 answers a question, when Section 4 writes a
+requirement, and when Section 5 writes a design edit. A question one of them
+settles is not an open question.
+
+- Keep the project's purpose in view, and automate wherever possible.
+- Where automation cannot settle a record, a person decides instead of the
+  record failing, and their decision wins. Where even a reviewer cannot settle
+  it, the record stays blocked.
+- Keep a single source of truth: the system of record wins over a local edit.
+- Business facts that users know are data they can edit, never code.
+- The domain sets how strict a check is.
+- Never guess at ambiguous input, and never normalize away text that may carry
+  meaning.
+- When a value is unknown, store nothing, derive the default when reading, and
+  use the conservative default.
+- State a change's impact as the number affected out of the total.
+- When two records turn out to be one, move the data to the survivor before
+  removing the duplicate.
+
 ## 0. Before Section 1, read your own room
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
@@ -115,12 +136,19 @@ Real output, not paraphrase:
 ```
 $ pwd && git rev-parse --show-toplevel
 $ ls -d .beads 2>&1
-$ bd list --status open 2>&1 | tail -3
+$ git log --reverse --format=%ae | head -1
 $ ls -d docs design specs 2>/dev/null
 ```
 
-State the repository root, whether bd is already initialized here, the
-issue prefix in use, and the directory the design documents live in.
+State the repository root and the directory the design documents live in.
+
+**Then say whether this repository keeps its cards in bd.** It does where
+`.beads/` exists. Where `.beads/` is absent, it does only if the first commit's
+address is the operator's: never bring bd into a repository the operator did
+not start. Where it keeps its cards in bd, read
+[references/bd-commands.md](references/bd-commands.md) now. Where it does not,
+Section 6's stories and task records are the backlog, and Sections 7 and 10
+say what that changes.
 
 **Then find the design documents and read them.** They are the description
 of the product this work changes, and a slice cut without them specifies a
@@ -137,21 +165,6 @@ Do not restate their rules anywhere else — a copy is a second place for that
 rule to be wrong. Where this conversation settles something they get wrong or
 leave unsaid about the product, Section 5 writes it in and Section 8 commits
 it.
-
-If `.beads/` is absent, do NOT run `bd init` here. Record it as a
-precondition for `backlog-task`, in exactly this form:
-
-```
-$ bd init --skip-agents --skip-hooks -p <prefix>
-```
-
-**Both flags are required.** Without them bd writes a `CLAUDE.md`, an
-`AGENTS.md`, a SessionStart hook and five git hooks whose instructions
-contradict this machine's, and none of those hooks does measured work.
-What was measured: [references/bd-behavior.md](references/bd-behavior.md).
-
-bd makes its own commit on init whatever flags it is given. Expect that
-commit, and do not report it as work this session did.
 
 **Then settle the definition of released.** It is the operator's to decide
 — for one team a deployment behind a feature flag, for another "runs on
@@ -471,6 +484,7 @@ re-measure rather than obey.
      proof:      $ <the command that closes it>
      estimate:   <minutes>
      blocked-by: [T<n>] | none
+     related:    [T<n>] | none
      design:     <one or two sentences the executor needs and cannot
                   re-derive from the code>
 ```
@@ -491,6 +505,12 @@ task. A non-empty list means the breakdown is unfinished.
 
 Section 9's review loop re-runs this check on every round. A requirement
 that loop adds has never been through it.
+
+**A card says what has to be true, never how to build it.** Keep the cards
+flat, with no parent or epic cards. Where nobody knows yet how to build a
+task, cut a spike card ahead of it that answers the question. Mark two cards
+that touch without one waiting on the other as related, and keep `blocked-by`
+for a card that cannot start until another finishes.
 
 A current-slice task with no proof command is not a task. Fold it into one
 that has, or drop it. A sketched later task has no proof command by
@@ -522,47 +542,15 @@ developer" is inventing one.
 `backlog-task` presents this same list when it asks for approval, so write
 them here to be read there.
 
-## 7. The bd command list
+## 7. The card commands
 
-The exact commands, not yet run. One `bd create` per task, one
-`bd dep add` per blocking edge, one `bd label add` per current-slice task.
-
-Current-slice tasks get the full form:
-
-```
-bd create "<title>" -t task -p <0-4> \
-  --acceptance "<EARS text>  Check: <proof command>" \
-  --design "<design line>" \
-  --spec-id "<plan path from Section 5>" \
-  -e <estimate in minutes> --silent
-bd dep add <blocked-id> <blocker-id>
-bd label add <id> slice:S<n>
-```
-
-Sketched later tasks get the title and the edges only — no `--acceptance`,
-no `-e`, and no slice label:
-
-```
-bd create "<title>" -t task --silent
-bd dep add <blocked-id> <blocker-id>
-```
-
-The slice label is what separates the board's lanes that `demo-task`
-reads. `--spec-id` carries the design document the card serves, which is the
-link from a card back to the product rule it is building.
-
-Use this per-issue form, or `bd create --file` with the section format
-`backlog-task` Section 3 gives. Neither `--file` nor `--graph` creates a
-dependency or sets a spec id, so list `bd dep add` and `bd update --spec-id`
-after either. Do not use `bd create --graph` at all: it reports success while
-dropping the acceptance criteria, which is the one field this template exists
-to produce. Measured output for all three forms, and what each flag renders as:
-[references/bd-behavior.md](references/bd-behavior.md).
-
-Where Section 1 found no `.beads/`, this list's first line is
-`bd init --skip-agents --skip-hooks -p <prefix>`, both flags required per
-Section 1. Section 9 regenerates the whole list on every round, and
+Where Section 1 found that the repository keeps its cards in bd, write the
+command list that [references/bd-commands.md](references/bd-commands.md)
+describes. Section 9 regenerates the whole list on every round, and
 `backlog-task` runs the list as Section 7 leaves it.
+
+Where it does not, there is no list: Section 6's stories and task records are
+the backlog, and Section 10 says where they go.
 
 ## 8. Write the design document edits
 
@@ -608,7 +596,9 @@ first cut and none of the gaps its own fixes introduce.
    untouched. And **every requirement checked against the design documents
    for a rule it contradicts**, because a slice specifying behaviour the
    product was never designed to have will be built and then argued about.
-3. Act on every finding, one of four ways:
+3. Act on every finding, one of five ways:
+   - A problem that predates this branch is not this slice's to spec or fix.
+     It goes to out of scope, in one line naming it.
    - A hole in the product the operator has **already settled** in
      conversation becomes a design document edit, written the way Section 5
      writes one.
@@ -622,7 +612,8 @@ first cut and none of the gaps its own fixes introduce.
    - A finding you reject gets one line saying why.
 4. Revise, and say what changed in each place you changed it.
 5. Re-enter at Section 4 and come forward through 6 and 7: renumber the
-   requirements, re-run the coverage check, regenerate the command list.
+   requirements, re-run the coverage check, regenerate the command list
+   where there is one.
    Do not patch those in place — the approval `backlog-task` asks for is on
    a list built from the requirements as they now stand. A design document
    edit from step 3 is written by Section 8 like any other.
@@ -649,12 +640,18 @@ round — and lets the filter drop duplicates on their own merits.
 This loop closes before any card exists: reviewing after the backlog is
 created means fixing the slice and the cards both.
 
-## 10. Hand the backlog to `backlog-task`
+## 10. Hand the backlog on
 
-The design documents are written, reviewed and committed. Creating the cards is
-`backlog-task`: it checks the tree is clean, reprints Section 6's stories for
-the one approval, runs the Section 7 list, and reads bd back to prove the
-acceptance criteria and the blocking edges stored.
+The design documents are written, reviewed and committed.
+
+Where the repository does not keep its cards in bd, write Section 6's stories
+and task records into the handoff through `clear-task`. `tdd-cycle` reads its
+task list there, and nothing else in this section applies.
+
+Where it does, creating the cards is `backlog-task`: it checks the tree is
+clean, reprints Section 6's stories for the one approval, runs the Section 7
+list, and reads bd back to prove the acceptance criteria and the blocking
+edges stored.
 
 Name three things and load it: the design documents this slice serves, the
 slice being cut, and the Section 7 list it is to run. Load nothing else — the

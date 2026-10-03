@@ -105,7 +105,7 @@ name, the order of two steps, or where a file lives is not one.
 
 ## How many commits
 
-**A commit is one claim, not one file you finished editing.** Write the subject line before you stage anything. Where two files would take the same subject, they belong in one commit, however many sittings you spent on them and however far apart they sit in the tree.
+**A commit is one claim, not one file you finished editing.** One feature is one commit: its code, its tests, and its documents land together. Write the subject line before you stage anything. Where two files would take the same subject, they belong in one commit, however many sittings you spent on them and however far apart they sit in the tree.
 
 One change of mind usually reaches several files. A rule that changes what four skills do is one commit naming the rule, not four commits each naming a skill: the reader wants to know what changed about the work, and the file list is already in the diff.
 

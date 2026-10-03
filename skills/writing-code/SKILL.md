@@ -81,6 +81,12 @@ Before writing or dispatching the change, grep for each of these:
    contract shifted, these get edited too — otherwise the follow-on reader
    trusts a stale spec.
 
+**Find out why the code is the way it is before you change it.** Read
+`git log -L` or `git blame` for the lines, the commit messages, the issue they
+name, and wherever else the team records its decisions. Where
+`~/.claude/CLAUDE-private.md` fills the decision-records slot for this skill,
+look in the places it names too.
+
 This scan is the work. The code edit is the easy part. If the change is going to
 a subagent, put all four findings in its prompt up front — "here are the 3
 callers, 2 comments, 4 tests, and 1 PR body that reference this" — so nothing is
@@ -175,7 +181,22 @@ untrusted caller rather than the one you designed around. Where it relies on "my
 caller validates X before calling me", guard X here too — a later refactor can break
 the caller's validation without touching this function.
 
+## Product rules that reach the code
+
+- Keep a business fact that users know in data they can edit, never in a
+  constant.
+- Never guess at ambiguous input, and never normalize away text that may carry
+  meaning.
+- Store an unknown value as null and derive its default when reading.
+  [references/sql-schema-postgres.md](references/sql-schema-postgres.md) has
+  the schema side.
+
 ## Anyone can rebuild what the code reads
+
+Ship the script itself, never instructions for writing one.
+
+Fix a temporary tool of your own, such as a probe, a driver, or a harness,
+without asking.
 
 If code or a test reads a file, a committed script makes that file. A fixture, an
 answers file, a seeded database, or a harness directory that you built by hand in

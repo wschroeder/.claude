@@ -274,6 +274,8 @@ click, what to check before, what to do, and what to check after.
 
 Rules:
 
+- **Drive the real UI yourself, in a tight loop, before you show the operator
+  anything**, on whatever platform the product runs.
 - **A bug your own driving finds means the demo is not ready.** Do not post
   it. Send the work back to build, through `tdd-cycle`, and start again at
   Section 2 once the fix is committed. Once it is committed, run

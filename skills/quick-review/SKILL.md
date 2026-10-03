@@ -114,7 +114,7 @@ Language-specific shape catalogs: `details/language-typescript.md`, `details/lan
 
 **No angle count.** Walk the named angles that are live in this diff and mark the rest `N/A`. There is no minimum number of attempts: the demonstration discipline below, not a count, is what stops a review at its first finding.
 
-**Scope rule.** Pre-existing code on the call path is in scope. "Not my diff" is not a dismissal. Question: does this diff INTERACT with a problem?
+**Scope rule.** Pre-existing code on the call path is in scope. "Not my diff" is not a dismissal. Question: does this diff INTERACT with a problem? A problem that predates the branch and that the diff does not make worse is not the branch's to fix: report it in one line and leave it.
 
 **Context.** Read surrounding code for each touched file, not just the diff. Identify callers, callees, sibling functions, related tests.
 
@@ -466,7 +466,7 @@ The caller runs this loop; the passes above are one iteration of it.
 
 The four rules that decide when the loop is actually finished: [details/review-fix-loop.md](details/review-fix-loop.md).
 
-If the review leads to code changes, those changes get a targeted pass before done.
+Any fix made during review starts another full round of review: all nine passes over the whole diff, with the targeted re-checks below added for the fix.
 
 **Anti-anchoring:** When re-reviewing after amends, the prior round's "triaged and dropped" list is informational context, not binding precedent. For any surface TOUCHED by the current amend, re-run all nine passes on THAT surface. Previous dismissals applied to previous code; amended code is new evidence. An orchestrator passing "don't re-surface these" into the subagent prompt is a shortcut that saves tokens but erodes coverage — re-enumerate the angles and let the classify gate drop duplicates.
 

@@ -218,7 +218,8 @@ it, not carry it forward.
 The half that keeps a library usable.
 
 Retire when nothing has loaded it in months, when its content moved into another
-skill, or when the thing it describes no longer exists. Delete the directory,
+skill, or when the thing it describes no longer exists. A process rule or a
+skill that cannot show it improved quality goes too. Delete the directory,
 delete the routing row, and grep for the name across skills and CLAUDE.md files.
 
 Prefer retiring to keeping something "in case" — a skill kept for a case that

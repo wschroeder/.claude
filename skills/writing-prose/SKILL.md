@@ -38,11 +38,12 @@ graph for a two-sentence comment is worse than loading nothing, because it spend
 the reader's patience and yours on a structure with one node. When the tier is
 genuinely unclear, take the lower one and say in one line which you took.
 
-## A reference names a thing, never a line
+## A reference names a thing, never a position
 
 Every tier. Anything a reader follows — in prose, in a heading, in a commit
-message — names something they can grep for: a heading, a function, a quoted
-phrase. Never a line number and never a line range. The file moves, the number
+message — names something they can grep for or act on: a heading, a function,
+a quoted phrase, a file name, a row's key. Never a position: not a line number,
+a line range, a row number, or "the third item". The file moves, the number
 does not, and it then points at real text saying something else, which a reader
 trusts. Measured: one document carried 122 line-number citations, four of them
 already resolving to nothing and the rest untrustworthy the moment nine of the

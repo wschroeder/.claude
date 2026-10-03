@@ -13,7 +13,7 @@ repository created with `git init && bd init --non-interactive --prefix sp`.
 The section-format, custom-status and dependency findings were measured on
 2026-09-14 against a live project database, and the probe card was deleted and
 the tracked file restored afterwards. Re-run these probes if bd's version
-changes; every rule in SKILL.md Sections 1 and 7, and every rule in
+changes; every rule in bd-commands.md, and every rule in
 `backlog-task`, rests on them.
 
 ## `bd init` is not a quiet command

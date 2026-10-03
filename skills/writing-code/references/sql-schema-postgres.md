@@ -54,6 +54,8 @@ and a reader that prefers the other copy shows stale data.
 - **Keep a fact the app filters, matches, or joins on in a real column, not
   inside a JSON document.** JSON suits data whose shape varies by subtype and
   that the app only reads back whole.
+- **Drop a column nothing writes.** Search the code for every write before you
+  keep one.
 - **Denormalize only for a measured reason.** "There is no obligation to fully
   normalize all records when actual performance requirements are taken into
   account" (Kent). Write the measurement in the migration's comment.
@@ -117,6 +119,10 @@ and a reader that prefers the other copy shows stale data.
 
 ## Column types
 
+- **Avoid sentinel values.** A missing value is null, never a stand-in such as
+  `'empty'`, `''`, `0`, `-1`, or `'1900-01-01'`. Where the app needs a default
+  for an unknown value, store null and derive the default when reading, choosing
+  the conservative one.
 - **Use `timestamptz`, never `timestamp`.** It stores an instant and does
   arithmetic correctly across time zones (PostgreSQL wiki, "Don't Do This").
 - **Use `text`, not `varchar(n)` or `char(n)`.** They take the same storage and
@@ -165,12 +171,16 @@ comment on column app.collateral_account_statement_section_totals.kept_holdings_
 
 ## Migrations
 
-- **A down file reverses its up file completely.** Prove it on a scratch
+- **Carry live data forward.** Alter a table that holds data in place, or copy
+  its rows into the new table in the same migration. Never drop and recreate it.
+- **A down file fully undoes its up file.** Prove it on a scratch
   database: apply every up file, then every down file in reverse with `psql -v
   ON_ERROR_STOP=1`, then every up file again. Dump the result and diff it against
   the live schema. A down file that deliberately keeps a table still has to leave
   the earlier down files able to run, so the first migration's down file drops
   that table too.
+- **Run the real migration and the real rollback**, through the command the
+  project deploys with, before you call either done.
 - **Name every delete or update in an up file, and the reason.** No down file can
   bring deleted rows back. Say so in the migration's comment.
 - **Fail with a message, not a constraint error.** Before you tighten a

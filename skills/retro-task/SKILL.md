@@ -167,6 +167,10 @@ that needs another run before anyone can act on it, or a finding that turns out
 to be the operator's call about the product and goes to the design document
 instead.
 
+**A process change has to show that it improved quality, or it goes.** Where
+Section 3 finds no transcript line showing an earlier change catching or
+preventing something, propose removing it.
+
 Where the choice between two changes is real, put them up as named options per
 CLAUDE.md, "Choices and options get visual separation", and recommend one. Do
 not hand the operator a blank space to invent a third in.

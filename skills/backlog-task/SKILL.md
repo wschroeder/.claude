@@ -63,9 +63,14 @@ it belongs in the same approval Section 2 asks for. Measured: unsetting that key
 reports success and leaves the status registered, and only setting it to an
 empty string removes it.
 
+**Do not put bd, or any other tool of your own, into a repository the operator
+did not start.** Compare `git log --reverse --format=%ae | head -1` with the
+operator's address. Where they differ and `.beads/` is absent, create no
+cards: the tasks live in the handoff, and `tdd-cycle` step 4d reads them there.
+
 Where `.beads/` is absent, the first line of Section 3's list is
-`bd init --skip-agents --skip-hooks -p <prefix>`. `spec-task` Section 1
-carries the measurements behind both flags.
+`bd init --skip-agents --skip-hooks -p <prefix>`.
+`spec-task/references/bd-commands.md` says why both flags are required.
 
 Then print the command list verbatim, as `spec-task` Section 7 generated
 it. A list rebuilt here would specify something the reviewed document does
@@ -125,7 +130,11 @@ criteria under its own heading.
 **What no batch form stores is a dependency or a spec id.** Both need their own
 command afterwards, `bd dep <blocker> --blocks <blocked>` and
 `bd update <id> --spec-id <document>`, and Section 4 is what catches you
-forgetting. Do not use `bd create --graph` at any size: it drops the acceptance
+forgetting.
+
+Keep the cards flat, with no parent or epic cards. Link two cards that touch
+without one waiting on the other with `bd dep relate <id> <related-id>`, never
+with a blocking edge. Do not use `bd create --graph` at any size: it drops the acceptance
 criteria and warns rather than failing.
 
 The flat `Key: value` shape is the trap. bd does not parse it, reports success,
