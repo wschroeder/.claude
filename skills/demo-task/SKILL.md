@@ -378,6 +378,14 @@ do not propose a next slice, and do not start fixing anything.
 **While rapid mode is on, this stop is the sentence or two that "Rapid mode"
 above calls for**, and nothing below returns until the operator approves.
 
+**If the demo gains a new way to reach the product — a new build, a new
+platform, or a new kind of input — go back to Section 3 before you send it.**
+Drive the product through that way, with the input a person there sends, and
+read the captures. A demo resumed at this section skips Section 3 otherwise.
+Measured: a demo built a phone web build mid-stop, sent the link after the
+title screen alone, and the operator found within minutes that the touch stick
+was invisible and that a tap walked through a door.
+
 **Open the ask with the phase line**, directly above the question — the
 four phases in order, this stop's capitalized:
 
