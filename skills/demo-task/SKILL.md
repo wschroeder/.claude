@@ -272,6 +272,12 @@ Where the operator reaches the thing by clicking rather than by running a
 command, `operate it` is a numbered list of steps. Each step says where to
 click, what to check before, what to do, and what to check after.
 
+Where the operator plays or reads on a phone, a command is not something they
+can run. Start whatever the phone needs yourself, such as a build and a server,
+and give them what the phone opens, such as a link. Measured: a demo's last step
+told an operator on a phone to run the serve command, and they replied "Haha
+somehow I doubt I can run that command on my phone with any effect."
+
 Rules:
 
 - **Drive the real UI yourself, in a tight loop, before you show the operator
