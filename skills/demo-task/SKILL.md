@@ -278,6 +278,13 @@ and give them what the phone opens, such as a link. Measured: a demo's last step
 told an operator on a phone to run the serve command, and they replied "Haha
 somehow I doubt I can run that command on my phone with any effect."
 
+Where a step needs setup the phone cannot do, such as a file planted where the
+game reads its saves, do that setup yourself on the machine you have. Show the
+evidence that it is in place, such as the `ls` that lists the file, and hand
+the operator only the test they do on the phone. Measured: a demo told an
+operator on a phone to put a damaged save into a Mac folder and run the game
+there, and they replied "you ask the impossible from a phone".
+
 Rules:
 
 - **Drive the real UI yourself, in a tight loop, before you show the operator
