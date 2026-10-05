@@ -7,6 +7,7 @@
 - [The flat key-value shape is what demotes everything to prose](#the-flat-key-value-shape-is-what-demotes-everything-to-prose)
 - [Custom statuses are real, and unsetting one does not remove it](#custom-statuses-are-real-and-unsetting-one-does-not-remove-it)
 - [`bd create --graph` drops unknown fields](#bd-create---graph-drops-unknown-fields-and-creates-the-issues-anyway)
+- [bd writes and stages its own export, on a timer](#bd-writes-and-stages-its-own-export-on-a-timer)
 
 Measured against `bd version 1.2.2 (dev)` on 2026-09-01, in a throwaway
 repository created with `git init && bd init --non-interactive --prefix sp`.
@@ -109,6 +110,29 @@ leave the tree clean. Since `tdd-cycle` 4c commits and then moves the card, a
 following `git add -u` sweeps that record into the next card's commit; nine
 consecutive card commits in one run carried the previous card's status change.
 That is why 4c stages by path.
+
+## bd writes and stages its own export, on a timer
+
+With the defaults `export.auto = true`, `export.git-add = true` and
+`export.interval = 60s`, a write to a card rewrites `.beads/issues.jsonl` and
+runs `git add` on it, but no more often than once a minute. So the file in the
+tree can lag the cards by up to a minute, and the late export lands already
+staged. Two consequences:
+
+- A commit made straight after `bd update`, `bd note` or `bd close` can miss
+  those changes, and the export that carries them arrives staged after the
+  commit. Measured twice on 2026-10-05 in card-rpg: a commit whose subject said
+  four cards were built left one card's move to demoable outside it, and the
+  next session-loop iteration stopped on the dirty tree; a commit whose subject
+  said a slice was accepted held one of its five closes.
+- Staging by path does not keep the export out of a code commit, because bd
+  staged it already. Measured in the same run: `git status` showed
+  `M  .beads/issues.jsonl` after `git add` had named only two `.gd` files.
+
+`bd export -o .beads/issues.jsonl` writes the current export on demand, and its
+output was byte-identical to the automatic one (same SHA-1, 174,664 bytes, 94
+issues). Run it right before staging the export. To keep it out of a code
+commit, run `git restore --staged .beads/issues.jsonl` first.
 
 bd also ships a metrics endpoint, `https://gastownhall-eventsapi.com/mp/collect`,
 disabled in `~/.config/bd/config.yaml` with `notice_shown: true`.

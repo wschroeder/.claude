@@ -146,7 +146,7 @@ the ask: a one-line bug does not carry a 200-line diff.
 
 **4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change:
+Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. bd also stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes ([bd-behavior.md](../spec-task/references/bd-behavior.md)). Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change:
 
 ```
 $ git commit -m "<what changed>"

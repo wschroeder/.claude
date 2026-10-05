@@ -20,10 +20,7 @@ Instead use:
 **Where a tool writes tracked files as a side effect of your work, stage by
 path.** `git add -u` takes every tracked modification, including an audit
 trail or export the tool rewrote while you were working, and those land in
-a commit that does not describe them. Measured: `bd close` writes
-`.beads/interactions.jsonl`, and because the close follows the commit, nine
-consecutive card commits in one run each carried the previous card's close
-record.
+a commit that does not describe them.
 
 ## Commit Messages
 
