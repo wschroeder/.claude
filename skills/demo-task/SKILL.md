@@ -293,6 +293,13 @@ the common room list the operator had called "really poor" and chosen to
 remove, the demo reported it as working, and the operator called it "a
 leftover thing".
 
+Then read each capture taken just before the operator acts, such as a button
+offered, a door, or a counter, as a player who has never seen the game. Say
+whether that player could tell what the input will act on, and raise any capture
+where they could not, even where the spec never decided it. Measured: a phone
+capture offered TALK while the party faced the man beside the companion, the
+demo reported it as matching the spec, and the operator talked to the wrong man.
+
 Rules:
 
 - **Drive the real UI yourself, in a tight loop, before you show the operator
