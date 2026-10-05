@@ -191,6 +191,14 @@ sessions, four of them closing exactly one card each, while a session that kept
 going closed its second and third cards for 21,239 and 14,670 tokens against the
 114,028 its first one cost.
 
+Commit the new cards before invoking it, because the loop refuses a dirty tree.
+Run `bd export -o .beads/issues.jsonl` right before you stage that file: bd
+writes its own export up to a minute late
+([bd-behavior.md](../spec-task/references/bd-behavior.md)), and a commit staged
+before then holds only some of the cards. Measured: a commit of six new cards
+held one of them, and the rest arrived later as the change that stopped the
+loop's first launch.
+
 Before invoking it, read your own room:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
