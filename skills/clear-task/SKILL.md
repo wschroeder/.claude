@@ -290,10 +290,11 @@ block quote, with its timestamp. Not a summary, not the half that looked
 relevant to the next steps, and not your reading of what they were asking for.
 If they wrote three paragraphs, all three go here.
 
-**Words the operator typed after `/clear-task` are that final turn.** Where the
-line that invoked this skill carries text after the command, quote that text,
-not the turn before it, and make it §8's first step. Where the invocation
-carries no text, the final turn is the one before it.
+**Words the operator typed after `/clear-task` are that final turn.** Quote
+them, not the turn before, and make them §8's first step. Arguments a session
+passed when it called this skill itself are not the operator's: write them into
+§8 as an instruction and quote none of them here. With no typed text, the final
+turn is the one before the invocation.
 
 Quote it even where §5 and §8 already carry what it said.
 
