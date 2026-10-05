@@ -191,6 +191,17 @@ Measured: a session found "firm names are free text today", then asked the
 operator a question that left the fact out, and they replied, "We currently
 don't track firms at all, right?"
 
+Rule: each option says what the person will see and do, and an option that
+keeps something from today says what it looks like on screen.
+
+Why: a name for today's mechanism is opaque to someone who never read the
+code, so they pick by the label and get the thing they turned down.
+
+Measured: the operator called the common room's list "really poor", then chose
+"At a table, same choice" over "Keep the list for now". The chosen option said
+"using today's choose-and-confirm", which is the list, and the build kept the
+list. At the demo the operator called it "a leftover thing".
+
 Rule: stop and ask when an unanswered question would change the requirements.
 
 Why: a missing precondition is a stop rather than a guess.
@@ -206,6 +217,16 @@ Rule: later requirements carry no `S<n>` tag.
 
 Why: a fixed slice number invites treating the sketch as decided, which is
 exactly what it is not.
+
+Rule: anything the operator rejected gets a requirement saying it is gone,
+with a proof that fails while it remains.
+
+Why: a requirement that only names what is added can pass with the rejected
+thing still on screen.
+
+Measured: Rhen's requirement said he joins "by choose then confirm" and passed
+with the common room list still opening, though the operator had chosen the
+option that removed it.
 
 Rule: no user stories in the requirement.
 

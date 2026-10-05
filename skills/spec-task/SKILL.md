@@ -251,7 +251,9 @@ before either of the others:
   should behave goes to the operator.
 - The operator answers it, and the answer becomes a new source line in
   Section 2. The question you ask them quotes every fact you already found
-  that bears on it.
+  that bears on it. Each option says what the person will see and do, in
+  the product's own terms. Where an option keeps something that exists
+  today, it says what that thing looks like on screen rather than naming it.
 - Nobody answers it, and it goes verbatim into the out-of-scope list in
   Section 5.
 
@@ -336,6 +338,9 @@ Rules for this section:
   expected shape of unbuilt work.
 - A command that cannot be run yet says so and says why, per CLAUDE.md
   rule 3. Do not paste an imagined result.
+- **Anything the operator rejected gets its own requirement saying it is
+  gone**, in the unwanted or state-driven pattern ("the system shall not
+  show …"), with a proof command that fails while it is still there.
 - **A requirement that describes how an existing system behaves cites
   where that behavior was observed.** Anything of the form "like X does",
   "matching Y", or any claim about a protocol, format or product this work

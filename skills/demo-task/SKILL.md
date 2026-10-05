@@ -285,6 +285,14 @@ the operator only the test they do on the phone. Measured: a demo told an
 operator on a phone to put a damaged save into a Mac folder and run the game
 there, and they replied "you ask the impossible from a phone".
 
+Before you post, set what the operator said during the spec beside your
+captures. For each of their answers the cards and design documents quote, say
+whether a capture shows the build matching it, and raise any capture that
+shows something they turned down. Measured: a demo's own phone capture showed
+the common room list the operator had called "really poor" and chosen to
+remove, the demo reported it as working, and the operator called it "a
+leftover thing".
+
 Rules:
 
 - **Drive the real UI yourself, in a tight loop, before you show the operator
