@@ -129,6 +129,9 @@ for pair in "--model|$MODEL" "--eval-model|$EVAL_MODEL"; do
 done
 
 command -v claude >/dev/null 2>&1 || die "claude is not on PATH"
+# Run it rather than look it up: macOS's stub passes command -v.
+python3 -c '' </dev/null >/dev/null 2>&1 \
+  || die "python3 does not run; put a working one first on PATH"
 [ -d "$REPO" ] || die "no such directory: $REPO"
 REPO="$(cd "$REPO" && pwd)"
 git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1 || die "not a git repository: $REPO"

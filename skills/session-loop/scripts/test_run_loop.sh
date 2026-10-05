@@ -1418,5 +1418,22 @@ print(json.load(open(sys.argv[1]))['head_before'])
 " "$(find "$ROOT/logs" -name 'iter-*-1.json' | head -1)")"
 drop_fixture
 
+# macOS ships a python3 that command -v finds and that only prints this when
+# run. The loop needs python3 to record how each session ended, so finding out
+# after the first session throws that session's work past the reviewer.
+new_fixture
+cat > "$ROOT/bin/python3" <<'STUB'
+#!/usr/bin/env bash
+echo "error: tool 'python3' not found" >&2
+exit 1
+STUB
+chmod +x "$ROOT/bin/python3"
+check "a python3 that does not run stops the loop" 1 "$(run_loop)"
+check "before any session starts" no \
+  "$([ -e "$ROOT/last-prompt.txt" ] && echo yes || echo no)"
+check "and says python3 is what is missing" yes \
+  "$(grep -q 'python3 does not run' "$ROOT/out.txt" && echo yes || echo no)"
+drop_fixture
+
 printf '\n%d passed, %d failed\n' "$PASS" "$FAIL"
 [ "$FAIL" -eq 0 ]
