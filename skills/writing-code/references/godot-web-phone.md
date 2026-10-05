@@ -6,6 +6,16 @@ network reaches the phone's browser with no certificate, no Xcode account, and
 no app store. Measured on Godot 4.5 with an iPhone running Brave and Safari's
 engine underneath it.
 
+## Contents
+
+- [Export a build the phone will start](#export-a-build-the-phone-will-start)
+- [Serve it to the phone](#serve-it-to-the-phone)
+- [Tell a phone from a desktop](#tell-a-phone-from-a-desktop)
+- [A touch number can arrive negative](#a-touch-number-can-arrive-negative)
+- [Drive a thumb yourself before you send the link](#drive-a-thumb-yourself-before-you-send-the-link)
+- [Walk a character with a driver that stays open](#walk-a-character-with-a-driver-that-stays-open)
+- [Dead ends](#dead-ends)
+
 ## Export a build the phone will start
 
 Godot needs the export templates for its exact version installed before
@@ -136,6 +146,80 @@ await browser.close();
 Wait about twelve seconds after loading before the first touch, because the engine
 takes that long to boot headless. Read the captures yourself, and look for the
 control appearing under the thumb and the character moving between them.
+
+## Walk a character with a driver that stays open
+
+To walk a character somewhere, keep one browser open and send it a few steps at
+a time. Take a capture, look at it, and then choose the next steps. A one-shot
+run with fixed hold times puts the character in a different place every run,
+because the game's frames do not line up with the hold. In one demo, six
+one-shot runs in a row each ended somewhere new, and a diagonal slid past the
+door.
+
+Start the driver in the background and give it about sixteen seconds to boot:
+
+```
+TOUCH_ID=3000000000 node wkrepl.mjs http://localhost:8000/ <outdir>
+```
+
+Then send steps with `send.sh <outdir> <n> "<steps>"`. The steps take the same
+form as `wktouch.mjs`'s, and `n` must grow by one on every call. `send.sh`
+returns when the driver writes `n` into `done.txt`. Send `quit` to close the
+browser. The driver never writes a `done.txt` line for `quit`, so that one
+call times out, and you should discard its output.
+
+```js
+import { webkit, devices } from 'playwright';
+import fs from 'fs';
+const [,, url, outdir] = process.argv;
+const browser = await webkit.launch();
+const d = devices['iPhone 15'];
+const vp = { width: d.viewport.height, height: d.viewport.width };
+const ctx = await browser.newContext({ ...d, viewport: vp });
+const page = await ctx.newPage();
+page.on('pageerror', e => console.log('pageerror:', e.message));
+await page.goto(url);
+const ID = Number(process.env.TOUCH_ID || 1);
+const fire = (type, x, y) => page.evaluate(([type, x, y, ID]) => {
+  const c = document.querySelector('canvas');
+  const t = { identifier: ID, target: c, clientX: x, clientY: y, pageX: x, pageY: y, screenX: x, screenY: y };
+  const mk = a => Object.assign([...a], { item: i => a[i] });
+  const list = type === 'touchend' ? [] : [t];
+  const e = new Event(type, { bubbles: true, cancelable: true });
+  Object.defineProperties(e, { touches: { value: mk(list) }, targetTouches: { value: mk(list) }, changedTouches: { value: mk([t]) } });
+  c.dispatchEvent(e);
+}, [type, x, y, ID]);
+let last = [0, 0], seen = '';
+const cmd = `${outdir}/cmd.txt`, done = `${outdir}/done.txt`;
+fs.writeFileSync(done, 'ready\n');
+for (;;) {
+  await page.waitForTimeout(200);
+  if (!fs.existsSync(cmd)) continue;
+  const text = fs.readFileSync(cmd, 'utf8').trim();
+  if (!text || text === seen) continue;
+  seen = text;
+  const [n, steps] = text.split('|');
+  if (steps === 'quit') break;
+  for (const s of steps.split(',')) {
+    const [k, a, b] = s.split(':');
+    if (k === 'wait') await page.waitForTimeout(+a);
+    else if (k === 'shot') await page.screenshot({ path: `${outdir}/${a}.png` });
+    else if (k === 'tap') await page.touchscreen.tap(+a, +b);
+    else if (k === 'down') { last = [+a, +b]; await fire('touchstart', +a, +b); }
+    else if (k === 'move') { last = [+a, +b]; await fire('touchmove', +a, +b); }
+    else if (k === 'up') await fire('touchend', ...last);
+  }
+  fs.writeFileSync(done, `${n}\n`);
+}
+await browser.close();
+```
+
+```bash
+#!/bin/bash
+# send.sh <outdir> <n> <steps>: run steps in the open browser and wait for them to finish
+echo "$2|$3" > "$1/cmd.txt"
+for i in $(seq 1 300); do [ "$(cat "$1/done.txt" 2>/dev/null)" = "$2" ] && exit 0; sleep 0.2; done; echo timeout; exit 1
+```
 
 ## Dead ends
 
