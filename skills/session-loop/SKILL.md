@@ -238,6 +238,12 @@ and this handoff is about resuming the watch. Tell the operator it is ready.
 They clear and paste it into a fresh session, which picks the loop back up
 from there.
 
+The loop's exit notice still reaches the session after the operator clears it.
+So the block tells the next session to wait for that notice, not to check
+whether the loop is still running and stop. Measured on 2026-10-05: a
+watcher wrote that the fresh session "cannot be re-notified when the loop
+exits", and the notice arrived there 36 minutes later.
+
 ### Never
 
 Do not invoke this skill from inside a session the driver started. You would
