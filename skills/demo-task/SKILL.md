@@ -278,6 +278,12 @@ Where the operator reaches the thing by clicking rather than by running a
 command, `operate it` is a numbered list of steps. Each step says where to
 click, what to check before, what to do, and what to check after.
 
+Print those steps in full in the message that posts the demo. A copy sent to a
+phone or saved to a file comes in addition to them, never in their place.
+Measured: a demo sent its steps to the operator's phone, named the file's path,
+printed none of them, and the operator replied "I'll need to see the steps in
+full here."
+
 Where the operator plays or reads on a phone, a command is not something they
 can run. Start whatever the phone needs yourself, such as a build and a server,
 and give them what the phone opens, such as a link. Measured: a demo's last step
@@ -439,7 +445,8 @@ need an answer, the ask goes last and says what to do".
 file with `SendUserFile` as well as naming its path.** A page, a report, a
 render, a PDF: the operator may be reading this on a phone, where a path on
 this machine is not something they can open. Send it and give the path, so
-either route works.
+either route works. A file of operate-it steps is not this kind of demo: Section
+3 puts its steps in the message, and the file is only the phone's copy.
 
 **Where the demo follows a background run the operator was not watching, such
 as a `session-loop` run, also send one `PushNotification`** naming the slice and
