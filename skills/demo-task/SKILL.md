@@ -87,8 +87,7 @@ While it is on:
   the work. Write the change now; the tests come after they approve.
 - **Your whole job is to make the change and tell the operator it is ready to
   look at.** A sentence or two: what you changed, and what to look at. Not a
-  record, not an evidence table of proof commands you did not run. Before
-  that sentence, run `session_budget.py --self` and do what it prints.
+  record, not an evidence table of proof commands you did not run.
 - **Do not commit.** They have approved nothing yet, and a commit made during
   the mode takes that decision away from them. Measured: a session committed
   mid-tweak and the operator's next turn was "Wait, I wasn't ready for commit!
@@ -313,9 +312,7 @@ Rules:
   anything**, on whatever platform the product runs.
 - **A bug your own driving finds means the demo is not ready.** Do not post
   it. Send the work back to build, through `tdd-cycle`, and start again at
-  Section 2 once the fix is committed. Once it is committed, run
-  `session_budget.py --self` before anything else, and do what it prints.
-  Section 4's "do not start fixing
+  Section 2 once the fix is committed. Section 4's "do not start fixing
   anything" covers what the operator finds, not what you find before they
   see it. Measured: no build session in one run opened the app, and the
   demo's own first drive found two bugs.
@@ -521,12 +518,7 @@ slice. Name it, and leave it where it is.
 Work every Section 4 record to one of six outcomes, and no seventh:
 
 - A request to do something before this phase ends. Do it in this phase, and
-  say what came of it. Where doing it changes code, run
-  `session_budget.py --self` once the change lands and before you go back to
-  the operator, and do what it prints. Measured: three demo sessions in one
-  run each fixed something through `tdd-cycle`, checked the room only at
-  their start, and ended at 188,488, 180,400, and 175,894 against 170,000.
-  The operator asking for research, a second look, or a
+  say what came of it. The operator asking for research, a second look, or a
   conversation about a design is not a requirement for a later slice, and
   filing it as one answers a question they did not ask. Measured: "I highly
   recommend researching it and circling with me on this design. Now, I think
