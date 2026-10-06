@@ -209,6 +209,13 @@ Story: As a <person who uses the product>, I can <what they can do>.
   status: <n> of <m> closed
 ```
 
+**Fill `beads` and `proof` from `bd show` of each card, not from memory of the
+build.** Put every proof command under the card whose acceptance criteria name
+it, because Section 5 copies these lines into each card's close reason.
+Measured: an S15 demo record put the enemy test under the wrong card, written by
+a session that had run no `bd` command at all, and both cards had to be closed
+twice.
+
 **The role is someone who uses the product. Never the developer.** A slice
 whose beads are all toolchain still rolls up to something a person can now do
 — launch it and see it run — and the pinned shell, the build and the test
