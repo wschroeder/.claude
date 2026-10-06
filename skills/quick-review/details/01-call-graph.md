@@ -16,9 +16,11 @@ When new code queries a table/schema, grep for all other queries on that same ta
 
 ## 1.3 Return-value assumptions (recovered-error checkpoints are not terminal)
 
-For each new private function, trace its return value through at least 3 caller levels. What does the caller do with the result? What does the caller's caller assume was filtered or transformed? Does the new function's contract satisfy those assumptions?
+For each function the diff adds, and each existing function whose arguments or return value it changes, trace its return value through at least 3 caller levels. Read the callers whether or not the diff touches them: a caller outside the diff is where a changed contract goes unhandled. What does the caller do with the result? What does the caller's caller assume was filtered or transformed? Does the new function's contract satisfy those assumptions?
 
 **Recovered-error checkpoints are not terminal.** A handler returning `:ok` on a recovered error path (race, unique-constraint violation, retry-exhausted, not-found fallback) is NOT the end of the trace — it is a checkpoint. Continue tracing until the terminal side effect (DB write, API response, token minted, redirect emitted). The invariant to prove is that the terminal side effect matches the persisted state, not that the handler returned a success tuple.
+
+Worked example: a fix scoped a domain delete to the statement in the URL and made it return `false` when the holding belonged to another statement. The diff touched only the domain, the application layer, and a test. The route that called it sat outside the diff: it looked the holding up by its id alone before the delete, and it wrote a "holding deleted" audit event whether or not the delete returned `false`. So the route recorded another statement's holding against this one. The review checked the changed query, answered 1.3 with one example from a different function, and passed 2.1 as "audit writes are best-effort". An outside reviewer caught it on the PR. One 1.3 line for the changed delete would have opened that route.
 
 When you see `case some_fallible_call() do :ok -> ...; :already_exists -> :ok end`, ask: does the next step operate on the CALLER's intended payload or on the STORED payload? If the former, the race has decoupled "what the user agreed to" from "what the DB says they agreed to" — a silent integrity break.
 

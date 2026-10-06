@@ -6,6 +6,8 @@ Construct an input/state that crashes the code. Concurrent execution, partial fa
 
 Is the return value bound and checked? A fallible call whose result is ignored (e.g., `Stripe.Subscription.delete(id)` on its own line) is a bug — the failure case is invisible.
 
+A result can also be bound and still ignored: `const deleted = await remove(...)` followed by a side effect that runs whatever `deleted` holds, such as an audit event, a notification, or a success response. Check that every side effect after the call depends on the result. Give each changed function its own line here, not one line for the diff.
+
 ## 2.2 Semantic completeness
 
 Does the call achieve its stated intent, or is it a partial step? Compare the function/variable name to what the API call actually does. Example: `maybe_attach_payment_method` that calls `attach` but never sets the attached method as the default — the name promises more than the implementation delivers.

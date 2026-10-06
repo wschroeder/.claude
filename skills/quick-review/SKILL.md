@@ -134,6 +134,8 @@ Every in-scope angle resolves to exactly one of three states. There is no fourth
 
 "I read it and it looks fine" is not a disposition. It is the satisficing slot. Delete it.
 
+**Angles 1.3 and 2.1 owe one line per changed function.** List every function in the diff that is new or whose arguments or return value changed. Each one gets its own 1.3 line naming the caller you read, including callers outside the diff, and its own 2.1 line saying what that caller does with the result. One example standing in for the whole diff is not a disposition.
+
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
 Demonstrating every angle bankrupts the review, so the burden is tiered by blast radius:
