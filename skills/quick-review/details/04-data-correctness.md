@@ -109,3 +109,11 @@ Prefix/suffix match when exact intended. `"abc-".match(/abc/)` succeeds; `/^abc$
 - **CWE-20 Improper Input Validation** — trusting shape/type/range of an input without a check.
 
 See `details/class-checklist-cwes.md` for worked examples.
+
+## 4.25 Linked-input normalization
+
+When data from outside the system (model output, an uploaded file, a form) carries links between its own records, such as parent ids, references, or next pointers, check what the normalizer does with a loop. Clearing a link to a missing record and clearing a self-link handle loops of length zero and one, and `a → b → a` survives both. For each loop that survives, ask what the downstream code computes: a tree walk may hang, and a sum or check over "top-level" records may silently see none.
+
+Worked example: extracted section totals named a parent section. The importer cleared unknown parents and self-parents, so a model result with two sections naming each other survived. It left no top-level totals, and each section's check passed by summing the other's printed value while unrelated holdings still matched the balance. A review had noticed the possible loop but asked only whether rendering could hang. The fix follows each parent chain and makes every section on a loop top-level, so each is checked against holdings on its own.
+
+**Discovery method:** for each linked field in outside input, build the two-record loop by hand and run it through the normalizer and the check that consumes it.

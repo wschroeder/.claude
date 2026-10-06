@@ -90,7 +90,8 @@ Pass 2 — Injection / SSRF / protocol:
   CWE-611      XXE
 
 Pass 2/3 — Concurrency / state:
-  CWE-362      TOCTOU race (Fix-class for auth/billing/single-use tokens)
+  CWE-362      TOCTOU race (Fix-class for auth/billing/single-use tokens and
+               for any gate other code trusts, such as verified or approved)
   CWE-400      Uncontrolled Resource Consumption
   CWE-770      Allocation Without Limits
 
@@ -191,6 +192,10 @@ Identity-keyed bucket integrity:
 Migration-coverage discipline:
   1.17  Mass-migration coverage          per-site Pass 2 + Pass 4 attempts
   1.18  Role-discriminator twin          every role branch gets equivalent guard
+
+Producer coverage:
+  1.19  New-field producers              every path that creates or edits the row
+                                          can set the field a new check needs
 ```
 
 ## Pass 2 — Adversarial
@@ -205,7 +210,9 @@ Side-effect call hygiene:
 
 Concurrency / race shapes:
   2.4   Divergent-input races            race handler :ok; payloads diverge
-  2.5   Shared-state race severity       auth/billing/single-use → Fix-class
+  2.5   Shared-state race severity       auth/billing/single-use, or a gate other
+                                          code trusts (verified, approved, posted)
+                                          → Fix-class
   2.6a  Tag-after-create non-atomic      create then AddTags (separate call)
   2.6b  Overwrite without re-applying tag PutParameter --overwrite drops tags
   2.6c  Stale-delete-then-put            transient-window readers see un-tagged
@@ -270,6 +277,10 @@ CWE class checks:
   4.22  CWE-697 incorrect comparison     `==` vs `===`; loose equality
   4.23  CWE-707 boundary input           neutralize at system boundary
   4.24  CWE-20 input validation          trust shape/type/range without check
+
+Linked input:
+  4.25  Linked-input normalization       outside data that links its own records:
+                                          loops of any length, not only self-links
 ```
 
 ## Pass 5 — Conventions

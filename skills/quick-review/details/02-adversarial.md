@@ -28,6 +28,10 @@ When a race window touches AUTHENTICATION, AUTHORIZATION, BILLING, single-use to
 
 Justifications that under-weight the severity — "matches the library's posture", "known limitation upstream", "the library does this too", "single-instance deploys are unaffected" — are NOT acceptable downgrades. The library may itself be flawed; deploys can scale; the recommendation bar is the Yes-to-any gate.
 
+The same severity holds for a race on a gate that other code trusts: a flag such as verified, approved, or posted, which downstream reads take as proof that a check passed. If a race lets the flag go true while the check it records no longer holds, the finding is Fix-class. "No auth, billing, or single-use stakes" does not downgrade it.
+
+Worked example: a statement verify ran its holdings reconciliation check and its `verified_at` update as two separate queries. A holding edit landing between them left a verified statement whose holdings no longer reconciled, and collateral values read that flag. A review filed the shape as a Note under the "no auth, billing, or single-use stakes" wording, and an outside reviewer then raised it on the PR. The fix ran the check and the update inside one transaction that locks the statement row (`select … for update`), and every holding edit takes the same lock.
+
 If a tighter primitive exists (`UPDATE ... WHERE used_at IS NULL RETURNING *` pattern, advisory lock, atomic CAS, single-flight cache), surface it as the Fix. The race itself is the finding; document the proposed fix even if the team chooses to defer.
 
 ## 2.6 Resource-create-then-attribute atomicity (security tag as access control)

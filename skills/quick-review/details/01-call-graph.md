@@ -145,3 +145,11 @@ An admit comment that punts to "the UI scopes implicitly" / "their admin surface
 The asymmetric branch is a Fix-class server-side authz finding when (a)/(b)/(c) all miss.
 
 **Discovery method:** for every `if (...role === ...)` or `switch (role)` introduced or modified, mechanically list each branch's authz/scope/validation surface in a 2-column table (branch, guards-present); a row with fewer guards than its siblings is the finding.
+
+## 1.19 New-field producers
+
+Angle 1.7 follows a new field forward to the code that reads it. This angle runs the other way. When the diff adds a field that a new check, sum, or gate depends on, list every path that creates or edits that row: each form, import, extraction step, seed, and admin route. Confirm that each path can set the field. A path that leaves it null produces rows the check treats as absent, and the person using that path has no way to correct them.
+
+Worked example: holdings gained a `section_key` so the app could check each printed section total against the holdings under it. Extraction set the key, but the reviewer's Add holding form sent none. A holding added by hand landed in no section, and the statement stayed blocked unless the reviewer distorted another holding. An outside reviewer caught it on the PR. The fix put a section selector on the add and edit forms and made the route refuse a key the statement does not print.
+
+**Discovery method:** grep for every insert or upsert into the table and every form or DTO that feeds one, then make a two-column list (path, sets the field?). A row that says no is the finding.
