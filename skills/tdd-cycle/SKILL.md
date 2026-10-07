@@ -146,15 +146,7 @@ the ask: a one-line bug does not carry a 200-line diff.
 
 **4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. bd also stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes ([bd-behavior.md](../spec-task/references/bd-behavior.md)). Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change:
-
-```
-$ git commit -m "<what changed>"
-$ bd update <id> --status demoable
-$ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
-  Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
-  Commit a1b2c3d."
-```
+Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. bd also stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes ([bd-behavior.md](../spec-task/references/bd-behavior.md)). Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change.
 
 **The card moves only after step 10's reviews have run on its diff.** Where you
 commit before them, leave the card `in_progress`, and if you hand off before
@@ -162,7 +154,19 @@ they run, name in the handoff each card and the reviews it still owes.
 Measured: a session reviewed its first card, then committed three more
 straight to `demoable` with no review, and its handoff named none of them. One
 of the three carried a bug that left a job running forever, and only the
-loop's own reviewer between sessions caught it.
+loop's own reviewer between sessions caught it. On the next slice, with that
+rule in place below an example that went straight from commit to move, two
+sessions moved three cards with no review loaded. The order:
+
+```
+$ git commit -m "<what changed>"
+  quick-review on the commit, then security-review where writing-code's list
+  calls for one; fix what they find and commit the fixes
+$ bd update <id> --status demoable
+$ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
+  Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
+  Commit a1b2c3d."
+```
 
 **Built is not done, and this loop cannot say it is.** The card goes to
 `demoable`, where it waits for somebody to watch it work; `demo-task` closes it

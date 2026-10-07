@@ -39,8 +39,11 @@ something.
    rewrite it and left nothing behind. Because the handoff is gitignored, this
    does not show up as a dirty tree.
 2. Stop if the handoff's first line begins `BLOCKED:` (a decision the operator
-   has to make) or `DONE` (the work is complete). A blocked stop prints the
-   path of any reviewer findings no session has been handed yet.
+   has to make) or `DONE` (the work is complete). While the reviewer holds
+   findings against the last commit, either one goes back for another session
+   instead, twice at most; a blocked handoff is also not sent back over a dirty
+   tree or once the same-file bound is reached. A blocked stop prints the path
+   of any reviewer findings no session has been handed yet.
 3. Stop if the working tree is dirty — that means the previous session did
    not finish, and a fresh one would build on half-applied work.
 4. Note the current tree hash.

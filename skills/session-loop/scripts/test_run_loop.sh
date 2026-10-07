@@ -77,6 +77,9 @@ case " $* " in
     else
       V="${STUB_VERDICT:-PASS}"
     fi
+    # @N@ becomes the review's number, so each review can name a different file
+    # and the same-file bound never fires.
+    V="${V//@N@/$n}"
     python3 -c 'import json,sys;print(json.dumps({"is_error":False,"num_turns":3,"terminal_reason":"completed","total_cost_usd":0.28,"result":sys.argv[1]}))' "$V"
     exit 0 ;;
 esac
@@ -107,9 +110,15 @@ case "${STUB_MODE:-commit}" in
   blocked)
     # Commits real work, then blocks — a session that got somewhere before it
     # hit the question. The handoff is gitignored, so it commits a file too.
-    echo "$RANDOM" >> file.txt
+    # Past STUB_BLOCKED_COMMITS sessions it commits nothing, so a run that
+    # never stops sending it back ends on "changed nothing" instead of hanging.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
     printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
-    git add -A && git commit -qm "stub: blocked"
+    if [ "$n" -le "${STUB_BLOCKED_COMMITS:-1000}" ]; then
+      echo "$RANDOM" >> file.txt
+      git add -A && git commit -qm "stub: blocked"
+    fi
     ;;
   amendwork)
     # Finishes the unfinished commit it was handed rather than adding one: the
@@ -193,6 +202,15 @@ case "${STUB_MODE:-commit}" in
     # what a session does if it takes "stop where you are" to mean stopping
     # without a commit. The question goes in the handoff, the work stays in the
     # tree.
+    echo "half-written" >> file.txt
+    printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
+    ;;
+  blockedcommitdirty)
+    # Commits some work, raises a question, and leaves more work uncommitted:
+    # the reviewer still reads the commit, so findings can be pending while the
+    # tree is dirty.
+    echo "$RANDOM" >> file.txt
+    git add -A && git commit -qm "stub: committed some of it"
     echo "half-written" >> file.txt
     printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
     ;;
@@ -448,6 +466,84 @@ FINDINGS_NAME="$(basename "$(ls "$ROOT/logs"/findings-*.md 2>/dev/null | tail -n
 STOP_TEXT="$(sed -n '/stopping: the handoff is blocked/,$p' "$ROOT/out.txt")"
 case "$STOP_TEXT" in *"$FINDINGS_NAME"*) ok=0 ;; *) ok=1 ;; esac
 check "a blocked stop with nothing committed names the pending findings file" 0 "$ok"
+unset STUB_VERDICT
+drop_fixture
+
+# --- a blocked handoff with the reviewer's findings unfixed goes back for one
+#     more session, the way DONE does, and stops once nothing is pending ---
+#
+# Measured on the Poimen S3 run: a session committed five times, then wrote
+# BLOCKED, and the reviewer found a test that could not fail in its last
+# commit. The driver stopped on the question with the finding unread, so the
+# operator got a demo request on top of a known weak test.
+new_fixture
+export STUB_MODE=blocked
+export STUB_VERDICT_FIRST="FAIL
+- file.txt:1 — the widget count is off by one"
+export STUB_VERDICT=PASS
+mkdir -p "$ROOT/logs"
+status="$(run_loop --logs "$ROOT/logs")"
+check "a blocked handoff with findings pending is sent back, then stops with success" 0 "$status"
+check "the blocked handoff got one more session to fix the findings" 3 "$(git -C "$REPO" rev-list --count HEAD)"
+grep -q "widget count is off by one" "$ROOT/last-prompt.txt"
+check "the session sent back is handed the findings" 0 $?
+grep -q "keep its BLOCKED line" "$ROOT/last-prompt.txt"
+check "the session sent back is told to keep the question for the operator" 0 $?
+grep -q "Sending it back rather than stopping (1 of 2)" "$ROOT/out.txt"
+check "the send-back is reported with its count" 0 $?
+unset STUB_VERDICT_FIRST STUB_VERDICT
+drop_fixture
+
+# A session that keeps blocking while the reviewer keeps finding something gets
+# two more tries, then the run stops on the question for a person.
+new_fixture
+export STUB_MODE=blocked
+export STUB_VERDICT="FAIL
+- file.txt:1 — the widget count is off by one"
+mkdir -p "$ROOT/logs"
+status="$(run_loop --logs "$ROOT/logs")"
+check "a blocked handoff the reviewer never clears still stops on the question" 0 "$status"
+check "a blocked handoff is sent back at most twice" 4 "$(git -C "$REPO" rev-list --count HEAD)"
+grep -q "stopping: the handoff is blocked" "$ROOT/out.txt"
+check "the final stop is reported as blocked" 0 $?
+unset STUB_VERDICT
+drop_fixture
+
+# The same, with each review naming a different file, so the same-file bound
+# never fires and only the bound on blocked send-backs can stop the run. The
+# stub commits five times at most; past that, a run with no such bound ends on
+# a session that changed nothing, three commits later than this one.
+new_fixture
+export STUB_MODE=blocked
+export STUB_BLOCKED_COMMITS=5
+export STUB_VERDICT="FAIL
+- file@N@.txt:1 — the widget count is off by one"
+mkdir -p "$ROOT/logs"
+status="$(run_loop --logs "$ROOT/logs")"
+check "a blocked handoff over findings in new files each time still stops on the question" 0 "$status"
+check "the bound on blocked send-backs holds when each finding names a new file" 4 \
+  "$(git -C "$REPO" rev-list --count HEAD)"
+grep -q "stopping: the handoff is blocked" "$ROOT/out.txt"
+check "the run stops on the question once the bound is reached" 0 $?
+unset STUB_BLOCKED_COMMITS STUB_VERDICT
+drop_fixture
+
+# A blocked handoff over a dirty tree is not sent back, even with findings
+# pending: the stop has to print the question beside the uncommitted work, and
+# a session sent back would reach the dirty-tree stop, which prints neither.
+new_fixture
+export STUB_MODE=blockedcommitdirty
+export STUB_VERDICT="FAIL
+- file.txt:1 — the widget count is off by one"
+mkdir -p "$ROOT/logs"
+status="$(run_loop --logs "$ROOT/logs")"
+check "a blocked handoff over a dirty tree with findings pending exits 1" 1 "$status"
+grep -q "Sending it back" "$ROOT/out.txt"
+check "a blocked handoff over a dirty tree is not sent back" 1 $?
+grep -q "pick a colour" "$ROOT/out.txt"
+check "the question is printed beside the dirty tree" 0 $?
+grep -q "left work uncommitted" "$ROOT/out.txt"
+check "the uncommitted work is named beside the question" 0 $?
 unset STUB_VERDICT
 drop_fixture
 
@@ -1346,6 +1442,9 @@ drop_fixture
 # range is exact and the driver already holds both ends of it.
 new_fixture
 export STUB_MODE=blocked
+# A clean review, so the blocked session is not sent back for another and the
+# one record is the whole run.
+export STUB_VERDICT=PASS
 BEFORE="$(git -C "$REPO" rev-parse HEAD)"
 status="$(run_loop --logs "$ROOT/logs")"
 check "recording the range leaves the run's exit code alone" 0 "$status"

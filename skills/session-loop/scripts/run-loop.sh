@@ -294,7 +294,9 @@ re-done at full price, so saving tokens on a close call buys nothing.
 If you cannot proceed without a decision only the operator can make, commit what
 you have the same way — unfinished, and saying so — then make the first line of
 $HANDOFF read "BLOCKED: " followed by one sentence naming the decision, leave the
-rest of the file as it is, and stop. The loop will halt and wait for a person.
+rest of the file as it is, and stop. The loop will halt and wait for a person,
+unless the reviewer finds something in your last commit: then a session is
+handed that first, and the question waits until it is fixed.
 Commit first or your question is never read: the driver only looks at the first
 line of $HANDOFF at the start of an iteration, so a session that raises one
 without committing is caught by the did-anything-change test first, and the run
@@ -385,6 +387,9 @@ FINDINGS_IN=""
 # that is the two of them not converging, which spending more will not settle.
 MAX_DONE_OVERRIDES=2
 DONE_OVERRIDES=0
+# The same bound for a session that hands off BLOCKED over unfixed findings.
+MAX_BLOCKED_OVERRIDES=2
+BLOCKED_OVERRIDES=0
 # MAX_DONE_OVERRIDES for the case where nobody claims to be finished. Three,
 # because two findings running on one file is a fix that needed a second pass
 # and a third is the two of them circling it. Measured on the run that prompted
@@ -490,7 +495,32 @@ while :; do
   [ -s "$HANDOFF_PATH" ] || die "handoff file is missing or empty: $HANDOFF_PATH
        The last session was supposed to rewrite it and left nothing behind."
 
-  stop_if_blocked
+  # A question for the operator does not excuse the commit before it. Measured
+  # on the Poimen S3 run: a session committed, wrote BLOCKED to ask for a demo,
+  # and the reviewer found a test in that commit that could not fail. The run
+  # stopped with the finding unread, and the operator was asked to watch a demo
+  # resting on it. So BLOCKED goes back for another session while findings are
+  # pending, bounded the same way DONE is. A dirty tree skips this, because
+  # stop_if_blocked is what names the uncommitted work beside the question, and
+  # so does a reviewer already circling one file: the question outranks that
+  # bound, and sending the session back would only let the bound fire first.
+  if head -n 1 "$HANDOFF_PATH" | grep -q '^BLOCKED:' \
+     && [ -n "$PENDING_FINDINGS" ] \
+     && [ "$BLOCKED_OVERRIDES" -lt "$MAX_BLOCKED_OVERRIDES" ] \
+     && [ "$LATCH_COUNT" -lt "$MAX_SAME_FILE_FINDINGS" ] \
+     && [ -z "$(git -C "$REPO" status --porcelain)" ]; then
+    BLOCKED_OVERRIDES=$((BLOCKED_OVERRIDES + 1))
+    printf '  the handoff is blocked, but the reviewer found something in the last commit.\n'
+    printf '  Sending it back rather than stopping (%s of %s).\n' \
+      "$BLOCKED_OVERRIDES" "$MAX_BLOCKED_OVERRIDES"
+    PENDING_FINDINGS="The handoff below is blocked on a question for the operator. Fix what
+the reviewer found, commit, keep its BLOCKED line as the first line, and stop.
+Do not try to answer the question yourself.
+
+$PENDING_FINDINGS"
+  else
+    stop_if_blocked
+  fi
 
   # A finished project is a clean stop, not a failure. Without this a session
   # that has done everything changes nothing, and the tree-moved check below

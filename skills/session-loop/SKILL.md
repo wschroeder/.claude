@@ -180,15 +180,19 @@ git -C <repo> log --oneline -20
 python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <start>
 ```
 
-Where the stopped session produced a demo artifact, read the file so it
-renders here rather than handing over its path.
+Where the stopped session produced a demo artifact, paste the demo output
+into your message and send the file with SendUserFile. Reading it with a tool
+puts it in your context only, and the operator sees nothing but your summary.
 
 **The last review's findings are owed work, and nothing in the loop owns
 them.** The driver hands each iteration's findings to the next session, so the
 final iteration's have no reader by construction — its own output names the
 file and stops there. Where that last line says the reviewer found something,
-read the file, say what is in it, and put it in the handoff as work still to
-do. Measured: a run ended with two findings in
+read the file and fix each finding through `tdd-cycle` before you write any
+demo ask; a finding you judge not worth fixing goes in the report with the
+reason. Measured on Poimen S3: the run stopped for a demo with a test in the
+last commit that could not fail, and the operator was asked to watch a demo
+resting on it. Measured earlier: a run ended with two findings in
 `findings-20260910T010228-5.md`, and what carried them forward was an attended
 session writing its handoff by hand, not anything here.
 
@@ -264,7 +268,11 @@ inside a worker runs the check once rather than twice.
 It stops when the handoff says `DONE` and the reviewer is holding nothing
 against the last commit — a `DONE` with findings outstanding goes back for
 another session instead, twice at most before the run stops and asks for a
-person. It also stops when the handoff says `BLOCKED:`, when the tree is dirty, when
+person. A `BLOCKED:` handoff goes back the same way while findings are
+outstanding, with the session told to fix them and keep the question, twice at
+most and not once the reviewer has found something in one file three reviews
+running; then the run stops on the question. It also stops when the handoff
+says `BLOCKED:` with nothing outstanding, when the tree is dirty, when
 `claude` exits non-zero, when a session ended for any reason other than
 finishing, when the session reported an error, or when the code came out
 unchanged — never on a count. The one non-zero exit it does not stop on is the

@@ -316,7 +316,9 @@ Rules:
 
 - **Drive the real UI yourself, in a tight loop, before you show the operator
   anything**, on whatever platform the product runs.
-- **A bug your own driving finds means the demo is not ready.** Do not post
+- **A bug your own driving finds means the demo is not ready**, and so does
+  a reviewer finding nobody has fixed yet, such as the one a session loop
+  names when it stops. Do not post
   it. Send the work back to build, through `tdd-cycle`, and start again at
   Section 2 once the fix is committed. Section 4's "do not start fixing
   anything" covers what the operator finds, not what you find before they
@@ -401,9 +403,12 @@ Rules:
   plainly and name what is missing. A slice with no demo is the finding —
   it means the work was cut along module lines rather than through the
   system, and Planning has to correct that for the next one.
-- **Show it, do not name it.** Read the artifact so it renders in the
-  conversation. A path the operator has to open themselves is not a demo.
-  It stays a local file; sending it anywhere needs their word first, per
+- **Show it, do not name it.** Paste the demo output into your message and
+  send the file with SendUserFile. Reading it with a tool puts it in your
+  context only: measured, the operator saw nothing but the summary until
+  they asked for the output. A path the operator has to open themselves is
+  not a demo. SendUserFile puts the file in front of the operator and nobody
+  else; sending it anywhere beyond them needs their word first, per
   CLAUDE.md "Local Files by Default".
 - **A capture that fails is not a slice that cannot be shown.** Exhaust the
   program's own capture before writing that no artifact exists: a graphical
