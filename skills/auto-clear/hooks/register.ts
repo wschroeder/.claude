@@ -1,9 +1,17 @@
-import type { Register } from 'claude-code'
+import type { EngineInterface, Register } from 'claude-code'
 
-// Claude Code names a project's scratchpad folder after its cwd, every character
-// outside [A-Za-z0-9] replaced by '-'.
-const pendingHandoff = (uid: string, cwd: string, sessionId: string) =>
-  `/private/tmp/claude-${uid}/${cwd.replace(/[^A-Za-z0-9]/g, '-')}/${sessionId}/scratchpad/pending-handoff.md`
+// A session's scratchpad folder can be named after a directory other than its current
+// cwd, as after the session moves into a worktree. The session id is unique, so search
+// every project folder for it.
+const findPendingHandoff = async ($: EngineInterface, uid: string, sessionId: string) => {
+  const tmp = `/private/tmp/claude-${uid}`
+  const projects = await $.fs.list(tmp)
+  for (const project of projects) {
+    const path = `${tmp}/${project.name}/${sessionId}/scratchpad/pending-handoff.md`
+    if (await $.fs.exists(path)) return path
+  }
+  return undefined
+}
 
 export const register: Register = on => {
   let uid: string | undefined
@@ -13,8 +21,8 @@ export const register: Register = on => {
     if (e.reason !== 'answer' || e.agentId !== undefined) return answer
 
     uid ??= (await $.process.run(['id', '-u'])).stdout.trim()
-    const pending = pendingHandoff(uid, await $.session.cwd(), await $.session.id())
-    if (!(await $.fs.exists(pending))) return answer
+    const pending = await findPendingHandoff($, uid, await $.session.id())
+    if (pending === undefined) return answer
 
     const handoff = (await $.fs.read(pending)).trim()
     if (handoff === '') return answer
