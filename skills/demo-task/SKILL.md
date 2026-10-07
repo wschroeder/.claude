@@ -523,7 +523,9 @@ Close with `bd close --reason`, and put Section 2's measured output in the
 reason. A card closed with no evidence in its reason is a card nobody can
 audit later. Before you stage the closes, run `bd export -o
 .beads/issues.jsonl`, because bd writes its own export up to a minute late
-([bd-behavior.md](../spec-task/references/bd-behavior.md)).
+([bd-behavior.md](../spec-task/references/bd-behavior.md)). Inside a git
+worktree there is no `.beads/` folder, so export into the folder `bd where`
+prints instead: `bd export -o <that folder>/issues.jsonl`.
 
 **Acceptance is read from Section 4's `worked` line, never from the absence
 of a complaint.** Where the operator said they worked the demo themselves, the
