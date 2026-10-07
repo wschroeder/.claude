@@ -493,12 +493,15 @@ nobody reads a question in the transcript and nobody runs the demo, so commit
 what is already done, then write `HANDOFF.md` through `clear-task` with a first
 line reading `BLOCKED:` and one sentence naming the slice waiting to be demoed
 and the file that holds its demo, and stop. Write `BLOCKED:` only once Section
-3's record and captures exist. A worker that hands off before then writes an
-ordinary handoff naming the Section it stopped in as the next step, because a
-worker can drive and capture and the operator should only be asked to try a
-demo that exists. Measured: a worker blocked on the operator with Section 3
-not started, and the attended session had to unblock it and relaunch the loop
-to build the demo. Write it through the skill rather than by hand, however close the
+3's record and captures exist and the drive has reached everything the slice
+changed. A worker that hands off before then writes an ordinary handoff naming
+the Section it stopped in, or the step it has still to drive, as the next step,
+because a worker can drive and capture and the operator should only be asked
+to try a demo that exists. Measured: a worker blocked on the operator with
+Section 3 not started, and the attended session had to unblock it and relaunch
+the loop to build the demo. Measured again: a worker short of room drove a
+turn's replay, wrote `BLOCKED:`, and handed the operator the look back at an
+earlier turn that the slice had also changed. Write it through the skill rather than by hand, however close the
 ceiling is: the handoff point is a budget and not a limit. No requirement
 reaches `demoed` from an unattended run, because that status is what a person
 looking at the thing produces; they stay `built` until someone has looked. A
