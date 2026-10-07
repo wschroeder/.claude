@@ -334,6 +334,13 @@ Rules:
   a session quoted a definition of released that named a URL, in the same
   evidence block that recorded it driving a container on localhost, and the
   operator caught it rather than the template.
+- **Play on until the thing the slice changed happens.** Where the slice
+  changes something a player only meets later in play, such as under fire,
+  at contact, or after losses, drive the product until that moment arrives
+  and capture it. Do not hand the operator a check you could drive yourself.
+  Measured: an S12 demo told the operator to watch a column's smoke under
+  fire because "this drive had no fighting in it", and they asked why the
+  battle part could not be tested.
 - **Where you cannot reach that thing, say which link is unproven and hand
   the last one to the operator.** Some released states cannot be driven from
   here at all — a sign-in a person completes, a cluster only they can reach,
