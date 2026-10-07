@@ -72,6 +72,23 @@ The fix is an atomic CAS: `UPDATE state SET last_started_at = now() WHERE path =
 
 The non-atomic read-then-update shape is Fix-class regardless of how single-source the trigger is today. The doc that claims "completion-gated" but the code that implements read-then-update is itself a comment/code drift finding (Pass 6).
 
+## 2.18 Cross-writer race
+
+2.4 to 2.7 ask whether one path is safe against a second copy of itself. This angle asks whether it is safe against every other path that writes the same rows. Concurrency findings in a review usually hide here, because each function looks atomic when read alone.
+
+Method:
+
+1. For each write path in the diff, list the tables it writes and the parent rows its foreign keys reference.
+2. Grep for every other function that writes, deletes, or merges those rows or those parents, inside the diff and outside it.
+3. Build a table of the pairs. For each one, name the lock, constraint, or transaction that puts the two in order. A pair with nothing between them is the finding.
+
+Watch for these two signs:
+
+- **Sibling lock asymmetry.** Most writers of an entity open with `select ... for update` on it, and one does not. If the review writes "A, B, and C lock the row; D is one statement", then it has already described the finding. One statement is atomic against itself and orders nothing against a writer holding a row lock.
+- **A child insert against a parent another writer is deleting.** Writer A inserts a child row that references a parent. Writer B has locked the parent and is deleting it or merging it into another. A's insert blocks on the foreign key's key-share lock. After B commits, the insert fails with a foreign-key violation (Postgres `23503`), and the route returns 500 where it should return 404. To fix it, have A lock the parent first in the same transaction, so that A either runs before B or finds no parent.
+
+Artifact: hold writer B's transaction open in one session (for example with `pg_sleep`), run writer A in a second, and show the outcome. A test that races A against another A does not demonstrate this angle.
+
 ## 2.8 Pre-auth information oracles
 
 For any endpoint that performs both a resource lookup (by caller-supplied identifier) AND authentication, check the ORDER of those operations. If the resource lookup runs first and its failure modes produce distinguishable error messages or status codes ("already used" vs "expired" vs "not found" vs "invalid signature"), an unauthenticated caller who can enumerate or guess identifiers gets an oracle into internal state — token/code lifecycle, user existence, session status.

@@ -219,6 +219,9 @@ Concurrency / race shapes:
   2.6b  Overwrite without re-applying tag PutParameter --overwrite drops tags
   2.6c  Stale-delete-then-put            transient-window readers see un-tagged
   2.7   Completion-gate / lease TOCTOU   read-then-update; use CAS / advisory lock
+  2.18  Cross-writer race                each write path against every OTHER writer
+                                          of its rows and their FK parents; a sibling
+                                          that locks where this path does not → finding
 
 Auth boundary:
   2.8   Pre-auth information oracles     lookup-then-auth distinguishable errors
@@ -379,6 +382,8 @@ Downstream systems, caches, cron jobs, deploy coordination. **Higher classificat
                                           are NOT in scope — destructive recs on
                                           filter-excluded rows are CATEGORY ERRORS.
                                           Only NEW write-time invariants trigger.
+  8.3   Rollback after user edits         run each down migration after the edits
+                                          the feature allows, then up again
 ```
 
 ## Pass 9 — Test-suite reach

@@ -20,7 +20,12 @@ Authorization scope    Construct the row the new gate should exclude; run the
 
 Atomicity / TOCTOU     Show the single-transaction boundary in the code (one call /
                        advisory lock / CAS). Two separate calls with a read between
-                       them is a FINDING, not a clean bill.
+                       them is a FINDING, not a clean bill. That boundary
+                       proves the path safe against itself only: also list
+                       every other writer of the same rows and of the parents
+                       its foreign keys name, and show the lock or constraint
+                       that orders each pair (2.18). A test racing the path
+                       against itself is not that artifact.
 
 Error-return shape     Trigger the error path (probe or test); show the return is the
                        {:error, _} callers destructure, not a raise that aborts the

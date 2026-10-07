@@ -29,3 +29,11 @@ Filtered rows are not invariant violations; they are legitimate user-authored da
 Either (a) add a read-time guard that re-validates each row's invariant before trusting it, or (b) plan a data migration to cleanse or reject legacy rows. This is the inverse of downstream — it's upstream data that precedes the current code. Grep for every stored field the new validation would have guarded and check whether the consumers re-validate or trust.
 
 The Destructive-recommendation gate in Classify applies to any data-cleanup recommendation produced by this angle.
+
+## 8.3 Rollback after user edits
+
+In scope whenever the diff adds a down migration, and especially a down migration that reverses a seed or a data change. A down migration finds its rows by some key. If users can change that key through the feature (rename, delete, merge, change which value is primary), then the rollback can miss the rows it was written to remove, and a later up can then collide with what it left behind.
+
+Method: on a scratch database, run the up migration and then each supported edit through the app's own functions or routes. Then run the down migration, and then the up migration again. Show what the down left behind and whether the up succeeded. Reading the down file is not a disposition for this angle: the miss happens only after the edits.
+
+A finding here is usually a Flag or a Note, not a Fix. Whether a rollback has to survive user edits is a decision for the person who owns the deploy, and the cure (an immutable seed marker, say) changes the schema. Say what the rollback leaves behind so the PR body or the runbook can record it.
