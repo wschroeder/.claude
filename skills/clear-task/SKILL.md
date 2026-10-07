@@ -1,6 +1,6 @@
 ---
 name: clear-task
-description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the sections from what the session already holds rather than re-probing for it. Settles whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. Carries the words typed after /clear-task into the prompt word for word, as the next session's first step. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Frontloads every handoff consideration into ordered sections, then emits the finished prompt as the terminal code block. Writes the sections from what the session already holds rather than re-probing for it. Settles whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. For the operator it also writes the block to pending-handoff.md in the session's scratchpad, where the auto-clear mod runs /clear and submits it. Carries the words typed after /clear-task into the prompt word for word, as the next session's first step. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 ---
 
 # clear-task — frontload the handoff, then emit the prompt
@@ -19,7 +19,8 @@ there, add it, and regenerate the prompt. Never append to the prompt.
 
 This template emits one of two artifacts, and one question separates them:
 does a `session-loop` worker read this prompt next, or does the operator? A
-worker gets `HANDOFF.md`, and the operator gets the block.
+worker gets `HANDOFF.md`, and the operator gets the block, written to
+`pending-handoff.md` as well (see "Stop" below).
 
 Read the prompt this session opened with:
 
@@ -436,10 +437,18 @@ the fresh chat must not need this conversation. Nothing follows it.
 
 ## Stop — the prompt is the terminal artifact
 
-This template produces text and nothing else. It does NOT run /clear, does
-NOT begin executing the next steps, and does NOT write the prompt to a file
-unless §0 settled that a worker reads it next, or the operator explicitly
-asks. The operator copies the block and starts the new chat.
+This template produces text and the one file §0 settled on. It does NOT run
+/clear itself and does NOT begin executing the next steps.
+
+**Where §0 settled on the operator, write the block's exact text to
+`pending-handoff.md` in the scratchpad directory your system prompt names, then
+print the block.** When the turn ends, the auto-clear mod empties that file,
+runs /clear, and submits the text as the fresh chat's first prompt. Where the
+mod is not loaded, the operator copies the block as before.
+
+**Where §0 settled on a worker, never write `pending-handoff.md`.** The
+worker's handoff is `HANDOFF.md` alone, and `session-loop` starts the next
+session; nothing clears this one.
 
 **A written handoff is a document, not a stop signal.** When a session has
 written its handoff and is still under the ceiling, it has not lost the right
@@ -474,12 +483,12 @@ measured cases behind them are in
 
 ## Notes on what this template does NOT do
 
-- Does not run /clear or start a new session — that is the operator's
-  manual step.
+- Does not run /clear or start a new session. The auto-clear mod does that
+  from `pending-handoff.md`, or the operator does it by hand.
 - Does not begin the next steps; it only describes them.
 - Does not write, commit, push, or post anything, save the one
-  `HANDOFF.md` that §0 calls for and the backlog card §8 requires for
-  a finished phase's owed work. No destructive action either way.
+  `HANDOFF.md` or `pending-handoff.md` that §0 calls for and the backlog
+  card §8 requires for a finished phase's owed work. No destructive action either way.
 - Does not append anything after the prompt code block. A late
   consideration is a §12 miss, fixed by regenerating the block — never by a
   postscript.

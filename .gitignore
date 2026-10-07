@@ -26,6 +26,9 @@
 # .git/info/exclude emptied out.
 !/skills/
 !/skills/**/
+!/skills/auto-clear/**
+# The engine writes these types each time it loads the mod.
+/skills/auto-clear/.claude-plugin/types/
 !/skills/backlog-task/**
 !/skills/clear-task/**
 !/skills/create-task-skill/**
