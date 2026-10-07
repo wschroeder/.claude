@@ -165,8 +165,18 @@ $ git commit -m "<what changed>"
 $ bd update <id> --status demoable
 $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
-  Commit a1b2c3d."
+  Commit a1b2c3d. quick-review Coverage: 14 candidates across 9 passes,
+  1 survived classification; 2 demonstrate-line classes in scope, all with
+  artifacts above."
 ```
+
+**A review is clean only when its Output block printed in this session.** Quote
+its printed Coverage line in the note. Where no Output block printed, the review
+did not run: leave the card `in_progress` and write `quick-review owed` in the
+note and the handoff. A budget line saying `finish the step you are on` does not
+finish a review that has not printed. Measured: two workers on one slice wrote
+"quick-review clean" into bd 29 and 51 seconds after loading the skill, and
+neither printed an Output block.
 
 **Built is not done, and this loop cannot say it is.** The card goes to
 `demoable`, where it waits for somebody to watch it work; `demo-task` closes it

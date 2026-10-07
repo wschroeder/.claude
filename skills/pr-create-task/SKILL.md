@@ -1,6 +1,6 @@
 ---
 name: pr-create-task
-description: Opens a draft pull request end to end — readiness gate, full-diff scan, a body authored to content discipline (what IS, the why, and the operational facts the diff can't show; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when creating or opening a pull request, writing a PR body or description, or running `gh pr create` — "make the PR", "open a PR", "create the PR".
+description: Opens a draft pull request end to end — readiness gate that folds the stack to one commit per claim, a body drawn from the commit messages and authored to content discipline (what IS, the why, and the operational facts read from the non-test diff; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when creating or opening a pull request, writing a PR body or description, or running `gh pr create` — "make the PR", "open a PR", "create the PR".
 ---
 
 # pr-create-task — author and open a draft pull request
@@ -39,23 +39,49 @@ Report:
 - Base branch:    <origin/master (or origin/main) — never the local ref>
 ```
 
+**Fold the stack to one commit per claim before the push gate.** Group the
+commits by the claim each makes, under `git-commit`, "How many commits".
+Fold every fix commit into the commit it fixes, and fold each group into one
+commit with a message authored through `git-commit`. A branch built one card
+at a time arrives as one commit per card. While `git branch -r --contains
+HEAD` prints nothing, the fold needs nobody's words. Measured: a push gate
+listed 20 commits and raised nothing, and the operator had to ask; the fold
+then made two.
+
 **GO/NO-GO:**
-- **GO** if the working tree holds only intended changes and tests are
-  green.
+- **GO** if the working tree holds only intended changes, tests are green,
+  and the stack is one commit per claim.
 - **NO-GO** if junk is staged or the stack isn't the shape you mean to
   ship — fix that first, here.
 
 Reviewing the code is the operator's call, not this template's. Do not
 run quick-review or security-review here, and do not ask whether they ran.
 
-## Diff Scan
+## Commit and Operational Scan
 
-Read the FULL cumulative diff, no truncation, before authoring. The body
-must be grounded in what actually changed, not in memory of the session.
+The commit messages already say what changed and why, so the body's what
+and why come from them, not from the diff:
 
 ```bash
-git diff origin/<base>..HEAD
+git log --format='%h %s%n%n%b' origin/<base>..HEAD
 ```
+
+The diff is read for one thing only: an operational fact a deployer has to
+act on, such as a migration, an environment variable, infra, CI, or a
+dependency. Find those paths with the stat, leaving test files out, and read
+the diff of those paths alone:
+
+```bash
+git diff --stat origin/<base>...HEAD -- . <':!<test path>' for each test path>
+git diff origin/<base>...HEAD -- <each operational path>
+```
+
+Work out which paths are tests from the project's test runner config first,
+such as vitest or jest `include`, playwright `testDir`, or pytest `testpaths`,
+and then from naming (`*.test.*`, `*.spec.*`, `test_*.py`, `tests/`,
+`__tests__/`). Never diff a test file for the body. Measured: two sessions
+read a 3,257-line diff in full for one PR, and each climbed past the 170,000
+handoff ceiling; tests made up 60% of its changed lines.
 
 ## Body — content discipline
 
