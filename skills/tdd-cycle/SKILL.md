@@ -156,6 +156,14 @@ $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   Commit a1b2c3d."
 ```
 
+**The card moves only after step 10's reviews have run on its diff.** Where you
+commit before them, leave the card `in_progress`, and if you hand off before
+they run, name in the handoff each card and the reviews it still owes.
+Measured: a session reviewed its first card, then committed three more
+straight to `demoable` with no review, and its handoff named none of them. One
+of the three carried a bug that left a job running forever, and only the
+loop's own reviewer between sessions caught it.
+
 **Built is not done, and this loop cannot say it is.** The card goes to
 `demoable`, where it waits for somebody to watch it work; `demo-task` closes it
 once the operator has. A card this loop closed itself would reach Done having
