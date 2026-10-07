@@ -81,9 +81,11 @@ not.
 The operator is approving a slice of behavior. Two things reach them, in
 this order.
 
-**Lead with the stories, in full**, in the shape `spec-task` Section 6
-printed them — role, what they can do, the tasks, the proof. That list is
-the whole of what they should have to read to decide.
+**Show the operator the stories and nothing below them**: who each one is
+for, what they will be able to do, and what they will look at to see it
+working. Leave out the tasks, requirement ids, blocking edges, and issue
+counts. The operator approves stories and has never reviewed a card, so
+the card detail only lengthens what they have to read before deciding.
 
 **A story the operator can decide on has no unknowns left inside it.** Each
 one names who it is for and what they will be able to do, carries the
@@ -91,8 +93,7 @@ acceptance criteria its card will be created with, and leaves them nothing to
 look up. Where a story still holds an open question, that question is the ask
 instead, and the creation waits behind it.
 
-Then the mechanics, in at most three lines: whether `bd init` runs first,
-how many issues get created, and whatever else in the repository changes.
+Where `bd init` has to run first, say so in one line.
 
 **Open the ask with the phase line**, directly above the question — the
 four phases in order, this stop's capitalized:
