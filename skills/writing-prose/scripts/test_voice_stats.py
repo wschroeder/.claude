@@ -22,6 +22,17 @@ def main():
                  "Not the code but the test."):
         assert vs.measure(text)["inversions"] > 0, text
 
+    # a Slack post: each bullet is a sentence, and so is the lead-in that ends
+    # in a colon, and the marker is not a word
+    m = vs.measure("Two steps got slower:\n* seed: 48s to 58s\n- app scan\n"
+                   "• migrate scan\n1. build")
+    assert m["sentences"] == 5, m
+    assert m["median_words"] == 2, m
+    m = vs.measure("* a bullet with no stop\n  wrapped onto two lines\n\nNext paragraph here.")
+    assert m["sentences"] == 2, m
+    m = vs.measure("## Heading\n\nBody.")
+    assert m["sentences"] == 1, m
+
     m = vs.measure("It is pretty much done. Hopefully that works.")
     assert m["hedges"] == 100.0, m
 
@@ -63,7 +74,7 @@ def main():
     finally:
         os.unlink(path)
 
-    print("test_voice_stats: 22 assertions passed")
+    print("test_voice_stats: all assertions passed")
 
 
 if __name__ == "__main__":

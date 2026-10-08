@@ -25,10 +25,14 @@ HEDGES = (r"pretty much|a bit|I'm sure|hopefully|a little|roughly|about|mostly|"
 INVERSIONS = (r",\s*not\b|\bis not\b[^.]{0,80}\.\s*It is\b|\brather than\b|"
               r"\binstead of\b|\bas opposed to\b|\bnot\b[^.]{0,40}\bbut\b")
 MAXIM = re.compile(r"^(?:A|An|The|One)\s+\S+(?:\s+\S+){0,8}\s+is\s+(?:\S+\s*){1,6}\.$")
+BULLET = re.compile(r"\n[ \t]*(?:[*•-]|\d+[.)])[ \t]+")
 
 
 def sentences(text):
-    return [s.strip() for s in re.split(r"(?<=[.?!])\s+", text) if s.strip()]
+    head, *items = BULLET.split("\n" + text)
+    pieces = [head] + [p for item in items for p in re.split(r"\n\s*\n", item, maxsplit=1)]
+    return [s.strip() for piece in pieces
+            for s in re.split(r"(?<=[.?!])\s+", piece) if s.strip()]
 
 
 def load(path, is_json):
