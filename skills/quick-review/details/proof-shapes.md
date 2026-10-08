@@ -18,14 +18,21 @@ Authorization scope    Construct the row the new gate should exclude; run the
                        query/resolver AS the unprivileged subject; show it is absent
                        from the result. "The gate looks correct" is NOT proof.
 
-Atomicity / TOCTOU     Show the single-transaction boundary in the code (one call /
-                       advisory lock / CAS). Two separate calls with a read between
-                       them is a FINDING, not a clean bill. That boundary
-                       proves the path safe against itself only: also list
-                       every other writer of the same rows and of the parents
-                       its foreign keys name, and show the lock or constraint
-                       that orders each pair (2.18). A test racing the path
-                       against itself is not that artifact.
+Atomicity / TOCTOU     Owes two artifacts.
+                       AGAINST ITSELF (2.7): run two copies of the path at once
+                       and show what each one wrote, OR quote the lock both
+                       copies take before their first write (select … for
+                       update / advisory lock / CAS whose row count is checked).
+                       A transaction boundary alone is NOT proof: under read
+                       committed two copies of one transaction interleave.
+                       Neither is a grep of a later step that "claims only the
+                       newest". Two separate calls with a read between them is
+                       a FINDING, not a clean bill.
+                       AGAINST OTHER WRITERS (2.18): list every other writer of
+                       the same rows and of the parents its foreign keys name,
+                       and show the lock or constraint that orders each pair.
+                       The self-race run covers only the first artifact and
+                       never stands in for this one.
 
 Error-return shape     Trigger the error path (probe or test); show the return is the
                        {:error, _} callers destructure, not a raise that aborts the

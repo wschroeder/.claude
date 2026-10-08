@@ -223,7 +223,7 @@ Concurrency / race shapes:
   2.6a  Tag-after-create non-atomic      create then AddTags (separate call)
   2.6b  Overwrite without re-applying tag PutParameter --overwrite drops tags
   2.6c  Stale-delete-then-put            transient-window readers see un-tagged
-  2.7   Completion-gate / lease TOCTOU   read-then-update; use CAS / advisory lock
+  2.7   Self-race / lease TOCTOU         2 runs at once: every write, not just 1 step
   2.18  Cross-writer race                each write path against every OTHER writer
                                           of its rows and their FK parents; a sibling
                                           that locks where this path does not → finding

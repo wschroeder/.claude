@@ -58,7 +58,7 @@ A `DeleteParameter` followed by `PutParameter` is the worst of both worlds for t
 
 **Discovery method:** for every IaC or runtime resource-creation call in the diff, locate the policy/condition/binding that gates ACCESS to the resource. If that policy keys on an attribute (tag, label, annotation, ownership column), check whether the create + attribute writes are atomic OR ordered such that the attribute is always present before any consumer reads. A Fix-class downgrade is justified only if the gating policy fails CLOSED on the missing attribute AND no other policy union grants access during the window. Document the closed-window reasoning explicitly; default is Fix.
 
-## 2.7 Completion-gate / lease TOCTOU (read-then-update against a DB row)
+## 2.7 Self-race / lease TOCTOU (two copies of one path against a DB row)
 
 A common stampede-prevention pattern: a cron handler reads a row `cron_job_state.last_completed_at` (or `leases.expires_at`, `job_locks.acquired_at`), checks whether the configured idle window has elapsed, and proceeds. If two invocations arrive concurrently, BOTH read the same value, BOTH pass the gate, BOTH execute the job. This is canonical CWE-362 — the check (read) and the act (update) are separated by an event boundary.
 
@@ -71,6 +71,14 @@ The fix is an atomic CAS: `UPDATE state SET last_started_at = now() WHERE path =
 - **DynamoDB:** `UpdateItem` with `ConditionExpression: "last_completed_at = :snapshot"`
 
 The non-atomic read-then-update shape is Fix-class regardless of how single-source the trigger is today. The doc that claims "completion-gated" but the code that implements read-then-update is itself a comment/code drift finding (Pass 6).
+
+### Two copies of a multi-write transaction
+
+The same race hides in any path a person or a job can start twice for the same row: two re-uploads of one file, two clicks on "retry", two webhook deliveries. Wrapping the path in a transaction does not order the two copies. Under Postgres's default `read committed`, both transactions read the same starting state, and each deletes, overwrites, and prunes before either commits. Only a lock that both copies take before their first write orders them: `select … for update` on the row they rewrite, an advisory lock, or a CAS predicate whose matched-row count the code checks.
+
+Ask what each copy writes, not only whether the last step runs twice. A downstream claim that picks only the newest job (`for update skip locked`, "claims only the latest") answers the second question and says nothing about the first. Worked example: two re-uploads of one statement file each deleted the file's statements, overwrote its page limit, and pruned its pages before the worker claimed anything. Two reviews read the worker's claim query, wrote "the stale row is never run", and left the race open. A test that ran both uploads at once showed both starting a read. The fix locked the file row at the top of the re-upload transaction.
+
+Artifact: run two copies at once against real Postgres (`Promise.all` of two calls, or one copy held open with `pg_sleep` while the second runs), and assert on what each copy wrote: audit events, rows deleted, and the final value of every column the path sets. Reading the transaction boundary, or grepping the downstream claim, is not this artifact.
 
 ## 2.18 Cross-writer race
 
