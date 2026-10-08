@@ -16,13 +16,15 @@ does not apply to either.
 
 - [Stand level with the reader](#stand-level-with-the-reader) — narrate the
   attempt, open the premise before you diagnose, stack the softeners for an ask
-  and drop them for a finding, refuse to explain their system back to them.
+  and drop them for a finding, soften an attribution but never a measurement,
+  refuse to explain their system back to them.
 - [Cut what the reader can supply](#cut-what-the-reader-can-supply) — one code
-  block holding the earliest surprise, no escape hatch, the identifier inside
-  the ask and the grants in bullets, no locator they already know, and none of
-  the operator's personal material.
+  block holding the earliest surprise, nothing but findings in a post that asks
+  nothing, each explanation on its own item's line, no escape hatch, the
+  identifier inside the ask and the grants in bullets, no locator they already
+  know, and none of the operator's personal material.
 - [Write as you would say it](#write-as-you-would-say-it) — no em-dashes, no
-  imagery, contractions, fragments allowed.
+  imagery, contractions, fragments allowed, and `*` for a Slack bullet.
 - [Let the thread set the frame](#let-the-thread-set-the-frame) — the greeting
   and the emoji.
 - [What holds in the formal register too](#what-holds-in-the-formal-register-too)
@@ -69,6 +71,16 @@ two asking for a grant carried four softeners each and the one asking about
 intent carried none, and the operator's rewrite of a model draft of that third
 message cut both softeners the draft had put in.
 
+**Inside a finding, soften the attribution and leave the measurement bare.** A
+number you measured takes no softener. A claim that the parts you measured
+explain the total is an inference, and it takes one softener, such as "looks
+like". Report the period you measured, in the past tense, rather than projecting
+a trend from it. Measured on one status post to a team channel: the operator
+stated every measured number flat, and softened only the sentence assigning an
+overall slowdown to three steps, where the model draft had asserted "nearly all"
+of it without a softener. The operator also turned the draft's present-tense
+trend into a past-tense report of the period measured.
+
 **Never explain the reader's own system back to them.** Working out why a
 permission is missing feels like diligence, and writing that up for the person
 who built the thing reads as a lecture. Name what you need and stop, and leave
@@ -86,6 +98,21 @@ spent its next paragraph explaining that failure away, while the operator's
 message quoted one line from the check upstream of it and never mentioned the
 failure at all. A request id looks like evidence and buys the reader nothing once
 the diagnosis is right.
+
+**In a post that asks nothing, leave out everything that isn't a finding.** A
+report to a team channel states what the data shows and stops. Cut what held
+steady, what you could not check, your guesses about the cause, a next step
+nobody asked for, and a number restated in other units. A guess earns its place
+only when the message asks someone who can confirm it. Measured on one status
+post: the operator cut the model draft from 219 words to 133, and every line
+removed was one of those five kinds.
+
+**Keep each explanation on the line it explains.** Give an item's number and
+its explanation together, on one bullet, after a ` - `. Never list the items and
+then return to some of them in later paragraphs under bold labels, because that
+makes the reader carry a number until its explanation arrives. Measured on the
+same post: the operator folded two labelled follow-up paragraphs into the bullets
+they explained.
 
 **Ask for the thing, and drop the escape hatch.** Offering an easier alternative
 — "or you could just do it yourself and send me the output" — feels generous and
@@ -137,6 +164,9 @@ rule here and still read formal on this alone.
 
 **A fragment is a complete move.** Two or three words closing a thought reads as
 speech, and reaching for a full clause to carry the same content adds distance.
+
+**Type a Slack bullet as `* `, the marker the operator types.** Measured on one
+status post: the model draft used `•` and the operator's posted message used `*`.
 
 ## Let the thread set the frame
 
