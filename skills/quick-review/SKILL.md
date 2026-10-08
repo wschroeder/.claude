@@ -115,7 +115,12 @@ Language-specific shape catalogs: `details/language-typescript.md`, `details/lan
 
 **No angle count.** Walk the named angles that are live in this diff and mark the rest `N/A`. There is no minimum number of attempts: the demonstration discipline below, not a count, is what stops a review at its first finding.
 
-**Scope rule.** Pre-existing code on the call path is in scope. "Not my diff" is not a dismissal. Question: does this diff INTERACT with a problem? A problem that predates the branch and that the diff does not make worse is not the branch's to fix: report it in one line and leave it.
+**Scope rule.** Pre-existing code on the call path is in scope. "Not my diff" is not a dismissal. Question: does this diff INTERACT with a problem?
+
+- **When the diff changes a rule, every path that must obey it is in scope.** A rule is anything the code is held to: a spec line, a validation, a database check, a product decision. Grep code, docs, and user-facing pages for the old rule's shape — its comparison, its wording — and list every hit, edited by the diff or not. A hit that still enforces or states the old rule is a **Fix**, never a Note: it predates the branch, but the branch is what made it wrong. `pr-feedback-task` check 2 draws the same line for review comments.
+- **Otherwise, a problem that predates the branch and that the diff does not make worse is not the branch's to fix:** report it in one line and leave it.
+
+Why: [details/why-the-gates.md](details/why-the-gates.md), "Why a changed rule pulls in code the diff never touched".
 
 **Context.** Read surrounding code for each touched file, not just the diff. Identify callers, callees, sibling functions, related tests.
 

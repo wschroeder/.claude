@@ -39,3 +39,17 @@ settled question, because each review round reads the comment as evidence that
 the team already weighed it. The comment is the trigger to weigh the tradeoff
 again, every round, against the current state of the code — not a record that
 weighing has happened.
+
+## Why a changed rule pulls in code the diff never touched
+
+"Pre-existing and not made worse" asks whether the old code got worse. When the
+diff changes the rule that code answers to, the code did not change and is now
+wrong, so the question passes it every time.
+
+Measured on 2026-10-07: a change let statement holdings be negative everywhere,
+at the operator's direction. Its review listed the seed import, the deposit
+balance, and the fallback holdings, all still dropping negative values, as Notes
+under "pre-existing and not made worse", and printed no Fixes. A Copilot review of
+the pull request raised all three, plus two aggregates still filtering on
+collateral value above zero and a rollback that left statements verified. All
+four of its findings were fixed in the same pull request.
