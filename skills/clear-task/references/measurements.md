@@ -68,8 +68,9 @@ second copy going stale from the moment it appeared.
 - §7: these are throwaway test credentials, and the prompt's whole purpose is
   to be self-contained. An empty section in the prompt costs the reader a
   heading and tells them nothing.
-- §8: time passes between writing the prompt and reading it, which is why step
-  1 names a re-check. A "not yet" or "hold off" in the middle of a discussion
+- §8: step 1 no longer names a re-check of git status or reviews. In the
+  MBG-197 S4 run, sessions spent turns re-measuring what a handoff already
+  carried as verified, and the operator removed the rule (2026-10-09). A "not yet" or "hold off" in the middle of a discussion
   can mean "not before we finish talking". A sentence saying a stage is over is
   a claim the template cannot check, and the fresh chat reads it as settled and
   never looks again. A numbered step is the first thing the next session does,

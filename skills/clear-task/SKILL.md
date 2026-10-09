@@ -183,16 +183,10 @@ The remaining plan, ordered by execution sequence, not importance. The
 first item is the single concrete next action the fresh chat should
 take. If a step depends on an open question in §10, name the dependency.
 
-The first step also says what to re-check before acting on it: a background
-agent, a running server, a branch, or a teammate's push can move underneath it.
-Name the specific thing that could have changed and the command that
-settles it — not "confirm state," but "run `<command>`; the handoff
-assumed `<X>`, act only if that still holds."
-
 **The operator's instruction for the next session is the first step.** Where
 §11 says what the next session should do, step 1 is that instruction in the
-operator's words. Only the re-check above runs before it: no owed work, no
-review, and no re-measurement. Where it asks for a conversation, such as "let's
+operator's words. Nothing runs before it: no owed work, no review, and no
+re-measurement. Where it asks for a conversation, such as "let's
 discuss", "I want to understand where we are", or "wait for my feedback", step 1
 tells the fresh chat to say where things stand and what is left, and then to
 stop and wait for the operator. List the work this session would have scheduled
@@ -333,8 +327,6 @@ Before writing the prompt, interrogate §1–§11 out loud. Answer each:
   `hypothesis:`.
 - Which reference anywhere in §1–§11 names a line rather than something the
   reader can grep for? Rewrite each one as the identifier sitting at that line.
-- What could change between now and when this prompt is read, that §8's
-  first step does not tell the reader to re-check?
 - Is §11 the operator's final turn word for word, or a version of it I
   shortened, tidied, or cut to the part I thought mattered?
 - Did the line that invoked this skill carry words after `/clear-task`? Is
@@ -394,8 +386,8 @@ Mentioned, not ours (do not work on these):
 <every other issue or topic from §1, one per line, or "None">
 
 The operator's last words are below, word for word. Do what they ask before
-anything else in this prompt, running only step 1's re-check first. Treat every
-line marked verified as settled, and do not re-measure it:
+anything else in this prompt. Treat every line marked verified as settled, and
+do not re-measure it:
 <from §11 — omit this heading entirely if §11 is None>
 
 Where things stand:
@@ -419,7 +411,7 @@ Credentials / test access (paste literal values):
 <from §7 — omit this heading entirely if §7 is None>
 
 Next steps, in order:
-1. <next concrete action, and what to re-check first in case it moved>
+1. <next concrete action>
 2. ...
 
 Pointers:

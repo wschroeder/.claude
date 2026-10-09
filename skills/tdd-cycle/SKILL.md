@@ -40,7 +40,6 @@ Before writing the test, identify boundaries it will touch — external APIs, da
 - A probe is one-shot: a curl, a SQL query, an IEx snippet, a small script. Its purpose is to confirm the shape of the boundary before you encode an expectation about it.
 - The probe's output becomes a REF. The test you write in step 1 is anchored to that observation, not to a pattern-matched guess.
 - A probe is something that **ran on this machine in the last few minutes and produced output in the chat.** "The docs say," "I've used this before," and "based on the schema file" are not probes — see Rule 11 in the global Evidence Format.
-- **A measurement a handoff carries counts, while nothing under it has moved.** It is neither a memory nor a doc line: it names the command, quotes the output, and belongs to a run whose revision you can check. So read `git status --porcelain` and `git log -1`, and where the tree is clean and the revision is the one the handoff assumed, use those numbers and say which handoff they came from. Probe again where either has moved, or where the handoff gives output without the command that produced it. Measured: a handoff carried the next card's probe numbers and told the next session to reproduce them only if the tree had moved; that session re-ran the probe six minutes in, printed identical numbers, and spent 8,664 tokens doing it.
 - Pure internal logic is exempt. Probes are for boundaries you don't own; tests cover the surfaces you do.
 - Detail, exemptions and rationale: [references/probing.md](references/probing.md).
 
