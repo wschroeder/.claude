@@ -53,3 +53,25 @@ under "pre-existing and not made worse", and printed no Fixes. A Copilot review 
 the pull request raised all three, plus two aggregates still filtering on
 collateral value above zero and a rollback that left statements verified. All
 four of its findings were fixed in the same pull request.
+
+## Why the receipt is a checklist
+
+A count of candidates can be written without running a single pass, and so can a
+line saying the review found nothing. A list of every angle with what was seen
+at each cannot be written without at least walking the angles, and the angle
+numbers exist only in this skill, so a session that never loaded it cannot fill
+the list in. `security-review` already ends with the same two lists, a checklist
+and a file list.
+
+Measured on MBG-208: six loads of this skill, and no session printed the Output
+block; each wrote an Evidence block with a one-line "found nothing" instead.
+CLAUDE.md then gained an exception letting the block print after the Evidence
+block. Measured on MBG-197 S4, after that change: three sessions loaded the
+skill and none printed the block. Three of five card notes carried a Coverage
+count no session had printed; one of those drivers never loaded the skill.
+Earlier, two workers on one slice wrote "quick-review clean" into bd 29 and 51
+seconds after loading the skill, and neither printed an Output block.
+
+The review stays in the session that wrote the change. A subagent reviewing
+without the mission and the card's context raises false alarms it cannot
+filter, and reloads material the driver already holds.

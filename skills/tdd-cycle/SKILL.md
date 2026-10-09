@@ -159,23 +159,26 @@ sessions moved three cards with no review loaded. The order:
 
 ```
 $ git commit -m "<what changed>"
-  quick-review on the commit, then security-review where writing-code's list
-  calls for one; fix what they find and commit the fixes
+  load quick-review with the Skill tool and run it on the commit, then
+  security-review where writing-code's list calls for one; fix what they find
+  and commit the fixes
 $ bd update <id> --status demoable
 $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
-  Commit a1b2c3d. quick-review Coverage: 14 candidates across 9 passes,
-  1 survived classification; 2 demonstrate-line classes in scope, all with
-  artifacts above."
+  Commit a1b2c3d. quick-review Checklist:
+  Pass 1: 1.3 return values DEMONSTRATED, both callers read the bool
+  Pass 2: 2.1 boundary input DEMONSTRATED, row 19 returns false
+  Pass 3: N/A, no error path in the diff
+  ..."
 ```
 
 **A review is clean only when its Output block printed in this session.** Quote
-its printed Coverage line in the note. Where no Output block printed, the review
-did not run: leave the card `in_progress` and write `quick-review owed` in the
-note and the handoff. A budget line saying `finish the step you are on` does not
-finish a review that has not printed. Measured: two workers on one slice wrote
-"quick-review clean" into bd 29 and 51 seconds after loading the skill, and
-neither printed an Output block.
+its printed Checklist in the note, one line per pass. Where no Output block
+printed, the review did not run: leave the card `in_progress` and write
+`quick-review owed` in the note and the handoff. A budget line saying `finish
+the step you are on` does not finish a review that has not printed. Why:
+[quick-review's why-the-gates.md](../quick-review/details/why-the-gates.md),
+"Why the receipt is a checklist".
 
 **Built is not done, and this loop cannot say it is.** The card goes to
 `demoable`, where it waits for somebody to watch it work; `demo-task` closes it

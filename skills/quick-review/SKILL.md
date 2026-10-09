@@ -9,7 +9,7 @@ Structured 9-pass code review. Each pass has a named-angle CHECKLIST. The checkl
 
 ## Orchestrator guidance
 
-Your prompt should contain only: (a) the diff scope or path, (b) one sentence describing the mission/intent, (c) any non-obvious context the skill cannot infer from the diff. Do NOT enumerate which angles to check — the checklists below are the source of truth. If a concern recurs across sessions, fix the skill instead. The skill is the durable artifact.
+Run the review in the session that wrote the change, not in a subagent. That session holds the mission, the card, and the decisions behind the diff, and it needs them to tell a real finding from a false alarm. Do NOT pre-select which angles to check — the checklists below are the source of truth. If a concern recurs across sessions, fix the skill instead.
 
 ## Workflow
 
@@ -454,7 +454,7 @@ Surviving candidates get one of three:
 
 ## Output
 
-**Print this block even when CLAUDE.md asks for an Evidence block.** The Evidence block opens the response, and this block follows it in full. An Evidence block with a line saying the review found nothing does not replace it. Measured: MBG-208 loaded this skill six times, and no session printed this block once, so no angle ever said where it landed.
+**Print this block in the session, after any Evidence block CLAUDE.md asks for.** The Checklist and Files sections are the receipt that the review ran: a count, or a line saying the review found nothing, is not. Why: [details/why-the-gates.md](details/why-the-gates.md), "Why the receipt is a checklist".
 
 ```
 # Quick Review
@@ -475,11 +475,19 @@ Surviving candidates get one of three:
        → 0 rows returned → DEMONSTRATED clean
   An in-scope class with no artifact here is an incomplete review, not a clean one.
 
-## Coverage
-  N candidates across 9 passes, M survived classification; K demonstrate-line classes in scope, all with artifacts above
+## Checklist
+  Every pass, in order. Each live angle gets one line: <number> <name>: <disposition>, <what you saw>.
+  A pass with no live angle gets one line saying why.
+  e.g. Pass 2 — Adversarial
+       2.3 self-race: DEMONSTRATED, two concurrent saves left one row
+       2.5 replay: N/A, the route takes no client-supplied id
+  e.g. Pass 3 — Error handling: N/A, no error path in the diff
+
+## Files
+  Every file in scope, marked read or skipped; a skip names its reason in a few words.
 ```
 
-Print this output in the session, and carry the Requirement and Coverage lines into the handoff. They never go into a commit message, because `git-commit` keeps session measurements out of the body.
+Print this output in the session, and carry the Requirement line and the Checklist into the handoff. They never go into a commit message, because `git-commit` keeps session measurements out of the body.
 
 ## Re-review and the fix loop
 
