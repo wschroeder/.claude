@@ -20,7 +20,7 @@ Your prompt should contain only: (a) the diff scope or path, (b) one sentence de
 5. **Walk Class Checklist** — mark each CWE as IN SCOPE / N/A. Every IN-SCOPE class is a mandatory angle in its pass.
 6. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed.
 7. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
-8. **Output** per template.
+8. **Output** per template, printed in the session after any Evidence block CLAUDE.md asks for, never folded into it.
 
 ## Diff scope
 
@@ -453,6 +453,8 @@ Surviving candidates get one of three:
 - **Note** — must be aware to ship safely, but not a bug or judgment call. If you can't articulate what the developer should DO with the information, drop.
 
 ## Output
+
+**Print this block even when CLAUDE.md asks for an Evidence block.** The Evidence block opens the response, and this block follows it in full. An Evidence block with a line saying the review found nothing does not replace it. Measured: MBG-208 loaded this skill six times, and no session printed this block once, so no angle ever said where it landed.
 
 ```
 # Quick Review

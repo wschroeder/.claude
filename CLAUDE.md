@@ -22,7 +22,7 @@ Asking for "slides", "a report", "a page", "a deck", or "a write-up" is a reques
 
 ## Evidence Format (HARD CONSTRAINTS)
 
-These override conciseness defaults, skill workflows, and output format preferences.
+These override conciseness defaults, skill workflows, and output format preferences, with one exception: a skill's required output block, such as `quick-review`'s, still prints in full after the Evidence block.
 
 ### Response Categories
 
