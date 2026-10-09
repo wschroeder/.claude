@@ -204,7 +204,8 @@ is one you answer yourself. If it really is the operator's, put it to them and
 offer to resume.
 
 **Where that question is asking for a demo, load `demo-task` first and let its
-Section 4 compose the ask.** That section carries the question about whether the
+Section 4 compose the ask.** Start the demo server first, with the command
+the demo file's steps name: the worker stopped it before handing off. That section carries the question about whether the
 operator worked the demo or read the captures, and the answer to it decides
 whether a single card can close. An ask written here instead leaves the question
 out, because nothing in this step names it. Measured: a run stopped for a demo,

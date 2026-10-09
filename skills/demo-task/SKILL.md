@@ -499,7 +499,10 @@ first; interpret in Section 6.
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
 nobody reads a question in the transcript and nobody runs the demo, so commit
-what is already done, then write `HANDOFF.md` through `clear-task` with a first
+what is already done. Stop every server you started in this session, and write
+the command that starts it into the demo file's steps; the supervisor starts it
+again at the demo stop. Why: [references/measurements.md](references/measurements.md).
+Then write `HANDOFF.md` through `clear-task` with a first
 line reading `BLOCKED:` and one sentence naming the slice waiting to be demoed
 and the file that holds its demo, and stop. Write `BLOCKED:` only once Section
 3's record and captures exist and the drive has reached everything the slice
