@@ -272,7 +272,16 @@ One record:
   produced by: $ <the exact command that made it>
   drove it:   <the input you sent it, and the capture either side of that>
   operate it: $ <the exact command the operator runs to drive it themselves>
+  changed:    <one line per behavior the slice changed, each marked
+               "driven: <the capture>" or "tested only: <the test>">
 ```
+
+List every behavior the slice changed in `changed`, not only the ones the drive
+reached. Drive each one marked `tested only` before you post, wherever you can;
+the ones you cannot drive go in the message under their own heading, with what
+stopped you. Measured: MBG-208 changed both a hand edit and what a later import
+does to it, and its demos drove only the hand edit while one message said the
+import had been driven too.
 
 Where the operator reaches the thing by clicking rather than by running a
 command, `operate it` is a numbered list of steps. Each step says where to
