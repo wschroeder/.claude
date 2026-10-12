@@ -316,6 +316,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Making a page work on both a phone and a desktop; CSS breakpoints, fluid type, viewport units, media or container queries, mobile layout | `responsive-design` |
 | Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body; organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written | `writing-prose` |
 | Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |
+| Building or editing a status or health page | `status-page` |
 | Writing a spec, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
 | Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |
 | Demoing a finished slice, showing what was built, taking feedback on it, closing out an iteration | `demo-task` |

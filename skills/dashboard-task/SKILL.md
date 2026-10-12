@@ -67,6 +67,11 @@ real Chrome, and `test_chartkit.py` takes about a minute:
 
 ## Section 1 — Inputs
 
+**A status or health page is not this template's.** Load `status-page` and build
+to its layout instead. Skip Section 3's stop: a status page always tells the same
+story, whether everything is running, so there is no story for the operator to
+pick.
+
 Ask the operator for anything not supplied. Do not infer a value.
 
 ```

@@ -225,9 +225,6 @@ A decision you cannot quote is not a source line — it is an open question,
 and belongs in Section 3. Per CLAUDE.md rule 13, the quote is the ref, not
 its location.
 
-If the design has not been stress-tested, run `grill-me` before this
-section, and quote its interview as the conversation.
-
 **Before spawning anything to research a source line, load `subagents`.**
 Use a fresh agent, never a fork.
 

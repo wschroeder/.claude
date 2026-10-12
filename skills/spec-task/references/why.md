@@ -152,11 +152,6 @@ Rule: the quote is the ref, not its location.
 
 Why: a ref that only locates proves nothing about what was decided.
 
-Rule: quote `grill-me`'s interview as the conversation.
-
-Why: `grill-me` interviews and writes nothing, so its output exists only as
-conversation.
-
 Rule: before spawning anything to research a source line, load `subagents`,
 and use a fresh agent rather than a fork.
 

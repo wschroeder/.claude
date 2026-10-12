@@ -37,7 +37,6 @@
 !/skills/design-gap-task/**
 !/skills/elixir-development/**
 !/skills/git-commit/**
-!/skills/grill-me/**
 !/skills/pr-create-task/**
 !/skills/pr-feedback-task/**
 !/skills/pr-respond-task/**
@@ -47,6 +46,7 @@
 !/skills/security-review/**
 !/skills/session-loop/**
 !/skills/spec-task/**
+!/skills/status-page/**
 !/skills/subagents/**
 !/skills/systematize/**
 !/skills/tdd-cycle/**
