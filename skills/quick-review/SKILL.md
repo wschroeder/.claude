@@ -224,9 +224,15 @@ Concurrency / race shapes:
   2.6b  Overwrite without re-applying tag PutParameter --overwrite drops tags
   2.6c  Stale-delete-then-put            transient-window readers see un-tagged
   2.7   Self-race / lease TOCTOU         2 runs at once: every write, not just 1 step
+                                          proof: run two copies at once against real
+                                          Postgres, or quote the lock both take first
   2.18  Cross-writer race                each write path against every OTHER writer
                                           of its rows and their FK parents; a sibling
                                           that locks where this path does not → finding
+                                          proof: hold the other writer open (pg_sleep),
+                                          run this one, show the outcome
+                                          reading the SQL, "one statement", or a
+                                          transaction boundary is not proof
 
 Auth boundary:
   2.8   Pre-auth information oracles     lookup-then-auth distinguishable errors
