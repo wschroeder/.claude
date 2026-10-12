@@ -347,6 +347,12 @@ Rules:
   Measured: an S12 demo told the operator to watch a column's smoke under
   fire because "this drive had no fighting in it", and they asked why the
   battle part could not be tested.
+  The same holds where the change shows only when certain data exists, such
+  as an old run or a failed row: put that data in place yourself and capture
+  before and after. A post that says nothing changed on screen is not ready.
+  Measured: an S4 demo said "Nothing new appears on screen", and the operator
+  replied "I don't see in the screenshots the proofs that you're asking me to
+  do."
 - **Where you cannot reach that thing, say which link is unproven and hand
   the last one to the operator.** Some released states cannot be driven from
   here at all — a sign-in a person completes, a cluster only they can reach,
