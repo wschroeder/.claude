@@ -199,7 +199,8 @@ Commit the new cards before invoking it, because the loop refuses a dirty tree.
 Run `bd export -o .beads/issues.jsonl` right before you stage that file: bd
 writes its own export up to a minute late
 ([bd-behavior.md](../spec-task/references/bd-behavior.md)), and a commit staged
-before then holds only some of the cards. Measured: a commit of six new cards
+before then holds only some of the cards. In a git worktree, skip it, as that
+file's worktree section says. Measured: a commit of six new cards
 held one of them, and the rest arrived later as the change that stopped the
 loop's first launch.
 

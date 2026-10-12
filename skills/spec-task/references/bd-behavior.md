@@ -134,6 +134,17 @@ output was byte-identical to the automatic one (same SHA-1, 174,664 bytes, 94
 issues). Run it right before staging the export. To keep it out of a code
 commit, run `git restore --staged .beads/issues.jsonl` first.
 
+### In a git worktree, skip the export
+
+Inside a worktree, bd keeps its database in the main checkout, so the worktree
+holds no `.beads` directory and no export to stage. Run `bd where`. Where the
+directory it prints is outside the current checkout, skip both the export and
+the `git restore`: the card changes are already in the main checkout's database,
+and no commit in this tree can carry them. Measured on 2026-10-12 in an
+mbc-brokeragecollateral worktree: `bd export -o .beads/issues.jsonl` failed with
+"open .beads/.~issues.jsonl...: no such file or directory", and `bd where`
+printed the main checkout's `.beads`.
+
 bd also ships a metrics endpoint, `https://gastownhall-eventsapi.com/mp/collect`,
 disabled in `~/.config/bd/config.yaml` with `notice_shown: true`.
 
