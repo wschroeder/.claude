@@ -11,6 +11,7 @@ widths belongs to `responsive-design`, and this file does not restate it.
 - Fall back to outside conventions only where the app has none
 - Say why when you depart
 - Build from the app's own pieces
+- Show an example in every input
 - Review list
 - Sources
 
@@ -54,12 +55,25 @@ utility classes. Do not write a new button, dialog, or icon when the app already
 has one. Where a project's CLAUDE.md names the widget library it prefers, that
 library is part of the app's own pieces.
 
+## Show an example in every input
+
+Give every text input in a form that adds a record a placeholder holding an
+example of what a person would actually type there: `XXXX1234` for a masked
+account number, `ticker:AAPL` for a holding key, `25,000.00` for a balance. A
+person who sees an example knows the format the app expects before they type.
+The placeholder never repeats the field's label, and it never replaces the
+label, because it disappears the moment someone types. Measured: an operator
+saw example placeholders on an add panel and asked for them as the standard,
+"at least with regard to showing an example what kind of text someone would
+actually enter there."
+
 ## Review list
 
 Check each control against these before you call it done:
 
 - An icon-only button carries an `aria-label`.
 - A form control carries a `<label>` or an `aria-label`.
+- Each text input in an add form shows an example value as its placeholder.
 - A destructive action asks for confirmation or offers an undo window, and never
   happens on the first click.
 - A pointer target meets `responsive-design`'s target size.
