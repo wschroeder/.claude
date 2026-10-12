@@ -85,6 +85,10 @@ While it is on:
   deletions." is suspended too.** CLAUDE.md says so itself, at that line, so
   that the two rules do not have to be settled by whichever one sits nearer
   the work. Write the change now; the tests come after they approve.
+- **Design guidance is not suspended.** The mode pauses tests and captures
+  only. Before your first edit to a page's layout, read the pattern its design
+  skill holds for that kind of page, such as `status-page` for a status page,
+  and build to it.
 - **Your whole job is to make the change and tell the operator it is ready to
   look at.** A sentence or two: what you changed, and what to look at. Not a
   record, not an evidence table of proof commands you did not run.
