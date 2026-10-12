@@ -56,6 +56,10 @@ Same `validate_*`, `authorize_*`, `audit_*` helpers as siblings; not a parallel 
 
 Grep sibling functions with similar signatures in the same file. If `find/3` has an `when is_binary(x)` guard and a fallback clause but `find_and_do/4` doesn't, the inconsistency is a latent bug even if nobody triggers it today. Don't wait for an upstream change to justify the finding — static inconsistency between siblings is itself the finding. Flag any same-module pair with asymmetric guards, asymmetric error shapes, or asymmetric fallback clauses.
 
+A pair that matches settles only this angle. "Mirrors `<sibling>`" is never a disposition for a correctness angle in Pass 1, 2, or 4: the new function's behavior still owes those passes, and so does the sibling's whenever the new function copies it. A flaw the two share is a finding against both, and the sibling's half falls under the scope rule because the diff copied it.
+
+Measured on a client pull request: a release function left a stale value in place, and the review cleared it because its sibling release function did the same. Both had the bug.
+
 ## 5.8 Within-function return-shape consistency
 
 For each function in the diff, statically enumerate its return paths across every branch (every `case`/`cond`/`if`/early-return/`with`-else). Verify all branches produce the same shape — either all `:ok` or all `{:ok, value}`, either all `{:error, reason}` or all `:error`, never a mix. Asymmetric branches force callers to handle multiple shapes; silent callers that pattern-match on only one shape crash with `MatchError` on the other.

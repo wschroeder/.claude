@@ -28,6 +28,10 @@ When you see `case some_fallible_call() do :ok -> ...; :already_exists -> :ok en
 
 When new code produces output later consumed by unchanged code, read the unchanged consumer. Does the new code's output cover all cases the consumer expects? Pay special attention to `Repo.one()` downstream — if it can match on multiple criteria, the upstream filter must exclude on all those criteria.
 
+Reading the new shape is half the angle. For every write in the diff that clears a marker, releases a claim, or changes where a value came from, name the row's state afterwards, then read what the consumer shows from that state — the value and any label attached to it, such as a source badge — and check both against the product spec. A consumer that reads the state without error can still show something false: a value the badge credits to the wrong source, or one the product spec says should have been replaced. Prove it with a test or a query against the post-write row and the line that renders it, not by reading the write alone.
+
+Measured on a client pull request: the review recorded that clearing an import's provenance marker left the imported value in place, and never asked what the page showed next. The page labeled any value without the marker as coming from the other source, so it showed the imported value under the wrong source's badge. Copilot found it by asking that question.
+
 ## 1.5 Spec contract changes
 
 For any function whose `@spec`, return type, or error shape changed in the diff, grep the codebase for all call sites. Verify each caller handles the new return shape — especially callers in files not touched by the diff. A function that previously returned `:noop` and now returns `{:ok, _} | {:error, _}` has changed its contract; every consumer must be checked.

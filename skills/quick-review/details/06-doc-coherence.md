@@ -14,6 +14,10 @@ For each `@doc` / `@moduledoc` with behavior claims (validates X, returns Y on Z
 
 Function and variable names that promise action (`validate_*`, `authenticate_*`, `verify_*`, `ensure_*`, `require_*`) must perform that action. A function named `validate_signature` whose body unconditionally returns `:ok` when a specific field is present is a misnomer — flag it.
 
+A test's title is a name that promises behavior too. For every test the diff adds or changes, read the title against its assertions. Where they disagree, one of them is wrong, and the review has to say which one, by checking the spec, before it moves on. A test whose assertions pin the opposite of its title passes every mutation check while it guards the bug.
+
+Measured on a client pull request: a test titled as handing a value back to its original source asserted that the replacement value stayed.
+
 ## 6.4 PR/commit-message-vs-diff check
 
 If the PR body or commit message claims the change does X ("reject wildcards", "require secret unless PKCE"), grep the diff for the enforcement. Missing enforcement with present claim is a legit finding — the bug-class the author thought they fixed is still open.
