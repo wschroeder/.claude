@@ -38,6 +38,12 @@ Message-based assertions that reference the touched module by name in pattern sy
 
 Test files that reference a touched function name in a `#` comment, in `describe`/`test` description strings, or in a `@moduletag`. These are almost always load-bearing — a developer wrote the comment because the test depends on the named function's behavior.
 
+## 9.9 Whole-repo copies of a changed value
+
+This one angle leaves `test/`. For every constant, list, enum value, or literal set the diff changes, run `git grep -n` across the whole repository, every file type, for the value's name and for one of its unchanged members. A script, a config file, or a module in another language can keep its own copy, held in step by a comment or by nothing at all. No import links the two, so tracing callers never reaches it. A hit outside the diff that still holds the old value is a Fix: the diff is what made it wrong.
+
+Measured on a client pull request: the change added a table to a TypeScript list of tables that must share one snapshot date. A Python script that seeds the same data kept an identical list under the same name, and no review grep had searched beyond `*.ts` and the spec. Copilot found the stale copy.
+
 ---
 
 ## Classifying hits

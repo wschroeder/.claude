@@ -122,7 +122,7 @@ Language-specific shape catalogs: `details/language-typescript.md`, `details/lan
 
 Why: [details/why-the-gates.md](details/why-the-gates.md), "Why a changed rule pulls in code the diff never touched".
 
-**Context.** Read surrounding code for each touched file, not just the diff. Identify callers, callees, sibling functions, related tests.
+**Context.** Read surrounding code for each touched file, not just the diff. Identify callers, callees, sibling functions, related tests. A file that a handoff or a card calls out of scope is out of scope for changes, never for reading: the review still greps it.
 
 ---
 
@@ -403,7 +403,7 @@ Downstream systems, caches, cron jobs, deploy coordination. **Higher classificat
 
 ## Pass 9 — Test-suite reach
 
-The diff is not the only place that talks about the diff's symbols. Mechanical grep of `test/` for every public symbol the diff touches. Worked examples: `details/09-test-suite-reach.md`.
+The diff is not the only place that talks about the diff's symbols. Mechanical grep of `test/` for every public symbol the diff touches, and of the whole repository for every value it changes (9.9). Worked examples: `details/09-test-suite-reach.md`.
 
 ```
   9.1   Bare-name grep                   function/module/struct name in tests
@@ -412,6 +412,9 @@ The diff is not the only place that talks about the diff's symbols. Mechanical g
   9.6   assert_called / assert_received  message-pattern references
   9.7   Telemetry handlers               attach/detach for touched events
   9.8   Comment-thread stitches          describe / test / @moduletag strings
+  9.9   Whole-repo copies                every changed constant, list, or enum:
+                                          grep its name and one member across
+                                          all files, every language
 ```
 
 For each hit, classify as:
