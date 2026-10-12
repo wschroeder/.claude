@@ -28,6 +28,16 @@ If the language has no skill — GDScript today — this file is the entire conv
 set for it. Say that in one line rather than proceeding as though a convention file
 had been consulted.
 
+## Before you edit a view, read the interface reference
+
+Before your first edit to a file that renders a control a person uses — a view,
+a template, a component, a form — read
+[references/ux-design.md](references/ux-design.md), and name in your report the
+existing view whose pattern you copied. Do this whatever skill or handoff brought
+you to the file, and in rapid mode too. Measured: 20 build sessions in a row
+edited views without opening it, and the two that did were both told to by their
+handoff.
+
 ## Probe before you build
 
 Before writing more than ~20 lines of code that touches a boundary you don't own
