@@ -125,6 +125,8 @@ When you fix something a commit on this branch already covers, fold the fix into
 
 Stage explicitly, the same as any other commit — never `git add -A`. Keep the existing message unless the fix changes what that commit claims; when it does, re-author the message through this skill, otherwise use `git commit --amend --no-edit`.
 
+After an amend, run `git show --stat HEAD` and check that it lists the file you meant to fold in. An amend with nothing staged succeeds and changes only the message.
+
 **Amending an unpushed commit needs no approval. Amending a pushed one does.** The `git branch -r --contains HEAD` check above is what tells them apart. While it prints nothing, the amend is covered by the standing permission in Safety below — make it and move on. Once a remote carries the commit, the next push becomes `git push --force-with-lease`, and no standing permission reaches a push: stop, say what the amend would rewrite, and wait.
 
 ## Safety

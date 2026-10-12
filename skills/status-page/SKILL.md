@@ -32,6 +32,9 @@ says what goes on the page and in what order.
    goes, such as "2 failed, view failures" (WCAG 2.4.4).
 6. **No tooltips.** Phones, keyboard users, and screen readers miss them. Put
    anything a reader needs into the detail line or onto the linked page.
+7. **Copy the app's own table markup.** Build each table from the markup the
+   app's other tables already use, header row included, and name the view you
+   copied.
 
 ## What to avoid
 
