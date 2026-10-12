@@ -121,6 +121,13 @@ terms.** A design they signed off, a layout they accepted, or a scope they
 agreed to goes into this section with the time of the approval, stated in full.
 It never goes in as a clause inside a next step in §8.
 
+**Label a decision "operator" only beside their own words.** Write
+`Decision (operator, <timestamp>, "<their words>")`, quoting the typed turn or
+answer that made it. A choice you reached, even one they let stand, is
+`Decision (Claude, <session>)` with its reason. For a carried-forward operator
+decision with no quote, search their turns for one; where none turns up,
+relabel it as Claude's. See [references/measurements.md](references/measurements.md).
+
 **A decision that already rode the last handoff does not leave this list in
 silence.** For every decision in the prompt this session opened with, do one of
 three things and say in one line which. Carry it forward word for word, where

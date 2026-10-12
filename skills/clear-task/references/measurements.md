@@ -8,6 +8,7 @@ the argument where no single run did, for a reader who disputes one.
 - §0 — the opening prompt settles the reader, not `pgrep`
 - §2 — why a re-run costs so much here
 - §4 — an approved decision shrinks when a next step restates it
+- §4 — Claude's choice carried as the operator's decision
 - §5 — an inherited directive lasted one handoff
 - §8 — a stage declared over, owed work, and an unchecked capability
 - §10 — a question carried forward with nobody owning it
@@ -136,6 +137,19 @@ and "status word" at the fourth, although §5's rule about inherited directives
 fired in every one. `docs/spec/` never held the design. At 14:27 the operator
 wrote: "It seems like you've lost that original design. But it's in our
 history."
+
+## §4 — Claude's choice carried as the operator's decision
+
+On 2026-10-12 in `mbc-brokeragecollateral` (MBG-115), handoffs at 12:38 and
+12:45 recorded a 30-day retention as "Decision (T4, this session)". At 16:20
+the operator asked whether Postgres could "specify the Max rows", read a reply
+describing the 30-day delete, and answered "No need. Let's proceed." The 16:28
+handoff wrote "Decision (operator, 2026-10-12): 30 days is retention", with a
+date and no quote, under a "do not relitigate" header. Four sessions carried it
+word for word and built a spec, a test, and a demo on it. At 17:48 the operator
+wrote: "You keep saying days. Nowhere in here have I ever asked for days. I have
+asked for "30 last runs" pretty consistently." A search of their typed turns
+then found no 30 days anywhere.
 
 ## §5 — an inherited directive lasted one handoff
 
