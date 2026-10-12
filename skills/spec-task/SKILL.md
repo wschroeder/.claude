@@ -119,6 +119,7 @@ Real output, not paraphrase:
 ```
 $ pwd && git rev-parse --show-toplevel
 $ ls -d .beads 2>&1
+$ bd where 2>&1
 $ git log --reverse --format=%ae | head -1
 $ ls -d docs design specs 2>/dev/null
 ```
@@ -126,7 +127,9 @@ $ ls -d docs design specs 2>/dev/null
 State the repository root and the directory the design documents live in.
 
 **Then say whether this repository keeps its cards in bd.** It does where
-`.beads/` exists. Where `.beads/` is absent, it does only if the first commit's
+`.beads/` exists or `bd where` prints a database path. Inside a git worktree
+`ls` finds no `.beads/`, because bd keeps it in the main checkout, and only
+`bd where` finds it. Where both come back empty, it does only if the first commit's
 address is the operator's: never bring bd into a repository the operator did
 not start. Where it keeps its cards in bd, read
 [references/bd-commands.md](references/bd-commands.md) now. Where it does not,

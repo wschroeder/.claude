@@ -42,13 +42,16 @@ Real output, not paraphrase:
 ```
 $ pwd && git rev-parse --show-toplevel
 $ ls -d .beads 2>&1
+$ bd where 2>&1
 $ git status --short
 $ bd statuses
 ```
 
 State four things: the slice being created, the design documents its cards will
 name as their spec id, whether bd is initialized here, and whether the tree is
-clean.
+clean. bd is initialized where `bd where` prints a database path, even when
+`ls` finds no `.beads/`: inside a git worktree bd uses the main checkout's
+`.beads/`, which the worktree does not contain.
 
 **Stop when the tree has uncommitted changes.** `spec-task` Section 8 commits
 the design document edits, and on a dirty tree a card's spec id would name a
@@ -65,10 +68,10 @@ empty string removes it.
 
 **Do not put bd, or any other tool of your own, into a repository the operator
 did not start.** Compare `git log --reverse --format=%ae | head -1` with the
-operator's address. Where they differ and `.beads/` is absent, create no
+operator's address. Where they differ and bd finds no database, create no
 cards: the tasks live in the handoff, and `tdd-cycle` step 4d reads them there.
 
-Where `.beads/` is absent, the first line of Section 3's list is
+Where bd finds no database, the first line of Section 3's list is
 `bd init --skip-agents --skip-hooks -p <prefix>`.
 `spec-task/references/bd-commands.md` says why both flags are required.
 

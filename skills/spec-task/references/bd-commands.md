@@ -14,7 +14,7 @@ $ bd list --status open 2>&1 | tail -3
 
 State whether bd is already initialized here and the issue prefix in use.
 
-If `.beads/` is absent, do NOT run `bd init` here. Record it as a
+If `.beads/` is absent and `bd where` prints no database path, do NOT run `bd init` here. Record it as a
 precondition for `backlog-task`, in exactly this form:
 
 ```
@@ -66,5 +66,5 @@ after either. Do not use `bd create --graph` at all: it reports success while
 dropping the acceptance criteria, which is the one field this template exists
 to produce.
 
-Where Section 1 found no `.beads/`, this list's first line is
+Where Section 1 found no `.beads/` and `bd where` found no database, this list's first line is
 `bd init --skip-agents --skip-hooks -p <prefix>`, both flags required.
