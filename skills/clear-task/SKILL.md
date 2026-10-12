@@ -192,7 +192,8 @@ tells the fresh chat to say where things stand and what is left, and then to
 stop and wait for the operator. List the work this session would have scheduled
 as what is left, for the operator to decide on, and do not file cards for it
 first, even where the phase has ended: the conversation decides what happens to
-that list.
+that list. Under the list of open decisions, write: "Do not ask the operator
+about these until they reply to step 1."
 
 **A question the operator asked in their final turn is still open when this
 response answers it.** Where §11 is a question and the response writing this
