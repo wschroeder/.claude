@@ -151,6 +151,13 @@ wrote: "You keep saying days. Nowhere in here have I ever asked for days. I have
 asked for "30 last runs" pretty consistently." A search of their typed turns
 then found no 30 days anywhere.
 
+The relabel rule that followed sat two paragraphs above "Carry it forward word
+for word", and the nearer rule won. From 2026-10-12 19:42 to 2026-10-13 06:08,
+ten handoffs carried "Decision (operator): … tasks live in the handoff, not in
+bd" unquoted. It first appeared in session `b50c534d` as an unlabelled
+"Decision:", and none of the operator's turns says it. The last of the ten
+handoffs wrote "I carried forward every inherited decision except two".
+
 ## §5 — an inherited directive lasted one handoff
 
 The operator typed "let's undo that commit" at 08:51. The handoff written at

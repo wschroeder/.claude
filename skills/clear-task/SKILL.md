@@ -131,7 +131,8 @@ relabel it as Claude's. See [references/measurements.md](references/measurements
 **A decision that already rode the last handoff does not leave this list in
 silence.** For every decision in the prompt this session opened with, do one of
 three things and say in one line which. Carry it forward word for word, where
-it still holds. Record it in the project's own design documents, and point to
+it still holds, except that an `operator` label with no quote gets the search
+and relabel above first. Record it in the project's own design documents, and point to
 the file, where someone should have written it down already. Or strike it,
 naming what replaced it or who withdrew it. A shorter restatement is not one of
 the three.
