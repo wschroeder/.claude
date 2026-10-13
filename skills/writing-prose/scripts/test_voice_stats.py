@@ -54,6 +54,19 @@ def main():
     m = vs.measure("Run the count. Do not estimate it.")
     assert m["maxim_candidates"] == [], m
 
+    # a clause that ends on what nobody did, in place of the actor who did it
+    for text in ("A detail row drops out of the read, and nothing reports it.",
+                 "The report was skipped, and nobody was told.",
+                 "The line slipped past without a word.",
+                 "It read 51 of 52 lines with nothing said.",
+                 "A blank group would be counted without anyone being told.",
+                 "Nothing warns the reviewer."):
+        assert vs.measure(text)["silent_tails"] == [text], text
+    for text in ("The parser skips the row and raises no error.",
+                 "Nothing changed in the schema.",
+                 "It reads the file, and nothing else."):
+        assert vs.measure(text)["silent_tails"] == [], text
+
     m = vs.measure("Alpha — beta — gamma.")
     assert m["em_dashes"] == 2, m
     # an unknown band name must be a clear refusal, not a traceback

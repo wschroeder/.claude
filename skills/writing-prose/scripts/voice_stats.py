@@ -24,6 +24,12 @@ HEDGES = (r"pretty much|a bit|I'm sure|hopefully|a little|roughly|about|mostly|"
 # pushes a rewrite toward swapping words rather than restructuring the sentence.
 INVERSIONS = (r",\s*not\b|\bis not\b[^.]{0,80}\.\s*It is\b|\brather than\b|"
               r"\binstead of\b|\bas opposed to\b|\bnot\b[^.]{0,40}\bbut\b")
+# Ending a clause on what nobody did, where the sentence could name the actor
+# that stayed silent: "and nothing reports it" for "the parser raises no error".
+SILENT_TAIL = re.compile(r",\s*and\s+(?:nothing|nobody|no one)\b(?!\s+else)|"
+                         r"\bwithout (?:a word|anyone|anybody|being told|a warning)\b|"
+                         r"\bwith nothing said\b|"
+                         r"\bnothing (?:reports|says|tells|warns|notices|flags)\b", re.I)
 MAXIM = re.compile(r"^(?:A|An|The|One)\s+\S+(?:\s+\S+){0,8}\s+is\s+(?:\S+\s*){1,6}\.$")
 BULLET = re.compile(r"\n[ \t]*(?:[*•-]|\d+[.)])[ \t]+")
 
@@ -64,6 +70,7 @@ def measure(text):
         "short_sentences_pct": round(100.0 * sum(1 for w in words if w <= 5) / n, 1),
         "em_dashes": len(re.findall("—", text)),
         "maxim_candidates": [s for s in sents if MAXIM.match(s)],
+        "silent_tails": [s for s in sents if SILENT_TAIL.search(s)],
     }
 
 
@@ -102,6 +109,10 @@ def main():
     print("\nmaxim candidates (%d) -- mark each keep or cut, none may pass unmarked:"
           % len(m["maxim_candidates"]))
     for s in m["maxim_candidates"]:
+        print("  " + s)
+    print("\nsilent tails (%d) -- name the actor that stayed silent, or mark keep:"
+          % len(m["silent_tails"]))
+    for s in m["silent_tails"]:
         print("  " + s)
     if failed:
         print("\n%d band(s) missed: %s" % (len(failed), ", ".join(failed)))

@@ -84,6 +84,13 @@ The CLAUDE.md sentence rules apply, and no composition machinery does. Write it,
 then read it once against those rules. Do not dump, do not outline, and do not
 announce a count.
 
+Before it goes out, save the text to a file in the scratchpad and run
+`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate and each
+silent tail it lists keep or cut, and fix every one you cut. A silent tail is a
+sentence that ends on what nobody did, such as "and nothing reports it", where
+it could name the actor that stayed silent. A band the script reports missed
+does not stop short text, because a few sentences make a noisy rate.
+
 One addition, because it is the only ordering decision a single point has: say
 the point in the first sentence. Everything after it is support.
 
@@ -137,6 +144,14 @@ mentions, the heading is wrong, not the prose.
 
 An opening summary is the same case, one level up: it summarizes a body, so it
 comes after the body.
+
+### 5. Run the voice check on the finished text
+
+Save the text to a file in the scratchpad and run
+`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate and each
+silent tail it lists keep or cut, and fix every one you cut. Report any band it
+misses in one line with the reason you kept the text as it is, or rewrite until
+it lands.
 
 ---
 

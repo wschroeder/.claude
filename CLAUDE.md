@@ -1,6 +1,6 @@
 ## Skills Gate (MANDATORY)
 
-**Before any other tool call on a new request, check the routing tables.** Those are the Global Skills Routing table at the bottom of this file, plus the routing table in any project `CLAUDE.md` loaded for the current directory. If a row matches the request, your FIRST tool call MUST be the Skill tool loading that skill. No other tool — not Bash, not Read, not Grep, not Agent — fires before it. This is a hard precondition on every request, not advice.
+**Before any other tool call on a new request, check the routing tables.** Those are the Global Skills Routing table at the bottom of this file, plus the routing table in any project `CLAUDE.md` loaded for the current directory. If a row matches the request, your FIRST tool call MUST be the Skill tool loading that skill. If several rows match, load every one of their skills before any other tool, one Skill call each. No other tool — not Bash, not Read, not Grep, not Agent — fires before it. This is a hard precondition on every request, not advice.
 
 If no row matches, proceed normally and say nothing about it. Most requests match no row. The failure this gate prevents is starting work that a skill covers without loading it — not the absence of a skill.
 
@@ -121,6 +121,8 @@ That test catches the agentless passive too: "the fix goes back into the section
 - GOOD: "The skill sends duplication, names, and comments to `quick-review`."
 - BAD:  "once a slice was built, nobody looked at the result"
 - GOOD: "once a session finished a slice, nobody looked at the result"
+- BAD:  "the row drops out of the read, and nothing reports it"
+- GOOD: "the parser skips the row and raises no error"
 
 Before you reach for the passive, name the actor you are about to hide. If you can name one, you may not hide them, and "nobody in particular acts" is no longer available to you. The passive is right only where you cannot name anyone: nobody in particular acts, or the thing acted on is genuinely the subject, or the verb is load-bearing technical vocabulary ("every token is appended to the context").
 
@@ -314,7 +316,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Starting the run that builds a slice whose cards already exist, running work unattended, or "keep going until it's done" | `session-loop` |
 | Writing, changing, or deleting code in any language; code comments, docstrings, doc-comments | `writing-code` |
 | Making a page work on both a phone and a desktop; CSS breakpoints, fluid type, viewport units, media or container queries, mobile layout | `responsive-design` |
-| Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body; organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written | `writing-prose` |
+| Writing or restructuring prose a person reads — an email, a design document, a README, a report, a memo, a PR body; organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written; a PR review comment or reply, and anything else posted or sent in my name | `writing-prose` |
 | Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |
 | Building or editing a status or health page | `status-page` |
 | Writing a spec, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
