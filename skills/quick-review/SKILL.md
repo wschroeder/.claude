@@ -174,6 +174,10 @@ Seam checks:
                                           checkpoints are NOT terminal
   1.4   Handoff completeness             unchanged consumer reads new shape; what
                                           it shows from each new state is true
+                                          proof: drive each new state through the
+                                          real path, quote the rows, audit events,
+                                          and rendered text it left; a code reading
+                                          is not proof
   1.5   Spec contract changes            @spec change → every caller updated
 
 Forward data propagation:
@@ -350,6 +354,9 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
   6.2   Docstring contract               every listed error case reachable
   6.3   Name-vs-body check               validate_*/verify_*/ensure_* perform action;
                                           each test's title matches its assertions
+                                          proof: quote each added or renamed test's
+                                          title beside the assertion line proving
+                                          each thing it names; no line → finding
   6.4   PR/commit-message-vs-diff check  claimed enforcement is present
   6.5   Distant-doc symbol drift         deleted symbol still named in distant docs/
   6.6   Deletion test, every block       each listed comment block: keep plus its why, or delete

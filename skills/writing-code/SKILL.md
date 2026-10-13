@@ -32,11 +32,15 @@ had been consulted.
 
 Before your first edit to a file that renders a control a person uses — a view,
 a template, a component, a form — read
-[references/ux-design.md](references/ux-design.md), and name in your report the
-existing view whose pattern you copied. Do this whatever skill or handoff brought
-you to the file, and in rapid mode too. Measured: 20 build sessions in a row
-edited views without opening it, and the two that did were both told to by their
-handoff.
+[references/ux-design.md](references/ux-design.md). In your report, name the
+existing view whose pattern you copied and one thing you matched against it, such
+as the dialog structure, the button order, or the label pattern. Quote the line
+from that view and the matching line from your edit, with each file and line
+number. Do this whatever skill or handoff brought you to the file, and in rapid
+mode too. Measured: 20 build sessions in a row edited views without opening it,
+and the two that did were both told to by their handoff. On the next run three
+sessions read it, and a bare view name in a report could not show whether the
+read changed anything.
 
 ## Probe before you build
 
