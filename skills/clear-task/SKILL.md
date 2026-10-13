@@ -64,6 +64,10 @@ last `git status` said, the test counts the suite reported, the query result,
 the file written. Say when each one ran, because the reader needs to know how
 old it is.
 
+Run `date` before writing any time into the prompt, and take "Where things
+stand" and every timestamp from it; never estimate one. Reading the clock is
+not a re-run.
+
 Where this session never ran the command, say that instead of filling the gap
 in. "No `git status` since the commit at f30be46" is a fact the fresh chat can
 act on; an invented status line is not.

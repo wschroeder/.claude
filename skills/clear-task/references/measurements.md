@@ -158,6 +158,12 @@ bd" unquoted. It first appeared in session `b50c534d` as an unlabelled
 "Decision:", and none of the operator's turns says it. The last of the ten
 handoffs wrote "I carried forward every inherited decision except two".
 
+## §2 — a time estimated across an overnight gap
+
+On 2026-10-13 session `b8fc24aa` sat idle from about 22:45 until the operator
+replied "Looks good" at 06:06 CT. Its handoff dated that reply "about 22:50
+CT", and "Where things stand" carried the same time. The session ran no `date`.
+
 ## §5 — an inherited directive lasted one handoff
 
 The operator typed "let's undo that commit" at 08:51. The handoff written at
