@@ -80,6 +80,8 @@ Ask what each copy writes, not only whether the last step runs twice. A downstre
 
 Artifact: run two copies at once against real Postgres (`Promise.all` of two calls, or one copy held open with `pg_sleep` while the second runs), and assert on what each copy wrote: audit events, rows deleted, and the final value of every column the path sets. Reading the transaction boundary, or grepping the downstream claim, is not this artifact.
 
+Assert the invariant the code promises, not only that nothing failed. If the path keeps at most 30 rows, count the rows after the run and compare with 30. A run that reports no errors over thousands of calls proves only that nothing threw. Run at least as many copies at once as production can, which is the replica count times the connection pool size. Worked example: a trim that kept the newest 30 job runs passed two concurrent copies with no errors on a 4-connection pool. Forty writers at once left 43 to 69 rows.
+
 ## 2.18 Cross-writer race
 
 2.4 to 2.7 ask whether one path is safe against a second copy of itself. This angle asks whether it is safe against every other path that writes the same rows. Concurrency findings in a review usually hide here, because each function looks atomic when read alone.
@@ -95,7 +97,23 @@ Watch for these two signs:
 - **Sibling lock asymmetry.** Most writers of an entity open with `select ... for update` on it, and one does not. If the review writes "A, B, and C lock the row; D is one statement", then it has already described the finding. One statement is atomic against itself and orders nothing against a writer holding a row lock.
 - **A child insert against a parent another writer is deleting.** Writer A inserts a child row that references a parent. Writer B has locked the parent and is deleting it or merging it into another. A's insert blocks on the foreign key's key-share lock. After B commits, the insert fails with a foreign-key violation (Postgres `23503`), and the route returns 500 where it should return 404. To fix it, have A lock the parent first in the same transaction, so that A either runs before B or finds no parent.
 
-Artifact: hold writer B's transaction open in one session (for example with `pg_sleep`), run writer A in a second, and show the outcome. A test that races A against another A does not demonstrate this angle.
+Artifact: hold writer B's transaction open in one session (for example with `pg_sleep`), run writer A in a second, and show the outcome. A test that races A against another A does not demonstrate this angle. "The outcome" means the invariant both writers promise, checked on the rows afterwards, at the concurrency production can reach (replicas times pool size). "Ran clean" is not an outcome.
+
+## 2.19 Read skew
+
+2.7 and 2.18 cover paths that write. This angle covers a path that reads, including a read-only page, a report, or a health check. If the path makes two or more queries and another writer can change the rows between them, then the second query can contradict the first, and the path reports a state that never existed. "Read-only, no writes" does not make this angle N/A.
+
+Method:
+
+1. For each path in the diff that makes more than one query, write down the condition that selected each row in the first query.
+2. Find every writer that can change that condition between the queries.
+3. Check whether the later query, or the code that joins the results, re-checks the condition on the fresh data. A path that trusts the first query's selection is the finding.
+
+The fix is either to re-check the selecting condition on the second read, or to make both reads one query or one `repeatable read` transaction.
+
+Worked example: a Health page listed failed statement files in two steps. The first query picked files whose latest sync had failed, and the second fetched those files' latest syncs. A retry between the two queries started a new running sync, and the page still listed the file as failed. Two reviews marked the path "N/A, read-only". The fix re-checked `sync?.status === 'failed'` on the sync the second query returned.
+
+Artifact: run the real writer between the two reads, and assert what the path reports. Wrap the function that makes the second query so that it runs the writer first, then calls through. The test `does not list a file as failed when someone retries it while Health reads the files` in the MBC repository's `app/tests/integration/server/health.test.ts` does this. Reading the two queries and arguing that the window is small is not this artifact.
 
 ## 2.8 Pre-auth information oracles
 

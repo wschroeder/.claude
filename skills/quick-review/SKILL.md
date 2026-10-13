@@ -238,6 +238,10 @@ Concurrency / race shapes:
                                           run this one, show the outcome
                                           reading the SQL, "one statement", or a
                                           transaction boundary is not proof
+        2.7/2.18 proofs assert the promised invariant ("≤ 30 rows"), not "no errors",
+                                          at replicas × pool size copies at once
+  2.19  Read skew                        2+ queries, read-only too; writer between
+                                          them → re-check selecting condition
 
 Auth boundary:
   2.8   Pre-auth information oracles     lookup-then-auth distinguishable errors
@@ -439,7 +443,7 @@ Enumerate every candidate finding internally. For each, walk these gates IN ORDE
 
 ### Screen (silent drops)
 
-1. Is this actually a problem, or did I realize mid-write it's fine? → **Drop silently.**
+1. Is this actually a problem, or did I realize mid-write it's fine? → **Drop silently.** A measured violation of a stated contract (34 rows where the spec keeps 30) is a **Fix** even while its cause is unproven; never drop it or relabel it a hypothesis.
 2. Is this an effect the requirement check confirmed the requirement asks for? → **Drop silently.** An effect that only the PR text or the Mission describes is not dropped on intent grounds; it continues through the Screen like any other candidate.
 3. Is this hypothetical ("if someone later adds X...")? → **Drop silently.** Review what exists, not what might.
 4. Positive observation ("good pattern", "properly handles X")? → **Drop silently.** The job is finding problems, not complimenting code.

@@ -33,6 +33,14 @@ Atomicity / TOCTOU     Owes two artifacts.
                        and show the lock or constraint that orders each pair.
                        The self-race run covers only the first artifact and
                        never stands in for this one.
+                       BOTH runs assert the invariant the code promises
+                       ("at most 30 rows"), counted on the rows afterwards.
+                       "No errors" over any number of calls is NOT proof.
+                       Run at least replicas × pool size copies at once.
+                       READ SKEW (2.19): a path that queries twice, read-only
+                       ones included. Run the real writer between the two
+                       reads and assert what the path reports. "Read-only,
+                       no writes" is NOT an N/A.
 
 Error-return shape     Trigger the error path (probe or test); show the return is the
                        {:error, _} callers destructure, not a raise that aborts the
