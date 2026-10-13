@@ -284,6 +284,12 @@ in the background, ended the turn to wait, and stopped there with the work
 uncommitted and its handoff unwritten, which halted the run on a dirty tree at
 the next iteration.
 
+Before your last turn ends, stop every background command you started, a demo
+server included. A background command keeps this session open until it exits,
+and whoever runs the demo starts a server of their own. Measured on 2026-10-12:
+a worker left a demo server running with a one-hour limit and sat idle for 57
+minutes after writing its handoff.
+
 You are on the driver model. When you hand a piece of work to a subagent, match
 the model to the task: Haiku for wide or mechanical passes where only the answer
 matters, Sonnet for work that needs judgment you will not re-read yourself, and

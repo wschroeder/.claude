@@ -795,6 +795,16 @@ for phrase in "wait for it in one call that blocks" "Do not sleep and look again
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the contract tells the session: $phrase" 0 "$ok"
 done
+# The opposite case: a command the session never waits on still holds the
+# session open. Measured on 2026-10-12: a worker started a demo server in the
+# background with a one-hour limit, wrote its handoff three minutes later, and
+# the session stayed open until the limit ran out, 57 minutes idle. The wake-up
+# turn then became the session's result, so the driver printed "turns 2".
+for phrase in "stop every background command you started" \
+              "keeps this session open until it exits"; do
+  case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
+  check "the contract tells the session: $phrase" 0 "$ok"
+done
 # Asking how full you are is itself a full-context turn. Six checks per session
 # was the repo-a habit, one of them at 43,254 context where the answer cannot
 # be anything but "keep going". No check below 102,349 in any measured session
