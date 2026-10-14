@@ -40,12 +40,13 @@ Reading the new shape is half the angle. For every write in the diff that clears
 
 Measured on a client pull request: the review recorded that clearing an import's provenance marker left the imported value in place, and never asked what the page showed next. The page labeled any value without the marker as coming from the other source, so it showed the imported value under the wrong source's badge. Copilot found it by asking that question.
 
-**Every reader, not only the writer.** When the diff adds a table or a new state, grep for every unchanged function that reads it or should read it — existence checks, delete guards, and re-resolvers that run when a page opens — and drive each one through its real path. Testing the code that writes the new state proves nothing about a reader that ignores it.
+**Every reader, not only the writer.** When the diff adds a table or a new state, including a new value it writes into an existing column or a new kind of audit event under an existing action, grep for every unchanged function that reads it or should read it — existence checks, delete guards, and re-resolvers that run when a page opens — and drive each one through its real path. Testing the code that writes the new state proves nothing about a reader that ignores it.
 
 Worked examples, both from one pull request that added remembered masked account numbers:
 
 - A delete guard checked statements, adjustments, notes, and tags before retiring an account, but not remembered numbers. The SilverLake refresh then deleted an account that held only remembered numbers and cascaded them away. Our review wrote "misreading of two accounts keeps its numbers: met (test "misreads two accounts")": that test checked the numbers were left in place and never checked whether the account survived.
 - `resolveStatementDetailMatch` re-resolved a statement whenever the file page opened, using the ledger alone, and saved `no_match` over the `ambiguous` result that processing had reached from remembered numbers. Our review wrote "1.4 handoff completeness: DEMONSTRATED. The F4 test drives real processing and reads back the stored account and status.", which drove the writer and never opened the page.
+- A remembered-number check wrote an `auto_verify` decision into the existing statement-verification audit action. `statementCardStatus` labelled a file card from the latest such decision, so a card read Verified after a reviewer had unverified the statement. Our reader grep searched for the new table and column names only, and the card's reader names neither.
 
 ## 1.5 Spec contract changes
 

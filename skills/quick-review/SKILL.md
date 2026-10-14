@@ -175,7 +175,8 @@ Seam checks:
                                           checkpoints are NOT terminal; each early return
                                           names every state reaching it, another row too
   1.4   Handoff completeness             grep every unchanged reader of the new table
-                                          or state and drive each one; what
+                                          or state, a new value in an old column
+                                          or audit action too, and drive each one; what
                                           it shows from each new state is true
                                           proof: drive each new state through the
                                           real path, quote the rows, audit events,
@@ -245,7 +246,9 @@ Concurrency / race shapes:
         2.7/2.18 proofs assert the promised invariant ("≤ 30 rows"), not "no errors",
                                           at replicas × pool size copies at once
   2.19  Read skew                        2+ queries, read-only too; writer between
-                                          them → re-check selecting condition
+                                          them → re-check selecting condition;
+                                          a decision judges the same read its
+                                          re-check compares; two nulls never match
 
 Auth boundary:
   2.8   Pre-auth information oracles     lookup-then-auth distinguishable errors
@@ -327,7 +330,8 @@ Sibling consistency:
   5.6   Helper functions called          same validate_*/authorize_*/audit_*
   5.7   Same-module sibling consistency  asymmetric guards/clauses/fallbacks;
                                           a match proves the convention, never
-                                          the behavior
+                                          the behavior; two helpers giving one
+                                          verdict both honor a reviewer's choice
   5.8   Within-function return-shape     all branches same shape (no :ok mix)
   5.9   Behaviour declaration consistency `@behaviour`/`@impl` symmetry across siblings
 
@@ -427,9 +431,10 @@ The diff is not the only place that talks about the diff's symbols. Mechanical g
   9.6   assert_called / assert_received  message-pattern references
   9.7   Telemetry handlers               attach/detach for touched events
   9.8   Comment-thread stitches          describe / test / @moduletag strings
-  9.9   Whole-repo copies                every changed constant, list, or enum:
-                                          grep its name and one member across
-                                          all files, every language
+  9.9   Whole-repo copies                every changed constant, list, enum, or
+                                          text a user reads: grep its name and one
+                                          member from the repository root, all
+                                          files, every language
 ```
 
 For each hit, classify as:

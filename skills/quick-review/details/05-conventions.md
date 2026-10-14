@@ -60,6 +60,8 @@ A pair that matches settles only this angle. "Mirrors `<sibling>`" is never a di
 
 Measured on a client pull request: a release function left a stale value in place, and the review cleared it because its sibling release function did the same. Both had the bug.
 
+**Two helpers that compute the same verdict must honor the same saved choice.** When a module holds two functions that each decide one thing, such as whether a statement's holdings block verification, read both for every choice a reviewer can save. One that honors the choice and one that overrides it is the finding, whichever one the diff touched. Worked example: `statementHoldingsChecks` honored a reviewer's "keep holdings as read", while `holdingsChecks` forced `keptHoldingsAsRead` to false, so a moved statement's check failed on a difference the reviewer had already settled. Copilot found it.
+
 ## 5.8 Within-function return-shape consistency
 
 For each function in the diff, statically enumerate its return paths across every branch (every `case`/`cond`/`if`/early-return/`with`-else). Verify all branches produce the same shape — either all `:ok` or all `{:ok, value}`, either all `{:error, reason}` or all `:error`, never a mix. Asymmetric branches force callers to handle multiple shapes; silent callers that pattern-match on only one shape crash with `MatchError` on the other.

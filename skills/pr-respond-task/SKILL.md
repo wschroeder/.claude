@@ -257,6 +257,12 @@ security-review: <PASS | N findings, P fixed in loop, R deferred>
 Loops:           <count; the last one found nothing new>
 ```
 
+Under it, paste the Checklist each review printed on its last pass, copied
+from that review's Output block. If a review printed no Output block, then
+it did not run: run it again, and never record it as clean. Measured: a
+whole-branch review printed no Output block, its handoff recorded "finished
+with no new finding", and Copilot's next review found five bugs on the branch.
+
 ## Reply posting plan (NOT executed)
 
 For each draft reply, surface the exact `gh api` invocation that would

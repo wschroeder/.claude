@@ -118,6 +118,10 @@ Method:
 
 The fix is either to re-check the selecting condition on the second read, or to make both reads one query or one `repeatable read` transaction.
 
+**A decision and its re-check use one read.** When a path decides from data it read, then re-reads under a lock to confirm nothing changed before applying the decision, the data the decision judged and the data the re-check compares must be the same read. If the path reads twice before deciding, then a writer between those two reads goes unnoticed: the re-check compares the fresh copy, and the decision came from the older one. A re-check that finds both reads empty (null) has confirmed nothing, so refuse it rather than count it a match.
+
+Worked example: a check on a moved statement read statement B's holdings, handed them to the reconciliation and the verification model, then took a fresh read of B to use as its check token. A reviewer's edit to B between those reads left the token matching under the lock, and the check verified B from holdings the reviewer had already changed. Copilot found it. The fix reads B once and uses that read both as the model's input and as the token.
+
 Worked example: a Health page listed failed statement files in two steps. The first query picked files whose latest sync had failed, and the second fetched those files' latest syncs. A retry between the two queries started a new running sync, and the page still listed the file as failed. Two reviews marked the path "N/A, read-only". The fix re-checked `sync?.status === 'failed'` on the sync the second query returned.
 
 Artifact: run the real writer between the two reads, and assert what the path reports. Wrap the function that makes the second query so that it runs the writer first, then calls through. The test `does not list a file as failed when someone retries it while Health reads the files` in the MBC repository's `app/tests/integration/server/health.test.ts` does this. Reading the two queries and arguing that the window is small is not this artifact.

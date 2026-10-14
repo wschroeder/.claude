@@ -40,9 +40,11 @@ Test files that reference a touched function name in a `#` comment, in `describe
 
 ## 9.9 Whole-repo copies of a changed value
 
-This one angle leaves `test/`. For every constant, list, enum value, or literal set the diff changes, run `git grep -n` across the whole repository, every file type, for the value's name and for one of its unchanged members. A script, a config file, or a module in another language can keep its own copy, held in step by a comment or by nothing at all. No import links the two, so tracing callers never reaches it. A hit outside the diff that still holds the old value is a Fix: the diff is what made it wrong.
+This one angle leaves `test/`. For every constant, list, enum value, literal set, or piece of text a user reads (an error message, a refusal, a label) that the diff changes, run `git grep -n` from the repository root, every file type, for the value's name and for one of its unchanged members, or for a distinctive phrase of the old text. Run it from the root, not from a package directory: browser tests often sit beside the app, as `e2e/` does, and a grep inside `app/` never reaches them. A script, a config file, or a module in another language can keep its own copy, held in step by a comment or by nothing at all. No import links the two, so tracing callers never reaches it. A hit outside the diff that still holds the old value is a Fix: the diff is what made it wrong.
 
 Measured on a client pull request: the change added a table to a TypeScript list of tables that must share one snapshot date. A Python script that seeds the same data kept an identical list under the same name, and no review grep had searched beyond `*.ts` and the spec. Copilot found the stale copy.
+
+Measured on another: the diff changed the refusal shown when someone deletes a firm that still holds remembered masked numbers. `e2e/specs/firms.spec.ts` still expected the old text, and every review grep had run inside `app/`. Copilot found it.
 
 ---
 
