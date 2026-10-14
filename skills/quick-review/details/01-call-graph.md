@@ -14,6 +14,10 @@ Always-required: a NEW lookup column on a NEW or pre-existing hot table needs an
 
 When new code queries a table/schema, grep for all other queries on that same table for the same logical entity (e.g., same ID field). Compare WHERE clauses. If another function uses a broader or different lookup (e.g., `field_a OR field_b`), the new query must account for the same cases or explain why not.
 
+When the diff changes what makes two rows the same, such as a saved firm name giving way to a firm id, list every query that decides sameness side by side: dedup deletes, unique indexes, merges, and lookups. Each one must compare the same expression. One left comparing the old key lets two rows the others treat as one survive, or lets a merge delete a row the index would have kept.
+
+Worked example: a pull request tied each remembered masked account number to a firm id, but a brokerage name can move from firm A to firm B while older remembered numbers keep A's id. The move-to-account dedup delete and the firm-merge combine still treated two rows with the same saved name as one, so they deleted A's row when the receiving account held the same number under B. The unique index compared the saved name too and refused to hold both rows. An outside reviewer caught it. Our review had written "6.3 test title: "keeps one remembered number when the workbook account already remembers it" matches its assertions", which checked a title against one test and never put the sameness queries next to each other.
+
 ## 1.3 Return-value assumptions (recovered-error checkpoints are not terminal)
 
 For each function the diff adds, and each existing function whose arguments or return value it changes, trace its return value through at least 3 caller levels. Read the callers whether or not the diff touches them: a caller outside the diff is where a changed contract goes unhandled. What does the caller do with the result? What does the caller's caller assume was filtered or transformed? Does the new function's contract satisfy those assumptions?
@@ -21,6 +25,10 @@ For each function the diff adds, and each existing function whose arguments or r
 **Recovered-error checkpoints are not terminal.** A handler returning `:ok` on a recovered error path (race, unique-constraint violation, retry-exhausted, not-found fallback) is NOT the end of the trace — it is a checkpoint. Continue tracing until the terminal side effect (DB write, API response, token minted, redirect emitted). The invariant to prove is that the terminal side effect matches the persisted state, not that the handler returned a success tuple.
 
 Worked example: a fix scoped a domain delete to the statement in the URL and made it return `false` when the holding belonged to another statement. The diff touched only the domain, the application layer, and a test. The route that called it sat outside the diff: it looked the holding up by its id alone before the delete, and it wrote a "holding deleted" audit event whether or not the delete returned `false`. So the route recorded another statement's holding against this one. The review checked the changed query, answered 1.3 with one example from a different function, and passed 2.1 as "audit writes are best-effort". An outside reviewer caught it on the PR. One 1.3 line for the changed delete would have opened that route.
+
+**Early returns name every state that reaches them.** For each early return the diff adds, list every state of the rows that leads there, including one where another row also holds the same value. A new early return that matches an existing one is not proof: the existing one may only ever have been reached from one of those states.
+
+Worked example: a pull request returned early when the account a reviewer chose already remembered the masked number. When two accounts remembered the same number, holder, and firm, choosing either one reached that return. The other account kept its copy, its waiting statements never moved, and later statements stayed ambiguous although the reviewer had chosen. Our review wrote "The new early `null` matches the existing early return for "this account already holds the number"." and stopped there. An outside reviewer caught it.
 
 When you see `case some_fallible_call() do :ok -> ...; :already_exists -> :ok end`, ask: does the next step operate on the CALLER's intended payload or on the STORED payload? If the former, the race has decoupled "what the user agreed to" from "what the DB says they agreed to" — a silent integrity break.
 
@@ -31,6 +39,13 @@ When new code produces output later consumed by unchanged code, read the unchang
 Reading the new shape is half the angle. For every write in the diff that clears a marker, releases a claim, or changes where a value came from, name the row's state afterwards, then read what the consumer shows from that state — the value and any label attached to it, such as a source badge — and check both against the product spec. A consumer that reads the state without error can still show something false: a value the badge credits to the wrong source, or one the product spec says should have been replaced. Prove it with a test or a query against the post-write row and the line that renders it, not by reading the write alone.
 
 Measured on a client pull request: the review recorded that clearing an import's provenance marker left the imported value in place, and never asked what the page showed next. The page labeled any value without the marker as coming from the other source, so it showed the imported value under the wrong source's badge. Copilot found it by asking that question.
+
+**Every reader, not only the writer.** When the diff adds a table or a new state, grep for every unchanged function that reads it or should read it — existence checks, delete guards, and re-resolvers that run when a page opens — and drive each one through its real path. Testing the code that writes the new state proves nothing about a reader that ignores it.
+
+Worked examples, both from one pull request that added remembered masked account numbers:
+
+- A delete guard checked statements, adjustments, notes, and tags before retiring an account, but not remembered numbers. The SilverLake refresh then deleted an account that held only remembered numbers and cascaded them away. Our review wrote "misreading of two accounts keeps its numbers: met (test "misreads two accounts")": that test checked the numbers were left in place and never checked whether the account survived.
+- `resolveStatementDetailMatch` re-resolved a statement whenever the file page opened, using the ledger alone, and saved `no_match` over the `ambiguous` result that processing had reached from remembered numbers. Our review wrote "1.4 handoff completeness: DEMONSTRATED. The F4 test drives real processing and reads back the stored account and status.", which drove the writer and never opened the page.
 
 ## 1.5 Spec contract changes
 

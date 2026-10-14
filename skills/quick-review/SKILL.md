@@ -169,10 +169,13 @@ Worked examples: `details/01-call-graph.md`.
 ```
 Seam checks:
   1.1   Schema-query alignment           index every new where/orderBy column
-  1.2   Query consistency                grep sibling queries; compare WHERE clauses
+  1.2   Query consistency                every sameness query (dedup, unique index,
+                                          lookup) side by side; each compares one expression
   1.3   Return-value assumptions         3-level caller trace; recovered-error
-                                          checkpoints are NOT terminal
-  1.4   Handoff completeness             unchanged consumer reads new shape; what
+                                          checkpoints are NOT terminal; each early return
+                                          names every state reaching it, another row too
+  1.4   Handoff completeness             grep every unchanged reader of the new table
+                                          or state and drive each one; what
                                           it shows from each new state is true
                                           proof: drive each new state through the
                                           real path, quote the rows, audit events,
@@ -232,7 +235,8 @@ Concurrency / race shapes:
                                           proof: run two copies at once against real
                                           Postgres, or quote the lock both take first
   2.18  Cross-writer race                each write path against every OTHER writer
-                                          of its rows and their FK parents; a sibling
+                                          of its rows and their FK parents, listed by
+                                          name, deferred steps too, one test each; a sibling
                                           that locks where this path does not → finding
                                           proof: hold the other writer open (pg_sleep),
                                           run this one, show the outcome

@@ -99,6 +99,13 @@ Watch for these two signs:
 
 Artifact: hold writer B's transaction open in one session (for example with `pg_sleep`), run writer A in a second, and show the outcome. A test that races A against another A does not demonstrate this angle. "The outcome" means the invariant both writers promise, checked on the rows afterwards, at the concurrency production can reach (replicas times pool size). "Ran clean" is not an outcome.
 
+List the writers by name, and include the deferred ones: a worker job that resumes later from what it captured earlier, and a model call that is in flight while a person edits the same rows. Pair each writer with its own test. "The concurrency tests" as a group is not proof for any one pair.
+
+Worked examples, both from one pull request that added remembered masked account numbers:
+
+- The moved-statement check captured a remembered row's id, then resumed after the SilverLake refresh had moved that row to another account without changing its id. The id still matched, so the check moved a waiting statement onto the retired account. Our review wrote "2.18 cross-writer: DEMONSTRATED for the refresh against the link and against the add", which paired the refresh with two writers and never with the deferred check.
+- Initial processing applied the model's answer after a reviewer had deleted the remembered number it relied on, and verified the statement against the old account's evidence. Our review wrote "2.5, 2.7, and 2.18 races: DEMONSTRATED by the F1 test and the concurrency tests.", naming no pair at all.
+
 ## 2.19 Read skew
 
 2.7 and 2.18 cover paths that write. This angle covers a path that reads, including a read-only page, a report, or a health check. If the path makes two or more queries and another writer can change the rows between them, then the second query can contradict the first, and the path reports a state that never existed. "Read-only, no writes" does not make this angle N/A.
