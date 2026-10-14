@@ -467,7 +467,7 @@ A finding that proposes an irreversible operation on user-authored data (DELETE,
 
 ### Author-acknowledged deviation is not exempt
 
-An acknowledgment in a moduledoc, comment, commit message or PR body is the TRIGGER to run the Yes-to-any gate against the deviation, never a reason to skip it. The acknowledgment phrases to grep for, and why the gate has no "author already knew" exemption: [details/author-acknowledged.md](details/author-acknowledged.md).
+An acknowledgment in a moduledoc, comment, commit message, PR body, this review's own Notes, or the session's handoff is the TRIGGER to run the Yes-to-any gate against the deviation, never a reason to skip it. A finding that a later card will fix is still a Fix or a Flag in this commit, never a Note. The acknowledgment phrases to grep for, and why the gate has no "author already knew" exemption: [details/author-acknowledged.md](details/author-acknowledged.md).
 
 ### Classifications
 

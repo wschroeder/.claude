@@ -447,6 +447,12 @@ task, cut a spike card ahead of it that answers the question. Mark two cards
 that touch without one waiting on the other as related, and keep `blocked-by`
 for a card that cannot start until another finishes.
 
+**A case that would make an earlier card's path fail belongs in that earlier
+card,** not in a card queued after it. If you cut it separately, then the
+earlier card ships the failure and its review files the fix under a later card
+as a Note. Measured on MBG-197 S8 (2026-10-13): a review noted a refresh
+rollback "Until mbg-0m9 lands", and mbg-0m9 depended on mbg-a3y.
+
 A current-slice task with no proof command is not a task. Fold it into one
 that has, or drop it. A sketched later task has no proof command.
 
