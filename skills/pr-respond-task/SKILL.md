@@ -1,6 +1,6 @@
 ---
 name: pr-respond-task
-description: Fixes approved PR-feedback findings one at a time, each through its own probe → red → green → refactor cycle, then runs quick-review and security-review over the combined diff and surfaces a plan for the replies and commits; posts, amends and pushes with --force-with-lease when nothing is left for the operator to decide, else stops for approval. Use when acting on PR review comments, fixing what a reviewer asked for, or pushing fixes back onto a PR branch.
+description: Fixes approved PR-feedback findings one at a time, each through its own probe → red → green → refactor cycle, then works out why our own reviews missed each finding and stops for the operator to agree the review-skill changes, then runs quick-review and security-review over the whole branch until a pass finds nothing new, and surfaces a plan for the replies and commits; posts, amends and pushes with --force-with-lease when nothing is left for the operator to decide, else stops for approval. Use when acting on PR review comments, fixing what a reviewer asked for, or pushing fixes back onto a PR branch.
 ---
 
 # pr-respond-task — fix approved PR-feedback findings via probe-first TDD
@@ -17,7 +17,8 @@ The final section defines what "nothing to decide" requires.
 The output discipline is structural: each section contains actual tool
 output, not paraphrased summaries. Per-finding micro-cycles must be
 complete (probe, red, green, refactor, reply draft all present) before
-the combined-diff reviews run.
+the review-skill check runs, and the operator must have agreed its
+changes before the whole-branch reviews run.
 
 ## Preconditions
 
@@ -159,7 +160,7 @@ Close both gates against this micro-cycle's diff:
 - 4b scope — no drive-by refactors; every file in the diff required by this finding
 
 Doc and code agreeing, sibling symmetry, failure-path coverage and behavioral
-regression are not re-walked here — the combined-diff `quick-review` below owns them.
+regression are not re-walked here — the whole-branch `quick-review` below owns them.
 
 Either gate failing → return to Red or Refactor before continuing.
 
@@ -197,25 +198,63 @@ the bot's stated reproduction>.
 
 (Repeat the full sub-section for each Accepted finding.)
 
-## Reviews on the combined diff
+## Why our reviews missed it
 
-After every per-finding cycle is complete, run both reviews against
-the working tree (per `writing-code`, "After the edit: the review
-sequence is owed"):
+An outside reviewer catching a bug means our own reviews let it through.
+After every per-finding cycle is complete, find out why for each fixed
+finding, so the next branch's reviews catch the same kind of bug. Skip
+this section only when no finding was fixed, and say so in one line.
 
-1. `quick-review` against the combined diff
-2. `security-review` against the combined diff
+For each fixed finding:
+
+1. Name the angle in `quick-review` or `security-review` that should
+   have caught it, quoting the angle's line from that skill. If no
+   angle covers it, say so.
+2. Search this branch's session transcripts, under
+   `~/.claude/projects/<the working directory, every / and . turned into ->/`,
+   for what our reviews wrote at that angle. Quote the line. The usual
+   answers are that a review dropped a measured problem, marked the
+   angle N/A, or accepted a proof too weak to show the bug.
+3. Propose the smallest change to that skill that would have caught
+   it: a sharper proof, a closed loophole, or a new angle with the
+   finding as its worked example.
+
+```
+Finding <N>: <one line>
+  Angle:      <skill, angle number and quoted line | none covers it>
+  Our review: <quoted transcript line, session id>
+  Change:     <file and the change proposed>
+```
+
+STOP and ask the operator to agree the changes. Make only the ones
+they agree, under `systematize`, and commit them in `~/.claude` through
+`git-commit`. Record the commit id here.
+
+## Reviews on the whole branch
+
+Once the agreed skill changes are committed, run both reviews over the
+whole branch, `<base>..HEAD` together with the working tree, rather
+than over the fixes alone (per `writing-code`, "After the edit: the
+review sequence is owed"). They run with the skills as they now stand,
+so a bug the outside reviewer's kind of check would find elsewhere on
+the branch surfaces here.
+
+1. `quick-review` against the whole branch
+2. `security-review` against the whole branch
 
 Then work `quick-review`'s "Re-review and the fix loop" over the
 findings. It owns naming what actually runs each finding, the Yes-to-any
-gate a fix has to clear, and when the loop counts as finished. Record a
-finding you are not fixing in the PR thread, with one line saying why.
+gate a fix has to clear, and when the loop counts as finished. Keep
+running both reviews and fixing until one full pass of both finds
+nothing new. Record a finding you are not fixing in the PR thread, with
+one line saying why.
 
 State the loop outcome:
 ```
+Skill changes:   <commit id in ~/.claude | none — no finding fixed>
 quick-review:    <PASS | N findings, P fixed in loop, R deferred>
 security-review: <PASS | N findings, P fixed in loop, R deferred>
-Loops:           <count>
+Loops:           <count; the last one found nothing new>
 ```
 
 ## Reply posting plan (NOT executed)
@@ -294,8 +333,10 @@ gate fails:
 - Every operator-Accepted finding was fixed as accepted — none flipped to
   Rejected, not-reproducible, or only partially fixed (a decline overrides
   what you approved: that is pushback to you, and it fails the gate).
-- The combined quick-review AND security-review are clean on the current
-  tree, with no finding deferred rather than fixed.
+- The operator agreed the review-skill changes from "Why our reviews
+  missed it", and those changes are committed in `~/.claude`.
+- The last pass of quick-review AND security-review over the whole
+  branch found nothing new, with no finding deferred rather than fixed.
 - Replies post autonomously whether they confirm a fix (`Fixed:
   <mechanism>`) or rebut a review bot — pushback to a *bot* needs no
   sign-off. The gate concerns only pushback to *you*: if probing flips an
