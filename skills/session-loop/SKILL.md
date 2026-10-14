@@ -203,9 +203,12 @@ against step 4 before you pass it on, because a question about what to do next
 is one you answer yourself. If it really is the operator's, put it to them and
 offer to resume.
 
-**Where that question is asking for a demo, load `demo-task` first and let its
-Section 4 compose the ask.** Start the demo server first, with the command
-the demo file's steps name: the worker stopped it before handing off. That section carries the question about whether the
+**Where that question is asking for a demo, load `demo-task` first and enter it
+at Section 3, not Section 4.** Start the demo server first, with the command
+the demo file's steps name: the worker stopped it before handing off. Then walk
+every step of the demo yourself, capturing as you go, before Section 4 composes
+the ask. The worker took the captures, and you have seen none of them work.
+Section 4 carries the question about whether the
 operator worked the demo or read the captures, and the answer to it decides
 whether a single card can close. An ask written here instead leaves the question
 out, because nothing in this step names it. Measured: a run stopped for a demo,

@@ -7,3 +7,11 @@ Measured on MBG-197 S4 (2026-10-09): a worker started the demo server at
 open until 13:56:58. The loop sat idle for those two hours. The supervisor, not
 the worker, is present when the operator works the demo, so it starts the
 server then.
+
+## Why a session that did not take the captures walks the demo again
+
+Measured on MBG-197 S8 (2026-10-13): the supervisor resumed a worker's
+`BLOCKED:` demo at Section 4 and said at 17:52:14, "I didn't drive the app at
+all. A worker session took the screenshots". Later in the same run, a session
+committed 91234f1 mid-stop and at 19:29:24 sent one new screenshot without
+walking the demo again.

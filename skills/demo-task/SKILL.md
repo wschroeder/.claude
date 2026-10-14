@@ -446,6 +446,13 @@ Measured: a demo built a phone web build mid-stop, sent the link after the
 title screen alone, and the operator found within minutes that the touch stick
 was invisible and that a tap walked through a door.
 
+**If this session did not take the captures itself, or has committed anything
+since they were taken, go back to Section 3 and walk every step again.** That
+covers a supervisor resuming a worker's `BLOCKED:` demo and a fix committed
+mid-stop alike. A fresh capture of one screen is not a walk: the commit can
+break a step you did not look at. Why:
+[references/measurements.md](references/measurements.md).
+
 **Open the ask with the phase line**, directly above the question — the
 four phases in order, this stop's capitalized:
 
