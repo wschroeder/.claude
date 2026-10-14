@@ -282,6 +282,19 @@ Where the operator reaches the thing by clicking rather than by running a
 command, `operate it` is a numbered list of steps. Each step says where to
 click, what to check before, what to do, and what to check after.
 
+**Write those steps as a story before you drive anything, using
+`writing-prose`'s tier-two method.** Load `writing-prose`. Dump every card and
+every behavior the slice changed, order them so each step sets up the next,
+draft the steps, and finish them. Every card maps to a step, or the steps say
+in one line why that card has nothing on screen.
+
+**Then follow the written steps literally, and let that be the drive.** Capture
+before and after each step, and compare each after-capture with that step's
+"check after" text. Where they disagree, either fix the step or send the
+product back to build as the rules below say, and do not post until they agree. Following the steps is what tests them: a step
+you skipped or improvised around is a step the operator will trip on. Why:
+[references/measurements.md](references/measurements.md).
+
 Print those steps in full in the message that posts the demo. A copy sent to a
 phone or saved to a file comes in addition to them, never in their place.
 Measured: a demo sent its steps to the operator's phone, named the file's path,

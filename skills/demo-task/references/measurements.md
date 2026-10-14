@@ -15,3 +15,10 @@ Measured on MBG-197 S8 (2026-10-13): the supervisor resumed a worker's
 all. A worker session took the screenshots". Later in the same run, a session
 committed 91234f1 mid-stop and at 19:29:24 sent one new screenshot without
 walking the demo again.
+
+## Why the operate-it steps are written first and then followed literally
+
+Measured on MBG-197 S8 (2026-10-13): no session in the run loaded
+`writing-prose`, and the session that posted the demo said at 17:52:14 "I
+didn't drive the app at all", so nobody had walked the steps the operator was
+handed.
