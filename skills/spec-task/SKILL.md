@@ -366,6 +366,11 @@ Rules for this section:
   to send this product real input, load `project-drive` if it appears in the
   available skills; if nothing is listed, say so in one line and write the
   requirement anyway.
+- **The design of the card that carries that requirement puts the operator's
+  steps first.** Its first item writes the demo file's operate-it steps by
+  `demo-task` Section 3's method. Its second writes the drive script so that
+  it follows those steps one by one. The worker that builds the card reads the
+  card and does not load `demo-task`.
 - **That input is aimed at the thing as a person sees it, not at a
   coordinate the code returns.** Never take the target's position from the
   module the assertion reads. The requirement names the target from what is

@@ -268,6 +268,18 @@ of them at the centre the game's own layout function returned, and every one
 passed over a battalion painted 51 pixels wide that answered a press over 3 of
 them.
 
+Rule: the demo card's design lists the operator's steps before the drive
+script.
+
+Why: the card is built under `tdd-cycle`, which never loads `demo-task`, so
+the card's own design is the only instruction its worker sees about order.
+
+Measured on MBG-197 S9 (2026-10-13): the demo card's design read "Write
+app/scripts/drive-s9-demo.mjs … Write steps in docs/demos/s9.md". The worker
+wrote the script at 22:17:12 and the steps at 22:20:18. It never loaded
+`demo-task`, so it drove from its own script, not from the steps it handed
+the operator.
+
 ## 5. What this run writes, and where each piece lands
 
 Rule: name a home for every design decision.
