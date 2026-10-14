@@ -114,6 +114,13 @@ reading and the diagnosis you drew from it are two claims. Write:
 
 NOT "MEASURED: order diverges because the rout path is order-dependent."
 
+**A known failure in the current Jira issue's own work is not a hypothesis to
+carry forward.** Write it as needing a card, name the skill that cuts it
+(`spec-task`), and put that in §8 ahead of new work. Carried as an inherited
+`hypothesis:`, it rides handoff after handoff and nobody owns it. Measured on
+MBG-197 S8 (2026-10-13): a refresh failure on a same-name, different-firm copy
+reached the retro as "hypothesis (inherited)" with no card behind it.
+
 **A dead-end is recorded against the mechanism that failed, never against
 the class of evidence it was serving.** "macOS `screencapture` returns a
 uniform black image in this sandbox" is a dead-end; "Do not retry pixel
