@@ -48,6 +48,10 @@ Differences in name (`send_token_error/3` vs `send_refresh_revoke_error/3`), in 
 
 **Deletion test:** line up the two bodies; if every line of one matches the corresponding line of the other (modulo cosmetic ordering), collapse to a single shared helper. The exception — and it must be argued explicitly — is when the helpers diverge MEANINGFULLY today (different realm strings, different default error codes, different tracing/telemetry tags). Speculation about future divergence ("we might want different behavior later") does not justify keeping duplicates; the future change can introduce the split.
 
+**A diff that makes the same edit in several copies triggers the deletion test.** Name the copies, then collapse them or argue how each one differs. Checking that every copy changed the same way treats them as siblings to keep in step, which is the cost the deletion test exists to remove. Worked example: an escaping fix changed four copies of a `Field` component the same way. Our review wrote "every Field copy ... converted the same way" and moved on. An outside reviewer pointed out that the next escaping fix would have to find all four again.
+
+**One shape written in two notations is duplication too:** a JSON schema and the Zod schema that parses the same reply, SQL DDL and the TS row type, an OpenAPI document and its handler. Agreement today is not the proof. The proof is that one copy derives from the other, or that a test fails when the two drift. Worked example: the reply schemas sent to the model and the strict Zod schemas that parsed the replies were both written by hand. Our review wrote "`PageTriageReplySchema` matches `PAGE_TRIAGE_RESPONSE_SCHEMA`." A required field added to one and not the other would have failed every file, while the test doubles, built from the Zod types, stayed green.
+
 ## 5.6 Helper functions called
 
 Same `validate_*`, `authorize_*`, `audit_*` helpers as siblings; not a parallel reimplementation. Grep for the helper name in the touched controller; if any sibling action calls it and the new one doesn't, that's the finding.
@@ -136,6 +140,7 @@ Grep the added lines for:
 - commented-out code: a comment whose body parses as code
 - focused tests: `.only(`, `fit(`, `fdescribe(`, `@tag :focus`, `@moduletag :focus`
 - `TODO`, `FIXME`, `XXX`, or `HACK` with no ticket reference
+- a field the diff touches that every producer sets to a constant and that no consumer reads; grep for readers. Asking whether the constant is a regression is the wrong question. Worked example: a statement file's `verifiedAt` was always `null` and nothing read it. Our review wrote "base was already null" and kept it, though the field looked like data a page could use.
 
 A debug print is a Fix unless the surrounding file uses that call as its deliberate logging, which Pass 3 logging discipline then governs. Commented-out code is a Fix: delete it, since version control keeps it. A focused test is a Fix, because it silently skips the rest of the suite in CI. A `TODO` without a ticket is a Flag asking for one.
 

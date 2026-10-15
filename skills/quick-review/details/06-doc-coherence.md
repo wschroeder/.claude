@@ -6,6 +6,8 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
 
 For each comment in a new/changed function, read the following statements and confirm each claim is executed. If a comment says "still validated if presented", grep the body for the validation; if the body pattern-matches `_` and returns `:ok`, the comment is lying.
 
+When a comment claims that a value stays safe somewhere else — escaped for a parser, valid for a consumer — the statements next to the comment cannot prove it. Run the value through every path that the consumer has, and show what comes out. Worked example: `dsValue` escaped `$`, `@`, and `;` for Datastar, and its comment said so. Our review wrote "comments match the code (& $ @ ; escaped ...)". Datastar's keyless `data-signals` path decoded the escapes and compiled the text again, so `$activePath` inside a string became a signal read.
+
 ## 6.2 Docstring contract
 
 For each `@doc` / `@moduledoc` with behavior claims (validates X, returns Y on Z, raises on W), check the function body produces that behavior on those inputs. If the docstring lists error cases, every listed case must be reachable from the body.

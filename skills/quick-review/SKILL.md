@@ -226,8 +226,14 @@ Side-effect call hygiene:
                                           detached promise doing durable work names the
                                           stored record that reruns it after a restart,
                                           or it is a Fix
-  2.2   Semantic completeness            name promises X, body delivers partial-X
+  2.2   Semantic completeness            name promises X, body delivers partial-X;
+                                          today's call sites passing proves only
+                                          that nothing is open now
   2.3   Defense-in-depth in isolation    boundary guards independent of caller
+  2.20  Checker evasion                  a linter, scanner, or allowlist the diff
+                                          adds or changes: one input per way round
+                                          it (case, computed key, spread, look-alike
+                                          type), each run through the checker
 
 Concurrency / race shapes:
   2.4   Divergent-input races            race handler :ok; payloads diverge
@@ -337,7 +343,10 @@ Sibling consistency:
   5.2   RFC parameter completeness       enumerate spec params; honor or reject
   5.3   Spec-permitted value rejected    accept-set vs reject-set per RFC
   5.4   RFC 6749 §5.2 status codes       invalid_client 401 only on header creds
-  5.5   Private-helper duplication       deletion test for near-identical defp
+  5.5   Private-helper duplication       deletion test for near-identical defp;
+                                          the same edit made in several copies, or
+                                          one shape in two notations (JSON schema
+                                          and Zod) → derive one, or a drift test
   5.6   Helper functions called          same validate_*/authorize_*/audit_*
   5.7   Same-module sibling consistency  asymmetric guards/clauses/fallbacks;
                                           a match proves the convention, never
@@ -360,7 +369,9 @@ Reuse and hygiene:
   5.15  Codebase-wide reuse              grep repo for an existing function that
                                           already does, or could do, the new job
   5.16  Leftover code                    debug prints, commented-out code, focused
-                                          tests, TODO without a ticket
+                                          tests, TODO without a ticket; a field every
+                                          producer sets to a constant and no
+                                          consumer reads (grep for readers)
   5.17  Deprecated API calls             compiler / linter deprecation warnings
                                           on touched files
   5.18  Readability                      name that needs a comment; wrapper that
@@ -373,7 +384,9 @@ Reuse and hygiene:
 For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touched in the diff: verify the code delivers on it. Worked examples: `details/06-doc-coherence.md`.
 
 ```
-  6.1   Comment-vs-body check            statements following comment actually fire
+  6.1   Comment-vs-body check            statements following comment actually fire;
+                                          a claim that a value stays safe elsewhere
+                                          → run it through every path that place has
   6.2   Docstring contract               every listed error case reachable
   6.3   Name-vs-body check               validate_*/verify_*/ensure_* perform action;
                                           each test's title matches its assertions

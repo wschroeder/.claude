@@ -14,11 +14,24 @@ A promise that is not awaited (`void`, fire-and-forget) and does durable work di
 
 Does the call achieve its stated intent, or is it a partial step? Compare the function/variable name to what the API call actually does. Example: `maybe_attach_payment_method` that calls `attach` but never sets the attached method as the default — the name promises more than the implementation delivers.
 
+If you check a partial body against today's call sites, you learn whether anything is open now, never whether the body is complete. Judge the body against every input its name promises to handle. Worked example: a patch to the Kita XSS scanner checked props passed by name and skipped props passed through a spread. Two handoffs carried the gap, and our review answered it with "All 13 JSX spreads print `markup=[]`", which measured today's spreads. An outside reviewer built a spread that carried user text into a markup prop, and the scanner passed it.
+
 ## 2.3 Defense-in-depth in isolation
 
 Read each new/changed function assuming an UNTRUSTED caller — not the nice caller you're reviewing. If the function relies on "my caller validated X before calling me," grep every live caller to verify. More importantly, guard at the function boundary too. Any future refactor can break the caller's validation without touching this function; the boundary guard is insurance.
 
 A function that returns `:ok` for a sentinel (e.g., "no challenge stored → pass") is fail-safe only if a sibling function in the call chain still enforces authentication; if that sibling is ever loosened, the sentinel becomes a fail-open.
+
+## 2.20 Checker evasion
+
+When the diff adds or changes a checker — a linter, a scanner, a validator, an allowlist — the checker is the code under review, and its inputs are the source it reads. List each way someone could write the forbidden thing so that it reaches the consumer but not the checker, write one fixture per way, and run the checker on each. The usual ways:
+
+- a different case, where the consumer folds case and the checker does not (an HTML parser lowercases attribute names)
+- a computed key or a value whose type is `string`, where the checker reads only literals
+- a spread, where the checker reads only named attributes or arguments
+- a look-alike, where the checker matches a name another type can also carry (a property called `__brand`)
+
+The proof is each fixture with the checker's output beside it. Matching the checker's list against today's registered names, or grepping today's code for the look-alike, measures the present and proves nothing about the next input. Worked example: lint-datastar matched `data-on-click` but not `data-on-Click`, read only literal keys, and accepted any `__brand` property as its own. Our review wrote "DATASTAR_PLUGINS matches all 22 registered names" and "`__brand` appears only in datastar-expression.ts". An outside reviewer wrote three fixtures and got past the linter with each.
 
 ## 2.4 Divergent-input races
 
