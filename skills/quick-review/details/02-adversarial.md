@@ -8,6 +8,8 @@ Is the return value bound and checked? A fallible call whose result is ignored (
 
 A result can also be bound and still ignored: `const deleted = await remove(...)` followed by a side effect that runs whatever `deleted` holds, such as an audit event, a notification, or a success response. Check that every side effect after the call depends on the result. Give each changed function its own line here, not one line for the diff.
 
+A promise that is not awaited (`void`, fire-and-forget) and does durable work dies with the process. Name the stored record that reruns that work after a restart, or the angle is a Fix. Worked example: a reviewer's save moved a statement and started its verification check without awaiting it, and the worker step cleared the request before the check ran. Our review wrote "deliberately not awaited (void) and catches its own errors" and filed the lost retry as a Note. An outside reviewer caught it; the fix stored the request and cleared it only after the check finished.
+
 ## 2.2 Semantic completeness
 
 Does the call achieve its stated intent, or is it a partial step? Compare the function/variable name to what the API call actually does. Example: `maybe_attach_payment_method` that calls `attach` but never sets the attached method as the default — the name promises more than the implementation delivers.
@@ -95,6 +97,8 @@ Method:
 Watch for these two signs:
 
 - **Sibling lock asymmetry.** Most writers of an entity open with `select ... for update` on it, and one does not. If the review writes "A, B, and C lock the row; D is one statement", then it has already described the finding. One statement is atomic against itself and orders nothing against a writer holding a row lock.
+- **Two paths taking the same two locks in opposite orders.** Quote each path's lock order side by side. Worked example: the statement save took the new-firm lock and then the remembered-number lock, while the account page took them in the reverse order, and the two deadlocked (Postgres `40P01`).
+- **A writer that runs after a delete or a combine.** Once a path deletes or combines rows, run every other writer of that table once more afterwards, not only at the same time, and show the result holds. Worked example: a firm merge deleted an account as a duplicate, and the next workbook import's upsert inserted it again under a new id. Our review wrote "2.5, 2.7, and 2.18 races: DEMONSTRATED by [T3]" and ran no writer after the merge.
 - **A child insert against a parent another writer is deleting.** Writer A inserts a child row that references a parent. Writer B has locked the parent and is deleting it or merging it into another. A's insert blocks on the foreign key's key-share lock. After B commits, the insert fails with a foreign-key violation (Postgres `23503`), and the route returns 500 where it should return 404. To fix it, have A lock the parent first in the same transaction, so that A either runs before B or finds no parent.
 
 Artifact: hold writer B's transaction open in one session (for example with `pg_sleep`), run writer A in a second, and show the outcome. A test that races A against another A does not demonstrate this angle. "The outcome" means the invariant both writers promise, checked on the rows afterwards, at the concurrency production can reach (replicas times pool size). "Ran clean" is not an outcome.

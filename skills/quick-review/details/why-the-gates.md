@@ -15,6 +15,11 @@ Format applies to every other claim, turned on the review itself. CodeRabbit
 out-catches a read-only review because it runs scripts against the repo before
 each finding: its dispositions are demonstrated rather than narrated.
 
+"Carried" from an earlier session is the same narration, borrowed. Measured on
+the masked-account-memory pull request: the last whole-branch review before the
+push, session 8ee7a15e, marked 1.4, 1.19, 2.19, 2.14–2.17, 4.1, 6.3, 8.1, and 9
+"carried", and three of the outside reviewer's findings sat behind those lines.
+
 ## Why the artifact has to be the right shape
 
 Requiring an artifact is the easy half. Requiring the *right* artifact is the
@@ -53,6 +58,12 @@ under "pre-existing and not made worse", and printed no Fixes. A Copilot review 
 the pull request raised all three, plus two aggregates still filtering on
 collateral value above zero and a rollback that left statements verified. All
 four of its findings were fixed in the same pull request.
+
+To find that code, grep for the old rule's words, never the new feature's name.
+Measured on the masked-account-memory pull request: a change let statements
+verify automatically, and its review wrote "The Logic page says nothing about
+automatic verification, so it needs no change." The page said "only after a
+statement is human-verified", and a grep for "human-verified" finds that line.
 
 ## Why the receipt is a checklist
 

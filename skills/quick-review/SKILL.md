@@ -131,7 +131,7 @@ Why: [details/why-the-gates.md](details/why-the-gates.md), "Why a changed rule p
 A disposition is an **observation, not a conclusion**. Why that is the rule, and what a
 narrated absence costs, is in [details/why-the-gates.md](details/why-the-gates.md).
 
-Every in-scope angle resolves to exactly one of three states. There is no fourth.
+Every in-scope angle resolves to exactly one of three states. There is no fourth: "carried" from an earlier session is not a disposition, so a whole-branch review checks each angle again against HEAD and cites an earlier session's artifact only when it names that artifact and shows the code it covered has not changed since.
 
 - **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: the mutation receipt `tdd-cycle` 4a left, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact.
 - **N/A** — the angle is not live in this diff. One line of why (`no SQL here`, `no auth surface touched`).
@@ -139,7 +139,7 @@ Every in-scope angle resolves to exactly one of three states. There is no fourth
 
 "I read it and it looks fine" is not a disposition. It is the satisficing slot. Delete it.
 
-**Angles 1.3 and 2.1 owe one line per changed function.** List every function in the diff that is new or whose arguments or return value changed. Each one gets its own 1.3 line naming the caller you read, including callers outside the diff, and its own 2.1 line saying what that caller does with the result. One example standing in for the whole diff is not a disposition.
+**Angles 1.3 and 2.1 owe one line per changed function.** List every function in the diff that is new or whose arguments or return value changed. Each one gets its own 1.3 line naming every caller, including callers outside the diff, with the grep and its hit count printed beside the list, and its own 2.1 line saying what that caller does with the result. One example standing in for the whole diff is not a disposition.
 
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
@@ -171,6 +171,8 @@ Seam checks:
   1.1   Schema-query alignment           index every new where/orderBy column
   1.2   Query consistency                every sameness query (dedup, unique index,
                                           lookup) side by side; each compares one expression
+                                          and leaves out the same rows (superseded,
+                                          hidden, deleted)
   1.3   Return-value assumptions         3-level caller trace; recovered-error
                                           checkpoints are NOT terminal; each early return
                                           names every state reaching it, another row too
@@ -220,7 +222,10 @@ Construct an input/state that crashes the code. Concurrent execution, partial fa
 
 ```
 Side-effect call hygiene:
-  2.1   Discarded results                fallible call result ignored
+  2.1   Discarded results                fallible call result ignored; a void or
+                                          detached promise doing durable work names the
+                                          stored record that reruns it after a restart,
+                                          or it is a Fix
   2.2   Semantic completeness            name promises X, body delivers partial-X
   2.3   Defense-in-depth in isolation    boundary guards independent of caller
 
@@ -243,6 +248,10 @@ Concurrency / race shapes:
                                           run this one, show the outcome
                                           reading the SQL, "one statement", or a
                                           transaction boundary is not proof
+                                          two paths taking the same two locks: quote
+                                          each path's order side by side; after a path
+                                          deletes or combines rows, run every other
+                                          writer once more afterwards and show it holds
         2.7/2.18 proofs assert the promised invariant ("≤ 30 rows"), not "no errors",
                                           at replicas × pool size copies at once
   2.19  Read skew                        2+ queries, read-only too; writer between
@@ -485,7 +494,7 @@ An acknowledgment in a moduledoc, comment, commit message, PR body, this review'
 Surviving candidates get one of three:
 - **Fix** — bug. Include the fix.
 - **Flag** — needs human judgment.
-- **Note** — must be aware to ship safely, but not a bug or judgment call. If you can't articulate what the developer should DO with the information, drop.
+- **Note** — must be aware to ship safely, but not a bug or judgment call. If you can't articulate what the developer should DO with the information, drop. A Note that says work or data can be lost is a Fix or a Flag.
 
 ## Output
 
