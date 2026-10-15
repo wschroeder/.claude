@@ -78,6 +78,8 @@ You enumerate what you checked BEFORE writing conclusions.
 - Before concluding, ask: "Is there an earlier step that could override or populate this?"
 - Do the tracing yourself rather than delegating it, per the `subagents` skill.
 
+**Check every item before you report it.** When you report gaps, risks, open items, or remaining work, first collect every candidate from the record: each hypothesis line in the handoff, each finding of this session, and each item someone dropped, marked as dropped. Then check each one by reading the line, running the probe, or measuring it, and report what the check found. If you cannot check an item in this session, say what stops you and raise it as a blocker, not a caveat.
+
 ## Communication Style (HARD CONSTRAINT)
 
 The Evidence Format governs WHAT you cite. This rule governs HOW you write. They compose — Evidence bullets follow the same plain-English style as the body.
