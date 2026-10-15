@@ -30,8 +30,10 @@ When the diff adds or changes a checker — a linter, a scanner, a validator, an
 - a computed key or a value whose type is `string`, where the checker reads only literals
 - a spread, where the checker reads only named attributes or arguments
 - a look-alike, where the checker matches a name another type can also carry (a property called `__brand`)
+- a type with no declaration site (`Record`, `Pick`, a mapped type), where the checker trusts a property by where it was declared
+- a value stored first (a const, a let, a destructure, a function's return), where the checker reads only the expression at the point of use
 
-The proof is each fixture with the checker's output beside it. Matching the checker's list against today's registered names, or grepping today's code for the look-alike, measures the present and proves nothing about the next input. Worked example: lint-datastar matched `data-on-click` but not `data-on-Click`, read only literal keys, and accepted any `__brand` property as its own. Our review wrote "DATASTAR_PLUGINS matches all 22 registered names" and "`__brand` appears only in datastar-expression.ts". An outside reviewer wrote three fixtures and got past the linter with each.
+The proof is each fixture with the checker's output beside it. Matching the checker's list against today's registered names, or grepping today's code for the look-alike, measures the present and proves nothing about the next input. Worked example: lint-datastar matched `data-on-click` but not `data-on-Click`, read only literal keys, and accepted any `__brand` property as its own. Our review wrote "DATASTAR_PLUGINS matches all 22 registered names" and "`__brand` appears only in datastar-expression.ts". An outside reviewer wrote three fixtures and got past the linter with each. After those fixes our review wrote "2.20 checker evasion: DEMONSTRATED, 7 probes", every probe one of the first four ways. The same reviewer then got past it again with a `Record<'data-text', string>` spread, whose property has no declarations, and with `const text = label as 'x'` stored before the attribute read it.
 
 ## 2.4 Divergent-input races
 
