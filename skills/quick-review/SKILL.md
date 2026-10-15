@@ -255,9 +255,11 @@ Concurrency / race shapes:
                                           reading the SQL, "one statement", or a
                                           transaction boundary is not proof
                                           two paths taking the same two locks: quote
-                                          each path's order side by side; after a path
-                                          deletes or combines rows, run every other
-                                          writer once more afterwards and show it holds
+                                          each path's order side by side, with the row
+                                          locks UPDATE/DELETE take and FK key-shares;
+                                          after a path deletes, combines, or leaves
+                                          duplicates of rows, run every other writer
+                                          once more afterwards and show it holds
         2.7/2.18 proofs assert the promised invariant ("≤ 30 rows"), not "no errors",
                                           at replicas × pool size copies at once
   2.19  Read skew                        2+ queries, read-only too; writer between
