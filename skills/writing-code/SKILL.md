@@ -18,6 +18,7 @@ governs what the code and its comments look like once the loop reaches Green.
 | PostgreSQL schema: migrations, DDL, `COMMENT ON` | [references/sql-schema-postgres.md](references/sql-schema-postgres.md) | this skill's references |
 | A control a person uses: button, form, dialog, inline edit, row action | [references/ux-design.md](references/ux-design.md) | this skill's references |
 | A Godot game played in a phone's browser: web export, serving it to an iPhone, touch input | [references/godot-web-phone.md](references/godot-web-phone.md) | this skill's references |
+| TypeScript: data entering from a request, a file, a model reply, or a query | [references/typescript-parse-at-the-edge.md](references/typescript-parse-at-the-edge.md) | this skill's references |
 | Ecto migrations | `elixir-migrations`, `safe-migration` | one project only |
 | TypeScript, React | `quality-checks`, `eslint`, `security-review-fe` | one project only |
 
@@ -192,10 +193,21 @@ that may hold any of those. A log that fires on expected behavior is noise — d
 it. A log that needs human attention is an error-level log carrying presence flags or
 field keys, never raw content.
 
+**Parse at the edge, don't validate inside.** Parse outside input once, where it
+enters — a request, a file, a model reply, a query result — into a declared internal
+type, and pass that type around. Convert it back only on the way out, into whatever
+the outside interface expects. Inside code takes the parsed type and does not
+re-check it. A value inside the code that still has its raw outside shape is a
+missing parse: trace it back to where it entered and parse it there, rather than
+coercing it where it lands. A failed parse answers the caller with that interface's
+refusal (a 400 over HTTP), never a crash. Each language does this differently; the
+language skill or reference in the table above carries how.
+
 **Guard at the function boundary, not at the caller.** Write each function assuming an
 untrusted caller rather than the one you designed around. Where it relies on "my
-caller validates X before calling me", guard X here too — a later refactor can break
-the caller's validation without touching this function.
+caller validates X before calling me", and X's type does not already carry the
+guarantee, guard X here too — a later refactor can break the caller's validation
+without touching this function. A parsed type is the guarantee; do not re-check it.
 
 ## Product rules that reach the code
 

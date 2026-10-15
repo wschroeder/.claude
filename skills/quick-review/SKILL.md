@@ -308,7 +308,9 @@ CWE class checks:
   4.21  CWE-193 off-by-one               slice/loop/buffer bounds
   4.22  CWE-697 incorrect comparison     `==` vs `===`; loose equality
   4.23  CWE-707 boundary input           neutralize at system boundary
-  4.24  CWE-20 input validation          trust shape/type/range without check
+  4.24  CWE-20 input validation          trust shape/type/range without check;
+                                          a raw outside value past the edge, or
+                                          coerced where it lands → parse at the edge
 
 Linked input:
   4.25  Linked-input normalization       outside data that links its own records:
