@@ -6,9 +6,13 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 # clear-task — frontload the handoff, then emit the prompt
 
 For the current session's work, produce a continuation prompt that a fresh chat
-(after /clear) can act on without re-reading this conversation. Respond with the
+(after /clear) can act on without re-reading this conversation. The outcome is
+two things: the output text, and the file write of that text. Respond with the
 sections below in order. The continuation prompt is the LAST thing in your
-response — a single fenced code block with nothing after it.
+response text — a single fenced code block with nothing after it. Before that
+text goes out, write the same block to the one file §0 settles on:
+`pending-handoff.md` in the scratchpad for the operator, `HANDOFF.md` for a
+worker. A reply that prints the block and writes no file is half the outcome.
 
 Write every consideration into the ordered sections below FIRST, and assemble
 the prompt from them LAST. If you discover a missing consideration while
