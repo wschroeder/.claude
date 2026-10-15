@@ -191,6 +191,13 @@ for, or anything that would conflict with another skill.
 When the body passes 500 lines, move heavy content into `references/` rather
 than trimming the substance.
 
+**Commit in the same turn.** Commit every edit to a skill or to
+`~/.claude/CLAUDE.md` in the turn that makes it, through `git-commit`, staging
+by path. An approved edit left uncommitted gets carried forward as "the file
+holds it" and nobody commits it. Measured on MBG-81 (2026-10-14): a CLAUDE.md
+paragraph approved at 14:27 was still uncommitted at the retro, five hours and
+twenty handoffs later.
+
 ## Merging skills
 
 Merge when skills overlap in purpose, are always used together, duplicate each
