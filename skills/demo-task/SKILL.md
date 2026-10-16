@@ -333,6 +333,13 @@ Rules:
 
 - **Drive the real UI yourself, in a tight loop, before you show the operator
   anything**, on whatever platform the product runs.
+- **Where the browser tool will not start, stop and tell the operator.** Quote
+  its error, name the process holding the profile where `ps` finds it, and ask
+  them to free it. Do not fetch the pages over HTTP in its place: a fetched page
+  shows no tooltip, no disclosure, and no click, so it is not a walk. Inside a
+  `session-loop` run, write `HANDOFF.md` through `clear-task` with a first line
+  reading `BLOCKED:` and the error as its sentence. Why:
+  [references/measurements.md](references/measurements.md).
 - **A bug your own driving finds means the demo is not ready**, and so does
   a reviewer finding nobody has fixed yet, such as the one a session loop
   names when it stops. Do not post
@@ -436,10 +443,12 @@ Rules:
 - **A capture that fails is not a slice that cannot be shown.** Exhaust the
   program's own capture before writing that no artifact exists: a graphical
   program can usually photograph its own framebuffer when the operating
-  system refuses to photograph the screen, a server can be asked for the
-  page it rendered, and a command-line tool can be told to write its output
-  to a file. The rule above about a slice with no demo is for work cut along
-  module lines, not for a capture tool that came back blank. Where the
+  system refuses to photograph the screen, a service with no page a person
+  uses can be asked for what it returns, and a command-line tool can be told
+  to write its output to a file. A browser that will not start is not a
+  capture that failed; the rule above about the browser covers it. The rule
+  above about a slice with no demo is for work cut along module lines, not
+  for a capture tool that came back blank. Where the
   program's own capture works, say which call produced the file, so the next
   session does not rediscover it.
 
