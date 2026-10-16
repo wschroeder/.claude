@@ -246,6 +246,12 @@ a numbered step right after the operator's instruction, ahead of new work.
 **Where the steps finish the slice's last task, the last step is "load `demo-task`
 and run it for the slice".**
 
+**Where a demo hands off before `demo-task` Section 4's ask, the first step
+after the operator's instruction is "go back to `demo-task` Section 3 and walk
+every step again", never "resume at Section 4".** Where the walk used up data
+the demo needs, the step says to walk with another such record or to put new
+data in place, and never to skip the walk.
+
 **Owed work belongs to the phase that owes it, and a finished phase files it in
 the backlog rather than handing it to the next session.** Where the phase that
 owed the work has ended — the build is over, the demo is given, the findings

@@ -16,6 +16,20 @@ all. A worker session took the screenshots". Later in the same run, a session
 committed 91234f1 mid-stop and at 19:29:24 sent one new screenshot without
 walking the demo again.
 
+Measured again on S12 (2026-10-16): the handoff written at 01:16 CDT said
+"resume at Section 4. Post … the walk results from .tmp/demo-s12/WALK.md". The
+next session wrote at 01:17 CDT, "The template asks a new session to walk every
+step again. I did not". The operator asked at 03:04 CDT, "Have you walked
+through and made screenshots?" The session quoted the rule and followed the
+handoff instead, so demo-task and clear-task now both say how a handoff
+written before Section 4 words its first step.
+
+## Why a page script's click is not a person's click
+
+Measured on S12 (2026-10-16): at 01:14 CDT a demo session walked the merge
+dialog with `evaluate_script` calling `b.click()` and wrote the step up as
+walked.
+
 ## Why the operate-it steps are written first and then followed literally
 
 Measured on MBG-197 S8 (2026-10-13): no session in the run loaded

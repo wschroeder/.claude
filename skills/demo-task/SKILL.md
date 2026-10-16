@@ -394,7 +394,10 @@ Rules:
   assistant could move the character at all.
 - **The input has to be the one a person sends.** Calling the code's own
   method and writing the result up as a press or a drag is the failure this
-  rule exists to catch, and the word in the record is not the act. If
+  rule exists to catch, and the word in the record is not the act. In a
+  browser, `element.click()` or `dispatchEvent` run from a page script is
+  not the input a person sends either: use the browser tool's own click,
+  such as `mcp__chrome-devtools__click`. If
   `project-drive` appears in the available skills, load it for how to send
   this product real input. If nothing is listed, work it out and say in one
   line what you did.
@@ -474,6 +477,12 @@ covers a supervisor resuming a worker's `BLOCKED:` demo and a fix committed
 mid-stop alike. A fresh capture of one screen is not a walk: the commit can
 break a step you did not look at. Why:
 [references/measurements.md](references/measurements.md).
+
+**If you hand off before this section's ask, write the next session's first
+step as "go back to Section 3 and walk every step again", never as "resume at
+Section 4".** Where a walk uses up the data the operator needs for the demo,
+such as an account that merging consumes, the next walk uses another such
+record or puts new data in place. It never skips the walk.
 
 **Open the ask with the phase line**, directly above the question — the
 four phases in order, this stop's capitalized:
