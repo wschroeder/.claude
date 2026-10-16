@@ -30,8 +30,9 @@ Work through these in order and stop at the first one that applies. The
 sections below this one are reference for the decisions here, not a preamble
 to read first.
 
-If the operator passed `go`, skip the confirmation in step 6 and launch.
-Otherwise confirm first. There is no count to pass: the loop runs until a
+If the operator passed `go`, skip the confirmation in step 6 and launch. A
+`go` that step 2 quoted into the prompt this session opened with counts as
+passed. Otherwise confirm first. There is no count to pass: the loop runs until a
 session marks the work `DONE`, hands off blocked, or fails.
 
 ### 1. Look at the repository
@@ -61,24 +62,46 @@ In order:
    that gives it, is the answer: follow it and do not ask again. Otherwise
    ask once, yes or no, through AskUserQuestion: "Add /HANDOFF.md to
    .gitignore? No puts it in .git/info/exclude, for this clone only."
-2. Run `clear-task`, telling it this is `session-loop` step 2, the
+2. Where the operator has not said `go`, ask the launch question now, not
+   after the clear. Write step 6's statement first, taking the first
+   session's work from the next steps the handoff will carry, then ask once
+   through AskUserQuestion, offering `go` and `no`.
+3. Run `clear-task`, telling it this is `session-loop` step 2, the
    repository has no handoff yet, and the operator's answer from sub-step 1
    word for word. Its §0 check resolves that to the file. Do not name the
    artifact for it; §0 treats a form supplied in the arguments as an input
    to check rather than as the answer.
-3. On yes, add `/HANDOFF.md` to `.gitignore` and commit that line on its
+4. On yes, add `/HANDOFF.md` to `.gitignore` and commit that line on its
    own. Committing carries the standing permission in `git-commit`. On no,
    append `/HANDOFF.md` to `.git/info/exclude`, which commits nothing.
-4. Read the file back and confirm `git status --porcelain` comes back
+5. Read the file back and confirm `git status --porcelain` comes back
    clean.
 
-**Then stop once more, and this is the last stop this step makes.** Say the
-handoff is written, name its first next step, and ask the operator to
-`/clear` and invoke this skill again. The fresh session starts at step 1
-and everything in this step now passes, so it goes on to launch.
+**On `go`, write the launch prompt to `pending-handoff.md` in the scratchpad
+directory your system prompt names, and end the turn.** The auto-clear mod
+clears this session and submits the prompt, and the fresh session starts at
+step 1, finds everything in this step passing, and launches without asking.
+The prompt is three lines, with the real repository path and the operator's
+answer in it:
 
-Clearing is the operator's, and a session cannot clear itself. Everything
-before the clear can be done here.
+```
+Load the session-loop skill for <repository path> and launch the loop.
+The operator said `go` at <time from `date`>, in these words: "<their answer>"
+Do not ask again before launching.
+```
+
+Name the skill in words. Do not write `/session-loop`: a submitted prompt
+that names a skill gets it loaded, and nothing has shown a slash command
+running from one. Why:
+[references/driver-loop.md](references/driver-loop.md), "Why step 2 asks
+before the clear".
+
+**On `no`, or where no auto-clear mod is loaded, stop instead.** Say the
+handoff is written, name its first next step, and ask the operator to
+`/clear` and invoke this skill again.
+
+A session cannot clear itself. The auto-clear mod clears it when the turn
+ends with `pending-handoff.md` written, and otherwise the operator does.
 
 ### 3. The working tree is dirty
 

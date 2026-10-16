@@ -464,7 +464,10 @@ mod is not loaded, the operator copies the block as before.
 
 **Where §0 settled on a worker, never write `pending-handoff.md`.** The
 worker's handoff is `HANDOFF.md` alone, and `session-loop` starts the next
-session; nothing clears this one.
+session. The one exception belongs to `session-loop` step 2, not to this
+skill: once the operator has said `go`, step 2 writes its own launch prompt to
+`pending-handoff.md` after this skill has written `HANDOFF.md`, and the
+auto-clear mod clears this session with it.
 
 **A written handoff is a document, not a stop signal.** When a session has
 written its handoff and is still under the ceiling, it has not lost the right

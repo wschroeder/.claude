@@ -9,6 +9,7 @@ Contents:
 - [Permissions](#permissions)
 - [The flags that matter](#the-flags-that-matter)
 - [Starting one](#starting-one)
+- [Why step 2 asks before the clear](#why-step-2-asks-before-the-clear)
 - [Reading what it did](#reading-what-it-did)
 
 ## Why /loop and cron are not this
@@ -674,3 +675,21 @@ check it has already failed three times.
 Counting one command rather than failures in general is what keeps the trigger
 from firing on ordinary red-green work, where failing tests are the point. It
 fires on a session stuck on one thing, not on a session doing TDD.
+
+## Why step 2 asks before the clear
+
+Measured on S11 (2026-10-15): at 11:48:40 the session running step 2 wrote only
+`HANDOFF.md` and told the operator "Type `/clear`, then invoke `/session-loop`
+again". The fresh session asked the launch question at 11:56:30, and the loop
+launched at 12:08:56, twenty minutes after the handoff was written. The
+operator's words: "A normal clear-task writes the special file and autoclears.
+A clear-task that writes a handoff and directs me to clear and then start a
+session-loop with "go" does not."
+
+The auto-clear mod (`~/.claude/skills/auto-clear/hooks/register.ts`) runs on
+`turn.complete`. Where `pending-handoff.md` is not empty, it empties the file,
+runs `/clear`, and submits the text with `$.prompt.submit`. A prompt submitted
+that way and naming a skill to load got that skill loaded: on 2026-10-15 the
+mod submitted a handoff ending "Load these skills first: retro-task", and the
+fresh session's first tool call loaded retro-task. Nobody has tested whether a
+`/session-loop` typed into such a prompt runs as a slash command.
