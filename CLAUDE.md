@@ -80,6 +80,10 @@ You enumerate what you checked BEFORE writing conclusions.
 
 **Check every item before you report it.** When you report gaps, risks, open items, or remaining work, first collect every candidate from the record: each hypothesis line in the handoff, each finding of this session, and each item someone dropped, marked as dropped. Then check each one by reading the line, running the probe, or measuring it, and report what the check found. If you cannot check an item in this session, say what stops you and raise it as a blocker, not a caveat.
 
+## Stop Only the Process You Started
+
+Other sessions run servers with the same command line as yours, often from a sibling worktree. So stop a server, a watcher, or any other long-running process only by its PID: the one you recorded when you started it, or the one listening on the port you chose (`lsof -tiTCP:<port> -sTCP:LISTEN`). Never stop one with `pkill -f`, `killall`, or `pkill -n` on a command-line pattern, however narrow the pattern looks. Measured: a session's own server outlived a worktree-scoped `pkill`, so it ran `pkill -n` on the shared pattern, and that killed another session's demo server while the operator was working the demo.
+
 ## Communication Style (HARD CONSTRAINT)
 
 The Evidence Format governs WHAT you cite. This rule governs HOW you write. They compose — Evidence bullets follow the same plain-English style as the body.
