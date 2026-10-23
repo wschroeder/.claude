@@ -135,3 +135,11 @@ Worked example: a document generator's `findImages` matched pictures by `r:embed
 **Discovery method:** open the format's specification or schema at each element the parser matches, list the siblings and alternatives, and feed one of each through the parser.
 
 **Drive each variant through every path that reads the same field.** A variant one path handles can still be read wrongly by another. Measured (2026-10-22): the sync used `itemNumber` to read the new kind's number when it created a record, but `pairNearNumbers` still called the old kind's reader `extractRecordNumber`. So an item line holding a number one digit off never paired with its imported record, and the sync created a second record for the same item. Our review checked only the create path ("The fix reuses the sync's own `itemNumber` instead of a new reader"). No review on the branch walked 4.26.
+
+## 4.27 Values copied from a source
+
+When a test, fixture, or seed copies a value from an outside source the session can query — a warehouse table, an API, a file the system imports — compare each copied value against that query's own output in this session. Memory, a document, and an earlier handoff's figure are not the source. A value nobody compared is a finding, even when the test passes, because a fixture built from a wrong figure tests the code against the wrong world.
+
+Measured (2026-10-23): a slice's fixtures carried figures for records imported from an outside system, and the session had run its own queries against that system. No step compared the two, and the operator asked at the demo, "Don't we already have real output? What's the gap here?"
+
+**Discovery method:** for each literal in the diff's fixtures that stands for an outside value, find the query in the session that returned it and quote the two side by side.
