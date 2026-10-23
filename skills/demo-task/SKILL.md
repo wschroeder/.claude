@@ -341,8 +341,13 @@ Rules:
 - **A bug your own driving finds means the demo is not ready**, and so does
   a reviewer finding nobody has fixed yet, such as the one a session loop
   names when it stops. Do not post
-  it. Send the work back to build, through `tdd-cycle`, and start again at
-  Section 2 once the fix is committed. Section 4's "do not start fixing
+  it, and do not file it for later. Check whether the default branch shows
+  the same fault to a person using it. Compare what the screen shows, not the
+  line of code: an old line that only this slice's data reaches is still this
+  slice's fault. If the default branch does not show it, send the work back
+  to build, through `tdd-cycle`, which builds the fix with no card, and start
+  again at Section 2 once the fix is committed. Only a fault the default
+  branch also shows may go to the backlog, and the post says so. Section 4's "do not start fixing
   anything" covers what the operator finds, not what you find before they
   see it. Measured: no build session in one run opened the app, and the
   demo's own first drive found two bugs.
@@ -469,16 +474,27 @@ Measured: a demo built a phone web build mid-stop, sent the link after the
 title screen alone, and the operator found within minutes that the touch stick
 was invisible and that a tap walked through a door.
 
-**If this session did not take the captures itself, or has committed anything
-since they were taken, go back to Section 3 and walk every step again.** That
-covers a supervisor resuming a worker's `BLOCKED:` demo and a fix committed
-mid-stop alike. A fresh capture of one screen is not a walk: the commit can
-break a step you did not look at. Why:
+**Record the walk on disk as you go**: in the walk's folder, the commit the
+walk runs on and one line per finished step naming its captures and whether
+it matched its "check after" text. Where a walk runs past about ten steps,
+drive it with a script kept in that folder that takes the captures and
+prints those lines, so the session reads each step's result and not the
+page snapshot.
+
+**If anything has been committed since the captures were taken, go back to
+Section 3 and walk every step again.** That covers a supervisor resuming a
+worker's `BLOCKED:` demo and a fix committed mid-stop alike. A fresh capture
+of one screen is not a walk: the commit can break a step you did not look at.
+A session that did not take the captures may finish and post a walk an
+earlier session began, but only when the walk's record names the commit HEAD
+is on now, nothing has touched the walk's data since, and you open every
+capture it posts with Read. Why:
 [references/measurements.md](references/measurements.md).
 
 **If you hand off before this section's ask, write the next session's first
-step as "go back to Section 3 and walk every step again", never as "resume at
-Section 4".** Where a walk uses up the data the operator needs for the demo,
+step as "resume the walk at step N" when the walk's record allows it, and as
+"go back to Section 3 and walk every step again" otherwise. Never write
+"resume at Section 4".** Where a walk uses up the data the operator needs for the demo,
 such as an account that merging consumes, the next walk uses another such
 record or puts new data in place. It never skips the walk.
 

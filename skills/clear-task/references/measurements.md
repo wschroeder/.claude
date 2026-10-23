@@ -340,3 +340,8 @@ this slice's card", and listed it under "Mentioned, not ours". Four more
 handoffs copied the line word for word, and none checked it or filed a card.
 The rule sending a defect to a card sat in §6, and a warning with a
 hypothesised cause did not read as a defect the session "found".
+
+Measured (2026-10-23): a demo session loaded this skill, and seventeen
+seconds later filed a backlog card for a fault its own walk had found in the
+slice, reading "held something back as a later slice" as covering it. The
+operator rejected the demo for deferring a fault the slice made.

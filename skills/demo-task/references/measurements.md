@@ -117,3 +117,24 @@ each image held only those two words. It checked each step against the page
 snapshot's text, sent the images at 15:13 CDT without opening any, and the
 operator replied at 15:23 CDT, "Those screenshots don't look like page
 screenshots at all. Did you really run the demo?"
+
+## Why a fault the slice made is fixed in the demo phase, with no card
+
+Measured (2026-10-23): a demo session's own walk found that an activity page
+named a merged-away record by its raw id. It filed a backlog card, told the
+operator "It's in the backlog and outside" the slice, and said it had not
+checked whether the default branch did the same. The default branch had
+neither of the two events involved; this branch added both. A later session
+filed a second card and offered to file a third, though the operator had
+already said the slice's faults get fixed. The operator rejected the demo:
+"you noticed stuff created during this slice and then chose to defer it. Fix
+it." The second fault's line of code was on the default branch too, but only
+the slice's new data reached it.
+
+## Why a walk is recorded on disk and may span sessions
+
+Measured (2026-10-23): a fifteen-step browser walk began at 53,786 tokens of
+context and reached the handoff point at step 14. The next session walked all
+fifteen steps again and fit them only by posting at 150,820 of 170,000, past
+the budget's "finish the step you are on". Nothing had been committed between
+the two walks.

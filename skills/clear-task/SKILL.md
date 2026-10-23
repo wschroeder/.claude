@@ -70,7 +70,9 @@ If the session held something back as a later slice of this same work, file it
 as a bd card before you write the handoff, or as a line in the repository's
 look-ahead sketch, and name the card in §4. Never list it under "Mentioned, not
 ours": the next session reads that list as work to stay away from, and the
-next slice is chosen from cards and the sketch, never from a handoff. Why:
+next slice is chosen from cards and the sketch, never from a handoff. A fault
+this slice made is not a later slice: write its fix as the next session's
+first step, and file no card for it. Why:
 [references/measurements.md](references/measurements.md).
 
 The same holds for a warning, an error, or a suspected defect the session saw
