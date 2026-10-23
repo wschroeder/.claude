@@ -1,0 +1,328 @@
+---
+name: writing-code
+description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the review sequence the finished diff owes: quick-review always, security-review when the diff touches outside input, auth, the network, a shell, a query, a secret, or a dependency. Routes to the language-specific skill when one exists, and carries its own references for PostgreSQL schema work (migrations, DDL, foreign keys, indexes, and COMMENT ON) and for user interface controls, which match how the app already does the same action before anything else. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
+---
+
+## Purpose
+
+Conventions that hold for every language. `tdd-cycle` drives the loop; this skill
+governs what the code and its comments look like once the loop reaches Green.
+
+## Load the language skill first, if there is one
+
+| Language | Skill | Where it lives |
+|----------|-------|----------------|
+| Elixir, Ecto, Phoenix | `elixir-development` | global |
+| CSS, HTML, any user interface that has to work at more than one width | `responsive-design` | global |
+| Any edit to a status or health page's markup or styles | `status-page`, before the edit | global |
+| PostgreSQL schema: migrations, DDL, `COMMENT ON` | [references/sql-schema-postgres.md](references/sql-schema-postgres.md) | this skill's references |
+| A control a person uses: button, form, dialog, inline edit, row action | [references/ux-design.md](references/ux-design.md) | this skill's references |
+| A Godot game played in a phone's browser: web export, serving it to an iPhone, touch input | [references/godot-web-phone.md](references/godot-web-phone.md) | this skill's references |
+| TypeScript: data entering from a request, a file, a model reply, or a query | [references/typescript-parse-at-the-edge.md](references/typescript-parse-at-the-edge.md) | this skill's references |
+| Ecto migrations | `elixir-migrations`, `safe-migration` | one project only |
+| TypeScript, React | `quality-checks`, `eslint`, `security-review-fe` | one project only |
+
+Where a project carries its own copy of one of these, the project copy wins inside
+that project and the global one applies everywhere else.
+
+If the language has no skill — GDScript today — this file is the entire convention
+set for it. Say that in one line rather than proceeding as though a convention file
+had been consulted.
+
+## Before you edit a view, read the interface reference
+
+Before your first edit to a file that renders a control a person uses — a view,
+a template, a component, a form — read
+[references/ux-design.md](references/ux-design.md). In your report, name the
+existing view whose pattern you copied and one thing you matched against it, such
+as the dialog structure, the button order, or the label pattern. Quote the line
+from that view and the matching line from your edit, with each file and line
+number. Do this whatever skill or handoff brought you to the file, and in rapid
+mode too. Measured: 20 build sessions in a row edited views without opening it,
+and the two that did were both told to by their handoff. On the next run three
+sessions read it, and a bare view name in a report could not show whether the
+read changed anything.
+
+## Probe before you build
+
+Before writing more than ~20 lines of code that touches a boundary you don't own
+— external API, database schema, library you haven't used in this session,
+framework convention you're uncertain about — OR that relies on an algorithm or
+logic whose behavior you haven't measured in this session (your own expertise
+included) — write a throwaway probe and paste its actual output into the
+conversation. The probe runs first; the production code follows. The probe's
+output becomes a REF that anchors the code you're about to write.
+
+**What is NOT a probe.**
+
+- "The docs say it returns X" — that is intent, not observation. Rule 11 of the
+  global Evidence Format applies.
+- "I've used this API before" — your memory is a hypothesis, not a measurement.
+- "Based on the schema file" — the schema file is a design artifact; the running
+  system may differ.
+- A `case` clause in your code that "should handle" the API's response —
+  speculation, not observation.
+- Reading the file at HEAD, a `git diff`, or a grep result — those confirm what
+  the code SAYS, not what the running system DOES.
+
+When a probe is impractical write `UNPROBED — <reason>`; when no boundary is
+crossed write `EXEMPT — <reason>`. Never stage file reads, greps or diffs under
+a "Probe" heading. `tdd-cycle` runs this as step 0 of its loop, against the
+boundaries the test will touch; this section is the wider rule, and it holds for
+code that no test drives. Detail, exemptions and rationale:
+`~/.claude/skills/tdd-cycle/references/probing.md`.
+
+## Read a stored value instead of working it out again
+
+Before code works out a value by fetching or parsing something, such as a page
+count, a total, or a status, check whether the database already stores it. If it
+does, read the stored value, and work it out again only where the data it came
+from can have changed since it was stored. "So the two can never disagree" is no
+reason to recompute when both readers read the same stored row: they already
+agree. Measured: a preview fetched every selected PDF to count its pages, with
+that reason, while the query behind it already selected each file's stored page
+count, and a review then flagged the fetches as slow rather than as unneeded.
+
+## Before the edit: trace its reach
+
+Before making any code change — one-line or large — pause and trace its reach.
+Stale references elsewhere don't raise compile errors but they lie to the next
+reader and surface as review findings two rounds later. Most regressions come
+from changes that landed in the right place but missed the other places that
+described it.
+
+Before writing or dispatching the change, grep for each of these:
+
+1. **Callers** — every call site of the function / GraphQL field / env var /
+   module being modified. Do their expectations still hold after the change? A
+   renamed queue, a flipped return value, an added required arg — each one
+   rewrites caller assumptions.
+2. **Comments and docstrings** — inline `#` comments, moduledocs, `@doc` blocks
+   that mention the function name, the arg name, the return value, or the old
+   behavior in prose. If the comment becomes false, fix it in the same diff.
+   Doc/code drift is the most common regression this checklist catches.
+3. **Tests** — assertions, test names, and describe blocks that encode the old
+   behavior. Rename tests alongside assertion flips so git history records the
+   product decision, not just the code change.
+4. **External references** — PR bodies, Trello cards, design docs, frontend
+   queries, skill frontmatter that describe the old semantic. If the backend
+   contract shifted, these get edited too — otherwise the follow-on reader
+   trusts a stale spec.
+
+**Find out why the code is the way it is before you change it.** Read
+`git log -L` or `git blame` for the lines, the commit messages, the issue they
+name, and wherever else the team records its decisions. Where
+`~/.claude/CLAUDE-private.md` fills the decision-records slot for this skill,
+look in the places it names too.
+
+This scan is the work. The code edit is the easy part. If the change is going to
+a subagent, put all four findings in its prompt up front — "here are the 3
+callers, 2 comments, 4 tests, and 1 PR body that reference this" — so nothing is
+re-discovered mid-change. `subagents` holds the rest of what that prompt owes,
+and the question of whether to send one at all.
+
+## Comments
+
+**Default: no comment.** Code that needs a sentence to explain what it does needs a
+better name or a smaller function first. Rename it, extract it, then check whether
+the sentence is still needed. Usually it is not.
+
+**The only comment that earns its place explains a non-obvious why.** A constraint
+you did not choose. An ordering that looks arbitrary and is not. A workaround for a
+named bug, with the bug named. A tradeoff that someone will otherwise "fix" back.
+Everything else — what the function does, what the next line does, what the
+arguments are — is narration, and the code already says it.
+
+**The deletion test.** Before keeping any comment, delete it and read the code. If
+the code tells you the same thing, leave it deleted. Run this on every comment in
+the diff, including ones you did not write but are touching.
+
+**One comment per paragraph of code, never per line.** If a block needs context, one
+comment above the block. A comment above every line means the block should have been
+a named function.
+
+**Editing a file you did not create is the case to watch.** Explanation added to
+existing code is where comment volume actually accumulates — in this codebase, lines
+added to pre-existing files run about half comments, against about 40% for lines
+added to brand-new files. If you are adding a comment to a file you are only passing
+through, the bar is higher, not lower: it must be a why, and it must be about the
+change you are making.
+
+**Doc-comments are not exempt.** `##`, `@doc`, `@moduledoc`, `///`, docstrings —
+where the language's tooling consumes them, one line saying what the thing returns
+is enough. A doc-comment is not the place for design rationale. That belongs in
+`docs/`, where one reader finds it once, instead of every reader paying for it in
+every file that repeats it.
+
+**A comment describes the code as it stands, never how it got there.** Three ways a
+comment drifts off the code it sits above, all of them forbidden:
+
+- *History and contrast* — "the prior structure ran…", "now serializes only", "used
+  to provide". Git holds the history.
+- *Definition by absence* — describing the code by what it is not or no longer does:
+  "no ClickHouse I/O runs while the lock is held", "without holding the lock". State
+  what it does, not what it avoids.
+- *Rationale for the change* — why the edit was made belongs in the commit message.
+  The comment carries only the lasting why a reader needs in order to understand the
+  code as written: an invariant it relies on, a safety property that is not obvious.
+
+Test comments follow the same rules. State the invariant the test pins, not the
+structural mechanism it exercises.
+
+**Never leave commented-out code.** Delete it. Git has it.
+
+**A reference in a comment names a thing, never a line.** A heading, a symbol, a
+quoted phrase — something the reader can grep for. A line number is wrong the
+next time anybody edits the file it points into, and it stays confidently wrong,
+which is worse than absent.
+
+**No dead code.** Do not leave branches the change made unreachable, helpers nothing
+calls, or temporary variables nothing reads. A comment explaining why something is
+kept but unused is not a substitute for deleting it.
+
+Evidence for this: [references/why-comment-discipline.md](references/why-comment-discipline.md).
+
+## Naming
+
+A name that needs a comment is the wrong name. Before writing an explanatory
+comment, try the rename — it is almost always shorter than the comment and it
+travels with every call site.
+
+Names say what the thing IS or DOES, not how it is implemented. A function called
+`validate_*`, `verify_*` or `ensure_*` must actually perform that action; if it only
+returns a boolean, it is `is_*` or `has_*`.
+
+## Error returns, logs, and untrusted callers
+
+**Error returns match what callers destructure.** A new error tuple flows through the
+existing `else` / `case` branches rather than falling through silently. Do not
+introduce a shape callers pattern-match but do not handle.
+
+**Never log raw sensitive content.** No log line carries tokens, codes, verifiers,
+secrets, emails, IPs, request bodies, full changesets, or an `inspect` of a struct
+that may hold any of those. A log that fires on expected behavior is noise — delete
+it. A log that needs human attention is an error-level log carrying presence flags or
+field keys, never raw content.
+
+**Parse at the edge, don't validate inside.** Parse outside input once, where it
+enters — a request, a file, a model reply, a query result — into a declared internal
+type, and pass that type around. Convert it back only on the way out, into whatever
+the outside interface expects. Inside code takes the parsed type and does not
+re-check it. A value inside the code that still has its raw outside shape is a
+missing parse: trace it back to where it entered and parse it there, rather than
+coercing it where it lands. A failed parse answers the caller with that interface's
+refusal (a 400 over HTTP), never a crash. Each language does this differently; the
+language skill or reference in the table above carries how.
+
+**Guard at the function boundary, not at the caller.** Write each function assuming an
+untrusted caller rather than the one you designed around. Where it relies on "my
+caller validates X before calling me", and X's type does not already carry the
+guarantee, guard X here too — a later refactor can break the caller's validation
+without touching this function. A parsed type is the guarantee; do not re-check it.
+
+## Product rules that reach the code
+
+- Keep a business fact that users know in data they can edit, never in a
+  constant.
+- Never guess at ambiguous input, and never normalize away text that may carry
+  meaning.
+- Store an unknown value as null and derive its default when reading.
+  [references/sql-schema-postgres.md](references/sql-schema-postgres.md) has
+  the schema side.
+
+## Anyone can rebuild what the code reads
+
+Ship the script itself, never instructions for writing one.
+
+Fix a temporary tool of your own, such as a probe, a driver, or a harness,
+without asking.
+
+If code or a test reads a file, a committed script makes that file. A fixture, an
+answers file, a seeded database, or a harness directory that you built by hand in
+the shell exists only on your machine, and nobody else can rebuild it. Write the
+script, commit it beside the code, and have the test or the setup step run it.
+
+A README tells the reader which commands to run, and those commands run committed
+scripts. It never carries a block of code for the reader to paste into a shell or
+an editor.
+
+## Measure before declaring done
+
+Before every commit, run this from the repository root:
+
+```bash
+python3 ~/.claude/skills/writing-code/scripts/comment_share.py
+```
+
+It measures the lines each file added on the branch: commits since the merge
+base with origin's default branch, uncommitted changes, and untracked files.
+`--base <ref>` measures from another ref. It prints each file's comment share,
+then every added comment block with its first line. It skips prose files, and it
+does not count `COMMENT ON` text, which is catalog data a person reads in the
+database, not a comment on the code.
+
+**Every listed block gets "keep" with the non-obvious why it explains, or
+"delete".** That is the deletion test above, run on each block, whatever the
+share. Delete what fails, then run the script again.
+
+**Above 10% in any one file, read that file's blocks a second time.** The share
+counts only the lines that file added on the branch, never the whole file. The
+10% comes from the one-comment-per-paragraph rule above, not from research: a
+paragraph of eight to twelve lines carrying one comment line lands near it. A
+file that is genuinely one tricky function with one paragraph of justification
+can sit above it and say so.
+
+Report the per-file numbers and each block's disposition when you report the
+change. A measurement nobody prints is a measurement nobody makes.
+
+## After the edit: the review sequence is owed
+
+Any code change — regardless of how small, how confident, or how many prior
+changes in the session were approved — owes a review sequence before the commit
+decision arises:
+
+0. If the change reaches something a person sees, clicks, or plays, run it
+   the way the project runs locally — a dev server, a scene in the game
+   engine's editor, a desktop build, a terminal app — and use it the way a
+   person would: open it, click, type, play, and watch what comes back. Do
+   this after every change you can see, not only once, and again before the
+   reviews; fix what it finds first. If `project-drive`
+   appears in the available skills, load it for how to send this product
+   real input. If nothing is listed, work it out and say in one line what
+   you did. Measured: no build session in one run started the app, and the
+   demo's first drive found two bugs. Measured again on the next run: four
+   build sessions reached the reviews, none started the app, and the demo's
+   first drive found a refusal that showed nothing on the page.
+1. `quick-review` against the change.
+2. `security-review` against the change, when the diff touches any of these:
+   input from outside the program (a request, a file, the clipboard, a message,
+   a command-line argument), authentication or authorization, a network call or
+   a listening server, a shell or subprocess command, a SQL or other query
+   string, a secret, token or credential, a file path built from input,
+   deserialization, or an added or changed dependency. When it touches none of
+   them, say so in one line and skip it. Measured on 2026-09-26 across four
+   repositories: of ten sampled security reviews run on every card regardless,
+   one found an issue, and no path in the shipped code reached it.
+
+Run them inline in this session rather than handing them to subagents — see
+`subagents`, which carries the measurement. Present the findings to the user
+and wait for explicit per-action authorization before any commit, amend or push
+— `git-commit` owns those rules. What happens to the findings themselves is
+`quick-review`'s "Re-review and the fix loop".
+
+**Prose-only diffs are exempt.** A diff that introduces no executable change —
+pure prose files (`*.md`, `*.txt`, `*.rst`) and/or comment-only hunks in code
+files — does not trigger the review sequence. The test is "any executable change
+anywhere in the diff": if yes, the whole diff is in scope; if no, skip.
+
+Before the diff is written, every boundary claim it will encode needs a probe
+REF from this session — see "Probe before you build" above. A diff carrying an
+unobserved boundary claim is a process violation, not a neutral starting point.
+
+## What this skill does not cover
+
+Test structure and the red-green-refactor loop (`tdd-cycle`). What the review
+passes actually look for (`quick-review`, `security-review`) — this skill says
+when they run, not what they check. Commit and push authorization, and commit
+messages (`git-commit`). Prose written to the user (Communication Style in the
+global `CLAUDE.md`).

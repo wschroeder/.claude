@@ -1,0 +1,675 @@
+---
+name: demo-task
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+---
+
+# demo-task — the slice is shown, the feedback is recorded
+
+For the slice named in $ARGUMENTS, respond with the sections below in
+order. If $ARGUMENTS is empty, the slice is the one whose cards are demoable
+— say which one, and quote the query that found it.
+
+The deliverables are the demo in Section 3, the cards moved in Section 5, and
+the design document edits in Section 6. Section 4 is this template's one stop; everything after it
+records what the operator already said there rather than asking something
+new.
+
+**Everything the operator reads here is plain English.** They have not been
+in the session, they do not know what R7 is, and a label this run invented
+means nothing to them. So the demo opens with a paragraph anyone could
+follow, and no sentence explaining what was built makes them decode a
+requirement id, a bead id or a word this project coined. Measured: one run
+opened its demo with twelve refs and ten labelled records, and the
+operator's whole reply was that they did not understand any of it. The
+records were correct. Nobody could read them.
+
+**This never suspends CLAUDE.md's Evidence Format, which governs here as
+everywhere.** The evidence block and its reference tags stay, and every claim
+still carries the tag that proves it. Plain English is a demand on the prose,
+not permission to drop the measurements — a demo is the response most likely
+to describe something nobody checked, so it is the last one that should be
+citing less. Where the two pull against each other, write the plain sentence
+and put its tag on it.
+
+**An id is a tag, never a part of the sentence.** Where a sentence the operator
+reads has to touch a requirement, state what that requirement asks for and put
+the bracketed id after the clause, in the tag position the evidence rules
+already want it in. When an id carries the sentence's own grammar instead —
+"the run that [R23] describes", "we still owe [R19]" — the operator has to look
+it up before the sentence says anything at all. Measured: an S4 demo told the
+operator "I could not drive the one continuous run that [R23] describes".
+Writing it as "I could not drive a single run from the world map into a battle
+and back out [R23]" costs one clause and no lookup.
+
+Order is enforced because each section is built from the one above it. A
+status tag written before Section 2's commands have run is a claim rather
+than a measurement.
+
+This template is new. If a section fights the work rather than catching
+something, say so in the response instead of quietly skipping it.
+
+## 0. Before Section 1, read your own room
+
+    $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
+
+Past the ceiling it reports, hand off BEFORE starting this template rather
+than after finishing it: say so, say that no section has run, write the
+handoff through `clear-task` yourself, and then ask the operator to `/clear`.
+A template is a session's worth of work, so a session that begins one already
+over the line ends it far over, and every section it writes on the way is
+written in a session that should have stopped. Measured: a session printed
+"turn 72, context 231,229 of 170,000 — hand off", quoted that line back in its
+own evidence block, created ten cards over the next two hours, printed the
+same line again at 251,737, and ended at 263,205.
+
+The check below at the end of this template governs the hand to the next phase.
+This one governs whether this phase starts here at all, and they are not the
+same question.
+
+## Rapid mode — when the operator pauses the formality
+
+The operator can suspend most of this template at any point in the demo
+phase, including before Section 1, by saying so in their own words: "let's do
+some rapid stuff here", "quick tweak", "just try it and I'll look", "skip the
+formality for a minute". There is no keyword to wait for. When they ask for
+speed over rigor, the mode is on, and your next message says in one line that
+it is on, so they can see you heard them.
+
+While it is on:
+
+- **Section 2's proof commands and Section 3's capture machinery are
+  suspended.** Do not run the suite, do not build a capture record, and do
+  not write a reproduction command. The operator is sitting in front of the
+  thing, and they are the test.
+- **CLAUDE.md's "Always use TDD principles for code additions, changes, and
+  deletions." is suspended too.** CLAUDE.md says so itself, at that line, so
+  that the two rules do not have to be settled by whichever one sits nearer
+  the work. Write the change now; the tests come after they approve.
+- **Design guidance is not suspended.** The mode pauses tests and captures
+  only. Before your first edit to a page's layout, read the pattern its design
+  skill holds for that kind of page, such as `status-page` for a status page,
+  and build to it.
+- **Your whole job is to make the change and tell the operator it is ready to
+  look at.** A sentence or two: what you changed, and what to look at. Not a
+  record, not an evidence table of proof commands you did not run.
+- **Do not commit.** They have approved nothing yet, and a commit made during
+  the mode takes that decision away from them. Measured: a session committed
+  mid-tweak and the operator's next turn was "Wait, I wasn't ready for commit!
+  We were doing some quick experimenting/tweaking in our demo phase!"
+- **There is no size limit on what the mode may cover.** A colour change and a
+  rework of how the product records an entire behaviour are both allowed in
+  it. The operator decides what is small enough to take this way, so do not
+  argue that a request has outgrown the mode. Measured: the operator took a
+  whole padding rework in rapid mode on purpose, and said afterwards they had
+  prioritized speed over rigor knowing what it cost.
+
+**The operator turns the mode off by approving.** Their approval is the
+signal — not the passage of time, not a number of rounds, and not your own
+sense that the change has grown. Until they approve, stay in the mode, however
+many tweaks it takes.
+
+**Their approval is what starts the polish**, in this order, in this session:
+
+1. Write the tests the changes should have had. They are late, and that was
+   the operator's call to make.
+2. Load `quick-review` over everything the mode produced, then
+   `security-review` when `writing-code`'s list says the diff needs one, and
+   apply what they find under the review skill's own gate.
+3. Commit, through `git-commit`.
+4. Go back to Section 2, run the proof commands over the changed product,
+   rebuild Section 3's demo record from what they print, and carry on to
+   Section 4's stop.
+
+Those four are not optional and are not the next session's. The mode buys the
+operator speed while they are trying ideas; it does not delete the work.
+
+## 1. Setup and boundaries
+
+Real output, not paraphrase:
+
+```
+$ pwd && git rev-parse --show-toplevel
+$ ls docs design specs 2>/dev/null
+$ bd list --label slice:<current> --status open
+$ bd list --label slice:<current> --status in_progress
+$ bd list --label slice:<current> --status demoable
+$ bd list --label slice:<current> --status closed
+$ bd list --no-labels
+```
+
+Those five queries are the board. Name which slice is current, and state the
+counts:
+
+```
+  Backlog      bd list --no-labels                              known, not pulled
+  TODO         bd list --label slice:<n> --status open          pulled, not started
+  In progress  bd list --label slice:<n> --status in_progress
+  Demoable     bd list --label slice:<n> --status demoable      built, nobody has seen it
+  Done         bd list --label slice:<n> --status closed        demoed and accepted
+```
+
+**Demoable is this template's own input.** `tdd-cycle` leaves a card there when
+its commit lands, and closing it is what this template does once the operator
+has seen it work. A card cannot reach Done without passing through a demo, which
+is the point of the column.
+
+Where `bd list --status demoable` errors or returns nothing on a slice whose
+cards are closed, the project has not registered the status. Say so in one line
+and read Done as this template's input instead; the command that registers it is
+`bd config set status.custom "demoable:wip"`, and it is the project's to run.
+
+State the definition of released this project records. Where nothing records
+one, stop — Section 3 cannot say whether the slice is finished without it, and
+inventing one here would answer a question that belongs to the operator.
+
+If `project-definition-of-done` appears in the available skills, load it
+here. A project that has one has written down what its released state
+actually is and what proving it takes, and Section 3 is built on that
+answer. If nothing is listed, use what the project's design documents or
+README record, quote it with its file and line, and go on. Failing those,
+use the definition the handoff this session opened on quotes from the
+operator, and say it came from the handoff: an operator in a repository they
+do not own may keep it there on purpose. Stop only when none of these
+exists, per the paragraph above.
+
+**Then check that there is a slice to close.** If the current slice has no
+closed bead and not one of its proof commands passes, the slice has not
+started, and this is the wrong template. Say so in one line, say that
+building it is `tdd-cycle`, and stop. Do not run Sections 2 through 6.
+There is no demo to assemble, no status to reconcile from a measurement,
+and no feedback to take on work nobody has seen.
+
+## 2. Where the slice actually stands
+
+**Suspended while rapid mode is on** — see "Rapid mode" above. Run none of
+these commands and write none of these records until the operator approves.
+
+Run every proof command belonging to the current slice's requirements, then
+write this section in three parts, in this order — the order the operator
+reads, which is the reverse of the order you did the work in.
+
+**First, one paragraph in plain English.** What was built, and what a person
+can now do that they could not do before. No reference tag, no requirement
+id, no bead id, no command, no count, and no word this project invented. If
+someone who has not been in the session cannot follow it, it has failed, and
+the rest of the section will fail with it — this paragraph is what the
+operator is asking for when they ask what you did this iteration.
+
+Where the slice built something a person cannot do anything with — a
+checker, a pinned toolchain, a test harness — say that plainly in the same
+paragraph, in terms of what it does for them. "The build now refuses to
+pass when a citation goes stale" is the paragraph. A slice with nothing to
+say here is a finding: name it, and let Section 3 report there is no demo.
+
+**Then the stories.** A requirement id names a rule; a story names
+something a person can do, which is why the operator reads these and not
+the records:
+
+```
+Story: As a <person who uses the product>, I can <what they can do>.
+  beads:  <ids>
+  proof:  <the command, or the thing to look at>
+  status: <n> of <m> closed
+```
+
+**Fill `beads` and `proof` from `bd show` of each card, not from memory of the
+build.** Put every proof command under the card whose acceptance criteria name
+it, because Section 5 copies these lines into each card's close reason.
+Measured: an S15 demo record put the enemy test under the wrong card, written by
+a session that had run no `bd` command at all, and both cards had to be closed
+twice.
+
+**The role is someone who uses the product. Never the developer.** A slice
+whose beads are all toolchain still rolls up to something a person can now do
+— launch it and see it run — and the pinned shell, the build and the test
+suite are how that happens, named on the `proof` line. "As a developer, I can
+check out the repository and run the suite" names the audience the work was
+easy to explain to rather than the audience it is for.
+
+A story whose beads are all closed but whose proof command fails is the
+finding worth leading with.
+
+**Last, the per-requirement records.** They are the measurement, they stay,
+and they are for you rather than for the operator:
+
+```
+[R<n>] $ <the proof command>
+       <the last line of real output>
+       result: passes | fails | ran nothing
+```
+
+Three rules for reading the results:
+
+- **A command that ran no tests is a failure, not a pass.** A filtered test
+  command whose filter matches nothing exits 0 and reports zero tests.
+  Read the count of tests it ran, never the exit code alone.
+- **Do not repair a failing proof command here.** Record it. It becomes
+  work the next slice inherits, in Section 6.
+- **Do not skip a command because the bead that owned it is closed.** A
+  closed bead is a claim about the past; the command is the measurement
+  now.
+
+## 3. The demo
+
+**Suspended while rapid mode is on** — see "Rapid mode" above. The operator is
+looking at the thing themselves, so there is no artifact to produce and no
+reproduction command to write until they approve.
+
+The demo shows the definition of released being met. Not the tests
+passing — the thing itself, doing what the slice promised.
+
+One record:
+
+```
+  shows:      <which requirements, by id>
+  artifact:   <path to the screenshot, recording, file or output>
+  produced by: $ <the exact command that made it>
+  drove it:   <the input you sent it, and the capture either side of that>
+  operate it: $ <the exact command the operator runs to drive it themselves>
+```
+
+Where the operator reaches the thing by clicking rather than by running a
+command, `operate it` is a numbered list of steps. Each step says where to
+click, what to check before, what to do, and what to check after.
+
+**Write those steps as a story before you drive anything, using
+`writing-prose`'s tier-two method.** Load `writing-prose`. Dump every card and
+every behavior the slice changed, order them so each step sets up the next,
+draft the steps, and finish them. Every card maps to a step, or the steps say
+in one line why that card has nothing on screen.
+
+**Then follow the written steps literally, and let that be the drive.** Capture
+before and after each step, and compare each after-capture with that step's
+"check after" text. Capture the whole page (`fullPage` true, no `uid`) unless
+the step is about one element, and open every capture with Read before you
+send it: compare the image itself, never the page text. Where they disagree, either fix the step or send the
+product back to build as the rules below say, and do not post until they agree. Following the steps is what tests them: a step
+you skipped or improvised around is a step the operator will trip on. Why:
+[references/measurements.md](references/measurements.md).
+
+Print those steps in full in the message that posts the demo. A copy sent to a
+phone or saved to a file comes in addition to them, never in their place.
+Measured: a demo sent its steps to the operator's phone, named the file's path,
+printed none of them, and the operator replied "I'll need to see the steps in
+full here."
+
+Start whatever the demo needs yourself, such as a build and a server, whether
+the operator works it on a phone or at the desktop. Give them what they open,
+such as a link, with the server's PID, and leave the server running until they
+answer. Where a step restarts the app, tell them to type "restart" and do the
+restart yourself: a phone cannot run a command, and the operator's Ctrl-C does
+not reach a server you started. Measured: a demo's last step told an operator
+on a phone to run the serve command, and they replied "Haha somehow I doubt I
+can run that command on my phone with any effect." Desktop:
+[references/measurements.md](references/measurements.md).
+
+Where a step needs setup the phone cannot do, such as a file planted where the
+game reads its saves, do that setup yourself on the machine you have. Show the
+evidence that it is in place, such as the `ls` that lists the file, and hand
+the operator only the test they do on the phone. Measured: a demo told an
+operator on a phone to put a damaged save into a Mac folder and run the game
+there, and they replied "you ask the impossible from a phone".
+
+Before you post, set what the operator said during the spec beside your
+captures. For each of their answers the cards and design documents quote, say
+whether a capture shows the build matching it, and raise any capture that
+shows something they turned down. Measured: a demo's own phone capture showed
+the common room list the operator had called "really poor" and chosen to
+remove, the demo reported it as working, and the operator called it "a
+leftover thing".
+
+Then read each capture taken just before the operator acts, such as a button
+offered, a door, or a counter, as a player who has never seen the game. Say
+whether that player could tell what the input will act on, and raise any capture
+where they could not, even where the spec never decided it. Measured: a phone
+capture offered TALK while the party faced the man beside the companion, the
+demo reported it as matching the spec, and the operator talked to the wrong man.
+
+Rules:
+
+- **Drive the real UI yourself, in a tight loop, before you show the operator
+  anything**, on whatever platform the product runs.
+- **Drive a browser demo with the Chrome MCP tool (`mcp__chrome-devtools__*`)
+  first, and with Playwright only as a last resort.** Where the Chrome tool
+  will not start, quote its error, and drive the walk with Playwright instead.
+  The error you quote is one the tool returned in this session. A dead end a
+  handoff recorded is not a try, so call the tool before you trust it.
+  Then say in the demo, on its own line, that Playwright drove it and why the
+  Chrome tool could not. Do not fetch the pages over HTTP in place of either: a
+  fetched page shows no tooltip, no disclosure, and no click, so it is not a
+  walk. Why: [references/measurements.md](references/measurements.md).
+- **A bug your own driving finds means the demo is not ready**, and so does
+  a reviewer finding nobody has fixed yet, such as the one a session loop
+  names when it stops. Do not post
+  it. Send the work back to build, through `tdd-cycle`, and start again at
+  Section 2 once the fix is committed. Section 4's "do not start fixing
+  anything" covers what the operator finds, not what you find before they
+  see it. Measured: no build session in one run opened the app, and the
+  demo's own first drive found two bugs.
+- **The artifact comes from the thing the definition of released names, not
+  from a stand-in for it.** Read what that definition points at and drive
+  that: on one project it is a script on this machine, on another a local
+  server, on another a service behind a remote URL, on another an operator
+  running in a cluster. None of those is more real than the others — what
+  makes a demo wrong is driving something the definition does not name while
+  reporting it as the slice being released. So the record says which thing
+  the definition names and which thing you drove, and where they are not the
+  same thing it says so on its own line rather than in a footnote. Measured:
+  a session quoted a definition of released that named a URL, in the same
+  evidence block that recorded it driving a container on localhost, and the
+  operator caught it rather than the template.
+- **Play on until the thing the slice changed happens.** Where the slice
+  changes something a player only meets later in play, such as under fire,
+  at contact, or after losses, drive the product until that moment arrives
+  and capture it. Do not hand the operator a check you could drive yourself.
+  Measured: an S12 demo told the operator to watch a column's smoke under
+  fire because "this drive had no fighting in it", and they asked why the
+  battle part could not be tested.
+  The same holds where the change shows only when certain data exists, such
+  as an old run or a failed row: put that data in place yourself and capture
+  before and after. A post that says nothing changed on screen is not ready.
+  Measured: an S4 demo said "Nothing new appears on screen", and the operator
+  replied "I don't see in the screenshots the proofs that you're asking me to
+  do."
+- **Where you cannot reach that thing, say which link is unproven and hand
+  the last one to the operator.** Some released states cannot be driven from
+  here at all — a sign-in a person completes, a cluster only they can reach,
+  hardware on their desk. That is not a reason to demo the nearest reachable
+  substitute and let it stand: name each link of the chain from what you
+  drove to what the definition names, say which links you proved and which
+  you did not, and make the unproven one the thing you ask the operator to do
+  at Section 4.
+- **The operator may drive it themselves, so the reproduction command is
+  part of the demo.** An artifact nobody else can regenerate is a claim,
+  not proof. Both commands above are required, and both have been run.
+- **Show yourself driving it, not one frame of it.** Where the definition
+  of released says you operate the thing too, one capture proves only that
+  it started. Send it an input — a key, a request, a typed command — capture
+  it again, and name the input between the two, so the pair shows the thing
+  responding rather than sitting there. Measured: a demo of a slice whose
+  whole promise was landing the player in a named world showed two opening
+  frames, sent the game no input, and left the operator asking whether the
+  assistant could move the character at all.
+- **The input has to be the one a person sends.** Calling the code's own
+  method and writing the result up as a press or a drag is the failure this
+  rule exists to catch, and the word in the record is not the act. In a
+  browser, `element.click()` or `dispatchEvent` run from a page script is
+  not the input a person sends either: use the browser tool's own click,
+  such as `mcp__chrome-devtools__click`. If
+  `project-drive` appears in the available skills, load it for how to send
+  this product real input. If nothing is listed, work it out and say in one
+  line what you did.
+- **A script the demo writes and commits goes through `quick-review` in this
+  session, before that commit, and through `security-review` when
+  `writing-code`'s list says it needs one.** Driving the product
+  the way a person does often takes a script of your own — a driver, a capture
+  harness, or a fixture generator — and a script committed to the repository is
+  code wherever it sits. Load the reviews here, and apply what they find under
+  the review skill's own gate. Leaving the review for whoever comes next does
+  not work, because the next session is inside a different template and spends
+  its budget on the phase before it. Measured: a demo committed a driver no test
+  covered and neither review had read, and the retro session that inherited it
+  spent 21 of its 31 turns reviewing and fixing that driver, reaching its own
+  first section at turn 24.
+- **A demo driver is code and lives where the project's other driving code
+  lives. Its captures do not live in the repository at all.** Commit the driver
+  and review it like any other script. The captures are output of running it:
+  write them where the project already ignores test output, and send them to
+  the operator with `SendUserFile`, which is how they reach a person reading on
+  a phone regardless. Do not commit a directory of past captures, and do not
+  write a caption sheet describing them. Measured: the operator said of five
+  slices of shipped work kept in the tree, "Useless. This work is in the
+  past."
+- **Being unable to drive it is a finding, not a caveat.** Where the
+  definition of released says the operator operates the thing and you cannot
+  send it the input a person sends, the slice is not built: say so as the
+  demo's result, leave the requirement's status where the measurement puts
+  it, and let Planning place the work. Do not fill the record in and carry
+  on. Measured: a demo wrote "dragged the first battalion 150 files forward"
+  from a method call, admitted further down the same message that it could
+  not send the window a keystroke, told the operator to drag a battalion,
+  and shipped — and the operator's reply was that they could not drag
+  anything at all.
+- If the slice cannot produce an artifact a person can look at, say so
+  plainly and name what is missing. A slice with no demo is the finding —
+  it means the work was cut along module lines rather than through the
+  system, and Planning has to correct that for the next one.
+- **Show it, do not name it.** Paste the demo output into your message and
+  send the file with SendUserFile. Reading it with a tool puts it in your
+  context only: measured, the operator saw nothing but the summary until
+  they asked for the output. A path the operator has to open themselves is
+  not a demo. SendUserFile puts the file in front of the operator and nobody
+  else; sending it anywhere beyond them needs their word first, per
+  CLAUDE.md "Local Files by Default".
+- **A capture that fails is not a slice that cannot be shown.** Exhaust the
+  program's own capture before writing that no artifact exists: a graphical
+  program can usually photograph its own framebuffer when the operating
+  system refuses to photograph the screen, a service with no page a person
+  uses can be asked for what it returns, and a command-line tool can be told
+  to write its output to a file. A Chrome tool that will not start is not a
+  capture that failed; the rule above about Playwright covers it. The rule
+  above about a slice with no demo is for work cut along module lines, not
+  for a capture tool that came back blank. Where the
+  program's own capture works, say which call produced the file, so the next
+  session does not rediscover it.
+
+## 4. Stop — show the operator and take the feedback
+
+Post Sections 2 and 3 and stop. Do not continue to status reconciliation,
+do not propose a next slice, and do not start fixing anything.
+
+**While rapid mode is on, this stop is the sentence or two that "Rapid mode"
+above calls for**, and nothing below returns until the operator approves.
+
+**If the demo gains a new way to reach the product — a new build, a new
+platform, or a new kind of input — go back to Section 3 before you send it.**
+Drive the product through that way, with the input a person there sends, and
+read the captures. A demo resumed at this section skips Section 3 otherwise.
+Measured: a demo built a phone web build mid-stop, sent the link after the
+title screen alone, and the operator found within minutes that the touch stick
+was invisible and that a tap walked through a door.
+
+**If this session did not take the captures itself, or has committed anything
+since they were taken, go back to Section 3 and walk every step again.** That
+covers a supervisor resuming a worker's `BLOCKED:` demo and a fix committed
+mid-stop alike. A fresh capture of one screen is not a walk: the commit can
+break a step you did not look at. Why:
+[references/measurements.md](references/measurements.md).
+
+**If you hand off before this section's ask, write the next session's first
+step as "go back to Section 3 and walk every step again", never as "resume at
+Section 4".** Where a walk uses up the data the operator needs for the demo,
+such as an account that merging consumes, the next walk uses another such
+record or puts new data in place. It never skips the walk.
+
+**Open the ask with the phase line**, directly above the question — the
+four phases in order, this stop's capitalized:
+
+```
+plan -> build -> DEMO -> retro
+```
+
+**Ask for one thing: that the operator work the demo themselves and say what
+is wrong with it.** Give them whatever Section 3's record says they act on —
+the command where the released state is something to run, and the thing to
+open where it is something they reach instead, such as a URL only they can
+sign in to. Where a link of the chain went unproven, that link is what you
+ask them to close. Before you hand a link over, run the local tool that would
+check it, if there is one, such as rendering each PDF page with `pdftoppm` and
+diffing the pixels against the original. A link that tool settles is no longer
+unproven. Where you still hand one over, write "the walk did not check this"
+against it, in those words, and give no reason it ought to pass. Why:
+[references/measurements.md](references/measurements.md). Name the two or
+three things worth looking at. Do not ask what they would like to do
+next — deciding what comes after this slice is Planning's job, not this
+stop's. The ask is the last thing in the message, per CLAUDE.md "When you
+need an answer, the ask goes last and says what to do".
+
+**Where the demo is something to read rather than something to run, send the
+file with `SendUserFile` as well as naming its path.** A page, a report, a
+render, a PDF: the operator may be reading this on a phone, where a path on
+this machine is not something they can open. Send it and give the path, so
+either route works. A file of operate-it steps is not this kind of demo: Section
+3 puts its steps in the message, and the file is only the phone's copy.
+
+**Where the demo follows a background run the operator was not watching, such
+as a `session-loop` run, also send one `PushNotification`** naming the slice and
+saying the demo is on their phone. Send one per demo, not one per round of
+feedback. Write the whole demo message first, with every step in it, and make
+the push the turn's last tool call, followed by one closing line at most: text
+written after a turn's last tool call reaches the operator only once that call
+finishes. Measured: the S2 demo of one project waited 17.7 minutes for its
+first reply, and the S1 demo waited 385. A push sent in the same batch as the
+screenshots reached one operator 22 seconds before the steps, with nothing yet
+to do.
+
+Record what comes back verbatim, one record per point:
+
+```
+[F<n>] "<the operator's own words>"
+```
+
+Feedback you paraphrase is feedback you have already decided about. Quote
+first; interpret in Section 6.
+
+**Unattended, this stop is a line in a file.** Inside a `session-loop` run
+nobody reads a question in the transcript and nobody runs the demo, so commit
+what is already done. Stop every server you started in this session, and write
+the command that starts it into the demo file's steps; the supervisor starts it
+again at the demo stop. Write that start command, and the walk command, each as
+one line that sets every variable on the command line itself, never as a script
+to run or an env file to load. After your last edit to the demo file, run both
+exactly as the file prints them, and write `BLOCKED:` only once both work. Why:
+[references/measurements.md](references/measurements.md).
+Then write `HANDOFF.md` through `clear-task` with a first
+line reading `BLOCKED:` and one sentence naming the slice waiting to be demoed
+and the file that holds its demo, and stop. Write `BLOCKED:` only once Section
+3's record and captures exist and the drive has reached everything the slice
+changed. A worker that hands off before then writes an ordinary handoff naming
+the Section it stopped in, or the step it has still to drive, as the next step,
+because a worker can drive and capture and the operator should only be asked
+to try a demo that exists. Measured: a worker blocked on the operator with
+Section 3 not started, and the attended session had to unblock it and relaunch
+the loop to build the demo. Measured again: a worker short of room drove a
+turn's replay, wrote `BLOCKED:`, and handed the operator the look back at an
+earlier turn that the slice had also changed. Write it through the skill rather than by hand, however close the
+ceiling is: the handoff point is a budget and not a limit. No requirement
+reaches `demoed` from an unattended run, because that status is what a person
+looking at the thing produces; they stay `built` until someone has looked. A
+section that posts the demo and then carries on into Section 5 has not
+stopped.
+
+## 5. Move the cards the operator accepted
+
+The card is the requirement, so reconciling is moving cards rather than
+rewriting status tags in a document. Three moves and no fourth:
+
+```
+  demoable -> closed      the operator accepted it at Section 4
+  demoable -> open        its proof command failed or ran nothing at Section 2
+  stays demoable          built, and the operator has not seen it
+```
+
+Close with `bd close --reason`, and put Section 2's measured output in the
+reason. A card closed with no evidence in its reason is a card nobody can
+audit later. Before you stage the closes, run `bd export -o
+.beads/issues.jsonl`, because bd writes its own export up to a minute late
+([bd-behavior.md](../spec-task/references/bd-behavior.md)). In a git worktree,
+skip it, as that file's worktree section says.
+
+The operator's acceptance closes the cards it names, whether they worked the
+demo themselves or judged it from the captures. A card closes on their words,
+never on the absence of a complaint.
+
+A card that is still `open` or `in_progress` at this point did not ship in this
+slice. Name it, and leave it where it is.
+
+## 6. What the feedback changed
+
+Work every Section 4 record to one of six outcomes, and no seventh:
+
+- A request to do something before this phase ends. Do it in this phase, and
+  say what came of it. The operator asking for research, a second look, or a
+  conversation about a design is not a requirement for a later slice, and
+  filing it as one answers a question they did not ask. Measured: "I highly
+  recommend researching it and circling with me on this design. Now, I think
+  that can naturally happen during this phase" became three later requirements
+  and no research.
+- Accepted as it stands, changing nothing. Say so in one line. This is the
+  ordinary answer to a demo that worked, and it is not a rejection.
+- **A decision about how the product behaves. Write it into the design
+  document, in this run.** The operator settling something at a demo is the
+  same act as settling it in a design conversation, so it lands the same way,
+  in the document's own voice and with no mention of this demo. `spec-task`,
+  "The design documents hold the product", holds the rule and the line between
+  a product decision and a literal implementation detail. Measured: one demo
+  produced seventeen quoted records, six of which changed how the product
+  behaves, and carrying them into the design took a hand-written commit outside
+  every template because no template claimed the job.
+- A new requirement nobody has specified. One line in the repository's
+  look-ahead sketch, or a card where it is concrete enough to title. No
+  requirement text and no proof command unless it lands in the next slice.
+- A requirement that is dropped. Close its card as won't-do, with the
+  operator's words in the reason.
+- Rejected, with one line saying why.
+
+**The slice just demoed is closed, and no outcome above reopens it.** A new
+requirement or a revision is work for a later slice; `spec-task` places it
+and writes its EARS text once Planning decides to pull that slice. Never
+file a card carrying the demoed slice's label to fix what the demo found.
+Doing what the operator asked for before this phase ends is not reopening the
+slice: it closes no card and changes no code.
+
+Then say what changed and where. Name every design document edited and quote
+the sentence each one gained or lost, name every card created or closed by its
+id, and commit both through `git-commit`.
+
+## 7. Hand to `retro-task`
+
+Before handing off, read your own room:
+
+    $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
+
+Past the ceiling it reports, or where it says `finish the step you are on`,
+hand off instead of continuing: say so, write the handoff through `clear-task`
+yourself, and then ask the operator to `/clear`. Tell `clear-task` which
+section you stopped at and what that section still owes — a record you have
+not worked, an answer the operator is waiting on — so the handoff cannot write
+this phase down as finished.
+
+Otherwise, hand to `retro-task` now, in the same turn, before anything is
+specified. The demo is over and its feedback is recorded, which is the
+moment the process cycle closes. `retro-task` reads the run itself, takes
+its own signoff, commits what was accepted, and hands on to `spec-task`,
+which decides and specifies whatever slice comes next. Do not skip the
+hand-off because the slice was small, and do not ask whether to run it — a
+retro that waits to be asked for does not happen.
+
+**One exception, and it is the operator's own words.** Where they said they
+would do something themselves — open the deployed page, complete a sign-in,
+look at the output on their own machine — and have not reported back, stop
+here and wait for them. Say in one line what you are waiting on and that the
+retro follows it. An operator who says they will do a thing has told you to
+stop, because that thing is usually the last unproven link in Section 3's
+chain, and handing on turns their check into something nobody ever collects.
+Measured: the operator's turn ended "I'll doublecheck that the deployment
+matches", the session reported the deploy and handed to `retro-task` in the
+same message, and they replied, "I expected to look at the deployed demo,
+and suddenly we're doing retro."
+
+## What this template does NOT do
+
+- Does not decide, size, or pull the next slice. That is `spec-task`, once
+  `retro-task` has run.
+- Does not write requirements in EARS or author proof commands. That is
+  `spec-task`.
+- Does not run the work. That is `tdd-cycle`, and `session-loop` when the
+  run is unattended.
+- Does not inspect the process, read the run's own transcripts, or change a
+  skill. That is `retro-task`, which Section 7 hands to.
+- Does not close beads or repair failing proof commands.
+- Does not decide the definition of released. The operator settles it, and
+  `spec-task` Section 1 is where that conversation happens.
+- Does not write a status, a card id, or a slice number into a design
+  document. Section 6 writes product behaviour there and nothing else.
+- Does not push anything outward. The backlog and the documents stay local.

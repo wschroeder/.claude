@@ -1,0 +1,444 @@
+---
+name: session-loop
+description: Runs a long build as a series of fresh Claude Code sessions instead of one that fills up, each session working until its context reaches the 170,000 handoff ceiling or the same check fails three times running. Invoking it checks the repository, writes the handoff through clear-task when none exists, reports what is blocking, and starts the loop — the operator never types a shell command. Also carries the working agreement behind it: how big a session should be, the context bands where delegating starts to pay at this ceiling, and session_budget.py for measuring where sessions actually handed off. Use when starting or resuming unattended work, or when sessions keep running out of context. Whether to delegate at all, and what a subagent prompt must carry, is in the subagents skill.
+---
+
+# session-loop — run the work as a series of fresh sessions
+
+Every turn re-reads the whole context, so a session that has been going a while
+pays many times over for the same work. The fix is to end sessions and start
+new ones, carrying a written handoff instead of a transcript. This skill does
+that on a loop.
+
+Ending too early is its own waste, though: a fresh session spends about 104,000
+tokens re-reading its way back to where the last one already was. So a session
+runs until its context reaches 170,000, checking itself at three points along
+the way, and hands off then — not after one piece of work. A hook in the operator's
+own settings checks the same number on every tool call, so the ceiling holds even
+when a session never reaches one of those three points. A session also hands
+off after three consecutive failures of the same check, whatever its context
+number says.
+
+170,000 is a safety rail the operator sets, not a cost knob to tune. The three
+places carrying it — `scripts/run-loop.sh`, `scripts/session_budget.py` and the
+test that pins them together — are kept in step by
+`scripts/test_run_loop.sh`.
+
+## When you are invoked, act. Do not just read.
+
+Work through these in order and stop at the first one that applies. The
+sections below this one are reference for the decisions here, not a preamble
+to read first.
+
+Do not ask before launching: invoking the skill is the go-ahead. There is no
+count to pass: the loop runs until a session marks the work `DONE`, hands off
+blocked, or fails.
+
+### 1. Look at the repository
+
+```bash
+cd <repo> && git rev-parse --show-toplevel && git log --oneline -3
+git status --porcelain
+ls -l HANDOFF.md 2>/dev/null && git check-ignore -v HANDOFF.md
+```
+
+### 2. No HANDOFF.md, or it is not gitignored
+
+Produce it here. `clear-task` writes the handoff, and git has to ignore
+`/HANDOFF.md` so the loop's own rewrites do not read as unfinished work.
+Where git ignores it is the operator's call: `.gitignore` changes the
+repository for everyone, and `.git/info/exclude` changes this clone only.
+
+**Step 3 goes first when the tree is dirty.** This step writes and commits,
+so run it on a clean tree or the handoff describes a repository that is
+already out of date. Where `git status --porcelain` returned anything, take
+step 3 now, and come back here once the tree is clean.
+
+In order:
+
+1. Where `/HANDOFF.md` is not already ignored, find the operator's answer.
+   A handoff that carries it, or a line in the session's opening prompt
+   that gives it, is the answer: follow it and do not ask again. Otherwise
+   ask once, yes or no, through AskUserQuestion: "Add /HANDOFF.md to
+   .gitignore? No puts it in .git/info/exclude, for this clone only."
+2. Run `clear-task`, telling it this is `session-loop` step 2, the
+   repository has no handoff yet, and the operator's answer from sub-step 1
+   word for word. Its §0 check resolves that to the file. Do not name the
+   artifact for it; §0 treats a form supplied in the arguments as an input
+   to check rather than as the answer.
+3. On yes, add `/HANDOFF.md` to `.gitignore` and commit that line on its
+   own. Committing carries the standing permission in `git-commit`. On no,
+   append `/HANDOFF.md` to `.git/info/exclude`, which commits nothing.
+4. Read the file back and confirm `git status --porcelain` comes back
+   clean.
+
+**Then write the launch prompt to `pending-handoff.md` in the scratchpad
+directory your system prompt names, and end the turn.** The auto-clear mod
+clears this session and submits the prompt, and the fresh session starts at
+step 1, finds everything in this step passing, and launches. The prompt is one
+line, with the real repository path in it:
+
+```
+Load the session-loop skill for <repository path> and launch the loop.
+```
+
+Name the skill in words. Do not write `/session-loop`: a submitted prompt
+that names a skill gets it loaded, and nothing has shown a slash command
+running from one. Why:
+[references/driver-loop.md](references/driver-loop.md), "Why step 2 writes
+the launch prompt before the clear".
+
+**Where no auto-clear mod is loaded, stop instead.** Say the
+handoff is written, name its first next step, and ask the operator to
+`/clear` and invoke this skill again.
+
+A session cannot clear itself. The auto-clear mod clears it when the turn
+ends with `pending-handoff.md` written, and otherwise the operator does.
+
+### 3. The working tree is dirty
+
+The loop refuses to start on top of unfinished work, and it is right to. Say
+what is outstanding in one or two sentences and ask whether to finish and
+commit it here first. A handoff written before those changes describes a repo
+that no longer exists, so do not launch on a stale one.
+
+### 4. The handoff is blocked
+
+Read `HANDOFF.md`. It is blocked if the first line starts `BLOCKED:`, or if
+the first item under "Next steps" depends on something under "Open questions
+for you".
+
+This is the common case and it deserves a fast, clean answer rather than a
+launch. Do not start the loop. Instead put each decision in its own paragraph,
+in the operator's terms, with your recommendation and what cuts against it.
+
+First check the question is really theirs, though. A session that stops to ask
+which of the remaining steps to do next is asking something you can settle:
+write in the one that unblocks the most of what is left, or where nothing waits
+on anything else, write in any of them and launch. Do not pass that one on. The
+operator has no preference between two independent steps, and the run has been
+sitting idle since the moment it asked.
+
+Their answer does not reach the next session on its own. The blocked session
+left `BLOCKED:` on the first line of `HANDOFF.md` with its question below, and
+the driver halts on that line — it will halt again the instant you relaunch,
+because nothing has changed. So before you return to step 5, edit `HANDOFF.md`
+yourself: delete the `BLOCKED:` line and write the decision into the next steps,
+where the work that was waiting on it can now proceed. That edited file is what
+carries their answer forward — the next fresh session reads it as its
+instructions and picks up where the blocked one stopped. One word back from them
+usually unblocks the whole queue.
+
+**Answer them before you file it.** Feedback arriving as a question is a
+question, and editing it into the handoff answers nobody. Say where the design
+documents already stand on what they asked, and where the answer turns on the
+product's own domain rather than on this repository, look it up. Where what you
+find disagrees with what they asked for, put that to them in one line and wait.
+Otherwise record it and relaunch.
+
+**Where the feedback closes a slice rather than unblocking a step inside one,
+the handoff is rewritten through `clear-task` rather than edited.** The old one
+describes a slice that is finished, and editing the question out of it carries
+the rest of a spent slice into the next one.
+
+### 5. Check there is unblocked work to start on
+
+Say how many of the handoff's next steps can proceed without the operator. You
+are not picking a number of sessions — the loop stops itself when the work runs
+out, because a session with nothing left to do commits nothing and halts it.
+This is only the check that there is something to start on, and a sense of how
+much the run will chew through before it gets there.
+
+### 6. State the run, then launch it
+
+State the repository, HEAD, what the first session will work on, that the run
+ends by itself — when a session marks the work `DONE`, hands off blocked, or
+fails, not after any set number of sessions — and, because it runs
+unattended, that each session runs under `bypassPermissions`, editing and
+running whatever it decides to with no prompt. A few lines, not a page. The
+reasoning behind that last line is under "Permissions" in
+[references/driver-loop.md](references/driver-loop.md). Then launch.
+
+```bash
+bash ~/.claude/skills/session-loop/scripts/run-loop.sh <repo>
+```
+
+Run it with the Bash tool's `run_in_background` set. It is minutes to hours
+per iteration and the operator may be on a phone, so a foreground call would
+just block. Do not poll it either — the driver prints as it goes and you are
+re-invoked when it exits.
+
+Each session runs until its own context reaches 170,000 and then hands off, so
+one iteration is however much work fits under that — usually several commits,
+not one. Pass `--handoff-at` only to move that line.
+
+Between iterations the driver runs a second, much smaller session over the diff
+the first one just committed. It has no memory of writing that code and no tools
+to change it, and it answers PASS or a list of findings, each naming what
+executes the code it is about. Anything it finds goes in front of the next
+session's handoff as a proposal that session may put down. Three rounds running
+on the same file stop the run instead, because a reader with no mission cannot
+tell when the file it keeps failing has stopped mattering. It runs on
+`claude-opus-5-5` at medium effort. Move it with `--eval-model`, or turn it off
+with `--no-eval`.
+
+### 7. When it stops, report what happened
+
+Read the driver's output, not the child sessions' transcripts — reading those
+is how a watcher turns back into the thing this skill exists to avoid.
+
+```bash
+git -C <repo> log --oneline -20
+python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <start>
+```
+
+Where the stopped session produced a demo artifact, paste the demo output
+into your message and send the file with SendUserFile. Reading it with a tool
+puts it in your context only, and the operator sees nothing but your summary.
+
+**The last review's findings are owed work, and nothing in the loop owns
+them.** The driver hands each iteration's findings to the next session, so the
+final iteration's have no reader by construction — its own output names the
+file and stops there. Where that last line says the reviewer found something,
+read the file and fix each finding through `tdd-cycle` before you write any
+demo ask; a finding you judge not worth fixing goes in the report with the
+reason. Measured on one project's S3: the run stopped for a demo with a test in the
+last commit that could not fail, and the operator was asked to watch a demo
+resting on it. Measured earlier: a run ended with two findings in
+`findings-20260910T010228-5.md`, and what carried them forward was an attended
+session writing its handoff by hand, not anything here.
+
+Say what landed, where each session handed off (the `ctx_end` column), and why
+the loop stopped. If it stopped on `DONE`, the work is complete — say so. If it
+stopped on `BLOCKED:`, the first line of `HANDOFF.md` is the question — read it
+against step 4 before you pass it on, because a question about what to do next
+is one you answer yourself. If it really is the operator's, put it to them and
+offer to resume.
+
+Then read the handoff's "Open questions for you" section, which a blocked
+worker fills in below that first line. Settle each question that is yours, and
+carry each one that is the operator's into the ask you put to them, the demo
+ask included. Measured: an S16 worker asked whether a grey area in one demo
+capture mattered; the supervisor read only `head -3 HANDOFF.md`, and the
+operator never saw the question.
+
+**Where that question is asking for a demo, load `demo-task` first and enter it
+at Section 3, not Section 4.** Start the demo server first, with the command
+the demo file's steps name: the worker stopped it before handing off. Then walk
+every step of the demo yourself, capturing as you go, before Section 4 composes
+the ask. After the walk, reset the demo's data, start the server again, and
+leave it running for the operator, as demo-task Section 3 says. The worker took the captures, and you have seen none of them work.
+
+**Open the ask with the phase line**, directly above the question, or closing
+the report where nothing needs deciding — the four phases in order, with the
+one the loop stopped in capitalized:
+
+```
+plan -> BUILD -> demo -> retro
+```
+
+### 8. Then measure yourself, before starting anything else
+
+Watching a loop is not free, and the session doing the watching fills up like
+any other. One supervising session reached 277,862 context while its workers
+were being held to the 170,000 ceiling. So ask yourself the same
+question you ask them:
+
+```bash
+python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
+```
+
+On `keep going`, carry on — report, and start the next run if there is one.
+
+On `finish the step you are on`, finish what is in hand, then hand off as below.
+Do not start another run.
+
+On `hand off`, stop. Do not launch another iteration, and do not start the next
+piece of work. Run the `clear-task` skill for the block to paste, not for
+`HANDOFF.md` — the driver rewrites that file every iteration for the workers,
+and this handoff is about resuming the watch. Tell the operator it is ready.
+They clear and paste it into a fresh session, which picks the loop back up
+from there.
+
+### Never
+
+Do not invoke this skill from inside a session the driver started. You would
+be launching a loop from within a loop. A session that finds itself under the
+loop protocol works until its own context says to hand off, writes the handoff,
+and stops.
+
+## What the driver does, and what stops it
+
+Each iteration it starts a fresh `claude -p` whose entire prompt is the
+handoff file, waits, then decides what to do next from `git status`,
+`git log`, the handoff, and the run's JSON summary. It never reads a
+transcript. That is what keeps it free of context: it accumulates nothing, so
+it cannot fill up and become an orchestrator.
+
+A PostToolUse hook in the operator's own `~/.claude/settings.json` runs
+`session_budget.py --hook` on every tool call, in every session on this machine.
+That is what enforces the ceiling on a session that works for eighty turns
+without reaching any of the three points the contract names — the hook reads the
+session's own transcript, says nothing while there is room, and exits 2 with the
+number when there is not. The driver registers no hook of its own, so a tool call
+inside a worker runs the check once rather than twice.
+
+It stops when the handoff says `DONE` and the reviewer is holding nothing
+against the last commit — a `DONE` with findings outstanding goes back for
+another session instead, twice at most before the run stops and asks for a
+person. A `BLOCKED:` handoff goes back the same way while findings are
+outstanding, with the session told to fix them and keep the question, twice at
+most and not once the reviewer has found something in one file three reviews
+running; then the run stops on the question. It also stops when the handoff
+says `BLOCKED:` with nothing outstanding, when the tree is dirty, when
+`claude` exits non-zero, when a session ended for any reason other than
+finishing, when the session reported an error, or when the code came out
+unchanged and no bd card changed status — never on a count. The one non-zero exit it does not stop on is the
+usage limit: the run summary names when the limit resets, and the driver sleeps
+until then and tries the same iteration once more, for the session and for the
+reviewer alike. It stops on a limit only when the reset time is one it cannot
+read, or when the limit is still there after the wait. `claude -p` exits 0 even when it was cut off part
+way, so the driver reads the summary rather than trusting the exit code. It
+compares tree hashes rather than commit ids, because a session may amend the
+unfinished commit it was handed, and an amend that changes no file still
+produces a new commit id.
+
+Details, flags, and the permissions warning:
+[references/driver-loop.md](references/driver-loop.md).
+
+One property to understand before starting one: the handoff file is the next
+session's instructions, executed with nobody reading them first. Anyone who
+can write to it decides what the loop does. Run it only where write access to
+the repository already means trust.
+
+## When to delegate, and when it costs double
+
+This is the decision the loop cannot make for you, and getting it wrong makes
+the same material get read twice. Ask one question before every subagent or
+workflow:
+
+> After this agent returns, will I open the same material it opened?
+
+If yes, do not delegate. You pay its climb from a fresh context up to a full
+one, and then your own reading on top.
+
+**Delegate** when the agent's context genuinely replaces one you would
+otherwise have paid: research against sources you will never open, wide
+searches where only the answer matters, independent checking of a list of
+claims.
+
+**Match the model to the task** when you do delegate. Haiku handles wide or
+mechanical passes where only the answer matters; Sonnet handles work that needs
+judgment you will not re-read yourself; keep the driver model for the reasoning
+you hold in this session. Where the choice is close, take the more capable
+model — a wrong result is re-done at full price, so saving tokens on a close
+call buys nothing.
+
+**Do not delegate** when you will review the result. Building a change you
+then read line by line means the diff arrives in your context regardless, so
+the delegation saved nothing. If your working agreement says you review every
+change, handing that change to an agent cannot pay — the standard is right,
+and the delegation is what has to go.
+
+**The reviews are the case this keeps catching.** A session that hands `quick-review`
+and `security-review` to subagents still reads every finding and applies it, so the
+diff lands in its context either way. The loop contract names the reviews outright,
+because a worker session is handed the handoff and the contract and never sees this
+file.
+
+Below about 100,000 of context no job is large enough for a subagent to win — its
+turns cost more than yours. The band where delegating does win opens around 130,000.
+That is a reason not to delegate, never a reason to hand off early.
+
+The arithmetic behind those two numbers, and a turn-count table for the borderline
+cases: [references/driver-loop.md](references/driver-loop.md) under "Which model runs
+what".
+
+The standing exception for investigation, and what a delegation prompt has to
+carry once you decide to send one, are in `subagents`. This section covers only
+what the numbers above add: the context bands are the loop's own, measured at
+its 170,000 ceiling, and they do not travel outside it.
+
+## Shaping a session
+
+Ask how full you are at three points — after each commit, before starting the
+reviews a piece of work owes, and after the probing that opens one:
+
+```bash
+python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
+```
+
+Never below about 100,000 context. Asking is itself a full-context turn, and down
+there the answer cannot be anything but keep going.
+
+It prints `<session>: turn N, context X of 170,000 — hand off` or `— keep going;
+R of room, and a handoff through clear-task measured about C`, where C is
+`HANDOFF_ALLOWANCE` in `session_budget.py`. On `keep going`, carry on here;
+stopping earlier is not thrift, because the next session pays about 104,000
+tokens to read its way back to where you already are. Once R falls under C, the
+line says `finish the step you are on` instead: finish it, write the handoff
+through `clear-task` yourself, and stop without starting another. The exit code
+stays 0 until the ceiling.
+
+On `hand off`, stop where you are. A piece of work does not have to be finished
+first: commit what you have with a subject saying it is unfinished, and write the
+handoff so it names where in the cycle you stopped and what the work still owes. The
+next session amends that commit or builds on it.
+
+### The other trigger: three failures of the same check
+
+Three consecutive failures of one check hand off, whatever the context number
+says. Count failures of a single command — the same test, the same build, the
+same query — failing a third time after two attempts to fix it. A different
+command failing resets the count; a fix that changes the failure to a new error
+from the same command does not.
+
+Stop the same way as on a full context: commit what you have with a subject
+saying it is unfinished, and write the handoff naming the command, its latest
+output, and each fix already tried, so the next session does not spend its
+first turns repeating them.
+
+Why this trigger exists, and why it does not wait for the ceiling:
+[references/driver-loop.md](references/driver-loop.md), "Why three failures
+hand off".
+
+Do not ask only after a commit. The point just before the reviews is the one that
+pays: review turns cost the most where the context is fullest, and they read the diff
+better from a session that did not write it.
+
+This is the loop's rule and holds only inside it. Outside the loop a piece of work is
+finished and reviewed before it is committed.
+
+Front-load the expensive reading — design documents, the code you are matching, the
+measurements the work must hit — while the context is small. Read a thing once. Put a
+measurement into the record once, not into the conversation three times.
+
+**Wait in one call that blocks, never by looking repeatedly.** A turn spent asking
+"is it finished yet?" costs exactly what a turn spent working costs, because both
+re-send the whole context. Block once per wait, with a timeout.
+
+What each of these numbers was measured on:
+[references/driver-loop.md](references/driver-loop.md).
+
+## Measuring
+
+```bash
+BUDGET=~/.claude/skills/session-loop/scripts/session_budget.py
+python3 "$BUDGET" ~/projects/your-repo --since 2026-08-09
+python3 "$BUDGET" . --verbose      # list each subagent
+python3 "$BUDGET" . --json         # for a script to read
+python3 "$BUDGET" . --self         # the running session, about itself
+python3 "$BUDGET" . --waste        # by round, and what each round read
+```
+
+Reading the columns, and what `--waste` groups by:
+[references/driver-loop.md](references/driver-loop.md).
+
+## Autonomous behavior
+
+Without asking: run steps 1 through 6 and launch, and report a blocked handoff
+as decisions rather than as a failure to launch.
+
+Never: read a child session's transcript to decide what to do next, start a loop
+from inside one, or launch another run once your own `--self` check says to hand
+off.

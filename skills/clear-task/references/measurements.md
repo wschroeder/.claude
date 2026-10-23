@@ -1,0 +1,342 @@
+# clear-task — the argument and the measured cases behind its rules
+
+The skill body states each rule. This file holds the run that prompted it, and
+the argument where no single run did, for a reader who disputes one.
+
+- The template's shape
+- The reason behind each rule, section by section
+- §0 — the opening prompt settles the reader, not `pgrep`
+- §2 — why a re-run costs so much here
+- §4 — an approved decision shrinks when a next step restates it
+- §4 — Claude's choice carried as the operator's decision
+- §5 — an inherited directive lasted one handoff
+- §8 — a stage declared over, owed work, and an unchecked capability
+- §10 — a question carried forward with nobody owning it
+- §11 — the operator's last words
+- §12 — a coined term, and sections that point at the block
+- Stop — a written handoff is not a stop signal
+- Stop — `HANDOFF.md` is replaced, not appended to
+- Stop — the forced turn after writing `HANDOFF.md`
+
+## The template's shape
+
+Tokens are generated left to right, so once you start writing the prompt you
+cannot revise its earlier lines. A consideration that surfaces mid-prompt gets
+tacked on as a postscript after the code block, where the operator, who copies
+only the block, never sees it. The ordered sections fix that structurally, and
+the skill follows the rule it teaches: all considerations come before the
+artifact, and the artifact is terminal. §12 is where remembering is supposed to
+happen, before the prompt is committed, and the tail sections are the ones the
+momentum of a long session eats first, which is why §12 is never skipped.
+
+§2 and §3 stay apart because your memory of what the session did is narrative
+and §2 is the measurement. Conflating them is the same error as citing a design
+document for a runtime claim (`~/.claude/CLAUDE.md` rule 11).
+
+A worker gets the file and no block beside it because the driver hands the file
+to every fresh session and nobody copies anything. A printed block would be a
+second copy going stale from the moment it appeared.
+
+## The reason behind each rule, section by section
+
+- §0: a worker has no other way to receive a prompt, so it gets the file; the
+  operator copies a block, so they get the block. `pgrep` asks whether any
+  driver is alive anywhere on the machine, and the question is whether a
+  worker is waiting on *this* session's handoff.
+- §1: a handoff that named one ticket where the task was a neighbouring one sent the next
+  session to the wrong card. "Mentioned, not ours" stops the next session
+  mistaking a neighbouring card for the work.
+- §2: the state moves between writing the prompt and reading it, so a re-run
+  buys the reader nothing (see "§2 — why a re-run costs so much here" for the
+  cost). A "done" claim with no output behind it is `~/.claude/CLAUDE.md` rule
+  1, "Verify before claiming".
+- §4: dead-ends are the highest-value, most-forgotten content; without them
+  the fresh chat repeats the same failed attempt. A constraint, a diagnosis, or
+  a reason a thing failed is a claim the fresh chat acts on without re-deriving
+  it, which is why each carries a tag. One `verified` covering a reading and
+  its diagnosis launders the diagnosis into a measurement, and the fresh chat
+  builds on it and finds out the hard way: that is `~/.claude/CLAUDE.md` rules
+  4 and 10 applied to the handoff. A ban written against a class of evidence
+  gets obeyed in cases the failure never covered. §8 gets reordered and
+  rewritten every session, so an approval that lives there shrinks with each
+  rewrite. A shorter restatement of an inherited decision drops whatever it
+  left out, and nobody notices.
+- §5: the operator's principles are meant to outrank the fresh chat's own
+  instincts, so they survive the clear verbatim. Naming the behavior rather
+  than a label is `~/.claude/CLAUDE.md` "Communication Style".
+- §6: §4's constraints and dead-ends exist to stop the fresh chat repeating
+  this session's mistakes; §6 is knowledge that stands on its own.
+- §7: these are throwaway test credentials, and the prompt's whole purpose is
+  to be self-contained. An empty section in the prompt costs the reader a
+  heading and tells them nothing.
+- §8: step 1 no longer names a re-check of git status or reviews. In one
+  run, sessions spent turns re-measuring what a handoff already
+  carried as verified, and the operator removed the rule (2026-10-09). A "not yet" or "hold off" in the middle of a discussion
+  can mean "not before we finish talking". A sentence saying a stage is over is
+  a claim the template cannot check, and the fresh chat reads it as settled and
+  never looks again. A numbered step is the first thing the next session does,
+  inside a template written for a different phase, so the session handed the
+  new phase spends its budget finishing the old one. "A person can play a whole
+  turn with the mouse" is the same unchecked claim as "the demo is over", and
+  it reads worse: the fresh chat takes it as the ground it stands on and spends
+  the session confirming rather than testing. A line number is wrong the next
+  time anybody edits the file, and it stays confidently wrong.
+- §10: a question copied forward reads as though someone is tracking it, when
+  no card holds it and no session owns answering it, and every fresh chat pays
+  to read it again. A paraphrase such as "stays recorded" turns a dismissal
+  into an obligation the next writer keeps alive.
+- §11: a directive rewritten as a next step has been through your judgment
+  about what it asked for, and the quote is the copy that has not. §11 is the
+  second lock rather than the only one; the first is §5's rule about inherited
+  directives.
+- §12: a section that only points at the block leaves §12 nothing to check
+  there, and the block is then written from nothing §1–§11 hold.
+- Stop: a tool call ends the response that makes it, so a session that writes
+  `HANDOFF.md` always gets one turn after the write and cannot decline it.
+
+## §0 — the opening prompt settles the reader, not `pgrep`
+
+The `pgrep` check and the question §0 asks come apart whenever a loop runs
+against one repository while you work in another. The opening prompt settles
+it because nobody retypes it, and it is the text the driver itself wrote.
+
+On 2026-09-17, `pgrep -af run-loop.sh` matched a driver on `ansimation-editor`
+while the session asking the question was an interactive one in a different
+directory, whose only reachable `HANDOFF.md` belonged to the loop that was
+mid-run.
+
+Across 183 runs of this skill, 59 of the 64 sessions a driver launched wrote the
+file, against 19 of the 119 interactive ones. Five runs wrote it and then
+deleted it again.
+
+The branch for a stated preference exists because, before it, the last branch
+sent every interactive session to the operator. On 2026-10-02, eight handoffs
+written between 08:22 and 09:46 each quoted "We should use session-loop when
+possible." and still opened "reader: the operator", until the operator
+interrupted: "I interrupted because we have done a lot of clear-task, and it
+seems like that ought to be in a session-loop instead."
+
+## §2 — why a re-run costs so much here
+
+§8's first step is what protects the reader from a stale reading, and it also
+catches a fabricated "done", since the fresh chat's own `git log` shows the
+commit is absent.
+
+This skill fires at the fullest point of a session: measured at a median of
+187,000 tokens of context already loaded, where one more turn re-reads all of
+it. The turns beyond the first account for 61% of what this skill costs.
+
+## §4 — an approved decision shrinks when a next step restates it
+
+On 2026-09-22 the operator approved a report design at 11:25 in session
+`8659b2ef` of a client repository: "I'm going to ok this version of it
+for now." Each of the next four handoffs held the design only as sub-bullets of
+a "build the HTML report generator" step in §8 and the block, never in §4 or §5.
+The handoffs dropped "roll-up" at the first of them, "tooltip" at the second,
+and "status word" at the fourth, although §5's rule about inherited directives
+fired in every one. `docs/spec/` never held the design. At 14:27 the operator
+wrote: "It seems like you've lost that original design. But it's in our
+history."
+
+## §4 — Claude's choice carried as the operator's decision
+
+On 2026-10-12 in a client repository, handoffs at 12:38 and
+12:45 recorded a 30-day retention as "Decision (T4, this session)". At 16:20
+the operator asked whether Postgres could "specify the Max rows", read a reply
+describing the 30-day delete, and answered "No need. Let's proceed." The 16:28
+handoff wrote "Decision (operator, 2026-10-12): 30 days is retention", with a
+date and no quote, under a "do not relitigate" header. Four sessions carried it
+word for word and built a spec, a test, and a demo on it. At 17:48 the operator
+wrote: "You keep saying days. Nowhere in here have I ever asked for days. I have
+asked for "30 last runs" pretty consistently." A search of their typed turns
+then found no 30 days anywhere.
+
+The relabel rule that followed sat two paragraphs above "Carry it forward word
+for word", and the nearer rule won. From 2026-10-12 19:42 to 2026-10-13 06:08,
+ten handoffs carried "Decision (operator): … tasks live in the handoff, not in
+bd" unquoted. It first appeared in session `b50c534d` as an unlabelled
+"Decision:", and none of the operator's turns says it. The last of the ten
+handoffs wrote "I carried forward every inherited decision except two".
+
+## §2 — a time estimated across an overnight gap
+
+On 2026-10-13 session `b8fc24aa` sat idle from about 22:45 until the operator
+replied "Looks good" at 06:06 CT. Its handoff dated that reply "about 22:50
+CT", and "Where things stand" carried the same time. The session ran no `date`.
+
+## §5 — an inherited directive lasted one handoff
+
+The operator typed "let's undo that commit" at 08:51. The handoff written at
+08:54 carried those words, the handoffs written at 09:12 and 09:32 did not
+mention them, and the commit is still in the log. Nobody undid it, and nobody
+told the operator it had not been undone.
+
+## §8 — a stage declared over, owed work, and an unchecked capability
+
+A handoff cannot declare a stage finished because the template sees one
+session, not the checklist the work is running against. The paragraphs on
+`writing-code`'s owed items and on a skill that handed off cover a step the
+next session is still inside; owed work from a phase that has ended goes to the
+backlog instead.
+
+The last step names `demo-task` because the session that takes the steps may
+never load `tdd-cycle`, whose step 4d is the only other hand to the demo.
+Measured: a handoff ended at the commit, and the next session called the slice
+released without a demo.
+
+A handoff written five minutes after the operator asked for research before
+the current stage ended opened its next steps with "the demo is over and its
+feedback is recorded". The session that read it went straight on to the
+following stage.
+
+A retro handoff opened with "Run `quick-review` and then `security-review` over
+plan/demo/s5/drive-demo.js ... This is owed work from the demo, ahead of
+anything new". The session that read it spent 21 of its 31 turns on that
+review, about two thirds of its cost, before it loaded `retro-task` at turn 24.
+
+A handoff opened "A person can launch the game and play a whole turn with the
+mouse and keyboard". Someone wrote it the evening before the operator opened
+that game and found that no press reached a battalion.
+
+On 2026-09-23 the tenth handoff in a client repository (session
+`82477098`) put the operator's request to discuss at step 5, behind three items
+it called owed: integration mutations, a review write-up, and a spec paragraph.
+It gave the reason as work "owed after the recording ends" in the prior
+handoff. The session that read it ran those steps and never opened the
+conversation.
+
+A question answered in the handoff's own response was treated as closed. The
+operator's final turn asked whether a reworded commit changed a proposal for a
+skill, said "We aren't going to update git-commit yet", and invoked
+`/clear-task` in the same message. The handoff answered the question, recorded
+the skill work as "deferred by the operator", and told the next session the
+question was "already answered". The next session opened on the project's
+status, and the operator had to say they were still discussing the skill.
+
+## §10 — a question carried forward with nobody owning it
+
+"Whether weapons stay in the game" appears in 29 of one project's transcripts,
+and its backlog holds no card for it.
+
+The operator's "no" never became a strike. They said a session was "overly
+concerned about the failures at this stage", and the next handoff recorded
+three deferred problems as staying "recorded and unfixed". The §10 rule then
+made them an open question. Asked whether to add them to the spec, the operator
+answered "(Not interested in adding the problems.)". The next handoff recorded
+only "stay out of the spec" and asked whether to file a Jira ticket instead.
+Mentions of the problems in five consecutive opening handoffs ran 2, 3, 5, 8,
+and 8.
+
+## §10 — the agent's own choice to leave a gap for the operator
+
+On 2026-10-15 at 12:22, a session wrote "Decision (Claude, 13dbda31):
+one gap stays a Flag for the operator instead of a fix" into §4, and the same
+handoff's §10 read "None". Later handoffs carried the gap as settled. The
+operator met it four days later as an oddity in demo step 6, asked about it,
+and said yes to the fix that became the branch's last commit.
+
+## §10 — a question for the operator, filed as a card before anyone asked it
+
+On 2026-10-12, the reply that handed the operator the demo said "I'm
+leaving one open question for the next turn: whether the leftover check reason
+in a sent-back record's review box matters", and then asked
+only about the demo. At 11:31 CDT, during `/clear-task`, the session filed it as
+a P3 card and listed it under "Mentioned, not ours" with "It is in the
+backlog; do not ask about it now." The handoff's open questions did not include
+it, and it carried no `Decision (Claude)` line, so the 2026-10-19 rule on those
+would not have caught it. The operator closed the ticket believing nothing was
+left. Nobody asked them until 2026-10-21, on the next ticket, where the fix
+became a commit. The operator: "When I finished <ticket>, I thought I had
+finished everything. This was essentially lying to me."
+
+## §11 — the operator's last words
+
+The operator asked for this section: "This isn't the first time I've seen my
+final prompt be lost, so maybe it deserves a word-for-word section in
+clear-task final output." On that run their final turn had in fact been
+carried across, and the next session read past it anyway.
+
+Across every transcript under `~/.claude/projects` on 2026-09-23, 41 of 46
+`/clear-task` invocations carried words after the command, such as "and we will
+pick up where we left off" and "after we clear and come back in, wait for me to
+give my feedback". The first 40 characters of those words reached the finished
+block in 3 of the 41.
+
+At 13:40 UTC that day, in session `82477098` of a client repository, the
+operator typed `/clear-task` followed by "and we'll discuss how we can wrap this
+up. I think we have reached a "good enough" point for now. My goal is to have
+this ready for someone else to run, and I want to understand where we currently
+are and what we still need to do. I want to approve it." The handoff quoted an
+earlier turn as the last words, mentioned these only in a parenthetical, and
+printed a block without the last-words heading. The next session, `71d03ac4`,
+had no operator turn beyond the paste and wrote §11 as "None of their own". At
+14:25 UTC, in the session after that, the operator wrote: "I don't understand
+why I just went through a cycle and a half of additional work here".
+
+## §12 — a coined term, and sections that point at the block
+
+On 2026-09-22 a session coined "cassette" for the file of recorded OpenAI
+responses. It first showed the operator the word at 12:33 local time, with no
+definition: "Before designing the cassette key, one boundary claim needs
+measuring". The next three handoffs used it without defining it, until the
+operator asked at 14:13: "Somewhere along the line this term "casette" was
+introduced. What is that?"
+
+The handoff from session `e3b5deb5` reduced §6 through §11 to pointers such as
+"§9 Pointers: They are in the block below."
+
+## Stop — a written handoff is not a stop signal
+
+The stop in the body is the template's, and it says only that the template does
+not start the next steps on its own.
+
+A supervising session at about 157,000 of 170,000 declined to open a signoff
+gate at 10:46 because it had written its handoff, and the operator overrode it
+at 13:32.
+
+## Stop — `HANDOFF.md` is replaced, not appended to
+
+On 2026-10-02 the `HANDOFF.md` in a client worktree was 66,727
+bytes, with the status lines, tasks, and requirements of slices S1, S2, and S3
+stacked in it after the operator had accepted the first two. Git and the spec
+already held all of that. The working rules and the operator's standing
+decisions were the part a fresh worker still needed.
+
+## Stop — the forced turn after writing `HANDOFF.md`
+
+Nobody is waiting for a recap in that turn. A driver sends the session's whole
+output to a log file (grep `RUN_LOG` in `session-loop/scripts/run-loop.sh`),
+and the summary that reads the log back takes `terminal_reason`, `num_turns`,
+`permission_denials`, and `is_error` out of it, never the assistant's text.
+
+Across 187 runs of this skill on 2026-09-17, all 164 responses that wrote the
+file ended on the tool call, so every one of them forced a turn. Those forced
+turns ran to a median of 2,281 characters against the one line they owed, and
+cost $18.13. Eleven runs then took a further turn beyond the forced one, writing
+a median of 27,831 characters each — the whole handoff again, beside the copy
+already on disk — for another $3.99. Together that is 10.2% of what this skill
+costs.
+
+A retrospective session recommended writing the file for its own clear, having
+argued that a block alone would leave the stale one as a trap. The operator
+overrode it by typing `/clear-task instead`.
+
+## Why a later slice becomes a card, not a "Mentioned, not ours" line
+
+Measured (2026-10-19): the S15 handoff listed "URL-less sort and
+filter (a later slice); stale ?datastar= on sort links" under "Mentioned, not
+ours (do not work on these)", and no card held either. The next spec-task
+session found no look-ahead sketch, searched Jira, and proposed the next ticket. The
+operator interrupted at 09:27 CDT: "How did the definition of a slice become
+looking at my Jira issues? Are we completely done with solving the Back/Forward
+button problems, then?"
+
+## Why an unchecked warning becomes a card, not a "Mentioned, not ours" line
+
+Measured (2026-10-19): at 10:45 CDT a demo session saw
+`<import>.unmatched_row` warnings for two seeded rows,
+wrote "hypothesis: the seeded rows still name the merged-away record ids. Not
+this slice's card", and listed it under "Mentioned, not ours". Four more
+handoffs copied the line word for word, and none checked it or filed a card.
+The rule sending a defect to a card sat in §6, and a warning with a
+hypothesised cause did not read as a defect the session "found".

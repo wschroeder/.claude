@@ -1,0 +1,699 @@
+# Running a long build unattended
+
+Contents:
+
+- [Why /loop and cron are not this](#why-loop-and-cron-are-not-this)
+- [What the driver does](#what-the-driver-does)
+- [The handoff contract](#the-handoff-contract)
+- [Where a session hands off](#where-a-session-hands-off)
+- [Permissions](#permissions)
+- [The flags that matter](#the-flags-that-matter)
+- [Starting one](#starting-one)
+- [Why step 2 writes the launch prompt before the clear](#why-step-2-writes-the-launch-prompt-before-the-clear)
+- [Reading what it did](#reading-what-it-did)
+
+## Why /loop and cron are not this
+
+`/loop 30m <prompt>` re-fires a prompt into the conversation it was started
+from, on a schedule. So does a cron job created inside a session. Both are
+useful — polling a build, checking a deploy, a standing review — and both
+keep every earlier turn.
+
+That makes them the wrong shape here. The loop exists to retire a context, so
+you cannot build it out of a mechanism that preserves one: after eight
+iterations you have one session at half a million tokens, which is the problem,
+not the fix.
+
+Only a new operating system process resets a context. `claude -p "<prompt>"`
+starts a fresh session, runs to completion, prints a result, and exits. Its
+transcript lands under `~/.claude/projects/` like any other, so the same tools
+read it.
+
+Use `/loop` for watching something. Use a driver process for building
+something.
+
+## What the driver does
+
+`scripts/run-loop.sh`. One iteration:
+
+1. Stop if the handoff file is missing or empty — a session was meant to
+   rewrite it and left nothing behind. Because the handoff is gitignored, this
+   does not show up as a dirty tree.
+2. Stop if the handoff's first line begins `BLOCKED:` (a decision the operator
+   has to make) or `DONE` (the work is complete). While the reviewer holds
+   findings against the last commit, either one goes back for another session
+   instead, twice at most; a blocked handoff is also not sent back over a dirty
+   tree or once the same-file bound is reached. A blocked stop prints the path
+   of any reviewer findings no session has been handed yet.
+3. Stop if the working tree is dirty — that means the previous session did
+   not finish, and a fresh one would build on half-applied work.
+4. Note the current tree hash, and each bd card's status where the
+   repository has a bd board.
+5. Run `claude -p` with the handoff file as its entire prompt, plus a short
+   protocol block appended, and wait.
+6. Stop if claude exited non-zero, or if the run's summary says it ended for
+   any reason other than finishing. The exception is the usage limit: the
+   summary names when it resets, so the driver sleeps until then and runs the
+   same iteration once more before it would stop.
+7. Stop if the tree hash did not move, as a blocked stop if the handoff now
+   begins `BLOCKED:` and as a failure otherwise. A session that only writes
+   the question moves no tree, because the handoff is ignored by git. A
+   session that changed nothing would hand the next one the same starting
+   position, and the loop would spin. The tree rather than the commit id, because a session may amend the unfinished
+   commit it was handed, and an amend that touches no file still produces a new
+   commit id as soon as it lands a second later than the commit it replaces.
+   A session that moved a card's status but no tree made progress all the
+   same, because bd keeps its board outside the git tree: the next session
+   runs with no review in between, since there is no new commit to read.
+8. Otherwise loop, and the handoff the session just rewrote becomes the next
+   iteration's prompt.
+
+The driver never reads a transcript. It reads `git status`, `git log`, the
+handoff file, and the JSON summary of the run — all small, all fixed size.
+That is the property that makes it a driver rather than an orchestrator: it
+accumulates nothing, so it cannot fill up.
+
+## The handoff contract
+
+One file in the repository, `HANDOFF.md` by default, holds everything the
+next session needs. It is the same artifact the `clear-task` skill produces
+for a human to paste, so a run can be picked up by hand at any point.
+
+The driver appends a short protocol to it before each run, telling the session a
+few things: load the skill the work matches before starting the work, which is
+here rather than in the handoff because a handoff names only the skills the
+session that wrote it happened to load; commit as you go; check your own context
+at three points and either carry on or stop; if a decision is needed that only
+the operator can make, put `BLOCKED: <one sentence>` on the first line and stop;
+and if the work is all done with nothing left to do, put `DONE` on the first
+line and stop.
+
+That middle clause has to be drawn narrowly, because `BLOCKED:` halts the whole
+run until somebody happens to look at it — the most expensive thing a session
+can do, and the one escape it can reach for at any moment. Choosing which piece
+of work to do next is the case that has come up: a session with room to keep
+working stopped the run to ask which of the remaining steps to take, which the
+operator had no view on. So the protocol answers that one in advance. Take the
+step that unblocks the most of what is left; where nothing waits on anything
+else, take any of them and record which in the handoff, so the next session does
+not start the same piece of work over.
+
+Drawn that narrowly, the clause then swallowed a case it was never meant to
+reach. A worker closing slice S1 read "which piece of work comes next" as
+covering whether the operator approved slice S2's scope, took it, and went on
+to specify, review and build nine cards without a question reaching anybody.
+Its own account: "I took it rather than stopping for the approval Section 8
+asks for, because the loop I am running in settles which work comes next."
+Ordering among steps already agreed is the thing nobody holds a preference
+about. Which behavior the next slice contains is the opposite — the one
+question the operator was always going to be asked, and both `spec-task`
+Section 1 and `backlog-task` Section 2 stop for it. So the contract states
+where its ordering rule ends, in the paragraph after the rule itself,
+because a worker is handed the contract and never opens this file.
+
+The commit rule carries its own permission, because it has to. Starting the loop
+is the operator's authorization for every commit it makes in that repository, and
+for amending — a commit the running session made, and the unfinished commit an
+earlier session left for it. The protocol says so outright, so a session that
+would otherwise wait for a person does not. The bound is what the commit means
+rather than which session made it: a commit that finished its piece of work is
+settled and gets built on, and one that only records where the work got to is a
+note the next session is free to rewrite. Nothing here needs the amend bounded
+for the driver's sake, because the driver compares tree hashes and a rewrite that
+changes no code cannot pass for progress.
+
+## Where a session is allowed to stop
+
+The threshold only binds if the session can act on it, and for a long time it
+could not. The check ran after a commit, and a commit meant a piece of work that
+was finished and reviewed — so the nearest legal stopping point was however far
+away the end of the current piece of work happened to be. Measured across four
+repo-a sessions, the first commit landed at 182,032, 268,636 and 271,695
+context against a 170,000 ceiling. Every answer the check gave those sessions
+was correct and arrived up to 100,000 tokens too late. Over the same run, 61% to 70% of each
+session's tokens were spent above the line.
+
+So the session now asks at three points — after each commit, before starting the
+reviews a piece of work owes, and after the probing that opens one — and may stop
+at any of them by committing what it has, marked unfinished, with the handoff
+naming where in the cycle it stopped and what the work still owes.
+
+Asking at those three points is not enough on its own, because all three are
+milestones in the work cycle and a session that spends its whole life on one
+piece of work reaches them once. Measured across a later run of both
+repositories: every worker committed exactly once, between turn 27 and turn 86,
+and the single check it ran landed a turn or two after that commit at 145,000 to
+204,000 context. 29% of one run's tokens still went above the line.
+
+So the ceiling is enforced from outside the session as well, by a PostToolUse
+hook registering `session_budget.py --hook` in the operator's own
+`~/.claude/settings.json`. It fires on every tool call in every session on the
+machine and is handed the path to the session's own transcript, so the number
+gets read whether or not the session thought to read it. That file is the
+operator's and not this skill's, so a machine that has this skill without that
+hook runs the loop with the three contract points and nothing else — check for
+it before trusting the ceiling on a machine you have not run this on. Under the
+line it prints nothing — anything it wrote
+would enter the context and be re-paid by every later turn. Over the line it
+exits 2 with one line on stderr naming the context, the ceiling, and the two
+steps that make this a handoff rather than an abort: commit what you have marked
+unfinished, then rewrite the handoff.
+
+Three things about that shape were probed rather than assumed. Hooks do fire in
+headless `claude -p` runs. A hook writing to plain stdout is invisible to the
+model, while exit 2 with stderr arrives as a blocking error it reads back
+verbatim. And PostToolUse exit 2 does not undo the call that just ran — a live
+run over the line committed successfully with the hook firing on the commit
+itself. PreToolUse would be the wrong event for exactly that reason: exiting 2
+there denies the call, so a session over the line would be refused the Bash
+calls it needs to commit and hand off, and would be trapped rather than retired.
+
+The point before the reviews is the one that pays. In those same sessions the
+review sequence began at 191,278 to 212,848 context and added 34,514 to 77,358
+of growth, so it ran at the most expensive part of the session; run from a
+fresh one it costs a fraction of that. It also reads better there. A session
+reads its own diff for what it meant to write; a fresh session reads the same
+diff for what it says.
+
+Sessions that already fit are unaffected. Over the same run the repo-b sessions
+reached their first commit at 141,066 to 158,717 and ended at 154,881 to 172,453,
+so every checkpoint they hit said "keep going" until the last one.
+
+This rule holds inside the loop. Outside it, a piece of work is finished and
+reviewed before it is committed.
+
+Push is handled differently, and the wording matters more than it looks. A bare
+"do not push" forbids the act and leaves the subject open, which produces the two
+behaviours it was meant to prevent: a session that has just committed asks
+whether to push as well, or checks for a remote, finds none, and writes a
+paragraph explaining why no push was necessary. The first stops an unattended run
+until a person answers. The second spends turns on a question nobody asked. So
+the protocol closes the topic rather than prohibiting the act — do not push, do
+not ask, do not go looking for a remote, and report nothing about it either way.
+Whether anything is pushed is settled outside the loop.
+
+That paragraph is not decoration. Across two repositories, 19 of 48 loop
+sessions committed nothing at all, and three of them — 92 million context tokens
+between them — had finished the work, the tests and both reviews before stopping
+one command short. One says why in its own handoff: "destructive git actions need
+per-action authorization." The driver then halts the whole run on "the session
+changed nothing," so the finished work sits in a dirty tree and every remaining
+iteration is thrown away.
+
+That last rule is what makes an unattended run safe to leave. When a session
+hits a real question, it halts the loop instead of guessing. The first line of
+the handoff tells you what it wanted.
+
+Keep the handoff honest about what is measured and what is believed, keep the
+decisions already made in it so they are not relitigated, and keep the dead
+ends in it so they are not walked twice. A handoff drifting past six or seven
+thousand tokens has started becoming a transcript; prune it.
+
+## Where a session hands off
+
+A fresh session is not free. Measured across 29 sessions in two repositories: one
+opens at about 39,000 tokens of context before it has read anything of yours, and
+the median one does not land its first change until about 105,000. That gap is
+what every handoff costs, and it is paid again every time.
+
+The median hides the part that matters. Across those 29 sessions the first file
+change landed anywhere between 60,016 and 187,085 context — a threefold spread —
+and it is that spread, not the ceiling, that decides what a run costs.
+
+Take cost per turn of actual work: total context spent, divided by the turns
+after that session's own first Edit or Write. Correlated against the obvious
+candidates, only one of them explains anything.
+
+```
+  how much it read before first changing a file    r = +0.62
+  how many turns it ran                            r = -0.33
+  where the session stopped                        r = -0.07
+```
+
+Split the same sessions on that first number and the size of it is plain. The ten
+that first touched a file below 90,000 context cost a median 144,049 per working
+turn and got 51 working turns out of their life. The nine that first touched one
+above 130,000 cost 264,826 and got 20.
+
+So the handoff threshold is close to irrelevant as a cost control. An earlier
+version of this section said otherwise: it carried a fitted curve putting the
+cheapest stop near 162,000 and charging 200,000 a 4% premium. That fit assumed a
+single re-orientation cost shared by every session. The measurement says the cost
+varies threefold between them, which swamps the curve.
+
+The default is 170,000. It is the operator's call, not a figure derived here.
+
+What it is not is where the money is. The money is in why a session reads 60,000
+tokens before its first change on a good day and 187,000 on a bad one.
+
+Both errors cost real tokens, and it is worth knowing which one you actually
+make. Measured over the 22 driver sessions in these two repositories that
+finished normally under the earlier rule — commit one unit of work, then stop —
+the common error was overshooting, not stopping short. The median session ended
+at 327,000 context and 15 of the 22 ran past 200,000. Only four ended under
+165,000.
+
+So "stop after one unit" did not keep sessions small. A unit of work in a real
+repository is a slice plus its tests plus a mutation survey plus two reviews,
+and that runs to a third of a million tokens on its own. The self-check is the
+ceiling those sessions never had. It also catches the opposite case, which does
+happen: a session that finishes early is told to keep going rather than hand off
+before it has earned back its own 104,000 tokens of orientation.
+
+The worker measures itself:
+
+```bash
+python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
+```
+
+It prints `<session>: turn N, context X of Y — hand off` or `— keep going;
+R of room, and a handoff through clear-task measured about C`, where C is
+`HANDOFF_ALLOWANCE` in `session_budget.py`, and exits 3 when it is over. Once
+the room falls under C, `keep going` becomes `finish the step you are on, then
+write the handoff through clear-task yourself and stop; do not start another`,
+still with exit 0, and it never turns into `hand off` before the ceiling. The session name is there because the lookup
+can land on a neighbouring transcript, and an answer with no name on it gives
+the reader no way to notice that it did. Claude Code puts the running session's
+id in `CLAUDE_CODE_SESSION_ID` and names the transcript after it, so a session
+can find its own record; that holds in headless `claude -p` runs too, and the
+transcript is flushed as the session goes, so the number is current rather than
+whatever it was when the process started.
+
+## Permissions
+
+Start with what the handoff file actually is. Every iteration hands it to a
+session as that session's whole instruction set, with no person reading it in
+between. It is a program the loop runs, not a note it reads. Whoever can write
+to that file decides what the next session does, at whatever permission mode
+the loop was started with — so on a permissive mode, write access to the repo
+is write access to your shell.
+
+That matters in three concrete situations, and none of them is exotic. A
+repository that takes contributions from anyone else. A session that reads a
+web page, an issue, or a dependency's README and then writes what it read into
+the handoff. A build step that can touch files in the tree. Run the loop where
+write access to the repository already means trust, and nowhere else.
+
+Then the mechanics, and they are why the default is bypassPermissions rather
+than something narrower. An unattended session cannot answer a permission
+prompt, and nothing waits for one: the prompt is taken as a denial, the call
+does not happen, and the session finishes and reports success. Measured with a
+headless run under `acceptEdits`: a shell command outside the settings allowlist
+came back denied, the session said `DENIED` and finished, and the run JSON
+reported `terminal_reason: completed` with the refused call under
+`permission_denials`. Nothing failed. The session simply did less.
+
+For most tools that is a quiet loss of quality. For the commit it is fatal to
+the whole loop. Every iteration has to commit — the driver decides whether to
+continue by whether HEAD moved — and a commit is a `git` call, not a file edit,
+so no edit-accepting mode covers it. Probed on this machine: the permissions
+hook auto-approves `git status` and `mix test` but passes `git add` and
+`git commit` through to a prompt, and a prompt headless is a denial. Under
+`acceptEdits` the session would do the work, have its commit refused without a
+sound, leave a dirty tree, and the driver would halt the run on "committed
+nothing" — on the first iteration. bypassPermissions is the only mode under
+which the session's own commit goes through with nobody there, so it is the
+default.
+
+That reach is the price of it, and it is the danger the top of this section
+already named. bypassPermissions lets the session edit and run whatever it
+decides to, and the handoff it is handed is instructions rather than a note.
+Together they mean write access to the repository is write access to your shell,
+for the length of the run, unattended. Run the loop only where that is already
+true: where `git` is a real undo, the repository takes no untrusted
+contributions, and you will read the history afterwards. Where it is not, do not
+loosen the loop to fit — do that work attended instead.
+
+The driver still prints the denial count after each run. Under bypassPermissions
+it should be zero; a non-zero count means something refused the session a tool
+even so, and that session worked without something it reached for.
+
+## The flags that matter
+
+Measured against `claude --help` and one live `claude -p` run:
+
+```
+  -p, --print              run headless: take the prompt, work, print, exit
+  --output-format json     the summary the driver reads: num_turns,
+                           terminal_reason, is_error, session_id
+  --permission-mode M      bypassPermissions (default) | acceptEdits | auto |
+                           dontAsk | manual | plan
+  --model NAME             claude-opus-5-5 (default); an alias like opus or
+                           sonnet is the latest of that family, not a fixed one
+  --effort LEVEL           low | medium | high | xhigh | max
+  --autocompact auto|N     when to compact rather than stop
+  --add-dir DIR            extra directories the session may touch
+```
+
+There is a `--max-budget-usd` and the driver does not use it. A fixed dollar
+cap cut an expensive session at half the work of a cheap one — measured across
+those same 18 sessions, cost per output token ranged more than two to one — so
+the same number meant different amounts of work on different days. Context does
+not drift like that, and the session can read its own.
+
+What matters instead is that a session can stop without saying so. Measured:
+a run cut off part way still exits 0. The shell's exit code cannot tell a
+finished session from a cut one, which is why the driver reads
+`terminal_reason` from the summary and stops on anything other than
+`completed` rather than starting a fresh session on top of interrupted work.
+
+## The second reader
+
+A session reads its own diff back for what it meant to write, which makes it
+the worst-placed reader of that diff. It is also the most expensive reader
+available, because by the time a piece of work is finished its context is at
+its fullest and every review turn is billed at that.
+
+So after each iteration commits, the driver runs a second session over just that
+diff. It gets `HEAD_BEFORE..HEAD` and nothing else — no handoff, no protocol, no
+memory of the work — and it is launched with `--disallowed-tools Edit Write
+NotebookEdit`, which is what makes it a reader rather than a second builder.
+Probed: told directly to fix a bug it had just found, it came back with "Edit is
+disabled for this session, in subagents as well as here" and the file was
+untouched.
+
+It runs on `claude-opus-5-5` at `--effort medium`. It first ran on `sonnet`:
+against a two-function diff carrying a planted off-by-one and a planted shell
+injection, it found both, in 3 turns, for $0.28, against $6 to $8 for the
+session that wrote the code. Measured on 2026-09-26 across four repositories, it
+still answered FAIL on 31 of the 92 diffs it read that had already passed both
+inline reviews, and took 10% to 17% of each run's spend. The operator moved it
+to the builder's model on 2026-09-26 because it is the one reader in the loop
+that did not write the code. `--eval-model` moves it and `--no-eval` turns it
+off; the effort is fixed at medium.
+
+It answers `PASS` alone, or `FAIL` and one line per finding, each line naming
+what executes the code it is about and when that last ran. It is not asked
+whether a finding is worth fixing — it has the diff and nothing else, so it
+cannot know — only for the fact that decides it, which the session holding the
+handoff can then weigh. On `FAIL` the
+findings are written to the logs directory and put in front of the next
+session's handoff — in the prompt rather than in a file in the repository,
+because writing them into the tree would leave it dirty and the driver's own
+dirty-tree gate would then halt the run on the evidence it had just produced.
+They are cleared the moment an iteration comes back clean; without that the same
+findings are re-sent to every later session, which re-reads the diff, finds them
+already fixed, and pays for that on every remaining iteration.
+
+There is one thing it does decide, and it is the only claim in this loop that a
+session used to make about its own work with nothing checking it. `DONE` on the
+first line of the handoff ends the run — and the moment it is written is exactly
+the moment the reviewer's findings are about a commit nobody will open again. So
+`DONE` now ends the run only when the reviewer is holding nothing; otherwise the
+work goes back for another session with the findings in front of it. Twice, at
+most: a session that keeps declaring victory against a reviewer that keeps
+disagreeing is a standoff, and an unbounded loop settles it by spending until the
+account runs out, so the third time the run stops and asks for a person.
+
+The same bound covers the case where nobody claims to be finished. Every finding
+becomes the next session's first job, and a correct finding is the kind that
+gets fixed — which puts the same file back in front of the reviewer, which finds
+the next corner of it. Three consecutive rounds of findings about one file stop
+the run and ask a person whether that file still matters. Measured on the run
+that prompted it: three iterations and about ten million weighted tokens went
+into the failure semantics of a one-shot script whose only job had finished two
+iterations earlier, and every finding along the way was correct.
+
+Two things it deliberately does not do. A finding on its own does not stop the
+run — a reviewer that fell over or answered in prose is reported and the building
+carries on, because the commits it failed to read are still in git for the next
+session to reach. And it does not replace the reviews the contract asks a session to run —
+those are deeper than this, and until there is a measurement of what this catches
+that they do not, taking them out would be trading known depth for an unmeasured
+substitute.
+
+Two things to know before trusting it further than that. Its findings become
+part of the next session's prompt, and that session runs under
+bypassPermissions — so text in your repository reaches a session that can act on
+it. That is not a new boundary, because the builder already reads the same diff
+directly, but it is a second path along the same one. And the findings file
+inherits whatever mode the logs directory has, exactly as the run summaries do,
+so a `--logs` directory you made world-readable makes the findings and the run
+summaries world-readable with it.
+
+It can run things, and the prompt rather than an allowlist is what bounds that.
+It used to hold `Bash(git :*)` plus Read, Grep and Glob, and that scope failed
+twice over. The allowlist refused an evaluator that wanted to execute the
+function it doubted — measured in the first end-to-end run, where it tried
+`python3 -c` on a buggy function to confirm an off-by-one and reached the right
+answer by reading instead, so its finding was reasoning rather than
+measurement. Then a later run took 13 refusals over 104 reviewer turns,
+`npm test` among them, and one refusal came from the pattern itself:
+`Bash(git :*)` denied `git -C <repo> log --oneline -1` where `Bash(git:*)` ran
+it, the space being the whole of the difference. Naming commands also cannot
+survive a second language, since the same reviewer needs `mix test` in one
+repository and `go test` in the next.
+
+So `Bash` is allowed whole, and the prompt tells the reviewer to investigate
+only, to run nothing the review does not need and nothing that installs,
+fetches, deploys, or reaches the network, and to leave the repository exactly
+as it found it. Know what that constraint is and is not. It is an instruction,
+not an enforcement: denying Edit and Write leaves the shell open, and a reader
+under exactly these flags wrote a file with `echo > path` with no denial
+recorded. What catches a reader that leaves something behind in the repository
+is the dirty-tree gate at the top of the next iteration, which halts the run
+and prints the paths — one iteration late, but loud. Running the reviewer in a
+throwaway worktree would make the boundary real rather than instructed, and
+that is still not built.
+
+## Which model runs what
+
+The driver runs Opus 5.5, pinned by full id rather than the `opus` alias, because
+an alias resolves to whatever is newest when it runs and would change the driver
+underneath a long build.
+
+Picking between Opus versions is not a cost decision. Measured across 35 loop
+runs in these two repositories, Opus 5 and Opus 4.8 priced within 2% of each
+other per token, so running the older one saves nothing and gives up capability.
+
+Where the model choice does matter is in what a session delegates, and there the
+spread is real: in those same runs the Haiku subagents cost $0.22 against $507 of
+driver time. That is the lever worth using deliberately. The protocol tells each
+session to match the model to the task — Haiku for wide or mechanical passes
+where only the answer matters, Sonnet for work needing judgment the session will
+not re-read itself, the driver model for reasoning it keeps — and to take the
+more capable model whenever the call is close, because a wrong result is re-done
+at full price and the tokens saved on a close call buy nothing.
+
+Note what that does *not* license. A cheaper subagent is only cheaper if the
+session does not then read the same material itself. That question used to live
+only in the skill body, which no worker ever sees — a session is handed the
+handoff and the contract and nothing else — so the contract now carries it too,
+naming the reviews outright.
+
+The reviews are the case this keeps catching. On 2026-08-16 the three repo-a
+sessions that handed `quick-review` and `security-review` to subagents cost
+$51.30 and finished with one commit still marked unfinished. The last of them
+spawned eight review subagents that read 13,383,442 tokens against the session's
+own 11,782,397, and it hit the usage limit before it could commit. Over the same
+day repo-b ran both of those reviews inline in every session, spawned no
+subagent at all, cost $56.25 across eight iterations, and ended `DONE`. The
+subagents were not what bought repo-a its reviews — repo-b got the same ones
+without them. Model choice decides what a delegation costs, not whether it was
+worth making.
+
+The arithmetic underneath that is worth keeping, because the per-turn intuition
+points the wrong way. A subagent turn really is cheaper: 73,535 tokens against
+the parent's 100,704 in that session, since it opens near 21,400 rather than
+carrying everything the parent has read. What overturns it is the climb. Those
+eight subagents opened between 21,084 and 22,430 and had to reach between 52,231
+and 176,573 before they could say anything, taking 7 to 27 turns each to get
+within a fifth of their peak. Of the 13,383,442 they read, 7,103,053 went on the
+climb and 6,280,389 on the review, and the parent spent 4,149,263 more waiting.
+Delegation therefore pays only where the subagent's climb stands in for one the
+parent would otherwise have made and then does not make anyway — which a review
+of the parent's own diff never is, because the parent's climb there is zero.
+
+Fitting those eight gives a subagent start of 21,735 and growth of 3,981 a turn,
+against 2,108 a turn for a session working on its own, measured over three
+sessions. Both were fitted from subagents re-reading a diff the parent already
+held, so what follows bounds duplicated reading and not first reading: material
+neither has opened, and the parent never will, is read once either way, and
+reading it inline leaves it in the parent's context to be re-sent every turn
+afterwards. Running the two curves against each other puts the crossover above
+about 100,000 of parent context — below that no job is large enough for a
+subagent to win, because its turns cost more than the parent's outright. Above
+roughly 130,000 it can win. The 170,000 handoff line leaves 40,000 tokens of a
+session's life above the crossover, and the curves were fitted at that same
+ceiling, so the table below covers the whole range rather than extrapolating
+past it. For a job needing the stated number of turns once the reading is done:
+
+```
+                        the session's context when it decides
+  work turns        60k     100k     130k     150k     170k
+       5          here     here     here     here     here
+      10          here     here     here     here     agent
+      15          here     here     here     agent    agent
+      20          here     here     agent    agent    agent
+      30          here     here     agent    agent    agent
+      40          here     here     here     agent    agent
+      60          here     here     here     agent    agent
+```
+
+
+Read the last column as the end of what was measured rather than the end of
+the range. The reason for leaving a job to the next session is
+unchanged: both pay a climb of roughly fourteen
+turns, but the fresh session keeps what it builds and spends the rest of its life
+in it, where the subagent discards its context the moment it answers. That is a
+reason not to delegate and not a licence to hand off early — the contract still
+sends the session on until the how-full check says otherwise, because stopping at
+130,000 costs the next one about 104,000 tokens of re-reading. Delegation is left
+with one dependable case: material the session will never open itself.
+
+## Waiting costs turns, and a turn costs the whole context
+
+A session that waits by looking repeatedly pays a full turn per look. Measured in
+one repo-a session: 8 calls of `sleep 300`, 9 agent-list polls, and 15 turns
+whose entire output was a variant of `Waiting.` — 40 turns and 4,149,263 tokens,
+35% of everything the session read, with single waiting turns costing as much as
+156,555. repo-b waited on long runs in the same period but blocked once per
+wait with a ten-minute timeout, spending 7 turns across a whole session and 0 in
+two others. The contract now tells sessions to block rather than look again.
+
+## Starting one
+
+Do the first iteration by hand, always. It is the cheapest possible check
+that the handoff is good enough to work from cold.
+
+```bash
+cd ~/projects/your-repo
+# Write HANDOFF.md — use the clear-task skill at the end of a normal session.
+claude -p "$(cat HANDOFF.md)" --output-format json | tee /tmp/first.json
+```
+
+Read the result. Did it commit? Did it rewrite the handoff? If yes to both,
+the loop has something to stand on:
+
+```bash
+LOOP=~/.claude/skills/session-loop/scripts/run-loop.sh
+
+"$LOOP" ~/projects/your-repo --dry-run                 # show the command, run nothing
+"$LOOP" ~/projects/your-repo
+```
+
+There is no count to set — the run bounds itself. It ends when a session marks
+the work `DONE`, hands off blocked, commits nothing because the work has run out,
+does not finish, or fails. The hand-run above is the cheap check before you leave it alone; once a
+few have landed cleanly, you can trust it to stop itself.
+
+## Reading what it did
+
+```bash
+BUDGET=~/.claude/skills/session-loop/scripts/session_budget.py
+
+git -C ~/projects/your-repo log --oneline -10
+python3 "$BUDGET" ~/projects/your-repo --since 2026-08-09
+ls ~/.claude/session-loop/your-repo/                   # one JSON summary per run
+```
+
+Three columns are worth checking after every run.
+
+`ctx_end` is where each session actually stopped, and it is the one that says
+whether the mechanism is working. It should land near the threshold. Well
+under it means sessions are stopping early and paying the re-orientation cost
+more often than they need to. Well over it means they are not checking.
+
+`ctx_start` across iterations. Flat is healthy. Climbing means the handoff is
+inflating, and each session is starting further up the curve than the last.
+
+A row marked `<- cut off by the usage limit` ended because the limit hit, not
+because the session decided it was full. Its `ctx_end` is where it happened to
+be standing, not a handoff point, and the work it was mid-way through is
+unfinished.
+
+`fanout` is what the subagents read as a multiple of what the session read.
+Should be `0.00x` for build work. Anything above zero means a session
+delegated, and the question from the skill body applies: did the parent then
+read the same material anyway?
+
+## What `--waste` groups by
+
+`--waste` groups the run into rounds — the stretch between one usage-limit
+cutoff and the next, which is the unit a run is actually lived in — and says
+what each round's tokens were spent reading. The floor is the system prompt,
+tool schemas and skill listing every turn re-reads before it reaches anything
+about the work; it is measured from the round's own sessions rather than held
+as a constant, by fitting opening context against handoff length. The reviewer
+is counted here and in `--value`, which is a fifth to a quarter of a round.
+
+The last line of a round is the one to read first: a session the limit cut off
+before it could commit read everything on that line for nothing.
+
+## What the session-shaping numbers were measured on
+
+### Why the self-check has a floor
+
+Not below about 100,000 context, though. Asking is itself a full-context turn,
+and down there the answer cannot be anything but keep going. Measured on
+2026-08-16, repo-a sessions ran the check six times each — one at 43,254
+context — where repo-b ran it three or four times starting at 110,714. No check
+below 102,349 in any of those sessions returned `hand off`, and the six checks
+cost between 550,055 and 756,225 tokens a session, up to 11% of what the session
+
+### Why asking only after a commit fails
+
+Asking only after a commit is what let sessions sail past the line. Measured
+across four repo-a sessions, the first commit landed at 182,032, 268,636 and
+271,695 context, so the only checkpoint on offer could not fire until the
+session was up to 100,000 tokens past 170,000 — and what it printed then was
+correct and useless. The point just before the reviews is the one that pays:
+review turns cost the most where the context is fullest, and they read the diff
+
+### What polling instead of blocking cost
+
+because both re-send the whole context. On 2026-08-16 repo-a's last session
+spent 40 turns and 4,149,263 tokens on `sleep 300`, repeated agent polling, and
+15 turns whose entire output was the word `Waiting.` — 35% of everything that
+session read, at up to 156,555 tokens for one of them. repo-b waited on long
+runs too, but blocked once per wait with a single call and a ten-minute timeout,
+
+### Why handing the reviews to a subagent does not pay
+
+**The reviews are the case this keeps catching.** A session that hands
+`quick-review` and `security-review` to subagents still reads every finding and
+applies it, so the diff lands in its context either way. Handing them off has
+measured as costing more and finishing less. The loop contract names the reviews
+outright, because a worker session is handed the handoff and the contract and
+never sees this file.
+
+### Why three failures hand off
+
+The ceiling exists because a session runs out of room. This trigger exists
+because a session runs out of accuracy, which happens earlier and leaves the
+context number looking fine.
+
+Two findings drive it. Models make more mistakes specifically when their own
+prior errors are sitting in the context, so the attempts already in the
+transcript are not neutral history — they are material the next attempt
+conditions on. And a model revising its own work without an external signal
+produces worse reasoning than it started with, so a session that has failed the
+same check twice and is now reasoning about why is in the regime where more
+turns subtract.
+
+Put together: by the fourth attempt on one command, a fresh session's first
+attempt is the better bet, whatever the token count says. The 104,000 tokens the
+next session pays to read its way back are cheap against a session grinding a
+check it has already failed three times.
+
+Counting one command rather than failures in general is what keeps the trigger
+from firing on ordinary red-green work, where failing tests are the point. It
+fires on a session stuck on one thing, not on a session doing TDD.
+
+## Why step 2 writes the launch prompt before the clear
+
+Measured on S11 (2026-10-15): at 11:48:40 the session running step 2 wrote only
+`HANDOFF.md` and told the operator "Type `/clear`, then invoke `/session-loop`
+again". The fresh session asked the launch question at 11:56:30, and the loop
+launched at 12:08:56, twenty minutes after the handoff was written. The
+operator's words: "A normal clear-task writes the special file and autoclears.
+A clear-task that writes a handoff and directs me to clear and then start a
+session-loop with "go" does not."
+
+The auto-clear mod (`~/.claude/skills/auto-clear/hooks/register.ts`) runs on
+`turn.complete`. Where `pending-handoff.md` is not empty, it empties the file,
+runs `/clear`, and submits the text with `$.prompt.submit`. A prompt submitted
+that way and naming a skill to load got that skill loaded: on 2026-10-15 the
+mod submitted a handoff ending "Load these skills first: retro-task", and the
+fresh session's first tool call loaded retro-task. Nobody has tested whether a
+`/session-loop` typed into such a prompt runs as a slash command.
