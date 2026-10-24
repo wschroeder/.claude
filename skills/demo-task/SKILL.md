@@ -673,6 +673,12 @@ matches", the session reported the deploy and handed to `retro-task` in the
 same message, and they replied, "I expected to look at the deployed demo,
 and suddenly we're doing retro."
 
+**If the operator's acceptance asks a question or asks for something next,
+then answer the question in prose and do what they asked.** The retro
+follows that work. Do not answer them with a question about which to do
+first. "Do not ask whether to run it" still holds when they ask for nothing
+else. Why: [references/measurements.md](references/measurements.md).
+
 ## What this template does NOT do
 
 - Does not decide, size, or pull the next slice. That is `spec-task`, once

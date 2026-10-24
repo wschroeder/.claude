@@ -138,3 +138,14 @@ context and reached the handoff point at step 14. The next session walked all
 fifteen steps again and fit them only by posting at 150,820 of 170,000, past
 the budget's "finish the step you are on". Nothing had been committed between
 the two walks.
+
+## Why an acceptance that asks something is answered first
+
+Measured (2026-10-23): the operator accepted a demo with "Accepted. Ready to
+move to a PR? It was just a one line change, right?" The session's reasoning
+already held the answer, six files and 38 added lines, but its only reply was
+a question asking whether to open the pull request or run the retro first.
+Section 7's "hand to `retro-task` now… do not ask whether to run it" and the
+operator's request covered the same moment, and the session asked instead of
+choosing. The operator answered the sequencing question by removing the
+version check scripts the change should not have carried.
