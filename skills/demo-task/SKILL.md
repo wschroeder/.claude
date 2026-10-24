@@ -347,7 +347,13 @@ Rules:
   slice's fault. If the default branch does not show it, send the work back
   to build, through `tdd-cycle`, which builds the fix with no card, and start
   again at Section 2 once the fix is committed. Only a fault the default
-  branch also shows may go to the backlog, and the post says so. Section 4's "do not start fixing
+  branch also shows may go to the backlog, and the post says so. A fault you
+  only suspect, or guess is older than this slice, takes the same check:
+  compare with the default branch before you post or hand off, and never
+  leave the suspicion only in a closing message. Measured (2026-10-23): a
+  walk saw one record shown as two rows, wrote "this probably predates" this
+  slice in its last message, and the handoff and the next session dropped it.
+  Section 4's "do not start fixing
   anything" covers what the operator finds, not what you find before they
   see it. Measured: no build session in one run opened the app, and the
   demo's own first drive found two bugs.
@@ -520,6 +526,13 @@ three things worth looking at. Do not ask what they would like to do
 next — deciding what comes after this slice is Planning's job, not this
 stop's. The ask is the last thing in the message, per CLAUDE.md "When you
 need an answer, the ask goes last and says what to do".
+
+**Before the post carries a question from a handoff to the operator, search
+the design documents for its answer.** Where they answer it, quote the line
+and drop the question. Measured (2026-10-24): a demo asked the operator what
+an imported value field holds, and the operator answered "We've already
+decided this." The spec said so, and the session searched it only after the
+reply.
 
 **Where the demo is something to read rather than something to run, send the
 file with `SendUserFile` as well as naming its path.** A page, a report, a
