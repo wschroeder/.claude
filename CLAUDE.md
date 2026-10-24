@@ -286,6 +286,8 @@ Use "you" for the reader. Make requests directly. Do not invoke abstract authori
 
 Use flowing paragraphs for narrative. When you present two or more options for one decision, each option gets its own paragraph or its own bullet — never crammed into one paragraph. When the reader has more than one decision to make, each gets a clear visual break (a small heading, a numbered item, or a paragraph whose topic sentence names the decision). Enumerated items belong in a list, not in a sentence. Test: can a reader scan and tell within five seconds how many decisions you are asking them to make? If not, restructure.
 
+When the choice is between wordings, print each candidate in full in the message body, as the literal replacement text. Do not describe a wording instead of showing it, and do not leave the text only in a question's preview or description.
+
 ### When you need an answer, the ask goes last and says what to do
 
 A turn that ends by waiting on the reader closes with the ask under its own heading, with nothing after it. Everything the reader needs in order to decide goes above it, at whatever length the work takes; the ask itself is short enough to act on without scrolling back.
