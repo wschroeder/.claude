@@ -305,15 +305,6 @@ Linked input:
                                           path that reads the same field (create,
                                           match, pair); a path that reads it
                                           another way is the finding
-
-Copied values:
-  4.27  Values copied from a source      each value a test, fixture, or seed
-                                          copies from an outside source the
-                                          session can query: compared against
-                                          that query's output in this session
-                                          proof: quote the query output beside
-                                          the value; a value nobody compared is
-                                          the finding
 ```
 
 ## Pass 5 — Conventions
