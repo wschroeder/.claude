@@ -92,6 +92,13 @@ While it is on:
 - **Your whole job is to make the change and tell the operator it is ready to
   look at.** A sentence or two: what you changed, and what to look at. Not a
   record, not an evidence table of proof commands you did not run.
+- **Looking is not suspended.** Before you say a change is ready, drive it once
+  in the browser tool the way you will ask the operator to, and say in one line
+  what you saw. Never say a tool will not load unless it returned an error in
+  this turn. Measured (2026-10-24): a session made a rapid fix, wrote "I
+  couldn't load the browser again this turn" without calling it, and handed the
+  check over; the operator answered half an hour later, "That's crazy. You can
+  use a browser. Headless, isolated".
 - **Do not commit.** They have approved nothing yet, and a commit made during
   the mode takes that decision away from them. Measured: a session committed
   mid-tweak and the operator's next turn was "Wait, I wasn't ready for commit!
