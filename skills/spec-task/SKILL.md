@@ -349,6 +349,11 @@ Rules for this section:
 - If a proof command already passes, then the requirement is `built` — mark
   it and keep it out of Section 6. One that fails with "no such test" is the
   expected shape of unbuilt work.
+- **If a requirement concerns a configured value, such as a version, a
+  pinned digest, or a revision hash, then its proof is a one-off command that
+  reads the value**, such as `node --version`. The slice commits no script
+  or test for it, and writes the value into a design document only where
+  that document already names it. See [references/why.md](references/why.md).
 - A command that cannot be run yet says so and says why, per CLAUDE.md
   rule 3. Do not paste an imagined result.
 - **Anything the operator rejected gets its own requirement saying it is

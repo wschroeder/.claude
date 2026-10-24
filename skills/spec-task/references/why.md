@@ -476,3 +476,19 @@ change was the server refusing a Change pages save that no edit can send. The
 spec session wrote the demo card around a save forged from the browser
 console, the workers built it as written, and the operator, working the demo,
 called that step "crazy town" and asked what it was trying to do.
+
+## A configured value is proved by reading it
+
+Rule: a requirement about a configured value is proved by a one-off command
+that reads the value, and the slice commits no script or test for it and adds
+no design-document text about it that was not already there.
+
+Why: "no such test" as the expected shape of unbuilt work led a planning
+session to invent check scripts for a version bump. Measured (2026-10-23): the
+slice raised a runtime version in two places. The spec session wrote two
+version-check scripts as the proof commands and added version lines to two
+spec pages, and the build committed all of it. At the demo the operator asked
+"It was just a one line change, right?", then removed the scripts and the spec
+lines: "If we didn't have version check scripts before, we don't need them
+now. Besides, it does no good to test configuration." and "If the spec didn't
+mention versions before, we shouldn't now."
