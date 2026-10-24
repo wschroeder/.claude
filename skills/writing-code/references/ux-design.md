@@ -13,6 +13,7 @@ widths belongs to `responsive-design`, and this file does not restate it.
 - Build from the app's own pieces
 - Show an example in every input
 - Multi-select with a bulk action
+- Carry only the destination's own parameters
 - Review list
 - Sources
 
@@ -91,6 +92,20 @@ pattern of its own for it yet:
   strong outside source settles it. Measured: on one app's files page the operator
   chose "a filter change clears the selection".
 
+## Carry only the destination's own parameters
+
+Build every link, redirect, and form action from the parameters its destination
+route reads, named one by one. Never copy the incoming query string into a URL
+for another route, or into a sort or paging link on the same page, unless you
+can say why the destination needs each parameter it carries. A copied query
+string carries whatever the previous page sent: a client framework's state, a
+token, a filter, or a dialog's choice. The page it lands on may then act on that
+value or show it, though it never meant to accept it. Parse the parameters you
+keep where the request enters, and hand the view only those. Measured
+(2026-10-24): a list page copied every incoming parameter into its sort and
+paging links, so a previous page's dialog state rode along into every link, and
+the operator asked for the rule.
+
 ## Review list
 
 Check each control against these before you call it done:
@@ -105,6 +120,8 @@ Check each control against these before you call it done:
 - A greyed button uses `aria-disabled="true"`, not `disabled`.
 - The control matches the app's existing control for the same action, and you
   cited the file.
+- Every link, redirect, and form action names the parameters it carries, and
+  none copies the incoming query string.
 
 ## Sources
 

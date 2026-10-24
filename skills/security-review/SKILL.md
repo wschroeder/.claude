@@ -136,6 +136,11 @@ security concerns except where the change interacts with them.
   code included. An unchanged error that now quotes a new kind of value, such
   as a file name that carries a customer's name, is exposure this diff added.
 - PII handling violations
+- Request parameters copied into a link, redirect, or form for another route
+  A copied query string carries whatever the previous page sent, such as a
+  client framework's state, a token, or a filter, into a page that never meant
+  to accept it. Flag any URL built from the whole incoming query rather than
+  from parameters named one by one.
 - API endpoint data leakage
 - Debug information exposure
 
@@ -291,6 +296,7 @@ Injection and code execution
 Data exposure
 - Sensitive data logging: clear. Precedent 1 dropped `foo.py:57`, a logged URL.
 - PII handling: n/a
+- Copied request parameters: n/a
 - API data leakage: n/a
 - Debug information: n/a
 ```
