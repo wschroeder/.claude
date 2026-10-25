@@ -59,8 +59,17 @@ commits by the claim each makes, under `git-commit`, "How many commits".
 The history tells the story feature by feature, not in the order the work
 happened: reorder freely, and let the migrations fix the order only where
 they must. Fold every fix commit into the commit it fixes, and fold each
-group into one commit with a message authored through `git-commit`. A
-branch built one card at a time arrives as one commit per card. While
+group into one commit with a message authored through `git-commit`.
+When a reordered commit conflicts, resolve the conflict in the commit that
+replays it, as in the rebase above. Never split a claim's group, or move a
+commit into another claim's group, to get past a conflict. If a migration
+only patches another migration on this branch and no shared database has run
+either one, fold it into the migration it patches and renumber the versions
+after it. If the fold ends with more commits than the plan had groups, name
+each extra commit at the push gate and say which claim it splits. Measured
+(2026-10-24): a fold planned eleven groups, aborted at each of four conflicts
+instead of resolving them, and shipped fifteen commits with three claims
+split in two. A branch built one card at a time arrives as one commit per card. While
 `git branch -r --contains HEAD` prints nothing, the fold needs nobody's
 words. Measured: a push gate listed 20 commits and raised nothing, and the
 operator had to ask; the fold then made two.
