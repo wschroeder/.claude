@@ -189,7 +189,10 @@ Concurrency / race shapes:
                                           transaction boundary is not proof
                                           two paths taking the same two locks: quote
                                           each path's order side by side, with the row
-                                          locks UPDATE/DELETE take and FK key-shares;
+                                          locks UPDATE/DELETE take, FK key-shares, and
+                                          the table lock each needs (FOR UPDATE takes
+                                          ROW SHARE, the first write ROW EXCLUSIVE);
+                                          if either path holds a table lock, run the pair;
                                           after a path deletes, combines, or leaves
                                           duplicates of rows, run every other writer
                                           once more afterwards and show it holds
@@ -447,7 +450,8 @@ Downstream systems, caches, cron jobs, deploy coordination. **Higher classificat
                                           So does a new column new code reads:
                                           run the reader on an old row's value
   8.3   Rollback after user edits         run each down migration after the edits
-                                          the feature allows, then up again
+                                          the feature allows, then up again, then the
+                                          previous release's writers on what is left
   8.4   Shared destinations               each name the diff writes where other
                                           runs' output also lands: two runs with
                                           overlapping input never make one name

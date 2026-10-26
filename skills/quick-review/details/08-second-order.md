@@ -40,6 +40,8 @@ In scope whenever the diff adds a down migration, and especially a down migratio
 
 Method: on a scratch database, run the up migration and then each supported edit through the app's own functions or routes. Then run the down migration, and then the up migration again. Show what the down left behind and whether the up succeeded. Reading the down file is not a disposition for this angle: the miss happens only after the edits.
 
+A rollback also brings back the previous release's code, so run that code as well as the down migration. On a scratch database that holds what the feature left behind, run the previous release's writers, at least every import or sync that writes the tables the feature changed, and show what they write. Measured (2026-10-26): a feature let a person merge an imported record into one the nightly sync created, and the new importer skipped the merged record by reading a table the feature added. Our review ran the down and up migrations against the new code and wrote "Pass 8: 8.3 DEMONSTRATED above". It never ran the previous release's import, which does not know that table and creates the merged record again as a second record. The outside reviewer found it.
+
 A finding here is usually a Flag or a Note, not a Fix. Whether a rollback has to survive user edits is a decision for the person who owns the deploy, and the cure (an immutable seed marker, say) changes the schema. Say what the rollback leaves behind so the PR body or the runbook can record it.
 
 ## 8.4 Shared destinations
