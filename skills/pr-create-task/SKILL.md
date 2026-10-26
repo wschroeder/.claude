@@ -1,6 +1,6 @@
 ---
 name: pr-create-task
-description: Opens a draft pull request end to end — readiness gate that rebases the branch on the latest default branch, folds the stack to one commit per feature, and runs quick-review and security-review over the whole branch until a round finds nothing, a body drawn from the commit messages and authored to content discipline (what IS, the why, and the operational facts read from the non-test diff; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when preparing a branch for a pull request, creating or opening one, writing a PR body or description, or running `gh pr create` — "PR prep", "get this ready for a PR", "make the PR", "open a PR", "create the PR".
+description: Opens a draft pull request end to end — readiness gate that rebases the branch on the latest default branch, folds the stack to one commit per feature, and runs quick-review and security-review over the whole branch, where any finding stops PR prep and goes to `retro-task` and then `spec-task`; a body drawn from the commit messages and authored to content discipline (what IS, the why, and the operational facts read from the non-test diff; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when preparing a branch for a pull request, creating or opening one, writing a PR body or description, or running `gh pr create` — "PR prep", "get this ready for a PR", "make the PR", "open a PR", "create the PR".
 ---
 
 # pr-create-task — author and open a draft pull request
@@ -74,20 +74,18 @@ split in two. A branch built one card at a time arrives as one commit per card. 
 words. Measured: a push gate listed 20 commits and raised nothing, and the
 operator had to ask; the fold then made two.
 
-**Then review the whole branch until a round finds nothing.** Run
-`quick-review` and then `security-review` over `origin/<base>..HEAD`. Fix
-each finding in the commit that owns its line: find the owner with
-`git blame -s -L <n>,<n> HEAD -- <file>`, commit with
-`git commit --fixup=<sha>`, and fold with
-`GIT_EDITOR=true git rebase --autosquash origin/<base>`. Make a change in
-behaviour test-first through `tdd-cycle`. Rerun lint, the type check, and
-the tests after each fold. Any fix starts another round of both reviews.
+**Then review the whole branch.** Run `quick-review` and then
+`security-review` over `origin/<base>..HEAD`, and record the tip they read
+(`git rev-parse HEAD`). Fix nothing here. A finding means the work is not
+finished, whatever its size, so it ends PR prep: invoke `retro-task` in the
+same turn with every finding and the reviewed tip. `retro-task` asks why the
+build's own reviews let each one through and hands the findings to
+`spec-task`, and the fixes come back through build and demo like any other
+work. PR prep runs again only when the operator asks for it.
 
-A later round re-walks every pass on the code that changed since the last
-round, and reuses the earlier round's named artifacts only for code that has
-not changed. Find the tip the last round reviewed in `git reflog` (the
-`rebase (finish)` entry before that round's `fixup!` commits), and run
-`git diff <that tip> HEAD` to bound what to re-walk. Measured: on one
+A later run re-walks every pass on the code that changed since the tip the
+last run reviewed, `git diff <that tip> HEAD`, and reuses the earlier run's
+named artifacts only for code that has not changed. Measured: on one
 branch, a session read the whole 2,486-line diff again for its third round and
 climbed past the 170,000 handoff ceiling. The next bounded it this way to 8
 files.
@@ -97,8 +95,9 @@ files.
   on the latest base, every test runner is green at the rebased head, the
   stack is one commit per claim,
   and the last review round found nothing.
-- **NO-GO** if junk is staged, the stack isn't the shape you mean to ship,
-  or a review finding is still open — fix that first, here.
+- **NO-GO** if junk is staged or the stack isn't the shape you mean to
+  ship — fix that first, here. A review finding is not a NO-GO to fix here:
+  it ends PR prep, as above.
 
 ## Commit and Operational Scan
 

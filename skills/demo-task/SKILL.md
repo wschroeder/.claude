@@ -515,7 +515,7 @@ record or puts new data in place. It never skips the walk.
 four phases in order, this stop's capitalized:
 
 ```
-plan -> build -> DEMO -> retro
+spec -> build -> DEMO -> retro
 ```
 
 **Ask for one thing: that the operator work the demo themselves and say what

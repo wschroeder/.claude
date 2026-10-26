@@ -20,6 +20,8 @@ Asking for "slides", "a report", "a page", "a deck", or "a write-up" is a reques
 
 **Writing to a remote store or spending money needs my approval too.** A write to Google Drive, a container registry, a cloud database, or a bucket moves content off this machine the way a publish does. A call that costs money, such as an OpenAI request or a BigQuery query, spends it on my account. Ask before each one. I may give a standing approval scoped by a condition, such as "OpenAI calls are approved for this harness run". That approval holds while its condition holds and ends when the condition does.
 
+**Never raise, propose, or schedule a pull request, a push, or a PR update.** The work cycle runs spec, build, demo, and retro, and it ends at the retro. I choose how and when to ship.
+
 ## Evidence Format (HARD CONSTRAINTS)
 
 These override conciseness defaults, skill workflows, and output format preferences, with one exception: a skill's required output block, such as `quick-review`'s, still prints in full after the Evidence block.

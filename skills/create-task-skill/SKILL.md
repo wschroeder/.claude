@@ -232,7 +232,7 @@ iteration discipline established when this pattern was built:
 - Does not duplicate content from CLAUDE.md; references it.
 - Does not decide whether the new skill hands off to another one.
   Some do — `pr-feedback-task` hands its accepted findings to
-  `pr-respond-task` behind a gate — but a hand-off is designed
+  `retro-task` — but a hand-off is designed
   deliberately for that skill, never inherited from this template.
 - Does not build the router, echo-back gate, or any harness-level
   forcing function. Those become reasonable only after enough

@@ -1,6 +1,6 @@
 ---
 name: retro-task
-description: Closes the process cycle after a slice ships — reads the run's own transcripts to find what each of last round's changes actually did, hears the operator's experience before interpreting it, answers their feedback against transcript evidence, then proposes the next batch of skill and CLAUDE.md changes as named options and stops for signoff. Inspects the process, not the product; the demo and the product's feedback belong to `demo-task`. Investigate-only until signoff, and every accepted change ends as a commit rather than a note. Use only after `demo-task` has closed a slice and taken its feedback: to retro that slice's run, review how the process went on it, or read its transcripts to find why a rule did or did not fire — "retro this run", "retro the slice". An informal conversation about what should change in a skill or a CLAUDE.md is `systematize`, not this.
+description: Closes the process cycle after a slice ships — reads the run's own transcripts to find what each of last round's changes actually did, hears the operator's experience before interpreting it, answers their feedback against transcript evidence, then proposes the next batch of skill and CLAUDE.md changes as named options and stops for signoff. Inspects the process, not the product; the demo and the product's feedback belong to `demo-task`. Investigate-only until signoff, and every accepted change ends as a commit rather than a note. Use only after a demo has taken its feedback: after `demo-task` has closed a slice, after an outside review of the branch (a pull request review counts as a demo to outside reviewers, and `pr-feedback-task` hands its legitimate findings here), or after the whole-branch review in `pr-create-task` found something. Use it to retro that run, review how the process went on it, or read its transcripts to find why a rule did or did not fire — "retro this run", "retro the slice". An informal conversation about what should change in a skill or a CLAUDE.md is `systematize`, not this.
 ---
 
 # retro-task — the process cycle closes, the next one opens
@@ -12,6 +12,15 @@ recorded — say which commit you measured from, and where you read it.
 This template inspects the process. What was built and whether it works
 belong to `demo-task`, deciding what comes next belongs to `spec-task`, and
 a finding about the product goes to the design document rather than here.
+
+A demo is any showing of the work to someone who can judge it. Besides
+`demo-task`'s demo to the operator, two others start this template: a pull
+request review, whose comments are feedback from outside reviewers handed
+here by `pr-feedback-task`, and the whole-branch review in `pr-create-task`,
+handed here with the tip it read. For either, the run is the work since the
+last retro, and each legitimate finding is that demo's feedback: Section 6
+asks why our own reviews let it through, and Section 8 hands the finding
+itself to `spec-task`.
 
 The deliverable is the change batch in Section 7. Sections 1 through 6 read and
 write nothing. Order is enforced because each section is built from the one
@@ -113,7 +122,9 @@ conclusion yet, and nothing below it is written until they have answered.
 **Open with what they already said.** Quote the operator's own turns from the
 supervising session's transcript — their typed messages and their
 AskUserQuestion answers, each with its timestamp — as their account taken in
-the moment. Then say what Section 3 found, in at most a screen, and ask only
+the moment. Where an outside review started this retro, quote each legitimate
+finding beside them as the reviewers' feedback. Then say what Section 3 found,
+in at most a screen, and ask only
 what is in neither: what they saw that their own turns and the transcripts do
 not show. That is the whole ask. Do not propose a change here, and do not ask
 them to choose between changes whose case they have not heard.
@@ -131,7 +142,7 @@ evidence, and theirs is heard first because yours would otherwise frame it.
 four phases in order, this stop's capitalized:
 
 ```
-plan -> build -> demo -> RETRO
+spec -> build -> demo -> RETRO
 ```
 
 **Unattended, this stop ends the run.** Inside a `session-loop` run nobody is
@@ -169,6 +180,20 @@ far from the output it governs does not reach that output. And where two
 instructions cover the same moment, the nearer one wins unless precedence is
 stated, however much more correct the other is.
 
+Where a review found something that the build's own reviews let through, give
+each such finding one more record:
+
+    review finding: <one line>
+    angle:          <the angle in `quick-review` or `security-review` that
+                     should have caught it, its line quoted | none covers it>
+    our review:     <what our review wrote at that angle, quoted from the
+                     transcript with its session id: a dropped problem, an
+                     N/A, or a proof too weak to show the bug>
+
+Section 7 proposes the smallest change to that skill that would have caught
+it: a sharper proof, a closed loophole, or a new angle with the finding as its
+worked example.
+
 ## 7. Stop — the change batch, then signoff
 
 A separate approval from Section 4. Lead with what changes and why, one
@@ -192,7 +217,7 @@ not hand the operator a blank space to invent a third in.
 four phases in order, this stop's capitalized:
 
 ```
-plan -> build -> demo -> RETRO
+spec -> build -> demo -> RETRO
 ```
 
 Then ask, per CLAUDE.md, "When you need an answer, the ask goes last and says
@@ -231,7 +256,9 @@ this phase down as finished.
 
 Otherwise, hand to `spec-task`, in the same turn. `spec-task` decides and
 specifies whatever slice comes next — this template does not pull one for
-it. The process cycle is closed, and the next one starts at planning.
+it. Where a review's findings started this retro, pass every one of them
+with its evidence, because they are the work `spec-task` specifies next. The
+process cycle is closed, and the next one starts at the spec.
 
 ## Notes on what this template does NOT do
 

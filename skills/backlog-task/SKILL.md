@@ -102,7 +102,7 @@ Where `bd init` has to run first, say so in one line.
 four phases in order, this stop's capitalized:
 
 ```
-PLAN -> build -> demo -> retro
+SPEC -> build -> demo -> retro
 ```
 
 Then ask, per CLAUDE.md "When you need an answer, the ask goes last and

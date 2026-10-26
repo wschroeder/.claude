@@ -1,17 +1,14 @@
 ---
 name: pr-feedback-task
-description: Gathers every source of feedback on a pull request and works out which of it is right — readiness gate, feedback inventory, legitimacy evaluation, recommended actions — then hands the accepted findings to `pr-respond-task` when nothing is left for the operator to decide, else stops for approval. Use when triaging or working through PR review comments, checking what reviewers asked for, or deciding which feedback to act on — "what's blocking the PR", "go through the PR comments", "address the review".
+description: Gathers every source of feedback on a pull request and works out which of it is right — readiness gate, feedback inventory, legitimacy evaluation, recommended actions — then treats the review as a demo given to outside reviewers: any legitimate finding ends the PR work and goes to `retro-task`, which hands it on to `spec-task`. Fixes nothing itself. Use when triaging or working through PR review comments, checking what reviewers asked for, or deciding which feedback to act on — "what's blocking the PR", "go through the PR comments", "address the review".
 ---
 
 # pr-feedback-task — check readiness, evaluate legitimacy
 
 For the PR feedback task in $ARGUMENTS (or the current branch's PR if
 none specified), respond with the following sections in order. Produce
-the evaluation through Recommended Actions, then reach the hand-off gate:
-if nothing is left for the operator to decide, auto-launch pr-respond-task
-on the Accepted findings; otherwise stop at the recommendation step and
-wait for explicit approval. The hand-off gate (final section) defines
-"nothing to decide."
+the evaluation through Recommended Actions, then reach the hand-off gate
+(final section), which sends any legitimate finding back through the cycle.
 
 The output discipline is structural: each section must contain actual
 tool output, not paraphrased summaries. A missing section, a hollow
@@ -297,41 +294,31 @@ Ranked list — what to address, in order of priority:
 This template makes no code changes itself — the evaluation is read-only.
 What happens next is decided by the hand-off gate.
 
-## Hand-off gate — auto-launch or ask
+## Hand-off gate — back through the cycle
 
-If the evaluation leaves a genuine question for the operator, STOP here and
-put that question to them. If the only thing left would be a rhetorical
-"how's this look?" — every disposition is high-confidence and nothing needs
-the operator's judgment — automatically invoke `pr-respond-task` on the
-Accepted findings instead of waiting. Its own autonomy gate then governs
-whether the reply/amend/push tail runs without a further stop.
+A PR review is a demo given to people outside the team, and their comments
+are its feedback. A legitimate finding means the work is not finished, so
+the PR work ends here, whatever the finding's size: a comment, a name, or a
+lint fix goes back as surely as a bug.
 
-"No question for the operator" requires ALL of these — if any fails, STOP
-and ask the specific question:
+If the evaluation leaves a genuine question for the operator — an uncertain
+disposition, UNPROBED, a preference, a fix with more than one viable
+approach, a deferral — STOP and ask that question first.
 
-- Every disposition is high-confidence: each Accepted has a clear in-scope
-  fix; each Rejected is a confident bot-rebuttal backed by a traced
-  mechanism or probe — not a guess, not UNPROBED, not "I'm unsure."
-- No finding needs a preference or design call — no borderline Nitpick
-  offered as optional, no fix with more than one viable approach.
-- No finding is deferred to a separate ticket — a deferral is a judgment
-  for the operator to confirm.
-- No new or unrelated issue surfaced that the operator would want raised
-  separately.
+Then, if any finding is Accepted or a Nitpick worth taking, invoke
+`retro-task` on them in the same turn, passing the inventory and every
+disposition with its evidence. `retro-task` asks why our own reviews let
+each one through, and hands the findings to `spec-task`, which turns them
+into the next slice. Say nothing about updating the PR.
 
-A confident Rejected disposition is pushback to a *bot*, not to you, so it
-does not by itself block the auto-launch — pr-respond-task posts the
-rebuttal. Anything that is genuinely a question for *you* — an uncertain
-call, a preference, a deferral — does block it.
+If no finding is legitimate, report that and stop. The rebuttal replies
+wait for `pr-respond-task`, which runs only when the operator says to
+update the PR.
 
 ## Notes on what this template does NOT do
 
-- Does not push, commit, or amend itself — those happen only in the
-  `pr-respond-task` it may hand off to, governed by that skill's gate.
-- Does not post replies itself — reply posting happens in
-  `pr-respond-task` after fixes land.
+- Does not fix, commit, amend, push, or post a reply.
+- Does not raise, propose, or schedule an update to the PR. The operator
+  chooses when to ship.
 - Does not assume CI green = ready. Per Linear workflow, threads are
   the actionable signal; test status does not gate the evaluation.
-- Chains to `pr-respond-task` only when the hand-off gate finds no
-  operator question; otherwise each subsequent step needs its own
-  invocation.

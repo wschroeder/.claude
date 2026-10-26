@@ -234,7 +234,7 @@ the report where nothing needs deciding — the four phases in order, with the
 one the loop stopped in capitalized:
 
 ```
-plan -> BUILD -> demo -> retro
+spec -> BUILD -> demo -> retro
 ```
 
 ### 8. Then measure yourself, before starting anything else

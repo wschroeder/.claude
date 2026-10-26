@@ -216,7 +216,7 @@ however close the ceiling is.
 four phases in order, this stop's capitalized.
 
 ```
-PLAN -> build -> demo -> retro
+SPEC -> build -> demo -> retro
 ```
 
 Proceed with the slice above, or name a different one?
@@ -277,7 +277,7 @@ out of scope and there is nothing here for them to do.
 above them — the four phases in order, this stop's capitalized:
 
 ```
-PLAN -> build -> demo -> retro
+SPEC -> build -> demo -> retro
 ```
 
 ## 4. Requirements in EARS, each with the command that proves it
