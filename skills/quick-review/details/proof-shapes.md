@@ -19,6 +19,9 @@ test coverage          assertion the diff adds, from the card note, the handoff,
                        - swap an argument for its sibling (otherField for
                          field), and give the test fixture two different
                          values so the swap shows
+                       - serve a cached value without its freshness check,
+                         and drop each line that evicts or invalidates an
+                         entry
                        - make a value built from several inputs take a
                          property (sureness, source, status) from the first
                        - drop the first or the last element of a span

@@ -58,7 +58,7 @@ Why: [details/why-the-gates.md](details/why-the-gates.md), "Why a changed rule p
 A disposition is an **observation, not a conclusion**. Why that is the rule, and what a
 narrated absence costs, is in [details/why-the-gates.md](details/why-the-gates.md).
 
-Every in-scope angle resolves to exactly one of three states. There is no fourth: "carried" from an earlier session is not a disposition, so a whole-branch review checks each angle again against HEAD and cites an earlier session's artifact only when it names that artifact and shows the code it covered has not changed since.
+Every in-scope angle resolves to exactly one of three states. There is no fourth: "carried" from an earlier session is not a disposition, so a whole-branch review checks each angle again against HEAD and cites an earlier session's artifact only when it names that artifact and shows the code it covered has not changed since. The artifact covers only the functions it names: a file unchanged since an earlier round is not covered where that round's mutations never touched a function in it.
 
 - **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: the mutation receipt `tdd-cycle` 4a left, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact.
 - **N/A** — the angle is not live in this diff. One line of why (`no SQL here`, `no auth surface touched`).
@@ -470,8 +470,9 @@ The diff is not the only place that talks about the diff's symbols. Mechanical g
   9.6   assert_called / assert_received  message-pattern references
   9.7   Telemetry handlers               attach/detach for touched events
   9.8   Comment-thread stitches          describe / test / @moduletag strings
-  9.9   Whole-repo copies                every changed constant, list, enum, or
-                                          text a user reads: grep its name and one
+  9.9   Whole-repo copies                every changed constant, list, enum, text
+                                          a user reads, or count a document
+                                          states: grep its name and one
                                           member from the repository root, all
                                           files, every language
 ```
