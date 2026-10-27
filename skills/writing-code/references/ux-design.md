@@ -3,7 +3,8 @@
 Conventions for building or changing a control a person uses: a button, a form,
 a dialog, a list row's actions, an inline edit. Consistency is the first and main
 point here, and everything else is subordinate to it. Behaviour at different
-widths belongs to `responsive-design`, and this file does not restate it.
+widths belongs to `responsive-design`, and this file does not restate it, apart
+from where a page's own contents list goes on a phone.
 
 ## Contents
 
@@ -14,6 +15,7 @@ widths belongs to `responsive-design`, and this file does not restate it.
 - Show an example in every input
 - Multi-select with a bulk action
 - Carry only the destination's own parameters
+- Show a page's contents list above its text on a phone
 - Review list
 - Sources
 
@@ -106,6 +108,32 @@ keep where the request enters, and hand the view only those. Measured
 paging links, so a previous page's dialog state rode along into every link, and
 the operator asked for the rule.
 
+## Show a page's contents list above its text on a phone
+
+Where a long page carries links to its own sections, and the app has no pattern
+of its own for them yet, then at phone width:
+
+- Put the links in a plain list at the top of the page, one link per line, under
+  a short "On this page" heading. Keep the list visible: never fold it behind a
+  tap, never stick it to the top of the screen, and never replace it with
+  accordion sections.
+- Keep the page title's introduction to one short line, so the list starts on
+  the first screen.
+- Keep the list short enough that the first section starts on the first screen
+  too. If a page outgrows that, merge or cut sections before you fold the list.
+- On a wide screen, the same list can sit in a column beside the text.
+
+This overrides `responsive-design`'s default of collapsing a nav that holds more
+than about four controls. That default is meant for filters and toolbars.
+
+People use links they can see on a phone more often than links behind a tap,
+and they miss a folded contents bar stuck to the top of the screen. No
+peer-reviewed study compares these options at phone width, so the support comes
+from practitioner usability research and counts as moderate. Measured
+(2026-10-26): an operator looked at one real page at 390 pixels wide with its
+contents shown four ways (a plain list, wrapping chips, a folded bar, and
+accordion sections) and chose the plain list as the rule for the whole app.
+
 ## Review list
 
 Check each control against these before you call it done:
@@ -122,6 +150,8 @@ Check each control against these before you call it done:
   cited the file.
 - Every link, redirect, and form action names the parameters it carries, and
   none copies the incoming query string.
+- At phone width, a page's contents list sits visible above its text, one link
+  per line, neither folded nor sticky.
 
 ## Sources
 
@@ -160,3 +190,20 @@ Check each control against these before you call it done:
 - GOV.UK Design System, [Button](https://design-system.service.gov.uk/components/button/):
   "Disabled buttons have poor contrast and can confuse some users, so avoid them
   if possible."
+- Nielsen Norman Group, [Tables of Contents: The Ultimate Guide to Design](https://www.nngroup.com/articles/table-of-contents/)
+  (2023): on small screens, "The simplest solution is to move the table of
+  contents to the main body of the article", with the warning that "even a
+  short, 1-paragraph introduction to the page can push the table of contents
+  below the fold". Of a collapsed contents bar stuck to the top of the page:
+  "In testing, many users failed to notice the sticky table of contents in these
+  implementations." The article gives no test method or sample size.
+- Nielsen Norman Group, [Hamburger Menus and Hidden Navigation Hurt UX Metrics](https://www.nngroup.com/articles/hamburger-menus/)
+  (2016): 179 participants on 6 sites. On phones, people used hidden navigation
+  in 57% of cases and partly visible navigation in 86%, and were "15% slower
+  when the navigation was hidden". It tested site menus, so it applies to a
+  contents list only by inference.
+- Nielsen Norman Group, [Accordions on Mobile](https://www.nngroup.com/articles/mobile-accordions/)
+  (2015): a page should carry "an in-page table of contents (or mini-IA) that is
+  salient and visible right away, when the user first lands on the page".
+  Expanding an accordion can make "the users think that they navigated to a new
+  page."
