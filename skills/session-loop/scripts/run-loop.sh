@@ -233,6 +233,14 @@ cycle you stopped and what the piece of work still owes — the test that is
 written and failing, the reviews not yet run, what the probe showed. The next
 session amends that commit or builds on it.
 
+If that unfinished commit leaves code that still reads or calls something the
+commit removed, and a later card fixes it, name that file in the unfinished
+commit's message and say later work fixes it, giving no card id, since
+git-commit keeps card ids out of messages. The reviewer reads the commit message and never
+the handoff, so it reports again anything the message does not call unfinished,
+and three such reports on one file stop the run. The session that finishes the
+work amends the commit and drops the note with it.
+
 Hand off on the same terms when one check has failed three times running,
 whatever your context number says. Count a single command — the same test, the
 same build, the same query — failing a third time after two attempts to fix it.
@@ -318,6 +326,12 @@ That is the order of work already agreed and nothing wider. Whether the
 operator agrees to a slice's scope or to the stories inside it is not an
 ordering question and never yours to settle: where a template stops for
 their approval, stop there too and write the BLOCKED line above.
+
+When the card you just moved was the slice's last, follow tdd-cycle step 4d and
+invoke demo-task, whatever the handoff's next steps say. demo-task writes the
+BLOCKED line itself once its demo exists and has been walked. Never write
+BLOCKED only to ask for a demo: the supervisor then has nothing to show the
+operator and sends the run back to build one.
 
 If instead you have finished everything the handoff asks for and there is no
 next piece of work left, make the first line of $HANDOFF read "DONE" — on its
