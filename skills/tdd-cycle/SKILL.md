@@ -1,6 +1,6 @@
 ---
 name: tdd-cycle
-description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, the mutation receipt and the commit id — closing it belongs to demo-task, once somebody has watched it work.
+description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, the mutation receipt, the commit id, and the test count its proof command printed — closing it belongs to demo-task, once somebody has watched it work.
 ---
 
 ## Purpose
@@ -145,7 +145,7 @@ the ask: a one-line bug does not carry a 200-line diff.
 
 **4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change.
+Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying four things: what the code now does, the 4a receipt, the commit, and the card's own proof command run exactly as the card prints it, with the count of tests it ran. If that count is zero, the filter matches no test: rename the test or correct the card's command with `bd update` before the move, because `demo-task` reads a command that ran no tests as a failure. Measured (2026-10-27): a card's filter held a `$`, which the test runner read as a regular-expression anchor, so it matched no test name; the build moved the card on its mutation receipt alone, and only the demo found the command had run nothing. Nothing moves on a working tree that still holds the change.
 
 **The card moves only after step 10's reviews have run on its diff.** Where you
 commit before them, leave the card `in_progress`, and if you hand off before
@@ -165,7 +165,8 @@ $ git commit -m "<what changed>"
 $ bd update <id> --status demoable
 $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
-  Commit a1b2c3d. quick-review Checklist:
+  Commit a1b2c3d. Proof: pytest tests/test_board.py -k can_move_down: 3 passed.
+  quick-review Checklist:
   Pass 1: 1.3 return values DEMONSTRATED, both callers read the bool
   Pass 2: 2.1 boundary input DEMONSTRATED, row 19 returns false
   Pass 3: N/A, no error path in the diff
