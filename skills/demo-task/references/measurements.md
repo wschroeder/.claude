@@ -149,3 +149,16 @@ Section 7's "hand to `retro-task` now… do not ask whether to run it" and the
 operator's request covered the same moment, and the session asked instead of
 choosing. The operator answered the sequencing question by removing the
 version check scripts the change should not have carried.
+
+## Why a demo driver and its captures stay out of the repository
+
+The operator said on 2026-10-27, "we aren't committing demo scripts!" Two
+slices in a row had committed the walk written for their demo as a browser
+test, and the operator had both removed from the branch. A walk written to show
+one demo describes that slice's screens and is dead once the demo is over.
+Earlier, of five slices of past captures kept in the tree, the operator said
+"Useless. This work is in the past."
+
+This replaced an older rule that committed the driver and sent it through
+`quick-review` and `security-review` before the commit. With nothing committed,
+there is nothing for those reviews to read.

@@ -283,55 +283,21 @@ of them at the centre the game's own layout function returned, and every one
 passed over a battalion painted 51 pixels wide that answered a press over 3 of
 them.
 
-Rule: the demo card's design lists the operator's steps before the drive
-script.
+Rule: the card that carries the operated requirement writes the operator's
+steps, and its proof is the demo's walk of them. It commits no browser test,
+drive script, or driver.
 
-Why: the card is built under `tdd-cycle`, which never loads `demo-task`, so
-the card's own design is the only instruction its worker sees about order.
+Why: the operator said on 2026-10-27, "we aren't committing demo scripts!" A
+walk written to show a demo describes one slice's screens and is dead once the
+demo is over. Two slices in a row had turned the requirement into a committed
+browser test because the card's design asked for a drive script, and the
+operator had both removed from the branch.
 
-Measured (2026-10-13): the demo card's design read "Write
-app/scripts/drive-s9-demo.mjs … Write steps in docs/demos/s9.md". The worker
-wrote the script at 22:17:12 and the steps at 22:20:18. It never loaded
-`demo-task`, so it drove from its own script, not from the steps it handed
-the operator.
-
-Rule: the demo card's design makes each "check after" line false and shows the
-drive script stop at that step.
-
-Why: a script that follows the steps can print a check it never makes, and a
-worker proves only the checks it just wrote or was told about.
-
-Measured (2026-10-16): the card asked the walk only to follow
-the steps. The loop's reviewer then found three walk checks in a row that could
-not fail: printed lines with no code behind them, a step already in its
-expected state before its click, and `response.finished()`, which never throws.
-Each fixing worker made false only the checks the last finding named, and the
-two worker and reviewer pairs after the first walk finding used 8.9 million of
-the run's 22.1 million context tokens.
-
-Measured (2026-10-19): the card let the walk falsify a check by "flipping
-the script's expectation". The walk's `falsified()` did exactly that, giving
-every check an expected value that can never match, such as a locator for
-`[data-falsified]`. The card's receipt claimed 13 of 13 steps falsified, and the
-loop's reviewer then found that step 5's check passed even when neither click
-happened. A check that fails only against an impossible value proves nothing
-about the step; skipping the step's action is what shows the check depends on
-it.
-
-Measured (2026-10-20): the card said "one break per check" and
-left out how to make a check false, and the worker broke all seven checks by
-putting in values that can never match. The last break left
-`step-04-failed.png` in the capture folder, and the loop's reviewer reported it
-as a failing walk, which a fix session then had to disprove. The same reviewer
-found that a `toContainText` check also passed on the combined "1 item of one kind
-and 1 of another" wording, the second loose text check in two slices.
-
-Measured (2026-10-20): step 2's "check after" line promised each
-file's upload time, and its check compared only file names. Step 3's line
-promised the Download button, and its check looked only for "1 file
-selected". One break per check proved both checks could fail, but no break can
-find a claim that has no check. The loop's outside reviewer found both gaps, the
-third slice running in which it caught a walk check weaker than its step.
+Earlier rounds made the card write a drive script, then break each "check
+after" line to show the script could fail. Those rules existed only to keep a
+committed script honest, and they went with it. The demo's own walk, driven
+with the Chrome tool and compared against each "check after" line, is the
+proof now.
 
 Rule: a sibling kind's existing rule outranks the general product rules.
 

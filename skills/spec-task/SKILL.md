@@ -391,24 +391,13 @@ Rules for this section:
   to send this product real input, load `project-drive` if it appears in the
   available skills; if nothing is listed, say so in one line and write the
   requirement anyway.
-- **The design of the card that carries that requirement puts the operator's
-  steps first.** Its first item writes the demo file's operate-it steps by
-  `demo-task` Section 3's method. Its second writes the drive script so that
-  it follows those steps one by one. Its third makes each "check after" line
-  false, one at a time, by skipping that step's own action or breaking the
-  app, and shows the script stop at that step and name it. Giving a check an
-  expected value that can never match proves nothing, so it does not count.
-  Each thing a "check after" line says the person will see has its own
-  check, or the line marks it "check by eye".
-  A check on text compares the whole text wherever a longer, wrong text would
-  contain it, such as a count the page can join to another kind's count. Its
-  fourth runs the walk once more with nothing broken, so the captures left
-  behind come from a passing run.
-  A line no code can fail on comes out of the steps or is marked "check by
-  eye". See [references/why.md](references/why.md). The
-  worker that builds the card reads the card and does not load `demo-task`,
-  so copy these four items into the card's design word for word rather than
-  summarizing them.
+- **The card that carries that requirement writes the operator's steps and
+  commits no script.** Its design writes the demo file's operate-it steps by
+  `demo-task` Section 3's method, with a "check after" line for each thing
+  the person will see. Its proof is the demo's own walk of those steps, so
+  its check reads "walked at the demo". The card adds no browser test, drive
+  script, or driver to the repository. See
+  [references/why.md](references/why.md).
 - **That input is aimed at the thing as a person sees it, not at a
   coordinate the code returns.** Never take the target's position from the
   module the assertion reads. The requirement names the target from what is
@@ -497,7 +486,8 @@ as a Note. Measured (2026-10-13): a review noted a refresh
 rollback "Until abc-0m9 lands", and abc-0m9 depended on abc-a3y.
 
 A current-slice task with no proof command is not a task. Fold it into one
-that has, or drop it. A sketched later task has no proof command.
+that has, or drop it. The one exception is the card proved by the demo's
+walk, whose check reads "walked at the demo". A sketched later task has no proof command.
 
 Name the two boundaries where a task hands work to another: which function
 or data shape one produces and the next consumes.
