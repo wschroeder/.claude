@@ -38,10 +38,7 @@ existing view whose pattern you copied and one thing you matched against it, suc
 as the dialog structure, the button order, or the label pattern. Quote the line
 from that view and the matching line from your edit, with each file and line
 number. Do this whatever skill or handoff brought you to the file, and in rapid
-mode too. Measured: 20 build sessions in a row edited views without opening it,
-and the two that did were both told to by their handoff. On the next run three
-sessions read it, and a bare view name in a report could not show whether the
-read changed anything.
+mode too. See [references/measurements.md](references/measurements.md).
 
 ## Probe before you build
 
@@ -79,9 +76,7 @@ count, a total, or a status, check whether the database already stores it. If it
 does, read the stored value, and work it out again only where the data it came
 from can have changed since it was stored. "So the two can never disagree" is no
 reason to recompute when both readers read the same stored row: they already
-agree. Measured: a preview fetched every selected PDF to count its pages, with
-that reason, while the query behind it already selected each file's stored page
-count, and a review then flagged the fetches as slow rather than as unneeded.
+agree. See [references/measurements.md](references/measurements.md).
 
 ## Before the edit: trace its reach
 
@@ -289,10 +284,7 @@ decision arises:
    reviews; fix what it finds first. If `project-drive`
    appears in the available skills, load it for how to send this product
    real input. If nothing is listed, work it out and say in one line what
-   you did. Measured: no build session in one run started the app, and the
-   demo's first drive found two bugs. Measured again on the next run: four
-   build sessions reached the reviews, none started the app, and the demo's
-   first drive found a refusal that showed nothing on the page.
+   you did. See [references/measurements.md](references/measurements.md).
 1. `quick-review` against the change.
 2. `security-review` against the change, when the diff touches any of these:
    input from outside the program (a request, a file, the clipboard, a message,
@@ -300,9 +292,7 @@ decision arises:
    a listening server, a shell or subprocess command, a SQL or other query
    string, a secret, token or credential, a file path built from input,
    deserialization, or an added or changed dependency. When it touches none of
-   them, say so in one line and skip it. Measured on 2026-09-26 across four
-   repositories: of ten sampled security reviews run on every card regardless,
-   one found an issue, and no path in the shipped code reached it.
+   them, say so in one line and skip it. See [references/measurements.md](references/measurements.md).
 
 Run them inline in this session rather than handing them to subagents — see
 `subagents`, which carries the measurement. Present the findings to the user

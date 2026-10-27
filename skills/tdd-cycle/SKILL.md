@@ -48,8 +48,8 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
 ### 1. Write the Test (Gray) and Run It (Red)
 - Ask what functionality needs to be implemented
 - **Test what the audience sees, at the level of the feature, never a single module.**
-- **Write no test for behavior someone checked by hand when automating the check costs too much**, such as repeated calls to a paid API. A change that only moves a setting is the usual case: any test you could still write there asserts the setting's new value, which only repeats the diff. Say in one line who ran the hand check and what it found, then move on. Measured: a test shipped with a change of a page-image setting from 'high' to 'original' asserted the string 'original', and its name promised small digits would read better, which only a hand run against real statements could show. Nobody had tested 'high' either.
-- **When the bug is something you saw on screen, test what it stopped the person doing.** Ask what the person could not do because of it. Write the test so it performs that action and asserts the values the person reads afterward. A test of layout, such as whether a control fits its cell, helps only while you work the design toward what the operator has in mind: run it during that work, and delete it once the operator has looked at the result, because layout changes for reasons nobody calls a bug. Do not count the action test as covering the layout either. Measured: a spec written for a clipped "Follow printed total" button checked only that the button fit its cell and never clicked it. Its replacement clicks the button and checks the balances. Playwright still clicked the button when a cell one pixel wide hid it, and the test passed.
+- **Write no test for behavior someone checked by hand when automating the check costs too much**, such as repeated calls to a paid API. A change that only moves a setting is the usual case: any test you could still write there asserts the setting's new value, which only repeats the diff. Say in one line who ran the hand check and what it found, then move on. See [references/measurements.md](references/measurements.md).
+- **When the bug is something you saw on screen, test what it stopped the person doing.** Ask what the person could not do because of it. Write the test so it performs that action and asserts the values the person reads afterward. A test of layout, such as whether a control fits its cell, helps only while you work the design toward what the operator has in mind: run it during that work, and delete it once the operator has looked at the result, because layout changes for reasons nobody calls a bug. Do not count the action test as covering the layout either. See [references/measurements.md](references/measurements.md).
 - **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
 - **Nobody runs a slow suite, so keep every test fast.** Never sleep in a test: wait on the condition itself, or control the clock.
 - **Name the interface before the test file exists.** Say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss. Leave it unnamed and the assertion lands wherever it is cheapest to write, which is usually an internal — and step 4a cannot catch that, because mutating an internal the test calls directly always fails the test.
@@ -108,9 +108,9 @@ yourself writing "this is the user's call" or "doesn't block."
 
 **4a. Assertion strength — prove it by mutation, not by reading.** Mutate the production code to a wrong-but-plausible value and re-run that one test. If it STILL PASSES, the assertion doesn't pin the behavior — that gap is real, and the green-on-broken-code output is your proof of it. Tighten the assertion (pin to the exact value: `== 502` not `in [400, 502]`; the exact message not `=~ "error"`; `== expected` not `refute is_nil`) and re-run until the same mutation makes it FAIL. A range assertion that survives mutation requires explicit justification — it is not default good practice. Judging an assertion "specific enough" by reading it is the satisficing this gate exists to kill; the mutation is the disposition, the sentence is not.
 
-**Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. Measured: in one run, three assertions survived mutation — a four-cell shape cut to three cells, and an entire rotation state replaced with garbage, both left a 17-test suite fully green — and all three sat under assertions their author had judged not to matter.
+**Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. See [references/measurements.md](references/measurements.md).
 
-**Every clause of every criterion.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "at least six", "every", "none covering"). For each clause, make one mutation that breaks that clause alone, and confirm a test fails. A bound over a random or repeated process gets a mutation that breaks it on some runs, not all of them. When a clause survives, tighten the test until that mutation fails it. Measured: on one project, the reviewer failed the first review of every slice on a test that a mutation of one clause would have exposed, such as "ten or fewer" checked on one random round, and a float back that would still have passed as an instant jump.
+**Every clause of every criterion.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "at least six", "every", "none covering"). For each clause, make one mutation that breaks that clause alone, and confirm a test fails. A bound over a random or repeated process gets a mutation that breaks it on some runs, not all of them. When a clause survives, tighten the test until that mutation fails it. See [references/measurements.md](references/measurements.md).
 
 **No conditional assertions, and no skipped tests.** When the test controls its data, it asserts on that data every time it runs. An assertion wrapped in `if result:` or `if rows:` passes by asserting nothing whenever the condition is false. If the test does not control its data yet, give it a setup step that does. If a test is marked skip, delete it: a skipped test reports nothing and still reads like coverage.
 
@@ -118,10 +118,7 @@ yourself writing "this is the user's call" or "doesn't block."
 that copy, not from git. `git checkout <path>` and `git restore <path>` both
 restore from the index, which holds nothing you have written since the last
 `git add` — and at this point in the cycle that is the whole change you just
-made green. Measured: a session wrote a new CSS rule, mutated the file a minute
-later, restored with `git checkout`, and the next two mutations in the same run
-died on an assertion that their search text was missing, because the rule was
-gone; it had to write the rule again from memory.
+made green. See [references/measurements.md](references/measurements.md).
 
 ```bash
 cp <path> /tmp/<name>.keep     # before the first mutation
@@ -150,12 +147,7 @@ Commit first, with no card id anywhere in the message: `git-commit` rules them o
 **The card moves only after step 10's reviews have run on its diff.** Where you
 commit before them, leave the card `in_progress`, and if you hand off before
 they run, name in the handoff each card and the reviews it still owes.
-Measured: a session reviewed its first card, then committed three more
-straight to `demoable` with no review, and its handoff named none of them. One
-of the three carried a bug that left a job running forever, and only the
-loop's own reviewer between sessions caught it. On the next slice, with that
-rule in place below an example that went straight from commit to move, two
-sessions moved three cards with no review loaded. The order:
+See [references/measurements.md](references/measurements.md). The order:
 
 ```
 $ git commit -m "<what changed>"
@@ -193,7 +185,7 @@ the same three things, and carry on — the reason is the record either way. The
 command that registers it is `bd config set status.custom "demoable:wip"`, and
 it is the project's to run rather than this loop's.
 
-A card moved with no commit is a claim that work happened, contradicted by the repository. Measured: one run closed six issues while the tree held one commit — `bd init` — and five files that had never been committed at all.
+A card moved with no commit is a claim that work happened, contradicted by the repository. See [references/measurements.md](references/measurements.md).
 
 Everything else the finished diff owes — doc and code agreeing, sibling symmetry,
 duplication across near-identical helpers, names and comments that lie, behavioral
@@ -222,10 +214,7 @@ you have just written that you will do next — the next card, the probe before
 it, the section still to write — do it now rather than ending on the sentence
 that names it. The operator cannot tell a turn that is still working from one
 that has stopped, so ending there leaves them to type an instruction you had
-already worked out. Measured across one run: one turn ended on a sentence
-naming the next card it would pick up, another on "I will write it there
-verbatim", and the operator's next messages were "Are you working?" 46 minutes
-later and "? So what now?" two hours and thirteen minutes later.
+already worked out. See [references/measurements.md](references/measurements.md).
 
 Where the next step genuinely needs the operator — an approval, a question only
 they can answer — the ask goes last and says what to do, per CLAUDE.md. Naming
@@ -303,9 +292,7 @@ And so on...
 
 Run it each time a card or a handoff task passes its proof, and after every
 commit, before you start the next one. A card this loop builds never closes, and
-where the tasks live in the handoff nothing moves at all. Measured: two build
-sessions finished eight handoff tasks, with no commit, without one check and
-crossed the ceiling unwarned, until the hook stopped them at 170,788 and 173,797.
+where the tasks live in the handoff nothing moves at all. See [references/measurements.md](references/measurements.md).
 
 Past the ceiling it reports, hand off rather than starting the next card:
 write the handoff through `clear-task` and say you have, in the same turn.
@@ -313,10 +300,7 @@ Do not ask permission first — the operator set the ceiling, so reaching it
 is not a decision they need to make twice.
 
 `demo-task` and `retro-task` each end this way, and a session running only
-this loop is the one that never checks. Measured: two build sessions ran
-without a single check, one of them to 374,944 tokens against a ceiling of
-170,000, and when it did stop it asked to hand off instead of doing it, then
-sat idle for two hours until the operator answered.
+this loop is the one that never checks. See [references/measurements.md](references/measurements.md).
 
 **On `finish the step you are on`, finish the card in hand, commit it, write the handoff through `clear-task` yourself, and stop.** Do not start the next card.
 
@@ -325,11 +309,7 @@ to the ceiling, so there is no second estimate to make and no room to overrule
 it. In particular, do not price the next card at what this whole session has
 cost: most of that was the climb back in, which you have paid and the next
 session has not, so a card costs far less from here than it did from a standing
-start. Measured: a session read "126,411 of 170,000 — keep going", reasoned that
-a full card cycle runs 126,000 to 141,000 tokens and would not fit, and handed
-off at 141,304 with two cards' room left. The session that followed reached its
-first commit at 114,028 and then closed a second and a third card for 21,239 and
-14,670.
+start. See [references/measurements.md](references/measurements.md).
 
 ## What NOT to Do
 

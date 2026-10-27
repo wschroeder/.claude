@@ -45,9 +45,7 @@ message — names something they can grep for or act on: a heading, a function,
 a quoted phrase, a file name, a row's key. Never a position: not a line number,
 a line range, a row number, or "the third item". The file moves, the number
 does not, and it then points at real text saying something else, which a reader
-trusts. Measured: one document carried 122 line-number citations, four of them
-already resolving to nothing and the rest untrustworthy the moment nine of the
-fourteen files they pointed into had text moved.
+trusts. See [references/measurements.md](references/measurements.md).
 
 A line range in your own working notes is fine, because you print the lines it
 names and throw the notes away.
@@ -194,18 +192,14 @@ key is an order, and there is no order yet.
 For every row with a real source, paste the actual `sed -n '<range>p'` output
 underneath — real output, never a paraphrase. Writing a sentence that the cited
 line does not say is the cheapest error to make and the most expensive to find,
-because every step after this one treats the row as true. Measured: one run
-turned a rule about dead code a change had orphaned into a general principle
-about which review pass owns a check, and nothing downstream noticed.
+because every step after this one treats the row as true. See [references/measurements.md](references/measurements.md).
 
 An idea from your own knowledge, the audience's context, or a framing device
 carries `-` in both and a sentence saying where it came from. **This list is
 where a document loses its best material.** Nothing can check it, so it is the
 one part of the dump that depends entirely on you sweeping wide before you start:
 the research behind the argument, what the audience already believes, the
-comparison that makes the point land. Measured: one run drew only on the declared
-source files and silently dropped an entire section of research grounding that
-the earlier version of the same document had.
+comparison that makes the point land. See [references/measurements.md](references/measurements.md).
 
 ### 2. Declare the graph
 

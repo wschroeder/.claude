@@ -18,10 +18,7 @@ new.
 in the session, they do not know what R7 is, and a label this run invented
 means nothing to them. So the demo opens with a paragraph anyone could
 follow, and no sentence explaining what was built makes them decode a
-requirement id, a bead id or a word this project coined. Measured: one run
-opened its demo with twelve refs and ten labelled records, and the
-operator's whole reply was that they did not understand any of it. The
-records were correct. Nobody could read them.
+requirement id, a bead id or a word this project coined. See [references/measurements.md](references/measurements.md).
 
 **This never suspends CLAUDE.md's Evidence Format, which governs here as
 everywhere.** The evidence block and its reference tags stay, and every claim
@@ -36,10 +33,7 @@ reads has to touch a requirement, state what that requirement asks for and put
 the bracketed id after the clause, in the tag position the evidence rules
 already want it in. When an id carries the sentence's own grammar instead —
 "the run that [R23] describes", "we still owe [R19]" — the operator has to look
-it up before the sentence says anything at all. Measured: an S4 demo told the
-operator "I could not drive the one continuous run that [R23] describes".
-Writing it as "I could not drive a single run from the world map into a battle
-and back out [R23]" costs one clause and no lookup.
+it up before the sentence says anything at all. See [references/measurements.md](references/measurements.md).
 
 Order is enforced because each section is built from the one above it. A
 status tag written before Section 2's commands have run is a claim rather
@@ -57,10 +51,7 @@ than after finishing it: say so, say that no section has run, write the
 handoff through `clear-task` yourself, and then ask the operator to `/clear`.
 A template is a session's worth of work, so a session that begins one already
 over the line ends it far over, and every section it writes on the way is
-written in a session that should have stopped. Measured: a session printed
-"turn 72, context 231,229 of 170,000 — hand off", quoted that line back in its
-own evidence block, created ten cards over the next two hours, printed the
-same line again at 251,737, and ended at 263,205.
+written in a session that should have stopped. See [references/measurements.md](references/measurements.md).
 
 The check below at the end of this template governs the hand to the next phase.
 This one governs whether this phase starts here at all, and they are not the
@@ -95,20 +86,13 @@ While it is on:
 - **Looking is not suspended.** Before you say a change is ready, drive it once
   in the browser tool the way you will ask the operator to, and say in one line
   what you saw. Never say a tool will not load unless it returned an error in
-  this turn. Measured (2026-10-24): a session made a rapid fix, wrote "I
-  couldn't load the browser again this turn" without calling it, and handed the
-  check over; the operator answered half an hour later, "That's crazy. You can
-  use a browser. Headless, isolated".
+  this turn. See [references/measurements.md](references/measurements.md).
 - **Do not commit.** They have approved nothing yet, and a commit made during
-  the mode takes that decision away from them. Measured: a session committed
-  mid-tweak and the operator's next turn was "Wait, I wasn't ready for commit!
-  We were doing some quick experimenting/tweaking in our demo phase!"
+  the mode takes that decision away from them. See [references/measurements.md](references/measurements.md).
 - **There is no size limit on what the mode may cover.** A colour change and a
   rework of how the product records an entire behaviour are both allowed in
   it. The operator decides what is small enough to take this way, so do not
-  argue that a request has outgrown the mode. Measured: the operator took a
-  whole padding rework in rapid mode on purpose, and said afterwards they had
-  prioritized speed over rigor knowing what it cost.
+  argue that a request has outgrown the mode. See [references/measurements.md](references/measurements.md).
 
 **The operator turns the mode off by approving.** Their approval is the
 signal — not the passage of time, not a number of rounds, and not your own
@@ -222,9 +206,7 @@ Story: As a <person who uses the product>, I can <what they can do>.
 **Fill `beads` and `proof` from `bd show` of each card, not from memory of the
 build.** Put every proof command under the card whose acceptance criteria name
 it, because Section 5 copies these lines into each card's close reason.
-Measured: an S15 demo record put the enemy test under the wrong card, written by
-a session that had run no `bd` command at all, and both cards had to be closed
-twice.
+See [references/measurements.md](references/measurements.md).
 
 **The role is someone who uses the product. Never the developer.** A slice
 whose beads are all toolchain still rolls up to something a person can now do
@@ -296,41 +278,29 @@ you skipped or improvised around is a step the operator will trip on. Why:
 
 Print those steps in full in the message that posts the demo. A copy sent to a
 phone or saved to a file comes in addition to them, never in their place.
-Measured: a demo sent its steps to the operator's phone, named the file's path,
-printed none of them, and the operator replied "I'll need to see the steps in
-full here."
+See [references/measurements.md](references/measurements.md).
 
 Start whatever the demo needs yourself, such as a build and a server, whether
 the operator works it on a phone or at the desktop. Give them what they open,
 such as a link, with the server's PID, and leave the server running until they
 answer. Where a step restarts the app, tell them to type "restart" and do the
 restart yourself: a phone cannot run a command, and the operator's Ctrl-C does
-not reach a server you started. Measured: a demo's last step told an operator
-on a phone to run the serve command, and they replied "Haha somehow I doubt I
-can run that command on my phone with any effect." Desktop:
-[references/measurements.md](references/measurements.md).
+not reach a server you started. See [references/measurements.md](references/measurements.md).
 
 Where a step needs setup the phone cannot do, such as a file planted where the
 game reads its saves, do that setup yourself on the machine you have. Show the
 evidence that it is in place, such as the `ls` that lists the file, and hand
-the operator only the test they do on the phone. Measured: a demo told an
-operator on a phone to put a damaged save into a Mac folder and run the game
-there, and they replied "you ask the impossible from a phone".
+the operator only the test they do on the phone. See [references/measurements.md](references/measurements.md).
 
 Before you post, set what the operator said during the spec beside your
 captures. For each of their answers the cards and design documents quote, say
 whether a capture shows the build matching it, and raise any capture that
-shows something they turned down. Measured: a demo's own phone capture showed
-the common room list the operator had called "really poor" and chosen to
-remove, the demo reported it as working, and the operator called it "a
-leftover thing".
+shows something they turned down. See [references/measurements.md](references/measurements.md).
 
 Then read each capture taken just before the operator acts, such as a button
 offered, a door, or a counter, as a player who has never seen the game. Say
 whether that player could tell what the input will act on, and raise any capture
-where they could not, even where the spec never decided it. Measured: a phone
-capture offered TALK while the party faced the man beside the companion, the
-demo reported it as matching the spec, and the operator talked to the wrong man.
+where they could not, even where the spec never decided it. See [references/measurements.md](references/measurements.md).
 
 Rules:
 
@@ -357,13 +327,10 @@ Rules:
   branch also shows may go to the backlog, and the post says so. A fault you
   only suspect, or guess is older than this slice, takes the same check:
   compare with the default branch before you post or hand off, and never
-  leave the suspicion only in a closing message. Measured (2026-10-23): a
-  walk saw one record shown as two rows, wrote "this probably predates" this
-  slice in its last message, and the handoff and the next session dropped it.
+  leave the suspicion only in a closing message. See [references/measurements.md](references/measurements.md).
   Section 4's "do not start fixing
   anything" covers what the operator finds, not what you find before they
-  see it. Measured: no build session in one run opened the app, and the
-  demo's own first drive found two bugs.
+  see it. See [references/measurements.md](references/measurements.md).
 - **The artifact comes from the thing the definition of released names, not
   from a stand-in for it.** Read what that definition points at and drive
   that: on one project it is a script on this machine, on another a local
@@ -372,23 +339,16 @@ Rules:
   makes a demo wrong is driving something the definition does not name while
   reporting it as the slice being released. So the record says which thing
   the definition names and which thing you drove, and where they are not the
-  same thing it says so on its own line rather than in a footnote. Measured:
-  a session quoted a definition of released that named a URL, in the same
-  evidence block that recorded it driving a container on localhost, and the
-  operator caught it rather than the template.
+  same thing it says so on its own line rather than in a footnote. See [references/measurements.md](references/measurements.md).
 - **Play on until the thing the slice changed happens.** Where the slice
   changes something a player only meets later in play, such as under fire,
   at contact, or after losses, drive the product until that moment arrives
   and capture it. Do not hand the operator a check you could drive yourself.
-  Measured: an S12 demo told the operator to watch a column's smoke under
-  fire because "this drive had no fighting in it", and they asked why the
-  battle part could not be tested.
+  See [references/measurements.md](references/measurements.md).
   The same holds where the change shows only when certain data exists, such
   as an old run or a failed row: put that data in place yourself and capture
   before and after. A post that says nothing changed on screen is not ready.
-  Measured: an S4 demo said "Nothing new appears on screen", and the operator
-  replied "I don't see in the screenshots the proofs that you're asking me to
-  do."
+  See [references/measurements.md](references/measurements.md).
 - **Where you cannot reach that thing, say which link is unproven and hand
   the last one to the operator.** Some released states cannot be driven from
   here at all — a sign-in a person completes, a cluster only they can reach,
@@ -404,10 +364,7 @@ Rules:
   of released says you operate the thing too, one capture proves only that
   it started. Send it an input — a key, a request, a typed command — capture
   it again, and name the input between the two, so the pair shows the thing
-  responding rather than sitting there. Measured: a demo of a slice whose
-  whole promise was landing the player in a named world showed two opening
-  frames, sent the game no input, and left the operator asking whether the
-  assistant could move the character at all.
+  responding rather than sitting there. See [references/measurements.md](references/measurements.md).
 - **The input has to be the one a person sends.** Calling the code's own
   method and writing the result up as a press or a drag is the failure this
   rule exists to catch, and the word in the record is not the act. In a
@@ -429,19 +386,13 @@ Rules:
   send it the input a person sends, the slice is not built: say so as the
   demo's result, leave the requirement's status where the measurement puts
   it, and let Planning place the work. Do not fill the record in and carry
-  on. Measured: a demo wrote "dragged the first battalion 150 files forward"
-  from a method call, admitted further down the same message that it could
-  not send the window a keystroke, told the operator to drag a battalion,
-  and shipped — and the operator's reply was that they could not drag
-  anything at all.
+  on. See [references/measurements.md](references/measurements.md).
 - If the slice cannot produce an artifact a person can look at, say so
   plainly and name what is missing. A slice with no demo is the finding —
   it means the work was cut along module lines rather than through the
   system, and Planning has to correct that for the next one.
 - **Show it, do not name it.** Paste the demo output into your message and
-  send the file with SendUserFile. Reading it with a tool puts it in your
-  context only: measured, the operator saw nothing but the summary until
-  they asked for the output. A path the operator has to open themselves is
+  send the file with SendUserFile. Reading it with a tool puts it in your context only, not in front of the operator. See [references/measurements.md](references/measurements.md). A path the operator has to open themselves is
   not a demo. SendUserFile puts the file in front of the operator and nobody
   else; sending it anywhere beyond them needs their word first, per
   CLAUDE.md "Local Files by Default".
@@ -469,9 +420,7 @@ above calls for**, and nothing below returns until the operator approves.
 platform, or a new kind of input — go back to Section 3 before you send it.**
 Drive the product through that way, with the input a person there sends, and
 read the captures. A demo resumed at this section skips Section 3 otherwise.
-Measured: a demo built a phone web build mid-stop, sent the link after the
-title screen alone, and the operator found within minutes that the touch stick
-was invisible and that a tap walked through a door.
+See [references/measurements.md](references/measurements.md).
 
 **Record the walk on disk as you go**: in the walk's folder, the commit the
 walk runs on and one line per finished step naming its captures and whether
@@ -522,10 +471,7 @@ need an answer, the ask goes last and says what to do".
 
 **Before the post carries a question from a handoff to the operator, search
 the design documents for its answer.** Where they answer it, quote the line
-and drop the question. Measured (2026-10-24): a demo asked the operator what
-an imported value field holds, and the operator answered "We've already
-decided this." The spec said so, and the session searched it only after the
-reply.
+and drop the question. See [references/measurements.md](references/measurements.md).
 
 **Where the demo is something to read rather than something to run, send the
 file with `SendUserFile` as well as naming its path.** A page, a report, a
@@ -540,10 +486,7 @@ saying the demo is on their phone. Send one per demo, not one per round of
 feedback. Write the whole demo message first, with every step in it, and make
 the push the turn's last tool call, followed by one closing line at most: text
 written after a turn's last tool call reaches the operator only once that call
-finishes. Measured: the S2 demo of one project waited 17.7 minutes for its
-first reply, and the S1 demo waited 385. A push sent in the same batch as the
-screenshots reached one operator 22 seconds before the steps, with nothing yet
-to do.
+finishes. See [references/measurements.md](references/measurements.md).
 
 Record what comes back verbatim, one record per point:
 
@@ -570,11 +513,7 @@ and the file that holds its demo, and stop. Write `BLOCKED:` only once Section
 changed. A worker that hands off before then writes an ordinary handoff naming
 the Section it stopped in, or the step it has still to drive, as the next step,
 because a worker can drive and capture and the operator should only be asked
-to try a demo that exists. Measured: a worker blocked on the operator with
-Section 3 not started, and the attended session had to unblock it and relaunch
-the loop to build the demo. Measured again: a worker short of room drove a
-turn's replay, wrote `BLOCKED:`, and handed the operator the look back at an
-earlier turn that the slice had also changed. Write it through the skill rather than by hand, however close the
+to try a demo that exists. See [references/measurements.md](references/measurements.md). Write it through the skill rather than by hand, however close the
 ceiling is: the handoff point is a budget and not a limit. No requirement
 reaches `demoed` from an unattended run, because that status is what a person
 looking at the thing produces; they stay `built` until someone has looked. A
@@ -613,10 +552,7 @@ Work every Section 4 record to one of six outcomes, and no seventh:
 - A request to do something before this phase ends. Do it in this phase, and
   say what came of it. The operator asking for research, a second look, or a
   conversation about a design is not a requirement for a later slice, and
-  filing it as one answers a question they did not ask. Measured: "I highly
-  recommend researching it and circling with me on this design. Now, I think
-  that can naturally happen during this phase" became three later requirements
-  and no research.
+  filing it as one answers a question they did not ask. See [references/measurements.md](references/measurements.md).
 - Accepted as it stands, changing nothing. Say so in one line. This is the
   ordinary answer to a demo that worked, and it is not a rejection.
 - **A decision about how the product behaves. Write it into the design
@@ -624,10 +560,7 @@ Work every Section 4 record to one of six outcomes, and no seventh:
   same act as settling it in a design conversation, so it lands the same way,
   in the document's own voice and with no mention of this demo. `spec-task`,
   "The design documents hold the product", holds the rule and the line between
-  a product decision and a literal implementation detail. Measured: one demo
-  produced seventeen quoted records, six of which changed how the product
-  behaves, and carrying them into the design took a hand-written commit outside
-  every template because no template claimed the job.
+  a product decision and a literal implementation detail. See [references/measurements.md](references/measurements.md).
 - A new requirement nobody has specified. One line in the repository's
   look-ahead sketch, or a card where it is concrete enough to title. No
   requirement text and no proof command unless it lands in the next slice.
@@ -674,10 +607,7 @@ here and wait for them. Say in one line what you are waiting on and that the
 retro follows it. An operator who says they will do a thing has told you to
 stop, because that thing is usually the last unproven link in Section 3's
 chain, and handing on turns their check into something nobody ever collects.
-Measured: the operator's turn ended "I'll doublecheck that the deployment
-matches", the session reported the deploy and handed to `retro-task` in the
-same message, and they replied, "I expected to look at the deployed demo,
-and suddenly we're doing retro."
+See [references/measurements.md](references/measurements.md).
 
 **If the operator's acceptance asks a question or asks for something next,
 then answer the question in prose and do what they asked.** The retro

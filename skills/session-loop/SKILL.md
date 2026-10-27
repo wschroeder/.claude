@@ -202,11 +202,7 @@ final iteration's have no reader by construction — its own output names the
 file and stops there. Where that last line says the reviewer found something,
 read the file and fix each finding through `tdd-cycle` before you write any
 demo ask; a finding you judge not worth fixing goes in the report with the
-reason. Measured on one project's S3: the run stopped for a demo with a test in the
-last commit that could not fail, and the operator was asked to watch a demo
-resting on it. Measured earlier: a run ended with two findings in
-`findings-20260910T010228-5.md`, and what carried them forward was an attended
-session writing its handoff by hand, not anything here.
+reason. See [references/measurements.md](references/measurements.md).
 
 Say what landed, where each session handed off (the `ctx_end` column), and why
 the loop stopped. If it stopped on `DONE`, the work is complete — say so. If it
@@ -218,9 +214,7 @@ offer to resume.
 Then read the handoff's "Open questions for you" section, which a blocked
 worker fills in below that first line. Settle each question that is yours, and
 carry each one that is the operator's into the ask you put to them, the demo
-ask included. Measured: an S16 worker asked whether a grey area in one demo
-capture mattered; the supervisor read only `head -3 HANDOFF.md`, and the
-operator never saw the question.
+ask included. See [references/measurements.md](references/measurements.md).
 
 **Where that question is asking for a demo, load `demo-task` first and enter it
 at Section 3, not Section 4.** Start the demo server first, with the command

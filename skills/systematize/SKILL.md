@@ -55,11 +55,7 @@ Finding it is the hard part, because a skill's own machinery sits at
 `<skill>/scripts/` and nothing lists it. Look in two places before you start: the
 skill descriptions already in front of you, since a skill that owns a script
 usually names it there, and then the `scripts/` directory of whichever skill the
-work touches. Measured on the session that prompted this line — it worked out
-where a run's tokens had gone using throwaway python, while
-`session-loop/scripts/session_budget.py` already read those same transcripts and
-was named in that skill's own description, which had been in context since the
-first turn.
+work touches. See [references/measurements.md](references/measurements.md).
 
 ## The three-level hierarchy
 
@@ -194,9 +190,7 @@ than trimming the substance.
 **Commit in the same turn.** Commit every edit to a skill or to
 `~/.claude/CLAUDE.md` in the turn that makes it, through `git-commit`, staging
 by path. An approved edit left uncommitted gets carried forward as "the file
-holds it" and nobody commits it. Measured (2026-10-14): a CLAUDE.md
-paragraph approved at 14:27 was still uncommitted at the retro, five hours and
-twenty handoffs later.
+holds it" and nobody commits it. See [references/measurements.md](references/measurements.md).
 
 ## Keep every client and project out of `~/.claude`
 
@@ -220,17 +214,13 @@ business is:
 Keep the failure itself: what the session or review checked, what it missed,
 and what caught it. Write it with neutral stand-ins: a record, a document, a
 line item, a parent record, a customer, an outside system, a nightly sync, and
-`ABC-123` for an issue key. Open a measurement with `Measured (<date>):` and no
-ticket. Public tools, libraries, and published research keep their names.
+`ABC-123` for an issue key. Date a measurement in a reference, and give it no ticket. Public tools, libraries, and published research keep their names.
 
 This overrides `git-commit`'s rule to name the tracking issue: a commit in
 `~/.claude` names none.
 
 Before every commit in `~/.claude`, read each added line of `git diff --cached`,
-the message included, against the list above. Measured (2026-10-23): retros,
-reviews of missed findings, and examples had written one client's ticket keys,
-repository name, system names, and business vocabulary into 27 files and about
-60 commit messages, and the repository had been public the whole time.
+the message included, against the list above. See [references/measurements.md](references/measurements.md).
 
 ## Merging skills
 
@@ -273,14 +263,9 @@ Adding a skill makes every other skill harder to find. What degrades first is
 **selection**, not the context budget — the model picks the wrong skill because
 a similar description shadowed the right one.
 
-Measured, in *More Skills, Worse Agents? Skill Shadowing Degrades Performance
-When Expanding Skill Libraries* (Databricks, 2026): pass rate dropped 21% going
-from a small useful set to 202 skills, shadowing accounted for up to 68% of the
-loss and was the only statistically significant effect, and the share of runs
-choosing the right skill fell from 88.0% to 52.6%. Degradation was already
-measurable at 52 skills and rose monotonically with size.
+See [references/measurements.md](references/measurements.md).
 
-So the global set is capped at about two dozen. A new global skill that would
+The global set is capped at about two dozen. A new global skill that would
 push it past that means merging or retiring one first, in the same change.
 Project skills sit in their own repo and are counted against that repo, not the
 global set.

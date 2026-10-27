@@ -142,9 +142,7 @@ NOT "MEASURED: order diverges because the rout path is order-dependent."
 **A known failure in the current Jira issue's own work is not a hypothesis to
 carry forward.** Write it as needing a card, name the skill that cuts it
 (`spec-task`), and put that in §8 ahead of new work. Carried as an inherited
-`hypothesis:`, it rides handoff after handoff and nobody owns it. Measured
-(2026-10-13): a refresh failure on a same-name copy owned by a different parent
-record reached the retro as "hypothesis (inherited)" with no card behind it.
+`hypothesis:`, it rides handoff after handoff and nobody owns it. See [references/measurements.md](references/measurements.md).
 
 **A dead-end is recorded against the mechanism that failed, never against
 the class of evidence it was serving.** "macOS `screencapture` returns a
@@ -311,9 +309,7 @@ prompt:
 - Links — PR, ticket / Trello, design doc, the relevant chat.
 - No list of skills to load first. Name each skill in the next step it owns,
   such as "then commit through git-commit", so the fresh chat loads it when
-  that step starts. Measured (2026-10-21): five handoffs in a
-  row listed four to six skills to load first, the loads took about 80,000
-  tokens, and each session handed off again within six minutes.
+  that step starts. See [references/measurements.md](references/measurements.md).
 - Setup to reach a working state — workspace dir, `eval "$(direnv export bash)"`,
   test command, dev-server port.
 - Which environment / workspace, and any secret/env switch in effect.

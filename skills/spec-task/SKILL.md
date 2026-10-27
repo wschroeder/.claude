@@ -482,8 +482,7 @@ for a card that cannot start until another finishes.
 **A case that would make an earlier card's path fail belongs in that earlier
 card,** not in a card queued after it. If you cut it separately, then the
 earlier card ships the failure and its review files the fix under a later card
-as a Note. Measured (2026-10-13): a review noted a refresh
-rollback "Until abc-0m9 lands", and abc-0m9 depended on abc-a3y.
+as a Note. See [references/measurements.md](references/measurements.md).
 
 A current-slice task with no proof command is not a task. Fold it into one
 that has, or drop it. The one exception is the card proved by the demo's

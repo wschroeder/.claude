@@ -26,10 +26,7 @@ than after finishing it: say so, say that no section has run, write the
 handoff through `clear-task` yourself, and then ask the operator to `/clear`.
 A template is a session's worth of work, so a session that begins one already
 over the line ends it far over, and every section it writes on the way is
-written in a session that should have stopped. Measured: a session printed
-"turn 72, context 231,229 of 170,000 — hand off", quoted that line back in its
-own evidence block, created ten cards over the next two hours, printed the
-same line again at 251,737, and ended at 263,205.
+written in a session that should have stopped. See [references/measurements.md](references/measurements.md).
 
 The check below at the end of this template governs the hand to the next phase.
 This one governs whether this phase starts here at all, and they are not the
@@ -62,9 +59,7 @@ wait.
 there and `demo-task` closes it from there, so a project without it has cards
 going straight from in progress to done with nobody having watched them work.
 Registering it is `bd config set status.custom "demoable:wip"`, one line, and
-it belongs in the same approval Section 2 asks for. Measured: unsetting that key
-reports success and leaves the status registered, and only setting it to an
-empty string removes it.
+it belongs in the same approval Section 2 asks for. See [references/measurements.md](references/measurements.md).
 
 **Do not put bd, or any other tool of your own, into a repository the operator
 did not start.** Compare `git log --reverse --format=%ae | head -1` with the
@@ -128,8 +123,7 @@ Run the Section 1 list and paste the real ids as they come back.
 Two forms work. The per-issue form, one command per card. Or `bd create --file`
 with a markdown file whose cards are `##` headings and whose fields are `###`
 sections — Description, Design, Acceptance Criteria, Labels, Priority, Type.
-Measured: in that shape it stores all six, and `bd show` prints the acceptance
-criteria under its own heading.
+In that shape it stores all six fields.
 
 **What no batch form stores is a dependency or a spec id.** Both need their own
 command afterwards, `bd dep <blocker> --blocks <blocked>` and
@@ -142,9 +136,7 @@ with a blocking edge. Do not use `bd create --graph` at any size: it drops the a
 criteria and warns rather than failing.
 
 The flat `Key: value` shape is the trap. bd does not parse it, reports success,
-and lands every field in the description as prose. Measured output for all three
-forms:
-[../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
+and lands every field in the description as prose. bd's output for all three forms is in [../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
 Everything stays on this machine.
 
 Write the file outside the repository — a scratchpad, not a new markdown file in
@@ -188,21 +180,14 @@ operator clears by hand.** The cards exist now and nothing between here and the
 demo needs the operator, so hand to `session-loop` rather than to a prompt for
 them to paste. It writes `HANDOFF.md`, stops once for a `/clear`, and then
 drives `tdd-cycle` card after card to the end of the slice, holding each session
-to the ceiling with a hook instead of a judgment call. Measured: across two
-projects in one month, twenty-nine handoffs were written by hand and the loop
-was invoked zero times; one of those builds closed seven cards over five
-sessions, four of them closing exactly one card each, while a session that kept
-going closed its second and third cards for 21,239 and 14,670 tokens against the
-114,028 its first one cost.
+to the ceiling with a hook instead of a judgment call. See [references/measurements.md](references/measurements.md).
 
 Commit the new cards before invoking it, because the loop refuses a dirty tree.
 Run `bd export -o .beads/issues.jsonl` right before you stage that file: bd
 writes its own export up to a minute late
 ([bd-behavior.md](../spec-task/references/bd-behavior.md)), and a commit staged
 before then holds only some of the cards. In a git worktree, skip it, as that
-file's worktree section says. Measured: a commit of six new cards
-held one of them, and the rest arrived later as the change that stopped the
-loop's first launch.
+file's worktree section says. See [references/measurements.md](references/measurements.md).
 
 Before invoking it, read your own room:
 
@@ -211,9 +196,7 @@ Before invoking it, read your own room:
 **Then invoke `session-loop`, in this turn, whatever that number says.** Naming
 it in a handoff is not handing to it: the next session reads a prompt whose
 first step names `tdd-cycle`, loads that instead, and the build becomes the
-string of hand-cleared sessions this rule exists to prevent. Measured: one
-planning session wrote a handoff naming `session-loop` zero times, and the
-operator pasted eleven more prompts over the thirteen hours that followed.
+string of hand-cleared sessions this rule exists to prevent. See [references/measurements.md](references/measurements.md).
 
 Being past the ceiling changes nothing here. The loop's own step 2 writes the
 handoff through `clear-task`, which is the work handing off would have cost

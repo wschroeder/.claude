@@ -49,10 +49,7 @@ replays it, so no commit in the stack carries another one's repair.
 Then run every test runner the project has against the rebased head, its
 browser tests included, or at least every browser spec the branch adds or
 edits. A change on the base can break a spec that passed before the rebase,
-and no conflict shows it. Measured: a browser spec passed on 2026-10-16,
-main then changed the table cell it read, and PR prep ran only the
-unit and integration tests after the rebase. An outside reviewer found the
-failing spec.
+and no conflict shows it. See [references/measurements.md](references/measurements.md).
 
 **Fold the stack to one commit per claim before the push gate.** Group the
 commits by the claim each makes, under `git-commit`, "How many commits".
@@ -66,13 +63,9 @@ commit into another claim's group, to get past a conflict. If a migration
 only patches another migration on this branch and no shared database has run
 either one, fold it into the migration it patches and renumber the versions
 after it. If the fold ends with more commits than the plan had groups, name
-each extra commit at the push gate and say which claim it splits. Measured
-(2026-10-24): a fold planned eleven groups, aborted at each of four conflicts
-instead of resolving them, and shipped fifteen commits with three claims
-split in two. A branch built one card at a time arrives as one commit per card. While
+each extra commit at the push gate and say which claim it splits. See [references/measurements.md](references/measurements.md). A branch built one card at a time arrives as one commit per card. While
 `git branch -r --contains HEAD` prints nothing, the fold needs nobody's
-words. Measured: a push gate listed 20 commits and raised nothing, and the
-operator had to ask; the fold then made two.
+words.
 
 **Then review the whole branch.** Run `quick-review` and then
 `security-review` over `origin/<base>..HEAD`, and record the tip they read
@@ -85,10 +78,7 @@ work. PR prep runs again only when the operator asks for it.
 
 A later run re-walks every pass on the code that changed since the tip the
 last run reviewed, `git diff <that tip> HEAD`, and reuses the earlier run's
-named artifacts only for code that has not changed. Measured: on one
-branch, a session read the whole 2,486-line diff again for its third round and
-climbed past the 170,000 handoff ceiling. The next bounded it this way to 8
-files.
+named artifacts only for code that has not changed. See [references/measurements.md](references/measurements.md).
 
 **GO/NO-GO:**
 - **GO** if the working tree holds only intended changes, the branch sits
@@ -121,9 +111,7 @@ git diff origin/<base>...HEAD -- <each operational path>
 Work out which paths are tests from the project's test runner config first,
 such as vitest or jest `include`, playwright `testDir`, or pytest `testpaths`,
 and then from naming (`*.test.*`, `*.spec.*`, `test_*.py`, `tests/`,
-`__tests__/`). Never diff a test file for the body. Measured: two sessions
-read a 3,257-line diff in full for one PR, and each climbed past the 170,000
-handoff ceiling; tests made up 60% of its changed lines.
+`__tests__/`). Never diff a test file for the body. See [references/measurements.md](references/measurements.md).
 
 ## Body — content discipline
 
@@ -144,10 +132,7 @@ from now with no knowledge of today's work?* If not, cut it.
 **Check every sentence that says what the change does against the code,**
 not only the Deploying bullets. Before the push gate, quote the code or
 test line that makes each one true. Fix or cut a sentence with no line.
-Measured (2026-10-21): the body said a record read from an outside
-system is flagged "until a second source confirms it". The session checked
-only the two Deploying claims, the code never cleared the flag, and the
-outside reviewer found it.
+See [references/measurements.md](references/measurements.md).
 
 **CUT — these are noise, every time:**
 

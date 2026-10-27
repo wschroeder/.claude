@@ -17,6 +17,8 @@ the argument where no single run did, for a reader who disputes one.
 - Stop — a written handoff is not a stop signal
 - Stop — `HANDOFF.md` is replaced, not appended to
 - Stop — the forced turn after writing `HANDOFF.md`
+- §8 — a known failure carried as an inherited hypothesis
+- §12 — a list of skills to load first
 
 ## The template's shape
 
@@ -345,3 +347,11 @@ Measured (2026-10-23): a demo session loaded this skill, and seventeen
 seconds later filed a backlog card for a fault its own walk had found in the
 slice, reading "held something back as a later slice" as covering it. The
 operator rejected the demo for deferring a fault the slice made.
+
+## §8 — a known failure carried as an inherited hypothesis
+
+Measured (2026-10-13): a refresh failure on a same-name copy owned by a different parent record reached the retro as "hypothesis (inherited)" with no card behind it.
+
+## §12 — a list of skills to load first
+
+Measured (2026-10-21): five handoffs in a row listed four to six skills to load first, the loads took about 80,000 tokens, and each session handed off again within six minutes.

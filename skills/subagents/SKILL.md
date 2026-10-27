@@ -92,10 +92,7 @@ is idle. Do not schedule a wakeup — `ScheduleWakeup` belongs to `/loop`.
 
 **Do not start work on the agent's topic while it runs.** The wait is not
 free time. Reading the same sources twice is the exact cost the delegation
-existed to avoid, and filling the gap is how it happens. Measured: one run
-fetched the same dependency-manifest file and ran the same grep over it as
-its own research agent, one second apart, and said in its own words that it
-was doing so while it waited.
+existed to avoid, and filling the gap is how it happens. See [references/measurements.md](references/measurements.md).
 
 ## Matching the model
 

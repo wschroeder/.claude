@@ -1,5 +1,46 @@
 # Measurements behind demo-task's rules
 
+- Why a worker stops its demo server before handing off
+- Why a session that did not take the captures walks the demo again
+- Why a page script's click is not a person's click
+- Why the operate-it steps are written first and then followed literally
+- Why the Chrome tool comes first and Playwright last
+- What S11 showed when the browser would not start
+- Why the ask says which links the walk did not check
+- Why a handoff's dead end does not excuse trying the Chrome tool
+- Why the agent leaves the demo server running at the desktop too
+- Why the worker runs the demo file's own commands, written on one line
+- Why every capture is the whole page and is opened before it is sent
+- Why a fault the slice made is fixed in the demo phase, with no card
+- Why a walk is recorded on disk and may span sessions
+- Why an acceptance that asks something is answered first
+- Why a demo driver and its captures stay out of the repository
+- Why everything the operator reads is plain English
+- Why an id is a tag, never part of the sentence
+- Why a session past the ceiling hands off before starting the template
+- Why looking is not suspended in rapid mode
+- Why rapid mode does not commit
+- Why rapid mode has no size limit
+- Why `beads` and `proof` come from `bd show`
+- Why the steps are printed in full in the message
+- Why you start what the demo needs yourself
+- Why you do the setup a phone cannot do
+- Why the captures are set beside what the operator said during the spec
+- Why each capture before an action is read as a newcomer
+- Why a suspected fault is compared with the default branch before posting
+- Why the record names what the definition of released names and what you drove
+- Why you play on until the thing the slice changed happens
+- Why you show yourself driving it, not one frame
+- Why being unable to drive it is a finding
+- Why the demo output is pasted and sent, not only read
+- Why a new way to reach the product sends you back to Section 3
+- Why a handoff's question is searched for in the design documents first
+- Why a demo after a background run sends one push, last
+- Why a worker writes `BLOCKED:` only once the drive is complete
+- Why a request to do something in this phase is done in this phase
+- Why a decision about the product goes into the design document in this run
+- Why the operator's own promise to check stops the hand to the retro
+
 ## Why a worker stops its demo server before handing off
 
 Measured (2026-10-09): a worker started the demo server at
@@ -162,3 +203,109 @@ Earlier, of five slices of past captures kept in the tree, the operator said
 This replaced an older rule that committed the driver and sent it through
 `quick-review` and `security-review` before the commit. With nothing committed,
 there is nothing for those reviews to read.
+
+## Why everything the operator reads is plain English
+
+Measured: one run opened its demo with twelve refs and ten labelled records, and the operator's whole reply was that they did not understand any of it. The records were correct. Nobody could read them.
+
+## Why an id is a tag, never part of the sentence
+
+Measured: an S4 demo told the operator "I could not drive the one continuous run that [R23] describes". Writing it as "I could not drive a single run from the world map into a battle and back out [R23]" costs one clause and no lookup.
+
+## Why a session past the ceiling hands off before starting the template
+
+Measured: a session printed "turn 72, context 231,229 of 170,000 — hand off", quoted that line back in its own evidence block, created ten cards over the next two hours, printed the same line again at 251,737, and ended at 263,205.
+
+## Why looking is not suspended in rapid mode
+
+Measured (2026-10-24): a session made a rapid fix, wrote "I couldn't load the browser again this turn" without calling it, and handed the check over; the operator answered half an hour later, "That's crazy. You can use a browser. Headless, isolated".
+
+## Why rapid mode does not commit
+
+Measured: a session committed mid-tweak and the operator's next turn was "Wait, I wasn't ready for commit! We were doing some quick experimenting/tweaking in our demo phase!"
+
+## Why rapid mode has no size limit
+
+Measured: the operator took a whole padding rework in rapid mode on purpose, and said afterwards they had prioritized speed over rigor knowing what it cost.
+
+## Why `beads` and `proof` come from `bd show`
+
+Measured: an S15 demo record put the enemy test under the wrong card, written by a session that had run no `bd` command at all, and both cards had to be closed twice.
+
+## Why the steps are printed in full in the message
+
+Measured: a demo sent its steps to the operator's phone, named the file's path, printed none of them, and the operator replied "I'll need to see the steps in full here."
+
+## Why you start what the demo needs yourself
+
+Measured: a demo's last step told an operator on a phone to run the serve command, and they replied "Haha somehow I doubt I can run that command on my phone with any effect."
+
+## Why you do the setup a phone cannot do
+
+Measured: a demo told an operator on a phone to put a damaged save into a Mac folder and run the game there, and they replied "you ask the impossible from a phone".
+
+## Why the captures are set beside what the operator said during the spec
+
+Measured: a demo's own phone capture showed the common room list the operator had called "really poor" and chosen to remove, the demo reported it as working, and the operator called it "a leftover thing".
+
+## Why each capture before an action is read as a newcomer
+
+Measured: a phone capture offered TALK while the party faced the man beside the companion, the demo reported it as matching the spec, and the operator talked to the wrong man.
+
+## Why a suspected fault is compared with the default branch before posting
+
+Measured (2026-10-23): a walk saw one record shown as two rows, wrote "this probably predates" this slice in its last message, and the handoff and the next session dropped it.
+
+Measured: no build session in one run opened the app, and the demo's own first drive found two bugs.
+
+## Why the record names what the definition of released names and what you drove
+
+Measured: a session quoted a definition of released that named a URL, in the same evidence block that recorded it driving a container on localhost, and the operator caught it rather than the template.
+
+## Why you play on until the thing the slice changed happens
+
+Measured: an S12 demo told the operator to watch a column's smoke under fire because "this drive had no fighting in it", and they asked why the battle part could not be tested.
+
+Measured: an S4 demo said "Nothing new appears on screen", and the operator replied "I don't see in the screenshots the proofs that you're asking me to do."
+
+## Why you show yourself driving it, not one frame
+
+Measured: a demo of a slice whose whole promise was landing the player in a named world showed two opening frames, sent the game no input, and left the operator asking whether the assistant could move the character at all.
+
+## Why being unable to drive it is a finding
+
+Measured: a demo wrote "dragged the first battalion 150 files forward" from a method call, admitted further down the same message that it could not send the window a keystroke, told the operator to drag a battalion, and shipped — and the operator's reply was that they could not drag anything at all.
+
+## Why the demo output is pasted and sent, not only read
+
+Measured: the operator saw nothing but the summary until they asked for the output.
+
+## Why a new way to reach the product sends you back to Section 3
+
+Measured: a demo built a phone web build mid-stop, sent the link after the title screen alone, and the operator found within minutes that the touch stick was invisible and that a tap walked through a door.
+
+## Why a handoff's question is searched for in the design documents first
+
+Measured (2026-10-24): a demo asked the operator what an imported value field holds, and the operator answered "We've already decided this." The spec said so, and the session searched it only after the reply.
+
+## Why a demo after a background run sends one push, last
+
+Measured: the S2 demo of one project waited 17.7 minutes for its first reply, and the S1 demo waited 385. A push sent in the same batch as the screenshots reached one operator 22 seconds before the steps, with nothing yet to do.
+
+## Why a worker writes `BLOCKED:` only once the drive is complete
+
+Measured: a worker blocked on the operator with Section 3 not started, and the attended session had to unblock it and relaunch the loop to build the demo.
+
+Measured again: a worker short of room drove a turn's replay, wrote `BLOCKED:`, and handed the operator the look back at an earlier turn that the slice had also changed.
+
+## Why a request to do something in this phase is done in this phase
+
+Measured: "I highly recommend researching it and circling with me on this design. Now, I think that can naturally happen during this phase" became three later requirements and no research.
+
+## Why a decision about the product goes into the design document in this run
+
+Measured: one demo produced seventeen quoted records, six of which changed how the product behaves, and carrying them into the design took a hand-written commit outside every template because no template claimed the job.
+
+## Why the operator's own promise to check stops the hand to the retro
+
+Measured: the operator's turn ended "I'll doublecheck that the deployment matches", the session reported the deploy and handed to `retro-task` in the same message, and they replied, "I expected to look at the deployed demo, and suddenly we're doing retro."

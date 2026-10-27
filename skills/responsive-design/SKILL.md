@@ -203,9 +203,7 @@ Set `tabindex="0"` on a scrolling container so a keyboard reader can reach it.
 Fluid layout decides how things fit. It never decides what belongs on screen.
 
 A filter set, a toolbar, or a nav with more than about four controls fills a
-narrow screen before the reader has seen anything you built. Measured on one
-build: a filter bar 429px tall on an 844px screen, with the first content block
-starting at 809px. Every value in it was already a token.
+narrow screen before the reader has seen anything you built. See [references/measurements.md](references/measurements.md).
 
 ```css
 /* Collapsed by default; the container decides when it may open flat. */
@@ -346,7 +344,7 @@ conditions compound: each one on its own widens a string by a little, and a
 fallback face is wider per character than the one you chose, so the pair
 overruns a column that either alone still fits.
 
-**Measured, not looked at.** For checks 1, 4, 7 and 8, read the numbers. Where a
+**Read the numbers rather than judging by eye.** For checks 1, 4, 7 and 8, read them. Where a
 devtools MCP is available, read `documentElement.scrollWidth` against `innerWidth`
 and the computed boxes directly; otherwise count units in the source for check 4.
 
