@@ -12,6 +12,7 @@ from where a page's own contents list goes on a phone.
 - Fall back to outside conventions only where the app has none
 - Say why when you depart
 - Build from the app's own pieces
+- Put a control inside the component it acts on
 - Show an example in every input
 - Multi-select with a bulk action
 - Carry only the destination's own parameters
@@ -58,6 +59,23 @@ Use the app's existing components, layout helpers, icon set, spacing, and
 utility classes. Do not write a new button, dialog, or icon when the app already
 has one. Where a project's CLAUDE.md names the widget library it prefers, that
 library is part of the app's own pieces.
+
+## Put a control inside the component it acts on
+
+Where a control acts on one component, such as an × that clears a field,
+removes a tag, or dismisses a warning, draw it inside that component's visible
+border, at its trailing end. Never place it beside the component. People read
+whatever sits inside one border as one thing, and a border outweighs closeness,
+so an × outside the border reads as acting on whatever else sits near it.
+
+When you copy the app's pattern for an action, copy where its control sits as
+well as which control it is. A spec or a handoff that says "beside the warning"
+names the control's neighbour, not its layout, so draw the control inside.
+
+Measured: on 2026-10-20 an operator said of a date input's clear button "The x
+needs to be inside the input", and on 2026-10-27 of a warning label's clear
+button "Shouldn't the X be inside the label?" The second build had cited the
+app's tag pill as its pattern, and the tag pill draws its × inside the pill.
 
 ## Show an example in every input
 
@@ -146,8 +164,9 @@ Check each control against these before you call it done:
 - A pointer target meets `responsive-design`'s target size.
 - A blocked row's reason is visible text, not a tooltip or a colour alone.
 - A greyed button uses `aria-disabled="true"`, not `disabled`.
-- The control matches the app's existing control for the same action, and you
-  cited the file.
+- The control matches the app's existing control for the same action, where it
+  sits included, and you cited the file.
+- A control that acts on one component sits inside that component's border.
 - Every link, redirect, and form action names the parameters it carries, and
   none copies the incoming query string.
 - At phone width, a page's contents list sits visible above its text, one link
@@ -169,6 +188,21 @@ Check each control against these before you call it done:
   `aria-label`", and "Destructive actions need confirmation modal or undo
   window—never immediate". The guidelines have no rule about matching the app's
   own patterns, so they serve here as a review list and not as a design method.
+- Nielsen Norman Group, [The Principle of Common Region: Containers Create Groupings](https://www.nngroup.com/articles/common-region/):
+  "items within a boundary are perceived as a group", and "Creating a clear
+  boundary is a strong visual cue that can overpower other grouping principles
+  such as proximity or similarity."
+- Nielsen Norman Group, [Proximity Principle in Visual Design](https://www.nngroup.com/articles/gestalt-proximity/):
+  "Design elements near each other are perceived as related, while elements
+  spaced apart are perceived as belonging to separate groups."
+- Carbon Design System draws the × inside the component it acts on: a
+  [dismissible tag](https://carbondesignsystem.com/components/tag/usage/)
+  carries "an additional close icon" in its anatomy, a
+  [search field](https://carbondesignsystem.com/components/search/usage/)'s
+  close icon "Acts as a function to clear the search field", and on an
+  [inline notification](https://carbondesignsystem.com/components/notification/usage/)
+  "A small 'x' in the top right corner is used to dismiss inline
+  notifications."
 - Carbon Design System, [Data table usage](https://carbondesignsystem.com/components/data-table/usage/):
   once rows are selected, "the batch action bar appears at the top of the
   table, presenting a set of possible actions to apply to all select items."
