@@ -17,3 +17,7 @@ Measured: one run drew only on the declared source files and silently dropped an
 ## Why each comma gets marked by name
 
 Measured on 2026-10-27: a session loaded this skill to rewrite 46 one-sentence definitions shown on screen and ran the voice check, which listed no commas. The operator then found a comma before an "or" that joined two objects of one verb. A pass that checked each comma by name then found ten. A later read for the other sentence rules found seven more sentences to fix after the comma pass. Two could be read two ways, and one reached its main verb through a clause that a reader takes as its own subject and verb.
+
+## Why the inversion ceiling is easy to blow
+
+Measured: one draft scored 16.5 against a ceiling of 2.0, and fourteen of its eighteen hits were the single phrase "rather than".

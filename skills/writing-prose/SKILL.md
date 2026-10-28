@@ -270,9 +270,8 @@ Then measure the prose itself, which the graph says nothing about:
 
 Three numbers decide whether it reads like a person wrote it. **Inversions** count
 saying what a thing is not before saying what it is — "rather than", "instead of",
-"not X but Y". The ceiling is low and it is easy to blow: one measured draft hit
-16.5 against a ceiling of 2.0, and fourteen of its eighteen hits were the single
-phrase "rather than". **Median sentence length** and **long-sentence share** say
+"not X but Y". The ceiling is low and easy to blow; see
+[references/measurements.md](references/measurements.md). **Median sentence length** and **long-sentence share** say
 whether the reader is being asked to hold too much at once. A maxim candidate is a
 sentence that closes a block by generalising into a saying; cut it by default.
 Mark the silent tails and comma candidates it lists the way tier one says.

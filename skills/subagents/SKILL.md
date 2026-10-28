@@ -39,12 +39,8 @@ an agent cannot pay — the standard is right, and the delegation is what goes.
 
 **The reviews are the case this keeps catching.** A session that hands
 `quick-review` and `security-review` to subagents still reads every finding and
-applies it, so the diff lands in its context either way. This one is measured,
-not argued: `session-loop/references/driver-loop.md`, "Why handing the reviews
-to a subagent does not pay", has the run that settled it. A second run, on a 1,715-line branch on
-2026-10-22, reviewed it with six parallel subagents for $13.39, and with a
-chain of three fresh sessions handing off to each other for $5.82. Commit
-f2f1ce1 in `~/.claude` holds the full result.
+applies it, so the diff lands in its context either way. See
+[references/measurements.md](references/measurements.md).
 
 **Investigation, always.** Tracing where a config value, an env var, a secret or
 a deployment behavior actually comes from means following the chain to its end.
