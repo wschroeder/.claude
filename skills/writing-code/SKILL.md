@@ -40,6 +40,14 @@ from that view and the matching line from your edit, with each file and line
 number. Do this whatever skill or handoff brought you to the file, and in rapid
 mode too. See [references/measurements.md](references/measurements.md).
 
+## Before you commit a sentence a user reads, load writing-prose
+
+If the change adds or rewrites a sentence that a person reads on screen, such
+as an explanation, help text, or a paragraph on a page, load `writing-prose`
+and write that text through it before the commit. Labels and button words stay
+with [references/ux-design.md](references/ux-design.md). See
+[references/measurements.md](references/measurements.md).
+
 ## Probe before you build
 
 Before writing more than ~20 lines of code that touches a boundary you don't own
