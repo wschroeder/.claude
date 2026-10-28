@@ -268,6 +268,10 @@ is not answering yourself; it is reading an answer already given. If an
 unanswered question would change what the requirements say, stop and ask,
 per CLAUDE.md rule 2.
 
+If two rules in the design documents disagree about an item in this slice,
+ask the operator which one wins before you cut the cards. Do not carry the
+question to the demo.
+
 **End this section by saying which it was.** Either the numbered questions
 the operator has to answer, asked with AskUserQuestion, with nothing
 written after them — or the one plain sentence that every question went to
