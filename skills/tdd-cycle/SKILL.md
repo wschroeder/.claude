@@ -41,6 +41,7 @@ Before writing the test, identify boundaries it will touch — external APIs, da
 - The probe's output becomes a REF. The test you write in step 1 is anchored to that observation, not to a pattern-matched guess.
 - A probe is something that **ran on this machine in the last few minutes and produced output in the chat.** "The docs say," "I've used this before," and "based on the schema file" are not probes — see Rule 11 in the global Evidence Format.
 - Pure internal logic is exempt. Probes are for boundaries you don't own; tests cover the surfaces you do.
+- Code you own that reads data a boundary produced, such as a model's reply, an uploaded file, or a third-party payload, is not pure internal logic. Probe a real sample of that data before you write the test. If fetching a fresh sample costs money, read one the app already stored from a fictional file. If none exists, say so in the card note.
 - Detail, exemptions and rationale: [references/probing.md](references/probing.md).
 
 Without this step, the test in step 1 encodes an assumption rather than an observation, and Red → Green can both pass while the live boundary behaves differently — the test was wrong, not the code.

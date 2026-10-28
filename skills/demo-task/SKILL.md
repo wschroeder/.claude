@@ -267,6 +267,11 @@ every behavior the slice changed, order them so each step sets up the next,
 draft the steps, and finish them. Every card maps to a step, or the steps say
 in one line why that card has nothing on screen.
 
+**If the slice changes a step in the middle of a pipeline, give the walk a
+step that captures the screen just before that step runs and just after it.**
+Do this even where the end state alone would pass the check. The operator
+judges the change by what went into the step and what came out of it.
+
 **Then follow the written steps literally, and let that be the drive.** Capture
 before and after each step, and compare each after-capture with that step's
 "check after" text. Capture the whole page (`fullPage` true, no `uid`) unless
