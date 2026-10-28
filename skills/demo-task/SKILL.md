@@ -441,9 +441,7 @@ of one screen is not a walk: the commit can break a step you did not look at.
 A session that did not take the captures may finish and post a walk an
 earlier session began, but only when the walk's record names the commit HEAD
 is on now, nothing has touched the walk's data since, and you open every
-capture you post with Read. Captures an earlier session already opened,
-recorded as matching on that commit, and sent to the operator are not posted
-again: carry that record as verified and do not open them again. Why:
+capture it posts with Read. Why:
 [references/measurements.md](references/measurements.md).
 
 **If you hand off before this section's ask, write the next session's first

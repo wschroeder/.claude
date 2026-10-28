@@ -218,13 +218,10 @@ ask included. See [references/measurements.md](references/measurements.md).
 
 **Where that question is asking for a demo, load `demo-task` first and enter it
 at Section 3, not Section 4.** Start the demo server first, with the command
-the demo file's steps name: the worker stopped it before handing off. If the
-worker's walk record names the commit at HEAD, open its captures with Read and
-check each after-capture against its step instead of walking again; walk every
-step yourself, capturing as you go, only when HEAD has moved since that walk.
-Do either before Section 4 composes the ask. After a walk, reset the demo's
-data, start the server again, and leave it running for the operator, as
-demo-task Section 3 says.
+the demo file's steps name: the worker stopped it before handing off. Then walk
+every step of the demo yourself, capturing as you go, before Section 4 composes
+the ask. After the walk, reset the demo's data, start the server again, and
+leave it running for the operator, as demo-task Section 3 says. The worker took the captures, and you have seen none of them work.
 
 **Open the ask with the phase line**, directly above the question, or closing
 the report where nothing needs deciding — the four phases in order, with the
