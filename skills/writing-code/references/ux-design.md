@@ -160,6 +160,9 @@ app sets or uses it. It makes no promise about what will happen later, gives no
 opinion, and tells the reader nothing about what to do. A word that names a band
 the app shows in color, such as "high", counts as a fact.
 
+When you reword one definition in a list, keep the form that the entries next to
+it use. A pill's definition reads as the other pills' definitions do.
+
 Keep help in a tooltip to meaning alone. Nielsen Norman Group's tooltip
 guidance, quoted under Sources, keeps instructions out of tooltips because a
 tooltip disappears. See [measurements.md](measurements.md).
