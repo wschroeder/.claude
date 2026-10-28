@@ -30,6 +30,10 @@ SILENT_TAIL = re.compile(r",\s*and\s+(?:nothing|nobody|no one)\b(?!\s+else)|"
                          r"\bwithout (?:a word|anyone|anybody|being told|a warning)\b|"
                          r"\bwith nothing said\b|"
                          r"\bnothing (?:reports|says|tells|warns|notices|flags)\b", re.I)
+# A comma before a coordinating conjunction or a trailing reason is right only
+# when a second subject follows, or the main clause is negative, and only a
+# reader can tell which.
+COMMA_CANDIDATE = re.compile(r",\s+(?:for|and|nor|but|or|yet|so|because|since)\b", re.I)
 MAXIM = re.compile(r"^(?:A|An|The|One)\s+\S+(?:\s+\S+){0,8}\s+is\s+(?:\S+\s*){1,6}\.$")
 BULLET = re.compile(r"\n[ \t]*(?:[*•-]|\d+[.)])[ \t]+")
 
@@ -71,6 +75,7 @@ def measure(text):
         "em_dashes": len(re.findall("—", text)),
         "maxim_candidates": [s for s in sents if MAXIM.match(s)],
         "silent_tails": [s for s in sents if SILENT_TAIL.search(s)],
+        "comma_candidates": [s for s in sents if COMMA_CANDIDATE.search(s)],
     }
 
 
@@ -113,6 +118,10 @@ def main():
     print("\nsilent tails (%d) -- name the actor that stayed silent, or mark keep:"
           % len(m["silent_tails"]))
     for s in m["silent_tails"]:
+        print("  " + s)
+    print("\ncomma candidates (%d) -- mark each keep or cut with the CLAUDE.md"
+          " \"Commas\" rule that allows it:" % len(m["comma_candidates"]))
+    for s in m["comma_candidates"]:
         print("  " + s)
     if failed:
         print("\n%d band(s) missed: %s" % (len(failed), ", ".join(failed)))

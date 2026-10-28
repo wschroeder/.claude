@@ -79,14 +79,19 @@ A code comment, a commit message, a Slack reply, a short email, a one-paragraph
 answer.
 
 The CLAUDE.md sentence rules apply, and no composition machinery does. Write it,
-then read it once against those rules. Do not dump, do not outline, and do not
-announce a count.
+then check it against those rules in three separate passes: one for commas, one
+for where each subject ends and its main verb begins, and one for sentences a
+reader could take two ways. Do not dump, do not outline, and do not announce a
+count. See [references/measurements.md](references/measurements.md).
 
 Before it goes out, save the text to a file in the scratchpad and run
-`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate and each
-silent tail it lists keep or cut, and fix every one you cut. A silent tail is a
-sentence that ends on what nobody did, such as "and nothing reports it", where
-it could name the actor that stayed silent. A band the script reports missed
+`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent
+tail, and comma candidate it lists keep or cut, and fix every one you cut. A
+silent tail is a sentence that ends on what nobody did, such as "and nothing
+reports it", where it could name the actor that stayed silent. A comma
+candidate is a comma before a coordinating conjunction or a trailing "because"
+or "since": mark it keep only by naming the CLAUDE.md "Commas" rule that allows
+it. A band the script reports missed
 does not stop short text, because a few sentences make a noisy rate.
 
 One addition, because it is the only ordering decision a single point has: say
@@ -146,9 +151,10 @@ comes after the body.
 ### 5. Run the voice check on the finished text
 
 Save the text to a file in the scratchpad and run
-`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate and each
-silent tail it lists keep or cut, and fix every one you cut. Report any band it
-misses in one line with the reason you kept the text as it is, or rewrite until
+`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent
+tail, and comma candidate it lists keep or cut, as tier one says, and fix every
+one you cut. Then run tier one's other two passes over the text. Report any band
+it misses in one line with the reason you kept the text as it is, or rewrite until
 it lands.
 
 ---
@@ -269,6 +275,7 @@ saying what a thing is not before saying what it is — "rather than", "instead 
 phrase "rather than". **Median sentence length** and **long-sentence share** say
 whether the reader is being asked to hold too much at once. A maxim candidate is a
 sentence that closes a block by generalising into a saying; cut it by default.
+Mark the silent tails and comma candidates it lists the way tier one says.
 
 Then measure length against the budget from step 0. **Over budget means cutting
 ideas**, which readmits you to step 3, because dropping an idea changes the graph.

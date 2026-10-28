@@ -67,13 +67,37 @@ def main():
                  "It reads the file, and nothing else."):
         assert vs.measure(text)["silent_tails"] == [], text
 
+    # every comma before a coordinating conjunction or a trailing reason is
+    # listed, because only a reader can tell whether a second subject follows
+    for text in ("This column shows the number, or how many records it has.",
+                 "It can only append, and never takes anything back.",
+                 "The PR says changes requested, because that is the last review.",
+                 "The build failed, since the lockfile changed.",
+                 "Put two concerns in one pass, and you will leave one unchecked.",
+                 "It is short, but it is wrong.",
+                 "It ran, so it passed.",
+                 "Nobody asked, yet it shipped.",
+                 "It did not stop, nor did it warn."):
+        assert vs.measure(text)["comma_candidates"] == [text], text
+    for text in ("It can only append and never takes anything back.",
+                 "Once the evidence is on the page, an unsupported claim has nowhere to sit.",
+                 "A record, a document and a line item."):
+        assert vs.measure(text)["comma_candidates"] == [], text
+
     m = vs.measure("Alpha — beta — gamma.")
     assert m["em_dashes"] == 2, m
     # an unknown band name must be a clear refusal, not a traceback
     fd, path = tempfile.mkstemp(suffix=".txt")
     with os.fdopen(fd, "w") as fh:
         fh.write("A sentence about nothing.")
+    fd2, listed = tempfile.mkstemp(suffix=".txt")
+    with os.fdopen(fd2, "w") as fh:
+        fh.write("It shows the number, or how many records it has.")
     try:
+        proc = subprocess.run([sys.executable, os.path.join(HERE, "voice_stats.py"), listed],
+                              capture_output=True, text=True)
+        assert "comma candidates (1)" in proc.stdout, proc
+        assert "  It shows the number, or how many records it has." in proc.stdout, proc
         proc = subprocess.run([sys.executable, os.path.join(HERE, "voice_stats.py"),
                                path, "--band", "bogus=1:2"],
                               capture_output=True, text=True)
@@ -86,6 +110,7 @@ def main():
         assert "needs MIN:MAX" in (proc.stdout + proc.stderr), proc
     finally:
         os.unlink(path)
+        os.unlink(listed)
 
     print("test_voice_stats: all assertions passed")
 

@@ -13,3 +13,7 @@ Measured: one run turned a rule about dead code a change had orphaned into a gen
 ## Why the unsourced list needs a wide sweep
 
 Measured: one run drew only on the declared source files and silently dropped an entire section of research grounding that the earlier version of the same document had.
+
+## Why each comma gets marked by name
+
+Measured on 2026-10-27: a session loaded this skill to rewrite 46 one-sentence definitions shown on screen and ran the voice check, which listed no commas. The operator then found a comma before an "or" that joined two objects of one verb. A pass that checked each comma by name then found ten. A later read for the other sentence rules found seven more sentences to fix after the comma pass. Two could be read two ways, and one reached its main verb through a clause that a reader takes as its own subject and verb.

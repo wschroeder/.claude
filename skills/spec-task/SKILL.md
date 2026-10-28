@@ -319,6 +319,13 @@ write that sentence through it before the slice goes up for approval. The
 builder copies the card's wording, so this is the last place anyone writes it.
 See [references/measurements.md](references/measurements.md).
 
+**If a requirement adds help text or user documentation**, check each passage
+against the screen it explains. Cut any passage that tells the reader only what
+the screen already shows, such as a field's name restated as a sentence. Keep
+what the screen cannot show: what a figure means, where it comes from, and what
+the reader should do about it. See
+[references/measurements.md](references/measurements.md).
+
 **`built` records what was already true when this section began**, from an
 earlier slice or an existing system — never a command this pass made pass.
 This template writes no product file; `tdd-cycle` does, after approval.
@@ -355,11 +362,16 @@ Rules for this section:
 - If a proof command already passes, then the requirement is `built` — mark
   it and keep it out of Section 6. One that fails with "no such test" is the
   expected shape of unbuilt work.
-- **If a requirement concerns a configured value, such as a version, a
-  pinned digest, or a revision hash, then its proof is a one-off command that
-  reads the value**, such as `node --version`. The slice commits no script
-  or test for it, and writes the value into a design document only where
-  that document already names it. See [references/why.md](references/why.md).
+- **If a requirement concerns a constant of any kind, then the slice commits
+  no script or test for it.** A constant is any fixed value: text a person
+  reads, a label, a list of options, a setting, a version, a pinned digest, or
+  a revision hash. Prove it with a one-off command that reads the value, such
+  as `node --version`. The demo, where the operator reads it on screen,
+  proves it too. A
+  requirement that a thing merely exists, such as "every label has a
+  definition", gets the same proof. Write a constant into a design document
+  only where that document already names it. See
+  [references/why.md](references/why.md).
 - A command that cannot be run yet says so and says why, per CLAUDE.md
   rule 3. Do not paste an imagined result.
 - **Anything the operator rejected gets its own requirement saying it is

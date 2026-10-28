@@ -443,11 +443,13 @@ spec session wrote the demo card around a save forged from the browser
 console, the workers built it as written, and the operator, working the demo,
 called that step "crazy town" and asked what it was trying to do.
 
-## A configured value is proved by reading it
+## A constant is proved by reading it
 
-Rule: a requirement about a configured value is proved by a one-off command
-that reads the value, and the slice commits no script or test for it and adds
-no design-document text about it that was not already there.
+Rule: a requirement about a constant of any kind, whether text, a label, a
+list, a setting, or a version, is proved by a one-off command that reads the
+value or by the operator reading it in the demo. The slice commits no script or
+test for it and adds no design-document text about it that was not already
+there.
 
 Why: "no such test" as the expected shape of unbuilt work led a planning
 session to invent check scripts for a version bump. Measured (2026-10-23): the
@@ -458,3 +460,11 @@ spec pages, and the build committed all of it. At the demo the operator asked
 lines: "If we didn't have version check scripts before, we don't need them
 now. Besides, it does no good to test configuration." and "If the spec didn't
 mention versions before, we shouldn't now."
+
+Measured (2026-10-27): a slice that added a definition to every label on three
+screens carried a requirement that each definition match its entry in a design
+document, proved by a test comparing the two texts. It also tested that every
+label had a definition. At the demo the operator had both removed: "They catch
+nothing other than that something exists. Retro: I do not want tests at all for
+verifying constants of any kind. I already have a note about this for
+configuration validation, and this might be a general extension of it."
