@@ -264,8 +264,8 @@ click, what to check before, what to do, and what to check after.
 **Write those steps as a story before you drive anything, using
 `writing-prose`'s tier-two method.** Load `writing-prose`. Dump every card and
 every behavior the slice changed, order them so each step sets up the next,
-draft the steps, and finish them. Every card maps to a step, or the steps say
-in one line why that card has nothing on screen.
+draft the steps, and finish them. Every rule on every card maps to a step, or
+the steps say in one line why that rule has nothing on screen.
 
 **If the slice changes a step in the middle of a pipeline, give the walk a
 step that captures the screen just before that step runs and just after it.**
