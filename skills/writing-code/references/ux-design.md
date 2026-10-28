@@ -176,6 +176,10 @@ Check each control against these before you call it done:
 - A pointer target meets `responsive-design`'s target size.
 - A blocked row's reason is visible text, not a tooltip or a colour alone.
 - A greyed button uses `aria-disabled="true"`, not `disabled`.
+- A disabled control says why it is disabled in a tooltip shown on hover, such
+  as the permission it needs or what has to happen first, and an enabled
+  icon-only control names its action in a tooltip. A blocked row in a selection
+  still shows its reason as visible text.
 - The control matches the app's existing control for the same action, where it
   sits included, and you cited the file.
 - A control that acts on one component sits inside that component's border.
