@@ -265,7 +265,9 @@ click, what to check before, what to do, and what to check after.
 `writing-prose`'s tier-two method.** Load `writing-prose`. Dump every card and
 every behavior the slice changed, order them so each step sets up the next,
 draft the steps, and finish them. Every rule on every card maps to a step, or
-the steps say in one line why that rule has nothing on screen.
+the steps say in one line why that rule has nothing on screen. Write the
+mapping into the demo file under the steps, one line per rule: the card, the
+rule, and the step number.
 
 **If the slice changes a step in the middle of a pipeline, give the walk a
 step that captures the screen just before that step runs and just after it.**
