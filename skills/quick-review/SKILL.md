@@ -193,6 +193,13 @@ Concurrency / race shapes:
                                           the table lock each needs (FOR UPDATE takes
                                           ROW SHARE, the first write ROW EXCLUSIVE);
                                           if either path holds a table lock, run the pair;
+                                          a shared lock helper is not a shared order:
+                                          quote the ids each caller passes it, in the
+                                          order it passes them; rows locked in list or
+                                          name order, or from two pages two users can
+                                          have open → run the pair
+                                          a suspected deadlock is run, never dropped
+                                          as unmeasured
                                           after a path deletes, combines, or leaves
                                           duplicates of rows, run every other writer
                                           once more afterwards and show it holds
@@ -395,6 +402,10 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           proof: quote one code line per case that
                                           makes that case true; a case with no
                                           line → finding
+                                          then the other way: each condition the code
+                                          applies to that case (a filter, a guard, an
+                                          early return): quote the spec words that
+                                          state it; no words → finding
                                           a new member of a class (a kind, a
                                           source, a state): grep docs/spec for
                                           each unchanged sentence naming a
