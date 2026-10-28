@@ -522,7 +522,7 @@ A finding that proposes an irreversible operation on user-authored data (DELETE,
 
 ### Author-acknowledged deviation is not exempt
 
-An acknowledgment in a moduledoc, comment, commit message, PR body, this review's own Notes, or the session's handoff is the TRIGGER to run the Yes-to-any gate against the deviation, never a reason to skip it. A finding that a later card will fix is still a Fix or a Flag in this commit, never a Note. The acknowledgment phrases to grep for, and why the gate has no "author already knew" exemption: [details/author-acknowledged.md](details/author-acknowledged.md).
+An acknowledgment in a moduledoc, comment, commit message, PR body, this review's own Notes, or the session's handoff is the TRIGGER to run the Yes-to-any gate against the deviation, never a reason to skip it. A handoff's "Decision" line counts too, even one marked as not to relitigate: that tells the next session not to reopen the product choice, not this review to pass the code. When the decision is to copy a shared helper rather than call it, ask whether the helper could take a parameter that covers the difference, and name the helper either way. A finding that a later card will fix is still a Fix or a Flag in this commit, never a Note. The acknowledgment phrases to grep for, and why the gate has no "author already knew" exemption: [details/author-acknowledged.md](details/author-acknowledged.md).
 
 ### Classifications
 
