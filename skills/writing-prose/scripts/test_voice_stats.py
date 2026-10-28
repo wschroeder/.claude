@@ -67,6 +67,18 @@ def main():
                  "It reads the file, and nothing else."):
         assert vs.measure(text)["silent_tails"] == [], text
 
+    # a verb that closes a question without naming the act that closed it
+    for text in ("The estimate depends on things nobody has settled yet.",
+                 "One question settles the first half.",
+                 "It settled which reader goes next.",
+                 "The open item was resolved.",
+                 "Resolving it takes a call."):
+        assert vs.measure(text)["closing_verbs"] == [text], text
+    for text in ("The resolver returns the wrong value.",
+                 "The settlement file arrives nightly.",
+                 "Nobody has checked it yet."):
+        assert vs.measure(text)["closing_verbs"] == [], text
+
     # every comma before a coordinating conjunction or a trailing reason is
     # listed, because only a reader can tell whether a second subject follows
     for text in ("This column shows the number, or how many records it has.",

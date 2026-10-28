@@ -1,6 +1,6 @@
 ---
 name: writing-prose
-description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, or a proposal; when organizing a brain dump; when settling section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
+description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, or a proposal; when organizing a brain dump; when choosing section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
 ---
 
 ## Purpose
@@ -86,9 +86,11 @@ count. See [references/measurements.md](references/measurements.md).
 
 Before it goes out, save the text to a file in the scratchpad and run
 `python3 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent
-tail, and comma candidate it lists keep or cut, and fix every one you cut. A
-silent tail is a sentence that ends on what nobody did, such as "and nothing
-reports it", where it could name the actor that stayed silent. A comma
+tail, closing verb, and comma candidate it lists keep or cut, and fix every one
+you cut. A silent tail is a sentence that ends on what nobody did, such as "and
+nothing reports it", where it could name the actor that stayed silent. A
+closing verb is "settled" or "resolved", which says a question closed without
+saying how: write the act instead, such as "nobody has checked". A comma
 candidate is a comma before a coordinating conjunction or a trailing "because"
 or "since": mark it keep only by naming the CLAUDE.md "Commas" rule that allows
 it. A band the script reports missed
@@ -152,10 +154,10 @@ comes after the body.
 
 Save the text to a file in the scratchpad and run
 `python3 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent
-tail, and comma candidate it lists keep or cut, as tier one says, and fix every
-one you cut. Then run tier one's other two passes over the text. Report any band
-it misses in one line with the reason you kept the text as it is, or rewrite until
-it lands.
+tail, closing verb, and comma candidate it lists keep or cut, as tier one says,
+and fix every one you cut. Then run tier one's other two passes over the text.
+Report any band it misses in one line with the reason you kept the text as it
+is, or rewrite until it lands.
 
 ---
 
@@ -274,7 +276,8 @@ saying what a thing is not before saying what it is — "rather than", "instead 
 [references/measurements.md](references/measurements.md). **Median sentence length** and **long-sentence share** say
 whether the reader is being asked to hold too much at once. A maxim candidate is a
 sentence that closes a block by generalising into a saying; cut it by default.
-Mark the silent tails and comma candidates it lists the way tier one says.
+Mark the silent tails, closing verbs, and comma candidates it lists the way
+tier one says.
 
 Then measure length against the budget from step 0. **Over budget means cutting
 ideas**, which readmits you to step 3, because dropping an idea changes the graph.

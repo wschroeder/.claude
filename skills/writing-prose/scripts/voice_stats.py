@@ -30,6 +30,10 @@ SILENT_TAIL = re.compile(r",\s*and\s+(?:nothing|nobody|no one)\b(?!\s+else)|"
                          r"\bwithout (?:a word|anyone|anybody|being told|a warning)\b|"
                          r"\bwith nothing said\b|"
                          r"\bnothing (?:reports|says|tells|warns|notices|flags)\b", re.I)
+# A verb that closes a question without naming the act that closed it: "nobody
+# has settled" for "nobody has checked". Verb forms only, so "resolver" and
+# "settlement" stay out.
+CLOSING_VERB = re.compile(r"\b(?:settl|resolv)(?:e|es|ed|ing)\b", re.I)
 # A comma before a coordinating conjunction or a trailing reason is right only
 # when a second subject follows, or the main clause is negative, and only a
 # reader can tell which.
@@ -76,6 +80,7 @@ def measure(text):
         "maxim_candidates": [s for s in sents if MAXIM.match(s)],
         "silent_tails": [s for s in sents if SILENT_TAIL.search(s)],
         "comma_candidates": [s for s in sents if COMMA_CANDIDATE.search(s)],
+        "closing_verbs": [s for s in sents if CLOSING_VERB.search(s)],
     }
 
 
@@ -118,6 +123,10 @@ def main():
     print("\nsilent tails (%d) -- name the actor that stayed silent, or mark keep:"
           % len(m["silent_tails"]))
     for s in m["silent_tails"]:
+        print("  " + s)
+    print("\nclosing verbs (%d) -- name the act that would close it (checked,"
+          " confirmed, tested, decided), or mark keep:" % len(m["closing_verbs"]))
+    for s in m["closing_verbs"]:
         print("  " + s)
     print("\ncomma candidates (%d) -- mark each keep or cut with the CLAUDE.md"
           " \"Commas\" rule that allows it:" % len(m["comma_candidates"]))

@@ -185,6 +185,11 @@ Do not borrow a trial's vocabulary for an ordinary finding: verdict, ruling, res
 - BAD:  "The answer decides "Billing contact"."
 - GOOD: "The answer tells us whether the client has to keep a billing contact list for the app."
 
+When you cut one of these words, do not swap in a verb that closes a question without saying how: settled, resolved, established, or determined. Name the act that would close it, and who has or has not done it: checked, confirmed, measured, tested, asked, or decided. A person can decide; nobody can "settle" a fact.
+
+- BAD:  "The estimate depends on things nobody has settled yet."
+- GOOD: "The estimate depends on two things nobody has checked yet: whether the nightly sync copies that table, and whether we can read the copy."
+
 ### Commas
 
 Every list of three or more items takes a comma before the final "and" or "or" — in prose, in bullets, in headings, in commit messages, and in anything else you write. The one exception is quoted text: reproduce a quotation exactly as its source wrote it, missing comma and all.
@@ -332,7 +337,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Starting the run that builds a slice whose cards already exist, running work unattended, or "keep going until it's done" | `session-loop` |
 | Writing, changing, or deleting code in any language; code comments, docstrings, doc-comments; any change to what a person sees or reads on an app's screens, including labels, help, and tooltip text, even where that text sits in a design document | `writing-code` |
 | Making a page work on both a phone and a desktop; CSS breakpoints, fluid type, viewport units, media or container queries, mobile layout | `responsive-design` |
-| Writing or restructuring prose a person reads — an email, a README, a report, a memo, a PR body; organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written; a PR review comment or reply, and anything else posted or sent in my name | `writing-prose` |
+| Writing or restructuring prose a person reads — an email, a README, a report, a memo, a PR body; organizing a brain dump, choosing section order, headings, or titles; prose that reads as AI-written; a PR review comment or reply, and anything else posted or sent in my name | `writing-prose` |
 | Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |
 | Building or editing a status or health page | `status-page` |
 | Writing a spec or a design document, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
