@@ -488,10 +488,12 @@ either route works. A file of operate-it steps is not this kind of demo: Section
 **Where the demo follows a background run the operator was not watching, such
 as a `session-loop` run, also send one `PushNotification`** naming the slice and
 saying the demo is on their phone. Send one per demo, not one per round of
-feedback. Write the whole demo message first, with every step in it, and make
-the push the turn's last tool call, followed by one closing line at most: text
-written after a turn's last tool call reaches the operator only once that call
-finishes. See [references/measurements.md](references/measurements.md).
+feedback. Write the demo message as text first: the summary, every step, the
+phase line, and the ask. Only then call SendUserFile and PushNotification, and
+end the turn with nothing after them. Text written after a tool call reaches the
+operator only once that call finishes, so a demo written after the push arrives
+after the notification. The ask still goes last in the message; the push is not
+part of the message. See [references/measurements.md](references/measurements.md).
 
 Record what comes back verbatim, one record per point:
 
@@ -507,8 +509,9 @@ nobody reads a question in the transcript and nobody runs the demo, so commit
 what is already done. Stop every server you started in this session, and write
 the command that starts it into the demo file's steps; the supervisor starts it
 again at the demo stop. Write that start command, and the walk command, each as
-one line that sets every variable on the command line itself, never as a script
-to run or an env file to load. After your last edit to the demo file, run both
+a short numbered list of commands, each a single command runnable as printed,
+with the app launch as one line that sets every variable on it, never as a
+script to run or an env file to load. After your last edit to the demo file, run both
 exactly as the file prints them, and write `BLOCKED:` only once both work. Why:
 [references/measurements.md](references/measurements.md).
 Then write `HANDOFF.md` through `clear-task` with a first
