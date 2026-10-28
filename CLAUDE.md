@@ -330,7 +330,7 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Quick code review, review changes, review diffs | `quick-review` |
 | TDD, test-driven development, code, fix, implement, continue implementing, closing a bead once the work is done | `tdd-cycle` |
 | Starting the run that builds a slice whose cards already exist, running work unattended, or "keep going until it's done" | `session-loop` |
-| Writing, changing, or deleting code in any language; code comments, docstrings, doc-comments | `writing-code` |
+| Writing, changing, or deleting code in any language; code comments, docstrings, doc-comments; any change to what a person sees or reads on an app's screens, including labels, help, and tooltip text, even where that text sits in a design document | `writing-code` |
 | Making a page work on both a phone and a desktop; CSS breakpoints, fluid type, viewport units, media or container queries, mobile layout | `responsive-design` |
 | Writing or restructuring prose a person reads — an email, a README, a report, a memo, a PR body; organizing a brain dump, settling section order, headings, or titles; prose that reads as AI-written; a PR review comment or reply, and anything else posted or sent in my name | `writing-prose` |
 | Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |

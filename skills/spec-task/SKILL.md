@@ -322,8 +322,7 @@ See [references/measurements.md](references/measurements.md).
 **If a requirement adds help text or user documentation**, check each passage
 against the screen it explains. Cut any passage that tells the reader only what
 the screen already shows, such as a field's name restated as a sentence. Keep
-what the screen cannot show: what a figure means, where it comes from, and what
-the reader should do about it. See
+what the screen cannot show: what a figure means and where it comes from. See
 [references/measurements.md](references/measurements.md).
 
 **`built` records what was already true when this section began**, from an

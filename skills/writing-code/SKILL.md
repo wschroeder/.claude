@@ -1,6 +1,6 @@
 ---
 name: writing-code
-description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference the change reaches, comment discipline and naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the review sequence the finished diff owes: quick-review always, security-review when the diff touches outside input, auth, the network, a shell, a query, a secret, or a dependency. Routes to the language-specific skill when one exists, and carries its own references for PostgreSQL schema work (migrations, DDL, foreign keys, indexes, and COMMENT ON) and for user interface controls, which match how the app already does the same action before anything else. Loaded by tdd-cycle before the test is written, and on its own whenever code, comments, docstrings or doc-comments are added or changed, or when a language has no skill of its own.
+description: Everything that holds around a code change in any language — probing an unfamiliar boundary before building on it, tracing every caller, comment, test and outside reference it reaches, comment discipline, naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and the reviews the finished diff owes: quick-review always, security-review when the diff touches outside input, auth, the network, a shell, a query, a secret, or a dependency. Routes to the language skill when one exists, and carries references for PostgreSQL schema work and for user interfaces: controls that match how the app already does the same action, and help text that states facts only. Loaded by tdd-cycle before the test, and on its own whenever code, comments, or docstrings change, whenever anything a person reads on an app's screens changes, such as a label, help text, or a tooltip, even in a design document, or when a language has no skill of its own.
 ---
 
 ## Purpose
@@ -16,7 +16,7 @@ governs what the code and its comments look like once the loop reaches Green.
 | CSS, HTML, any user interface that has to work at more than one width | `responsive-design` | global |
 | Any edit to a status or health page's markup or styles | `status-page`, before the edit | global |
 | PostgreSQL schema: migrations, DDL, `COMMENT ON` | [references/sql-schema-postgres.md](references/sql-schema-postgres.md) | this skill's references |
-| A control a person uses: button, form, dialog, inline edit, row action; a link, redirect, or form action built from request parameters; a page's own contents list on a phone | [references/ux-design.md](references/ux-design.md) | this skill's references |
+| A control a person uses: button, form, dialog, inline edit, row action; a label, help text, a definition, or a tooltip on a screen; a link, redirect, or form action built from request parameters; a page's own contents list on a phone | [references/ux-design.md](references/ux-design.md) | this skill's references |
 | A Godot game played in a phone's browser: web export, serving it to an iPhone, touch input | [references/godot-web-phone.md](references/godot-web-phone.md) | this skill's references |
 | TypeScript: data entering from a request, a file, a model reply, or a query | [references/typescript-parse-at-the-edge.md](references/typescript-parse-at-the-edge.md) | this skill's references |
 | Ecto migrations | `elixir-migrations`, `safe-migration` | one project only |
@@ -29,11 +29,14 @@ If the language has no skill — GDScript today — this file is the entire conv
 set for it. Say that in one line rather than proceeding as though a convention file
 had been consulted.
 
-## Before you edit a view, read the interface reference
+## Before you change a screen, read the interface reference
 
 Before your first edit to a file that renders a control a person uses — a view,
 a template, a component, a form — read
-[references/ux-design.md](references/ux-design.md). In your report, name the
+[references/ux-design.md](references/ux-design.md). Read it too before you write
+or change any text a person reads on a screen: a label, help text, a definition,
+or a tooltip, even where that text sits in a design document or a card. In your
+report on a view edit, name the
 existing view whose pattern you copied and one thing you matched against it, such
 as the dialog structure, the button order, or the label pattern. Quote the line
 from that view and the matching line from your edit, with each file and line

@@ -19,3 +19,7 @@ Measured again on the next run: four build sessions reached the reviews, none st
 ## Why security-review runs only when the diff touches its list
 
 Measured on 2026-09-26 across four repositories: of ten sampled security reviews run on every card regardless, one found an issue, and no path in the shipped code reached it.
+
+## Why help text states facts only, and why any change to on-screen text loads this skill
+
+Measured on 2026-10-28: a slice wrote one-sentence definitions for every figure on two screens. The spec sessions wrote the wording into a design document, and none of them opened the interface reference: no session in the run loaded this skill, and the two that wrote the wording mention the reference zero times. spec-task's help-text check told the writer to keep what the reader should do about a figure, so several definitions shipped carrying advice and predictions. The operator caught them at the demo and said help states facts only.

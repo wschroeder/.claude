@@ -17,6 +17,7 @@ from where a page's own contents list goes on a phone.
 - Multi-select with a bulk action
 - Carry only the destination's own parameters
 - Show a page's contents list above its text on a phone
+- State facts only in help text
 - Review list
 - Sources
 
@@ -152,6 +153,17 @@ from practitioner usability research and counts as moderate. Measured
 contents shown four ways (a plain list, wrapping chips, a folded bar, and
 accordion sections) and chose the plain list as the rule for the whole app.
 
+## State facts only in help text
+
+A definition or help text states facts only: what the thing means and how the
+app sets or uses it. It makes no promise about what will happen later, gives no
+opinion, and tells the reader nothing about what to do. A word that names a band
+the app shows in color, such as "high", counts as a fact.
+
+Keep help in a tooltip to meaning alone. Nielsen Norman Group's tooltip
+guidance, quoted under Sources, keeps instructions out of tooltips because a
+tooltip disappears. See [measurements.md](measurements.md).
+
 ## Review list
 
 Check each control against these before you call it done:
@@ -171,6 +183,7 @@ Check each control against these before you call it done:
   none copies the incoming query string.
 - At phone width, a page's contents list sits visible above its text, one link
   per line, neither folded nor sticky.
+- Each definition and help passage carries no promise, opinion, or advice.
 
 ## Sources
 
