@@ -79,6 +79,17 @@ def main():
                  "Nobody has checked it yet."):
         assert vs.measure(text)["closing_verbs"] == [], text
 
+    # a clause tacked on with ", and" that lands on an absence, read as a punchline
+    for text in ("The list misses four systems, and three of the fourteen reach no item.",
+                 "It ships today, and none of it is tested.",
+                 "The job ran twice, and nobody saw the second run."):
+        assert vs.measure(text)["punchlines"] == [text], text
+    for text in ("Three of the fourteen reach no item.",
+                 "It reads the file and writes no log.",
+                 "The page loads, and the table shows every system.",
+                 "The run finished, and the notes say why."):
+        assert vs.measure(text)["punchlines"] == [], text
+
     # every comma before a coordinating conjunction or a trailing reason is
     # listed, because only a reader can tell whether a second subject follows
     for text in ("This column shows the number, or how many records it has.",

@@ -190,6 +190,15 @@ When you cut one of these words, do not swap in a verb that closes a question wi
 - BAD:  "The estimate depends on things nobody has settled yet."
 - GOOD: "The estimate depends on two things nobody has checked yet: whether the nightly sync copies that table, and whether we can read the copy."
 
+### Do not end a headline on a punchline
+
+In a title, a headline, or a document's opening sentence, do not add ", and" followed by a negative count or an absence as the last clause. Readers stress the end of a sentence, so a negative placed there tells them to be alarmed before they have seen the evidence, and it is usually not the page's point. Say what the page covers or what the reader should do. If an absence matters, put it in the body, among the other statuses.
+
+To check a title, ask what a reader would do differently after reading only the title.
+
+- BAD:  "The list misses four systems, and three of the fourteen reach no item."
+- GOOD: "Which systems each review step reads and writes"
+
 ### Commas
 
 Every list of three or more items takes a comma before the final "and" or "or" — in prose, in bullets, in headings, in commit messages, and in anything else you write. The one exception is quoted text: reproduce a quotation exactly as its source wrote it, missing comma and all.
@@ -232,6 +241,11 @@ If the main clause is negative, then ask whether a reader could take the reason 
 - GOOD: "You cannot give a model more thinking per token because a transformer runs the same fixed stack of layers for every token it produces." — nobody reads the reason as the thing denied.
 
 A "since" that marks time never takes a comma: "the build has failed since the lockfile changed". If a reader could take a "since" as time when you meant a reason, then write "because" instead.
+
+A phrase trailing the main clause takes a comma only when the sentence means the same without the phrase. A phrase that limits what the clause covers takes none.
+
+- BAD:  "Which systems each step touches, across the four teams"
+- GOOD: "Which systems each step touches across the four teams"
 
 ### A follow-on sentence takes a colon, not a full stop
 

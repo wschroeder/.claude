@@ -84,17 +84,20 @@ for where each subject ends and its main verb begins, and one for sentences a
 reader could take two ways. Do not dump, do not outline, and do not announce a
 count. See [references/measurements.md](references/measurements.md).
 
-Before it goes out, save the text to a file in the scratchpad and run
-`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent
-tail, closing verb, and comma candidate it lists keep or cut, and fix every one
-you cut. A silent tail is a sentence that ends on what nobody did, such as "and
-nothing reports it", where it could name the actor that stayed silent. A
-closing verb is "settled" or "resolved", which says a question closed without
-saying how: write the act instead, such as "nobody has checked". A comma
+Before it goes out, save the text to a file in the scratchpad and run `python3
+scripts/voice_stats.py <file>`. Mark each maxim candidate, silent tail, closing
+verb, punchline, and comma candidate it lists keep or cut, and fix every one you
+cut. A silent tail is a sentence that ends on what nobody did, such as "and
+nothing reports it", where it could name the actor that stayed silent. A closing
+verb is "settled" or "resolved", which says a question closed without saying
+how: write the act instead, such as "nobody has checked". A punchline is a
+clause tacked on with ", and" that ends on a negative count or an absence: cut
+it from a title, a headline, or an opening sentence, as CLAUDE.md "Do not end a
+headline on a punchline" says, and mark it keep or cut elsewhere. A comma
 candidate is a comma before a coordinating conjunction or a trailing "because"
 or "since": mark it keep only by naming the CLAUDE.md "Commas" rule that allows
-it. A band the script reports missed
-does not stop short text, because a few sentences make a noisy rate.
+it. A band the script reports missed does not stop short text, because a few
+sentences make a noisy rate.
 
 One addition, because it is the only ordering decision a single point has: say
 the point in the first sentence. Everything after it is support.
@@ -152,10 +155,10 @@ comes after the body.
 
 ### 5. Run the voice check on the finished text
 
-Save the text to a file in the scratchpad and run
-`python3 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent
-tail, closing verb, and comma candidate it lists keep or cut, as tier one says,
-and fix every one you cut. Then run tier one's other two passes over the text.
+Save the text to a file in the scratchpad and run `python3
+scripts/voice_stats.py <file>`. Mark each maxim candidate, silent tail, closing
+verb, punchline, and comma candidate it lists keep or cut, as tier one says, and
+fix every one you cut. Then run tier one's other two passes over the text.
 Report any band it misses in one line with the reason you kept the text as it
 is, or rewrite until it lands.
 
@@ -178,6 +181,10 @@ the number of words it gets. Both go at the top of `ideas.tsv` as comments.
 sentence, and an idea that is merely true, merely interesting, or merely nearby
 is a rabbit hole that costs the reader the main point. A dump is allowed to be
 long; the document is not.
+
+**A document that shows status argues nothing**, such as a coverage map or an
+inventory. Its sentence names what it covers, and its title names that coverage
+too. Do not manufacture a claim for it to argue.
 
 **The budget is a constraint, not an outcome.** Pick it from what the reader will
 actually read, not from what the material could fill. Measure against it at step
@@ -276,8 +283,8 @@ saying what a thing is not before saying what it is — "rather than", "instead 
 [references/measurements.md](references/measurements.md). **Median sentence length** and **long-sentence share** say
 whether the reader is being asked to hold too much at once. A maxim candidate is a
 sentence that closes a block by generalising into a saying; cut it by default.
-Mark the silent tails, closing verbs, and comma candidates it lists the way
-tier one says.
+Mark the silent tails, closing verbs, punchlines, and comma candidates it lists
+the way tier one says.
 
 Then measure length against the budget from step 0. **Over budget means cutting
 ideas**, which readmits you to step 3, because dropping an idea changes the graph.

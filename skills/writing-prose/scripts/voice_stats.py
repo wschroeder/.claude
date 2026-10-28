@@ -34,6 +34,9 @@ SILENT_TAIL = re.compile(r",\s*and\s+(?:nothing|nobody|no one)\b(?!\s+else)|"
 # has settled" for "nobody has checked". Verb forms only, so "resolver" and
 # "settlement" stay out.
 CLOSING_VERB = re.compile(r"\b(?:settl|resolv)(?:e|es|ed|ing)\b", re.I)
+# A clause tacked on with ", and" that lands on an absence reads as a punchline
+# and tells the reader to be alarmed before the body has shown anything.
+PUNCHLINE = re.compile(r",\s*and\b[^.;:]{0,60}?\b(?:no|none|nothing|never|nobody|no one|not one)\b", re.I)
 # A comma before a coordinating conjunction or a trailing reason is right only
 # when a second subject follows, or the main clause is negative, and only a
 # reader can tell which.
@@ -81,6 +84,7 @@ def measure(text):
         "silent_tails": [s for s in sents if SILENT_TAIL.search(s)],
         "comma_candidates": [s for s in sents if COMMA_CANDIDATE.search(s)],
         "closing_verbs": [s for s in sents if CLOSING_VERB.search(s)],
+        "punchlines": [s for s in sents if PUNCHLINE.search(s)],
     }
 
 
@@ -127,6 +131,10 @@ def main():
     print("\nclosing verbs (%d) -- name the act that would close it (checked,"
           " confirmed, tested, decided), or mark keep:" % len(m["closing_verbs"]))
     for s in m["closing_verbs"]:
+        print("  " + s)
+    print("\npunchlines (%d) -- in a title, headline, or opening sentence, cut;"
+          " elsewhere mark keep or cut:" % len(m["punchlines"]))
+    for s in m["punchlines"]:
         print("  " + s)
     print("\ncomma candidates (%d) -- mark each keep or cut with the CLAUDE.md"
           " \"Commas\" rule that allows it:" % len(m["comma_candidates"]))
