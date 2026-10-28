@@ -2,9 +2,11 @@
 
 The skill body states each rule. This file holds the run that prompted it, for a reader who disputes one.
 
-## Why every test runner runs against the rebased head
+## Why the runners CI skips run against the rebased head
 
 Measured: a browser spec passed on 2026-10-16, main then changed the table cell it read, and PR prep ran only the unit and integration tests after the rebase. An outside reviewer found the failing spec.
+
+Measured (2026-10-28): the rule then said to run every test runner after any rebase. A PR prep started the full unit and integration suite locally, though the project's CI runs those same suites on every pull request and runs no browser tests, and the operator stopped it as wasted time. As worded, the rule also ran every suite after a rebase that brought in nothing, where TDD had already run them against the same base.
 
 ## Why a fold resolves its conflicts instead of splitting a claim
 

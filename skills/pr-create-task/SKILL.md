@@ -34,22 +34,30 @@ Report:
 - Commits:        <list — each is a section of the PR; is the stack the
                    shape you mean to ship, or does it need a reorder/split
                    first?>
-- Tests:          <green on every runner the project has, browser tests
-                   included; a spec that cannot run here is named and
-                   marked UNTESTED — a PRECONDITION recorded here, NOT a
-                   PR-body section>
+- Tests:          <"not run: the rebase brought in no commits", or the
+                   runners the project's CI skips on a pull request,
+                   green at the rebased head; a spec that cannot run here
+                   is named and marked UNTESTED — a PRECONDITION recorded
+                   here, NOT a PR-body section>
 - Reviews:        <the last round of quick-review and security-review
                    found nothing — a PRECONDITION, NOT a PR-body section>
 - Base branch:    <origin/master (or origin/main) — never the local ref>
 ```
 
-**Rebase on the latest base first.** Run `git fetch origin <base>`, then
-`git rebase origin/<base>`. Resolve each conflict in the commit that
-replays it, so no commit in the stack carries another one's repair.
-Then run every test runner the project has against the rebased head, its
-browser tests included, or at least every browser spec the branch adds or
-edits. A change on the base can break a spec that passed before the rebase,
-and no conflict shows it. See [references/measurements.md](references/measurements.md).
+**Rebase on the latest base first.** Run `git fetch origin <base>`, and
+record `git rev-list --count HEAD..origin/<base>`, the number of commits the
+rebase will bring in. Then run `git rebase origin/<base>`. Resolve each
+conflict in the commit that replays it, so no commit in the stack carries
+another one's repair.
+
+If the rebase brought in no commits, run no tests: TDD already ran them
+against this base. If it brought some in, read the project's CI workflow for
+the runners it runs on a pull request, and leave those to CI's check on the
+draft PR. Run every other runner against the rebased head, which is usually
+the browser tests, or at least every browser spec the branch adds or edits.
+If the project has no CI on pull requests, run every runner. A change on the
+base can break a spec that passed before the rebase, and no conflict shows
+it. See [references/measurements.md](references/measurements.md).
 
 **Fold the stack to one commit per claim before the push gate.** Group the
 commits by the claim each makes, under `git-commit`, "How many commits".
@@ -82,8 +90,8 @@ named artifacts only for code that has not changed. See [references/measurements
 
 **GO/NO-GO:**
 - **GO** if the working tree holds only intended changes, the branch sits
-  on the latest base, every test runner is green at the rebased head, the
-  stack is one commit per claim,
+  on the latest base, every runner the rebase calls for above is green at
+  the rebased head, the stack is one commit per claim,
   and the last review round found nothing.
 - **NO-GO** if junk is staged or the stack isn't the shape you mean to
   ship — fix that first, here. A review finding is not a NO-GO to fix here:
