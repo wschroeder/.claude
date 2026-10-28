@@ -313,6 +313,12 @@ complex           While <precondition>, when <trigger>, the <system>
      status:   planned | stubbed→S<n> | built | demoed
 ```
 
+**If a requirement quotes a sentence that a person will read on screen**, such
+as a warning, help text, or a paragraph on a page, load `writing-prose` and
+write that sentence through it before the slice goes up for approval. The
+builder copies the card's wording, so this is the last place anyone writes it.
+See [references/measurements.md](references/measurements.md).
+
 **`built` records what was already true when this section began**, from an
 earlier slice or an existing system — never a command this pass made pass.
 This template writes no product file; `tdd-cycle` does, after approval.

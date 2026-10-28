@@ -19,7 +19,3 @@ Measured again on the next run: four build sessions reached the reviews, none st
 ## Why security-review runs only when the diff touches its list
 
 Measured on 2026-09-26 across four repositories: of ten sampled security reviews run on every card regardless, one found an issue, and no path in the shipped code reached it.
-
-## Why a sentence a user reads goes through writing-prose
-
-Measured on 2026-10-27: a build session rewrote an explanatory paragraph on a page while loading five skills, none of them `writing-prose`, and the operator called the result's grammar horrendous at the demo. Neither this skill nor `tdd-cycle` named `writing-prose`, user-facing text, or page text anywhere.
