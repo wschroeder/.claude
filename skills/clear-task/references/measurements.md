@@ -373,3 +373,7 @@ Measured (2026-10-13): a refresh failure on a same-name copy owned by a differen
 ## §12 — a list of skills to load first
 
 Measured (2026-10-21): five handoffs in a row listed four to six skills to load first, the loads took about 80,000 tokens, and each session handed off again within six minutes.
+
+## Ending the operator handoff turn
+
+Measured (2026-10-29): five sessions in one unattended run wrote pending-handoff.md and ended the turn on the Write call with no text. Each got "[Your previous response had no visible output. Please continue and produce a user-visible response.]" before the clear. The auto-clear mod reads only the file, so one short line after the Write changes nothing it submits. A demo-task measurement from the same day found that one short line stopped the prompt.

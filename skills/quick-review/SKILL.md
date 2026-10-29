@@ -310,7 +310,9 @@ TS/JS-specific shapes (4.4-4.19):  16 angles, listed with worked examples in
 
 CWE class checks:
   4.20  CWE-190 int overflow             arithmetic on untrusted bounds
-  4.21  CWE-193 off-by-one               slice/loop/buffer bounds
+  4.21  CWE-193 off-by-one               slice/loop/buffer bounds; two paths
+                                          bounding the same thing differently:
+                                          see 5.7
   4.22  CWE-697 incorrect comparison     `==` vs `===`; loose equality
   4.23  CWE-707 boundary input           neutralize at system boundary
   4.24  CWE-20 input validation          trust shape/type/range without check;
@@ -357,7 +359,11 @@ Sibling consistency:
                                           verdict both honor a reviewer's choice;
                                           a rule applied to one kind of a family:
                                           name each sibling kind, shown in or out
-                                          by a test or a spec line
+                                          by a test or a spec line; two siblings
+                                          that use different bounds or clauses
+                                          stay a candidate until you quote the
+                                          spec line or test saying which is
+                                          right, and "behaves correctly" cites it
   5.8   Within-function return-shape     all branches same shape (no :ok mix)
   5.9   Behaviour declaration consistency `@behaviour`/`@impl` symmetry across siblings
 

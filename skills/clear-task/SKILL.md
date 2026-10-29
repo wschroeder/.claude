@@ -1,6 +1,6 @@
 ---
 name: clear-task
-description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Works every handoff consideration through ordered sections without printing them, then writes the finished prompt to one file and ends the turn. Writes the sections from what the session already holds rather than re-probing for it. Works out whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. For the operator it writes pending-handoff.md in the session's scratchpad and prints nothing, because the auto-clear mod runs /clear and submits the file. Carries the words typed after /clear-task into the prompt word for word, as the next session's first step. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
+description: Produces a copy-paste continuation prompt for resuming work in a fresh chat after /clear. Works every handoff consideration through ordered sections without printing them, then writes the finished prompt to one file and ends the turn. Writes the sections from what the session already holds rather than re-probing for it. Works out whether a session-loop worker or the operator reads the prompt next, and writes it to HANDOFF.md only for a worker. For the operator it writes pending-handoff.md in the session's scratchpad and prints one short line, because the auto-clear mod runs /clear and submits the file. Carries the words typed after /clear-task into the prompt word for word, as the next session's first step. Use when wrapping up a session before clearing, writing a handoff or continuation prompt, or carrying in-flight work into a fresh chat — "hand this off", "I'm about to /clear", "write me a continuation prompt".
 ---
 
 # clear-task — frontload the handoff, then emit the prompt
@@ -514,8 +514,10 @@ This template produces the one file §0 settled on. It does NOT run /clear
 itself and does NOT begin executing the next steps.
 
 **Where §0 settled on the operator, write the prompt to `pending-handoff.md` in
-the scratchpad directory your system prompt names, and end the turn on that
-Write call.** Print nothing: no sections, no block, no path, no summary. When
+the scratchpad directory your system prompt names, then end the turn with one
+line that repeats nothing, such as "Handoff written."** Print no sections, no
+block, no path, and no summary. A turn that ends on the Write call gets a
+prompt for visible output, which wastes a turn before the clear. When
 the turn ends, the auto-clear mod empties that file, runs /clear, and submits
 the text as the fresh chat's first prompt, where the operator reads it. Print
 the block only when the operator says the mod is not running, so they can copy
