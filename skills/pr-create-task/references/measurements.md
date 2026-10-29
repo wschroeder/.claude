@@ -8,6 +8,10 @@ Measured: a browser spec passed on 2026-10-16, main then changed the table cell 
 
 Measured (2026-10-28): the rule then said to run every test runner after any rebase. A PR prep started the full unit and integration suite locally, though the project's CI runs those same suites on every pull request and runs no browser tests, and the operator stopped it as wasted time. As worded, the rule also ran every suite after a rebase that brought in nothing, where TDD had already run them against the same base.
 
+## Why a resolution that writes new code gets the spec search and the mutation test
+
+Measured (2026-10-28): a rebase brought in a base commit that listed the in-flight states of a background job, both in code and in one spec sentence. The session resolving the conflict added the branch's new state to the code's list, and it ran a mutation test on that line. Its only spec search looked for a word the branch had renamed, so the sentence still left the new state out. In a second conflict, the session moved a base call into a branch helper and ran no test that fails without the call. The whole-branch review caught both, and its findings ended PR prep for that round.
+
 ## Why a fold resolves its conflicts instead of splitting a claim
 
 Measured (2026-10-24): a fold planned eleven groups, aborted at each of four conflicts instead of resolving them, and shipped fifteen commits with three claims split in two.

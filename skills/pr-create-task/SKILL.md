@@ -50,6 +50,15 @@ rebase will bring in. Then run `git rebase origin/<base>`. Resolve each
 conflict in the commit that replays it, so no commit in the stack carries
 another one's repair.
 
+If a resolution writes code that neither side held, such as a new member of a
+list the base added or a base call moved into the branch's code, then treat it
+as a code change. Search the project's specs and design documents for each
+sentence that names the list's other members, the check `quick-review` angle
+6.8 makes, and fix any sentence that leaves the new member out in the same
+commit. Then remove the added line, run its tests, and put it back. If no test
+fails, say so in that commit's message. See
+[references/measurements.md](references/measurements.md).
+
 If the rebase brought in no commits, run no tests: TDD already ran them
 against this base. If it brought some in, read the project's CI workflow for
 the runners it runs on a pull request, and leave those to CI's check on the
