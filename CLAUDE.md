@@ -206,12 +206,14 @@ Every list of three or more items takes a comma before the final "and" or "or" �
 - BAD:  "a recursive loop of planning, translating and reviewing"
 - GOOD: "a recursive loop of planning, translating, and reviewing"
 
-Put a comma before one of the seven coordinating conjunctions — for, and, nor, but, or, yet, so — only when that conjunction joins two complete clauses. Read the words after the conjunction and ask whether they carry a subject of their own. If they do, then keep the comma. If they only hang a second verb on the subject already standing, then the comma cuts a subject away from half its own predicate, and it has to go.
+Put a comma before one of the seven coordinating conjunctions — for, and, nor, but, or, yet, so — when that conjunction joins two complete clauses and at no other time. The rule holds inside a clause that "where", "when", or "if" opens. Read the words after the conjunction and ask whether they carry a subject of their own. If they do, then keep the comma. If they only hang a second verb on the subject already standing, then the comma cuts a subject away from half its own predicate, and it has to go.
 
 - BAD:  "It can only append, and never takes anything back." — "never takes" has no subject of its own.
 - GOOD: "It can only append and never takes anything back."
 - BAD:  "Put two concerns in one pass and you will usually leave one of them unchecked." — "you" is a second subject, so the two clauses need separating.
 - GOOD: "Put two concerns in one pass, and you will usually leave one of them unchecked."
+- BAD:  "The queue filled and the worker reported a timeout." — "the worker reported" has a subject of its own.
+- GOOD: "The queue filled, and the worker reported a timeout."
 
 Commands are the exception. When both halves hand the reader an instruction and share an implied "you", keep the comma: it marks the second instruction as a separate act rather than as a continuation of the first. A negative first half changes nothing here, which is why the heading further down keeps its own comma.
 

@@ -106,6 +106,19 @@ def main():
                  "Once the evidence is on the page, an unsupported claim has nowhere to sit.",
                  "A record, a document and a line item."):
         assert vs.measure(text)["comma_candidates"] == [], text
+    # a bare conjunction that a pronoun or a determiner follows may open a
+    # second clause, so the sentence is listed for the writer to mark
+    for text in ("The job retries only when the queue is full and the worker reports a timeout.",
+                 "It stopped but it left a note.",
+                 "Run it again or this test fails.",
+                 "It ran so we shipped.",
+                 "It was late yet they waited."):
+        assert vs.measure(text)["missing_comma_candidates"] == [text], text
+    for text in ("It can only append and never takes anything back.",
+                 "The job retries, and the worker reports a timeout.",
+                 "Grand and others reported it.",
+                 "Salt and theory both mattered."):
+        assert vs.measure(text)["missing_comma_candidates"] == [], text
 
     m = vs.measure("Alpha — beta — gamma.")
     assert m["em_dashes"] == 2, m
@@ -115,12 +128,14 @@ def main():
         fh.write("A sentence about nothing.")
     fd2, listed = tempfile.mkstemp(suffix=".txt")
     with os.fdopen(fd2, "w") as fh:
-        fh.write("It shows the number, or how many records it has.")
+        fh.write("It shows the number, or how many records it has. It stopped but it left a note.")
     try:
         proc = subprocess.run([sys.executable, os.path.join(HERE, "voice_stats.py"), listed],
                               capture_output=True, text=True)
         assert "comma candidates (1)" in proc.stdout, proc
         assert "  It shows the number, or how many records it has." in proc.stdout, proc
+        assert "missing comma candidates (1)" in proc.stdout, proc
+        assert "  It stopped but it left a note." in proc.stdout, proc
         proc = subprocess.run([sys.executable, os.path.join(HERE, "voice_stats.py"),
                                path, "--band", "bogus=1:2"],
                               capture_output=True, text=True)

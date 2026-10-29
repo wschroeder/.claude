@@ -41,6 +41,10 @@ PUNCHLINE = re.compile(r",\s*and\b[^.;:]{0,60}?\b(?:no|none|nothing|never|nobody
 # when a second subject follows, or the main clause is negative, and only a
 # reader can tell which.
 COMMA_CANDIDATE = re.compile(r",\s+(?:for|and|nor|but|or|yet|so|because|since)\b", re.I)
+# A bare conjunction that a pronoun or a determiner follows usually opens a
+# second clause, which needs the comma. "For" is left out because it is nearly
+# always a preposition, and "nor" because the verb comes before its subject.
+MISSING_COMMA = re.compile(r"(?<!,)\s(?:and|but|or|so|yet)\s+(?:a|an|the|this|that|these|those|each|every|its|his|her|their|our|my|your|i|you|he|she|it|we|they)\b", re.I)
 MAXIM = re.compile(r"^(?:A|An|The|One)\s+\S+(?:\s+\S+){0,8}\s+is\s+(?:\S+\s*){1,6}\.$")
 BULLET = re.compile(r"\n[ \t]*(?:[*•-]|\d+[.)])[ \t]+")
 
@@ -83,6 +87,7 @@ def measure(text):
         "maxim_candidates": [s for s in sents if MAXIM.match(s)],
         "silent_tails": [s for s in sents if SILENT_TAIL.search(s)],
         "comma_candidates": [s for s in sents if COMMA_CANDIDATE.search(s)],
+        "missing_comma_candidates": [s for s in sents if MISSING_COMMA.search(s)],
         "closing_verbs": [s for s in sents if CLOSING_VERB.search(s)],
         "punchlines": [s for s in sents if PUNCHLINE.search(s)],
     }
@@ -139,6 +144,10 @@ def main():
     print("\ncomma candidates (%d) -- mark each keep or cut with the CLAUDE.md"
           " \"Commas\" rule that allows it:" % len(m["comma_candidates"]))
     for s in m["comma_candidates"]:
+        print("  " + s)
+    print("\nmissing comma candidates (%d) -- mark each add or leave: a second"
+          " subject after the conjunction needs the comma:" % len(m["missing_comma_candidates"]))
+    for s in m["missing_comma_candidates"]:
         print("  " + s)
     if failed:
         print("\n%d band(s) missed: %s" % (len(failed), ", ".join(failed)))
