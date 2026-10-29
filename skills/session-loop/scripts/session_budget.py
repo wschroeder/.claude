@@ -983,9 +983,6 @@ def transcript_dir(target: str) -> str:
     rather than guessing, because analysing the wrong project silently is
     worse than stopping.
     """
-    if os.path.isdir(target) and glob.glob(os.path.join(target, "*.jsonl")):
-        return target
-
     real = os.path.realpath(os.path.expanduser(target))
     # Claude Code's slug turns "." into "-" as well as "/": ".claude" is "-claude".
     slug = real.replace(os.sep, "-").replace(".", "-")

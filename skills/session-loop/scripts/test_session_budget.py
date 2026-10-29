@@ -327,11 +327,13 @@ class SelfCheck(unittest.TestCase):
     """
 
     def setUp(self):
-        self.dir = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, self.dir, True)
+        root = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, root, True)
+        self.dir = os.path.join(root, "-repo")
+        os.makedirs(self.dir)
         self.addCleanup(os.environ.pop, "CLAUDE_CODE_SESSION_ID", None)
         # The id lookup searches every project, so keep it out of the real one.
-        patcher = mock.patch.object(sb, "PROJECTS_ROOT", self.dir)
+        patcher = mock.patch.object(sb, "PROJECTS_ROOT", root)
         patcher.start()
         self.addCleanup(patcher.stop)
 
@@ -528,6 +530,26 @@ class TranscriptDirectory(unittest.TestCase):
         by_id = {s["session_id"]: s for s in json.loads(out.getvalue())["sessions"]}
         self.assertEqual(sorted(by_id), ["s-own", "s-visit"])
         self.assertEqual([a["name"] for a in by_id["s-visit"]["subagents"]], ["a1"])
+
+    def test_a_repo_holding_its_own_jsonl_file_still_finds_its_transcripts(self):
+        # ~/.claude keeps history.jsonl at its top level, and its records are
+        # prompt history, not a transcript.
+        slug = self.repo.replace(os.sep, "-").replace(".", "-")
+        os.makedirs(os.path.join(self.root, slug))
+        with open(os.path.join(self.repo, "history.jsonl"), "w") as fh:
+            fh.write(json.dumps({"display": "hi", "timestamp": 1761700000000}) + "\n")
+        with mock.patch.object(sb, "PROJECTS_ROOT", self.root):
+            self.assertEqual(sb.transcript_dir(self.repo), os.path.join(self.root, slug))
+
+    def test_a_transcript_directory_passed_directly_is_used_as_it_is(self):
+        slug = self.repo.replace(os.sep, "-").replace(".", "-")
+        os.makedirs(os.path.join(self.root, slug))
+        with open(os.path.join(self.root, slug, "s1.jsonl"), "w") as fh:
+            fh.write(json.dumps(assistant("2026-08-10T00:00:00Z", cr=30_000)) + "\n")
+        with mock.patch.object(sb, "PROJECTS_ROOT", self.root):
+            self.assertEqual(
+                sb.transcript_dir(os.path.join(self.root, slug)), os.path.join(self.root, slug)
+            )
 
     def test_dot_with_no_transcript_directory_stops_rather_than_reading_every_project(self):
         with mock.patch.object(sb, "PROJECTS_ROOT", self.root):
