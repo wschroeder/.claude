@@ -510,6 +510,12 @@ card,** not in a card queued after it. If you cut it separately, then the
 earlier card ships the failure and its review files the fix under a later card
 as a Note. See [references/measurements.md](references/measurements.md).
 
+**Before you cut the cards, read the project's `CLAUDE.md` for every rule that
+says an edit lands in the same change as another.** Such a rule names a page,
+a document, or a list that has to change alongside the code it describes. Put
+both edits on the card that changes the code, and cut no card for the second
+edit alone. See [references/measurements.md](references/measurements.md).
+
 A current-slice task with no proof command is not a task. Fold it into one
 that has, or drop it. The one exception is the card proved by the demo's
 walk, whose check reads "walked at the demo". A sketched later task has no proof command.

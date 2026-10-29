@@ -15,3 +15,7 @@ Measured on 2026-10-28: a build session loaded `writing-code`, committed a new w
 ## Why help text is checked against the screen it explains
 
 Measured (2026-10-27): a slice wrote a help manual for an app's screens. It passed the spec, twelve build sessions, and review, and the operator rejected it at the demo because most of it restated what the screens already showed. Nothing in the spec had asked whether a passage told the reader anything new.
+
+## Why an edit that a CLAUDE.md rule ties to the code goes on the same card
+
+Measured (2026-10-29): a spec cut the wording for an explanation page and a chat assistant's instructions as its own card. The project's CLAUDE.md requires that page to change in the same change as the rule it explains. The build worker folded the wording into the code card's commit, citing that rule.
