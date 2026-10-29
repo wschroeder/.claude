@@ -200,6 +200,10 @@ Concurrency / race shapes:
                                           have open → run the pair
                                           a suspected deadlock is run, never dropped
                                           as unmeasured
+                                          a decision ruling out one race (no two runs
+                                          at once) covers only the writers it names;
+                                          every other pair of lock-takers still gets
+                                          the order check, never "N/A per decision"
                                           after a path deletes, combines, or leaves
                                           duplicates of rows, run every other writer
                                           once more afterwards and show it holds
@@ -396,7 +400,11 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           proof: state each changed rule in one
                                           sentence, then quote each hit and what
                                           became of it; no rule named → finding
-  6.8   Spec sentence vs code            each spec sentence the diff adds or edits:
+  6.8   Spec sentence vs code            each spec sentence the diff adds or edits,
+                                          and each existing spec step governing a
+                                          path the diff changes (a retry or resume
+                                          that reuses a stored result: quote the step
+                                          on what a retry reads again):
                                           split it into the cases it names; a class
                                           names one case per member
                                           proof: quote one code line per case that
@@ -533,7 +541,7 @@ An acknowledgment in a moduledoc, comment, commit message, PR body, this review'
 
 Surviving candidates get one of three:
 - **Fix** — bug. Include the fix.
-- **Flag** — needs human judgment.
+- **Flag** — needs human judgment. A suspected deadlock is never a "traced, not run" Flag: run the pair (2.18) first, then classify what it showed.
 - **Note** — must be aware to ship safely, but not a bug or judgment call. If you can't articulate what the developer should DO with the information, drop. A Note that says work or data can be lost is a Fix or a Flag.
 
 ## Output
