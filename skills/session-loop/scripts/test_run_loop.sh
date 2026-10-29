@@ -57,13 +57,14 @@ new_fixture() {
 # Keeps the prompt it was handed, so the contract with the child session can
 # be asserted rather than assumed.
 # The evaluator is a second call against the same binary, and the flag that
-# makes it a reader is what tells the two apart. It has to be handled before
-# the builder branches below, because those commit, and an evaluator that
-# committed would make every gate the loop has meaningless.
+# makes it a reader, denying Edit, is what tells the two apart. It has to be
+# handled before the builder branches below, because those commit, and an
+# evaluator that committed would make every gate the loop has meaningless.
 case " $* " in
-  *" --disallowed-tools "*)
+  *" --disallowed-tools Edit "*)
     printf '%s\n' "$2" > "$STUB_EVAL_PROMPT_FILE"
     printf '%s\n' "$*" > "$STUB_EVAL_ARGV_FILE"
+    printf '%s\n' "${ENABLE_CLAUDEAI_MCP_SERVERS-unset}" > "$STUB_EVAL_CONNECTORS_FILE"
     n=$(( $(cat "$STUB_EVAL_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
     echo "$n" > "$STUB_EVAL_COUNT_FILE"
     if [ -n "${STUB_EVAL_LIMIT_FIRST:-}" ] && [ "$n" -eq 1 ]; then
@@ -86,6 +87,7 @@ esac
 
 printf '%s\n' "$2" > "$STUB_PROMPT_FILE"
 printf '%s\n' "$*" > "$STUB_ARGV_FILE"
+printf '%s\n' "${ENABLE_CLAUDEAI_MCP_SERVERS-unset}" > "$STUB_CONNECTORS_FILE"
 case "${STUB_MODE:-commit}" in
   commit)
     echo "$RANDOM" >> file.txt
@@ -160,6 +162,64 @@ case "${STUB_MODE:-commit}" in
     git add -A && git commit -qm "stub: insists it is finished"
     ;;
   nothing) : ;;
+  handoffonly)
+    # Writes a review finding into the handoff and commits nothing, every time.
+    # The handoff is ignored by git, so only the driver's own reading of it can
+    # see the change. A fourth call is reached only by a driver that never
+    # stops, and BLOCKED ends the test there rather than letting it hang.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -ge 4 ]; then
+      printf 'BLOCKED: the driver never stopped.\nrest of handoff\n' > HANDOFF.md
+    else
+      printf 'Continue the work.\nFinding %s: fix the off-by-one.\n' "$n" > HANDOFF.md
+    fi
+    ;;
+  handoffdirty)
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    echo "$RANDOM" > unsaved.txt
+    printf 'DONE\nnothing left to do\n' > HANDOFF.md
+    ;;
+  handoffthencommit)
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -eq 1 ]; then
+      printf 'Continue the work.\nFinding: fix the off-by-one.\n' > HANDOFF.md
+    else
+      echo "$RANDOM" >> file.txt
+      printf 'DONE\nnothing left to do\n' > HANDOFF.md
+      git add -A && git commit -qm "stub: fixed the finding"
+    fi
+    ;;
+  handoffcommithandoff)
+    # A finding, its fix, a second finding, and its fix: the handoff-only
+    # sessions are never next to each other.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    case "$n" in
+      1|3) printf 'Continue the work.\nFinding %s: fix the off-by-one.\n' "$n" > HANDOFF.md ;;
+      2) echo "$RANDOM" >> file.txt
+         echo "Continue the work, again." > HANDOFF.md
+         git add -A && git commit -qm "stub: fixed the first finding" ;;
+      *) echo "$RANDOM" >> file.txt
+         printf 'DONE\nnothing left to do\n' > HANDOFF.md
+         git add -A && git commit -qm "stub: fixed the second finding" ;;
+    esac
+    ;;
+  handoffboardhandoff)
+    # The card moved between the two handoff-only sessions keeps them from
+    # counting as two in a row.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    case "$n" in
+      1|3) printf 'Continue the work.\nFinding %s: fix the off-by-one.\n' "$n" > HANDOFF.md ;;
+      2) echo '[{"id":"t-1","status":"in_progress"}]' > "$STUB_BOARD_FILE" ;;
+      *) echo "$RANDOM" >> file.txt
+         printf 'DONE\nnothing left to do\n' > HANDOFF.md
+         git add -A && git commit -qm "stub: fixed the findings" ;;
+    esac
+    ;;
   statusonly)
     # Moves a card on the board and commits nothing, the way a session does
     # when it sends a card back to build. Its second call changes nothing at
@@ -323,9 +383,11 @@ print(t.strftime("%I:%M%p").lstrip("0").lower())
 ')"
   export STUB_PROMPT_FILE="$ROOT/last-prompt.txt"
   export STUB_ARGV_FILE="$ROOT/last-argv.txt"
+  export STUB_CONNECTORS_FILE="$ROOT/last-connectors.txt"
   export STUB_COUNT_FILE="$ROOT/stub-count.txt"
   export STUB_EVAL_PROMPT_FILE="$ROOT/last-eval-prompt.txt"
   export STUB_EVAL_ARGV_FILE="$ROOT/last-eval-argv.txt"
+  export STUB_EVAL_CONNECTORS_FILE="$ROOT/last-eval-connectors.txt"
   export STUB_EVAL_COUNT_FILE="$ROOT/eval-count.txt"
 }
 
@@ -419,6 +481,56 @@ grep -q "changed nothing" "$ROOT/out.txt"
 check "the session that changed nothing is reported" 0 $?
 check "no reviewer ran on a session with no commit" no \
   "$([ -e "$STUB_EVAL_COUNT_FILE" ] && echo yes || echo no)"
+drop_fixture
+
+# --- a session whose only work is a finding written into the handoff made
+#     progress: the next session reads the finding and fixes it. Measured: a
+#     worker that ran out of room to fix a review finding recorded it and
+#     handed off, and the driver halted the run on "changed nothing".
+new_fixture
+export STUB_MODE=handoffthencommit
+status="$(run_loop)"
+check "a finding recorded in the handoff, then fixed, finishes the run" 0 "$status"
+check "the session after the handoff-only one ran" 2 "$(cat "$STUB_COUNT_FILE")"
+drop_fixture
+
+# --- but two handoff-only sessions in a row stop the run, so sessions that
+#     only rewrite the handoff cannot spin it forever ---
+new_fixture
+export STUB_MODE=handoffonly
+status="$(run_loop)"
+check "two handoff-only sessions in a row exit 1" 1 "$status"
+check "the second handoff-only session is the last one run" 2 "$(cat "$STUB_COUNT_FILE")"
+grep -q "two sessions in a row committed nothing and only rewrote the handoff" "$ROOT/out.txt"
+check "the run that only rewrote the handoff twice is reported as such" 0 $?
+grep -q "changed nothing" "$ROOT/out.txt"
+check "the run that rewrote the handoff is not reported as changing nothing" 1 $?
+drop_fixture
+
+# --- a rewritten handoff is not progress when the session left its work
+#     uncommitted: that work needs a person, even under a DONE handoff ---
+new_fixture
+export STUB_MODE=handoffdirty
+status="$(run_loop)"
+check "a handoff rewritten over uncommitted work exits 1" 1 "$status"
+check "no session runs after the one that left work uncommitted" 1 "$(cat "$STUB_COUNT_FILE")"
+grep -q "unsaved.txt" "$ROOT/out.txt"
+check "the uncommitted file is reported" 0 $?
+check "the handoff over uncommitted work is kept" 0 "$([ -e "$REPO/HANDOFF.md" ]; echo $?)"
+drop_fixture
+
+new_fixture
+export STUB_MODE=handoffcommithandoff
+status="$(run_loop)"
+check "handoff-only sessions with a commit between them do not stop the run" 0 "$status"
+check "every session of that run ran" 4 "$(cat "$STUB_COUNT_FILE")"
+drop_fixture
+
+new_fixture
+export STUB_MODE=handoffboardhandoff
+status="$(run_loop)"
+check "handoff-only sessions with a card move between them do not stop the run" 0 "$status"
+check "every session of the run with a card move ran" 4 "$(cat "$STUB_COUNT_FILE")"
 drop_fixture
 
 # --- a session that rewrites the last commit without changing the code must not
@@ -931,7 +1043,11 @@ done
 # commit, before the reviews (which cost 34,514 to 77,358 of context growth, and
 # in repo-a began at 191,278 to 212,848), and after the probing that opens a
 # piece of work.
+# A fourth point, measured since: a worker loaded two skills to fix a review
+# finding, about 15,700 context, and only then checked and found no room left
+# for the fix.
 for phrase in "before you start the reviews" "after the probing" \
+              "before you load any skill to fix it" \
               "stop where you are" "do not have to finish the piece of work" \
               "says it is unfinished" "where in the cycle you stopped" \
               "holds inside the loop and nowhere else"; do
@@ -992,6 +1108,13 @@ check "the child session runs under bypassPermissions, so its commit is not prom
 # claude-opus-5 is a prefix of claude-opus-5-5.
 case "$ARGV " in *"--model claude-opus-5-5 "*) ok=0 ;; *) ok=1 ;; esac
 check "the child session runs on Opus 5.5" 0 "$ok"
+# Probed on 2026-10-28: a headless session started at 54,071 context with the
+# Artifact tool and the claude.ai connectors, and at 35,781 without them, with
+# chrome-devtools still loaded. No worker had used either.
+case "$ARGV " in *"--disallowed-tools Artifact "*) ok=0 ;; *) ok=1 ;; esac
+check "the child session is launched without the Artifact tool" 0 "$ok"
+check "the child session is launched without the claude.ai connectors" false \
+  "$(cat "$STUB_CONNECTORS_FILE")"
 case "$ARGV" in *--max-budget-usd*) ok=1 ;; *) ok=0 ;; esac
 check "the child session is launched with no dollar cap" 0 "$ok"
 case "$(cat "$ROOT/out.txt")" in *'$'*) ok=1 ;; *) ok=0 ;; esac
@@ -1001,7 +1124,7 @@ drop_fixture
 # --- the ceiling is enforced by the operator's own hook, not a second one ---
 #
 # A PostToolUse hook reads a session's own transcript on every tool call, so the
-# ceiling holds even when the session never reaches one of the three points the
+# ceiling holds even when the session never reaches one of the four points the
 # contract names. That hook belongs to the operator's settings.json, where it
 # fires in every session on the machine. A driver registering a second one would
 # make every tool call inside a worker run the same check twice.
@@ -1140,6 +1263,8 @@ export STUB_MODE=commit
 status="$(run_loop --dry-run)"
 check "dry run exits 0" 0 "$status"
 check "dry run commits nothing" 1 "$(git -C "$REPO" rev-list --count HEAD)"
+grep '^would run:' "$ROOT/out.txt" | grep -q '^would run: ENABLE_CLAUDEAI_MCP_SERVERS=false claude -p <.*--disallowed-tools Artifact'
+check "dry run shows the connectors and Artifact turned off" 0 $?
 drop_fixture
 
 # --- a second session reads the diff, with no memory of writing it and no tools
@@ -1161,6 +1286,10 @@ check "the evaluator ran once for the one iteration" 1 "$(cat "$STUB_EVAL_COUNT_
 EVAL_ARGV="$(cat "$STUB_EVAL_ARGV_FILE" 2>/dev/null || echo "")"
 case "$EVAL_ARGV" in *"--disallowed-tools Edit Write NotebookEdit"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator is denied every tool that could change the tree" 0 "$ok"
+case "$EVAL_ARGV" in *"--disallowed-tools Edit Write NotebookEdit Artifact "*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator is launched without the Artifact tool" 0 "$ok"
+check "the evaluator is launched without the claude.ai connectors" false \
+  "$(cat "$STUB_EVAL_CONNECTORS_FILE")"
 case "$EVAL_ARGV" in *"--model claude-opus-5-5"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator runs on Opus 5.5 by default" 0 "$ok"
 case "$EVAL_ARGV" in *"--effort medium"*) ok=0 ;; *) ok=1 ;; esac

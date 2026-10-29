@@ -12,10 +12,10 @@ that on a loop.
 
 Ending too early is its own waste, though: a fresh session spends about 104,000
 tokens re-reading its way back to where the last one already was. So a session
-runs until its context reaches 170,000, checking itself at three points along
+runs until its context reaches 170,000, checking itself at four points along
 the way, and hands off then — not after one piece of work. A hook in the operator's
 own settings checks the same number on every tool call, so the ceiling holds even
-when a session never reaches one of those three points. A session also hands
+when a session never reaches one of those four points. A session also hands
 off after three consecutive failures of the same check, whatever its context
 number says.
 
@@ -145,7 +145,8 @@ the rest of a spent slice into the next one.
 
 Say how many of the handoff's next steps can proceed without the operator. You
 are not picking a number of sessions — the loop stops itself when the work runs
-out, because a session with nothing left to do commits nothing and halts it.
+out, because it halts at the first session that changes nothing, or at the
+second in a row that only rewrites the handoff.
 This is only the check that there is something to start on, and a sense of how
 much the run will chew through before it gets there.
 
@@ -275,7 +276,7 @@ it cannot fill up and become an orchestrator.
 A PostToolUse hook in the operator's own `~/.claude/settings.json` runs
 `session_budget.py --hook` on every tool call, in every session on this machine.
 That is what enforces the ceiling on a session that works for eighty turns
-without reaching any of the three points the contract names — the hook reads the
+without reaching any of the four points the contract names — the hook reads the
 session's own transcript, says nothing while there is room, and exits 2 with the
 number when there is not. The driver registers no hook of its own, so a tool call
 inside a worker runs the check once rather than twice.
@@ -358,8 +359,9 @@ its 170,000 ceiling, and they do not travel outside it.
 
 ## Shaping a session
 
-Ask how full you are at three points — after each commit, before starting the
-reviews a piece of work owes, and after the probing that opens one:
+Ask how full you are at four points: after each commit, before starting the
+reviews a piece of work owes, after the probing that opens one, and when a
+review hands back a finding, before you load any skill to fix it:
 
 ```bash
 python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self

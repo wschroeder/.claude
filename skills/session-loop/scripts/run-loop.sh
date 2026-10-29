@@ -12,9 +12,10 @@
 # until it has done one thing. Re-orientation is the fixed cost of every fresh
 # session, so a session that stops early pays it again for nothing.
 #
-# The loop stops when the session changed nothing, when the handoff says it is
-# blocked, when a session does not finish, or when a session fails — never on a
-# count. It runs until the work is done or a session needs a person.
+# The loop stops when the session changed nothing, when two sessions in a row
+# only rewrote the handoff, when the handoff says it is blocked, when a session
+# does not finish, or when a session fails — never on a count. It runs until
+# the work is done or a session needs a person.
 #
 # Usage:
 #   run-loop.sh [REPO] [options]
@@ -51,7 +52,7 @@ HANDOFF="HANDOFF.md"
 HANDOFF_AT=170000
 # The loop exists to commit unattended, and a headless session cannot answer a
 # permission prompt — the prompt becomes a silent denial, HEAD never moves, and
-# the run halts on "changed nothing." bypassPermissions is the one mode under
+# the run halts within two sessions. bypassPermissions is the one mode under
 # which the session's own commit is not prompted. This is why the file is a
 # program the loop runs, not a note it reads: see "Permissions" in the reference.
 PERMISSION_MODE="bypassPermissions"
@@ -199,8 +200,9 @@ look for a remote to work out whether pushing would matter. That is settled
 outside the loop, so there is nothing to decide and nothing to report about it
 either way — commit, and carry on as though the subject had not come up.
 
-Ask how full you are at three points: after each commit, before you start the
-reviews a piece of work owes, and after the probing that opens one.
+Ask how full you are at four points: after each commit, before you start the
+reviews a piece of work owes, after the probing that opens one, and when a
+review hands back a finding, before you load any skill to fix it.
 
     python3 $BUDGET_SCRIPT --self --handoff-at $HANDOFF_AT
 
@@ -516,6 +518,7 @@ wait_out_limit() {
 }
 
 i=0
+HANDOFF_ONLY_RUNS=0
 while :; do
   i=$((i + 1))
   say "iteration $i"
@@ -624,16 +627,22 @@ $PENDING_FINDINGS"
   # rewrite as progress and start another session on the same code, forever.
   TREE_BEFORE="$(git -C "$REPO" rev-parse 'HEAD^{tree}')"
   BOARD_BEFORE="$(board_state)"
+  HANDOFF_BEFORE="$(cksum < "$HANDOFF_PATH")"
 
   set -- -p "$PENDING_FINDINGS$(cat "$HANDOFF_PATH")$(protocol)"
   set -- "$@" --output-format json
   set -- "$@" --permission-mode "$PERMISSION_MODE"
+  # No worker has used Artifact or a claude.ai connector, and together their
+  # definitions cost a headless session about 18,000 context before it reads
+  # the handoff. ENABLE_CLAUDEAI_MCP_SERVERS=false below drops the connectors
+  # and keeps the operator's own MCP servers.
+  set -- "$@" --disallowed-tools Artifact
   [ -n "$MODEL" ] && set -- "$@" --model "$MODEL"
 
   if [ "$DRY_RUN" -eq 1 ]; then
-    printf 'would run: claude -p <%s bytes of handoff> %s\n' \
-      "$(wc -c < "$HANDOFF_PATH" | tr -d ' ')" \
-      "--output-format json --permission-mode $PERMISSION_MODE${MODEL:+ --model $MODEL}"
+    shift 2
+    printf 'would run: ENABLE_CLAUDEAI_MCP_SERVERS=false claude -p <%s bytes of handoff> %s\n' \
+      "$(wc -c < "$HANDOFF_PATH" | tr -d ' ')" "$*"
     exit 0
   fi
 
@@ -645,7 +654,7 @@ $PENDING_FINDINGS"
     RUN_STAMP="$(date -u +%Y%m%dT%H%M%S)"
     RUN_LOG="$LOGS/run-$RUN_STAMP-$i.json"
     STATUS=0
-    ( cd "$REPO" && claude "$@" ) > "$RUN_LOG" || STATUS=$?
+    ( cd "$REPO" && ENABLE_CLAUDEAI_MCP_SERVERS=false claude "$@" ) > "$RUN_LOG" || STATUS=$?
 
     LIMIT=0
     RESET_IN="$(seconds_until_reset "$RUN_LOG")" || LIMIT=$?
@@ -724,16 +733,31 @@ SUMMARY
     # There is no new commit for the reviewer to read, so the next session runs
     # straight away and inherits whatever findings this one did not act on.
     if [ "$BOARD_BEFORE" != "$(board_state)" ]; then
+      HANDOFF_ONLY_RUNS=0
       printf '  the session committed nothing but moved cards on the board; carrying on.\n'
       continue
     fi
-    printf 'stopping: the session changed nothing, so the next one would start from the same place.\n'
+    # A finding written into the handoff is progress too: a session out of room
+    # records it for the next one to fix. Two such sessions in a row are not,
+    # and neither is one that left work uncommitted.
     LEFTOVER="$(git -C "$REPO" status --porcelain)"
+    if [ "$HANDOFF_BEFORE" = "$(cksum < "$HANDOFF_PATH")" ]; then
+      printf 'stopping: the session changed nothing, so the next one would start from the same place.\n'
+    elif [ -n "$LEFTOVER" ]; then
+      printf 'stopping: the session rewrote the handoff but committed nothing.\n'
+    elif [ "$HANDOFF_ONLY_RUNS" -eq 0 ]; then
+      HANDOFF_ONLY_RUNS=1
+      printf '  the session committed nothing but rewrote the handoff; carrying on.\n'
+      continue
+    else
+      printf 'stopping: two sessions in a row committed nothing and only rewrote the handoff, so the next one would start from the same place.\n'
+    fi
     if [ -n "$LEFTOVER" ]; then
       printf 'it also left work uncommitted, which needs a person before anything else runs:\n%s\n' "$LEFTOVER"
     fi
     exit 1
   fi
+  HANDOFF_ONLY_RUNS=0
   # "now at" rather than "committed": a session that amended the unfinished
   # commit it was handed did not add one, and the count is of commits that are
   # not in what it started from, which is right either way.
@@ -797,12 +821,12 @@ RECORD
       EVAL_LOG="$LOGS/eval-$(date -u +%Y%m%dT%H%M%S)-$i.json"
       EVAL_STATUS=0
       (
-        cd "$REPO" && claude \
+        cd "$REPO" && ENABLE_CLAUDEAI_MCP_SERVERS=false claude \
           -p "$(eval_prompt "$HEAD_BEFORE..HEAD")" \
           --output-format json \
           --permission-mode dontAsk \
           --allowed-tools Bash Read Grep Glob \
-          --disallowed-tools Edit Write NotebookEdit \
+          --disallowed-tools Edit Write NotebookEdit Artifact \
           --model "$EVAL_MODEL" \
           --effort "$EVAL_EFFORT" \
           < /dev/null

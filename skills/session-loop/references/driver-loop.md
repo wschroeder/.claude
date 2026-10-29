@@ -50,7 +50,10 @@ something.
 4. Note the current tree hash, and each bd card's status where the
    repository has a bd board.
 5. Run `claude -p` with the handoff file as its entire prompt, plus a short
-   protocol block appended, and wait.
+   protocol block appended, and wait. The session runs without the Artifact
+   tool and without the claude.ai connectors, whose definitions cost about
+   18,000 context and which no worker has used; the operator's own MCP
+   servers stay.
 6. Stop if claude exited non-zero, or if the run's summary says it ended for
    any reason other than finishing. The exception is the usage limit: the
    summary names when it resets, so the driver sleeps until then and runs the
@@ -65,6 +68,9 @@ something.
    A session that moved a card's status but no tree made progress all the
    same, because bd keeps its board outside the git tree: the next session
    runs with no review in between, since there is no new commit to read.
+   So did a session that only rewrote the handoff, such as one that recorded
+   a review finding it had no room left to fix. A second such session in a
+   row stops the run, so rewriting the handoff cannot spin the loop.
 8. Otherwise loop, and the handoff the session just rewrote becomes the next
    iteration's prompt.
 
@@ -83,7 +89,7 @@ The driver appends a short protocol to it before each run, telling the session a
 few things: load the skill the work matches before starting the work, which is
 here rather than in the handoff because a handoff names only the skills the
 session that wrote it happened to load; commit as you go; check your own context
-at three points and either carry on or stop; if a decision is needed that only
+at four points and either carry on or stop; if a decision is needed that only
 the operator can make, put `BLOCKED: <one sentence>` on the first line and stop;
 and if the work is all done with nothing left to do, put `DONE` on the first
 line and stop.
@@ -136,9 +142,12 @@ session's tokens were spent above the line.
 So the session now asks at three points — after each commit, before starting the
 reviews a piece of work owes, and after the probing that opens one — and may stop
 at any of them by committing what it has, marked unfinished, with the handoff
-naming where in the cycle it stopped and what the work still owes.
+naming where in the cycle it stopped and what the work still owes. A fourth
+point came later: when a review hands back a finding, before loading any skill
+to fix it. A worker loaded two skills for a fix, about 15,700 context, and only
+then checked and found too little room to make it.
 
-Asking at those three points is not enough on its own, because all three are
+Asking at those points is not enough on its own, because all of them are
 milestones in the work cycle and a session that spends its whole life on one
 piece of work reaches them once. Measured across a later run of both
 repositories: every worker committed exactly once, between turn 27 and turn 86,
@@ -370,7 +379,8 @@ memory of the work — and it is launched with `--disallowed-tools Edit Write
 NotebookEdit`, which is what makes it a reader rather than a second builder.
 Probed: told directly to fix a bug it had just found, it came back with "Edit is
 disabled for this session, in subagents as well as here" and the file was
-untouched.
+untouched. Like a worker in step 5, it also runs without the Artifact tool and
+without the claude.ai connectors.
 
 It runs on `claude-opus-5-5` at `--effort medium`. It first ran on `sonnet`:
 against a two-function diff carrying a planted off-by-one and a planted shell
@@ -573,8 +583,8 @@ LOOP=~/.claude/skills/session-loop/scripts/run-loop.sh
 ```
 
 There is no count to set — the run bounds itself. It ends when a session marks
-the work `DONE`, hands off blocked, commits nothing because the work has run out,
-does not finish, or fails. The hand-run above is the cheap check before you leave it alone; once a
+the work `DONE`, hands off blocked, changes nothing, only rewrites the handoff
+for the second session in a row, does not finish, or fails. The hand-run above is the cheap check before you leave it alone; once a
 few have landed cleanly, you can trust it to stop itself.
 
 ## Reading what it did
