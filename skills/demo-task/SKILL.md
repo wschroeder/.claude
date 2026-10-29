@@ -267,7 +267,10 @@ every behavior the slice changed, order them so each step sets up the next,
 draft the steps, and finish them. Every rule on every card maps to a step, or
 the steps say in one line why that rule has nothing on screen. Write the
 mapping into the demo file under the steps, one line per rule: the card, the
-rule, and the step number.
+rule, and the step number. A rule that names more than one case, such as a box
+that closes on Escape or on a click outside it, maps each case to its own step.
+If a mapping line has to say that a case went undriven, the steps are not
+finished: add the step that drives it before you walk.
 
 **If the slice changes a step in the middle of a pipeline, give the walk a
 step that captures the screen just before that step runs and just after it.**
@@ -375,8 +378,10 @@ Rules:
 - **The input has to be the one a person sends.** Calling the code's own
   method and writing the result up as a press or a drag is the failure this
   rule exists to catch, and the word in the record is not the act. In a
-  browser, `element.click()` or `dispatchEvent` run from a page script is
-  not the input a person sends either: use the browser tool's own click,
+  browser, a page script that sends input or sets what input would set,
+  such as `element.click()`, `dispatchEvent`, or `element.focus()`, is not
+  the input a person sends either, even as a setup step before a real key
+  press: use the browser tool's own click,
   such as `mcp__chrome-devtools__click`. If
   `project-drive` appears in the available skills, load it for how to send
   this product real input. If nothing is listed, work it out and say in one
