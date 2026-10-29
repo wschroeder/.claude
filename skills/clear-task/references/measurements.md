@@ -17,6 +17,7 @@ the argument where no single run did, for a reader who disputes one.
 - Stop — a written handoff is not a stop signal
 - Stop — `HANDOFF.md` is replaced, not appended to
 - Stop — the forced turn after writing `HANDOFF.md`
+- Stop — a worker's handoff names cards rather than restating them
 - §8 — a known failure carried as an inherited hypothesis
 - §12 — a list of skills to load first
 
@@ -322,6 +323,23 @@ costs.
 A retrospective session recommended writing the file for its own clear, having
 argued that a block alone would leave the stale one as a trap. The operator
 overrode it by typing `/clear-task instead`.
+
+## Stop — a worker's handoff names cards rather than restating them
+
+Measured (2026-10-29): in one unattended build run, each worker opened on a
+prompt that held a handoff of 20,369 to 29,374 characters beside a loop
+protocol of 10,605. The transcript's `usage` fields put one worker's opening
+at 56,020 tokens. Loading its build skills added 15,740, the two reviews
+18,695, this skill 10,515, and the handoff's own Write 10,088. The worker
+ended at 174,385, so about 63,000 went to everything else, the cards included.
+A review
+skill of 45,100 characters cost 13,758 tokens, about 3.3 characters per token.
+
+Unmeasured: by that ratio the handoff cost each worker about 6,000 to 9,000
+tokens to read, and much of it repeated what the cards and their notes already
+held. The handoffs also carried a production deployment's identifiers that no
+build card in the run used. A later run has to measure what the shorter
+handoff saves.
 
 ## Why a later slice becomes a card, not a "Mentioned, not ours" line
 

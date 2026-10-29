@@ -539,6 +539,14 @@ beside it. Write §1-§11 exactly as always, then write the assembled prompt to
 block. Everything else holds: considerations first, one artifact, nothing after
 it.
 
+**Where §0 settled on a worker, write only what the next card needs.** Name
+each open card by its id and leave its acceptance criteria and notes in bd,
+where the worker reads them when it picks the card up. Leave out every path,
+link, environment, and identifier that no open card uses, such as a production
+deployment's names when every open card builds and tests locally. The rules
+that carry decisions, directives, and the operator's last words forward still
+hold. See [references/measurements.md](references/measurements.md).
+
 **Writing `HANDOFF.md` replaces the whole file, and never appends to it.** Once
 the operator has accepted a slice, carry its working rules and the operator's
 standing decisions into the new file. Leave out that slice's status lines,
