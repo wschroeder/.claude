@@ -21,11 +21,17 @@ A whole-branch review reads every file group once per round. When the diff is bi
 - Each stage's diff must stay under a third of the room a fresh session has after loading this skill. Split a group that is too big by directory, never through the middle of a file.
 - Put a test file in the same stage as the code it tests when both fit. Otherwise give the tests a stage of their own, and have that stage name the production stage it checks.
 - The last stage is always **cross-group**: angles that follow a value, a state, or a rule across groups. These are 1.2, 1.4, 1.19, 2.18, 2.19, 5.7, 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. It works from the earlier stages' notes and from targeted greps, and it never re-reads a whole group's diff.
-- The cross-group stage's inputs, the earlier stages' notes and its greps, must stay under the same third, and the notes may take only half of it so that the greps keep the other half. Before it starts, measure the notes file with `wc -c` and convert at the ratio from "Size it". If the notes take more than half that cap, split the stage in two. The first walks 1.2, 1.4, 1.19, 2.18, 2.19, and 5.7, and runs the caller trace from "After a fix". The second walks 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. Each half reads the stage plan and only the `cross-group` marks for its own angles, not every stage's passes. Before each half starts, measure those marks the same way. If they still take more than half the cap, split that half's angles in two again, and keep splitting until every part's marks fit. Wherever this file or `SKILL.md` names the cross-group stage, a split one means every part.
+- The cross-group stage's inputs, the earlier stages' notes and its greps, must stay under the same third, and the notes may take only half of it so that the greps keep the other half. Before it starts, measure the notes file with `wc -c` and convert at the ratio from "Size it". If the notes take more than half that cap, split the stage in two. The first walks 1.2, 1.4, 1.19, 2.18, 2.19, and 5.7. The second walks 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. Each part reads the stage plan and only the `cross-group` marks for its own angles, not every stage's passes. Before each part starts, measure its marks by listing its angles in one pattern:
+
+  ```bash
+  grep -E '^cross-group (1\.2|1\.3|1\.4|1\.19|2\.18|2\.19|5\.7):' <notes> | wc -c
+  ```
+
+  If a part's marks still take more than half the cap, split its angles in two again, and keep splitting until every part's marks fit or a part holds one angle. A part holding one angle whose marks still do not fit walks them in batches of whole lines, each under half the cap, and writes what each batch found to the notes before the next batch starts. Whichever part walks 1.4 also reads the 1.3 marks, keeps 1.3 in its pattern, and runs the caller trace from "After a fix", which needs them. Wherever this file or `SKILL.md` names the cross-group stage, a split one means every part.
 
 ## Run the stages
 
-- Each stage walks every pass over its own files and marks an angle that only the cross-group stage can settle as `cross-group` in its notes, together with the symbol or rule to follow there.
+- Each stage walks every pass over its own files and marks each angle that only the cross-group stage can check. Write each mark on its own line in the notes, starting at the first column with no bullet, as `cross-group <angle>: <the symbol or rule to follow there>`. Give each changed function its own `cross-group 1.3` mark too, because the caller trace in "After a fix" reads its list from them.
 - After each stage, write it to the notes file and run `--self`. If the next stage fits in the room left, start it. If it does not, hand off naming the notes file and the next stage, and nothing else about the review.
 - Classify and Output run once, after the cross-group stage, over every stage's candidates.
 
