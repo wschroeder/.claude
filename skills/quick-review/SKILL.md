@@ -168,6 +168,14 @@ Side-effect call hygiene:
                                           adds or changes: one input per way round
                                           it (case, computed key, spread, look-alike
                                           type), each run through the checker
+  2.23  Cancelled browser default        each preventDefault, stopPropagation, or
+                                          `return false` the diff adds: list every
+                                          element the handler reaches and what the
+                                          browser does there by default (a label
+                                          focuses or toggles its field, a link
+                                          navigates, a summary toggles, a submit
+                                          button submits); drive one of each with
+                                          real input and quote what happened
 
 Concurrency / race shapes:
   2.4   Divergent-input races            race handler :ok; payloads diverge
