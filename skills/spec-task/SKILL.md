@@ -272,6 +272,11 @@ If two rules in the design documents disagree about an item in this slice,
 ask the operator which one wins before you cut the cards. Do not carry the
 question to the demo.
 
+The work an item takes is never a reason to delay it. Do not recommend
+leaving an item out, narrowing a rule's reach, or moving an item to a later
+slice because doing it is a lot of work. If an option's only cost is the
+work, then do not recommend against it.
+
 **End this section by saying which it was.** Either the numbered questions
 the operator has to answer, asked with AskUserQuestion, with nothing
 written after them — or the one plain sentence that every question went to
