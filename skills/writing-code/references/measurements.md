@@ -23,3 +23,7 @@ Measured on 2026-09-26 across four repositories: of ten sampled security reviews
 ## Why help text states facts only, and why any change to on-screen text loads this skill
 
 Measured on 2026-10-28: a slice wrote one-sentence definitions for every figure on two screens. The spec sessions wrote the wording into a design document, and none of them opened the interface reference: no session in the run loaded this skill, and the two that wrote the wording mention the reference zero times. spec-task's help-text check told the writer to keep what the reader should do about a figure, so several definitions shipped carrying advice and predictions. The operator caught them at the demo and said help states facts only.
+
+## Why a flag may say what an action does, and never only name the control
+
+Measured on 2026-10-28: a slice reworded every flag in an app so each named its state, gave the reason after "because", and, for a flag a person has to handle, ended with what to do. Of 28 closing sentences, five only named a control that sat beside the flag, such as "Retry processing." next to a button labeled Resume. The operator called that kind of sentence pointless and asked for help that explains what happens when the reader acts. The useful closing sentences either said what the action does ("Retry to continue from the uploaded file") or named a fix the screen does not offer (install a missing tool, correct the record in the outside system). The facts-only rule above had banned both kinds along with the pointless one.

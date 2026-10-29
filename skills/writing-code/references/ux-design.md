@@ -167,6 +167,16 @@ Keep help in a tooltip to meaning alone. Nielsen Norman Group's tooltip
 guidance, quoted under Sources, keeps instructions out of tooltips because a
 tooltip disappears. See [measurements.md](measurements.md).
 
+One exception: a pill or flag that marks something a person has to handle may
+end with one sentence that tells the reader something the screen does not show.
+That sentence says what an action does, such as "Resume picks up at the failed
+step and keeps the work done before it", or where the fix lives when it sits
+outside the app, such as "Correct the record in the source system". Never end
+with a sentence that only names a control the reader can already see, such as
+"Retry processing." beside a Retry button or "Choose its account." beside an
+account picker: it repeats the screen and tells them nothing. Read the code
+behind the action before you say what it does.
+
 ## Review list
 
 Check each control against these before you call it done:
@@ -190,7 +200,10 @@ Check each control against these before you call it done:
   none copies the incoming query string.
 - At phone width, a page's contents list sits visible above its text, one link
   per line, neither folded nor sticky.
-- Each definition and help passage carries no promise, opinion, or advice.
+- Each definition and help passage carries no promise, opinion, or advice, apart
+  from the closing sentence a flag may carry.
+- A flag's closing sentence, where it has one, says what an action does or where
+  the fix lives, and never only names a control that is already on screen.
 
 ## Sources
 
