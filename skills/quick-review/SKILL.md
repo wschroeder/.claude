@@ -442,6 +442,11 @@ Tests over eyeballing. The review's primary job is to identify behaviors lacking
                                           and the line asserting the symptom; a
                                           test named for the bug, or no symptom
                                           line → finding
+  7.23  Excess tests                     a copy of another test's cases, an
+                                          assertion outside the title, a CSS class,
+                                          a pinned derived literal, a second variant
+                                          proof: per deletion, quote where each
+                                          assertion now lives and a mutation it fails
 
 Test-infrastructure hazards (7.12-7.21), listed in details/07-test-coverage.md:
   walk them for any diff that adds or edits a test: global mocks, sandbox

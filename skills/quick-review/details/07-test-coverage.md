@@ -117,3 +117,18 @@ These (7.12-7.21) are production-of-correctness issues, not style. A test suite 
 A bug, whether a reviewer, a Jira issue, or a user reported it, usually means a feature test missed some coverage. Put the assertion into that feature test, where it reads as part of the behavior, rather than into a new test named after the bug. Assert the symptom a person saw: the flag, the message, the status, or the page text. A figure that implies the symptom is not enough, because the code between the figure and what the person sees can still break.
 
 Measured (2026-10-22): a reviewer reported that a customer whose line items were all excluded showed no overdue flag. The fix's test asserted the customer's computed balance and the analytics overdue count, but not the flag. Its mutation proof changed the figure, so it never showed that the test would catch a missing flag. The reviewer's next pass asked for `expect(customer!.flags.map((flag) => flag.flag)).toContain('overdue')`. When `flag.ts` emitted a renamed flag, only that line failed.
+
+## 7.23 Excess tests
+
+Pass 7 hunts for missing tests, and this angle hunts for the opposite. Every test the diff adds is a finding when it does any of these:
+
+- It repeats another test. A browser test that proves what an integration test proves is a copy, and so is a unit test whose cases a sibling test already runs.
+- It asserts something its title does not name, such as another step's output. One regression then fails several tests, and the title no longer says what broke.
+- It matches markup instead of content: a CSS class, a utility-class regex, or a wrapper element. Assert the text a person reads. When a state shows only through styling, the fix is a stable attribute in the markup (`data-state`), not a class match.
+- It pins a literal that the code derives from another source, such as a reply schema generated from a validator. Such a test only proves the generator ran.
+- It folds a second input variant into a test about something else.
+- It copies setup that two other tests copy too. Fold the setup into a helper.
+
+The fix is to delete the test or the assertion, which `git-commit` folds into the commit that introduced it. Before you delete, find a home for every assertion the test held that no other test makes: move it into the neighbouring test that sets up the same state. Then mutate the production line that the moved assertion covers, and show that the test now fails.
+
+Measured (2026-10-29): a branch added 1064 test lines for one feature. A pare-down cut 172 of them: an end-to-end spec, five tests whose assertions others already made, class-matching regexes, and assertions about one step in tests titled for another. One test had been the only one checking a streamed fragment. Its assertion moved into a neighbour that set up the same failed state, and when the route stopped passing that state, the neighbour failed. Matching step labels alone left the timeline tests unable to tell a done step from a pending one, which is the gap a `data-state` attribute closes.
