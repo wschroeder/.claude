@@ -154,9 +154,11 @@ Story: As a <person who uses the product>, I can <what they can do>.
   status: <n> of <m> closed
 ```
 
-**Fill `beads` and `proof` from `bd show` of each card, not from memory of the
-build.** Put every proof command under the card whose acceptance criteria name
-it, because Section 5 copies these lines into each card's close reason.
+**Fill `beads` and `proof` from each card's acceptance criteria, not from memory
+of the build.** Read the cards one at a time and keep only their acceptance
+criteria, rather than reading every card in full at once. Put every proof
+command under the card whose acceptance criteria name it, because Section 5
+copies these lines into each card's close reason.
 See [references/measurements.md](references/measurements.md).
 
 **The role is someone who uses the product. Never the developer.** A slice
@@ -223,6 +225,10 @@ that closes on Escape or on a click outside it, maps each case to its own step.
 If a mapping line has to say that a case went undriven, the steps are not
 finished: add the step that drives it before you walk.
 
+**Order the steps so the walk can run again from step 1.** A step that changes
+data, such as a merge or a delete, comes after every step that reads that data,
+or it is followed by a step that puts the data back. See [references/measurements.md](references/measurements.md).
+
 **If the slice changes a step in the middle of a pipeline, give the walk a
 step that captures the screen just before that step runs and just after it.**
 Do this even where the end state alone would pass the check. The operator
@@ -232,7 +238,10 @@ judges the change by what went into the step and what came out of it.
 before and after each step, and compare each after-capture with that step's
 "check after" text. Capture the whole page (`fullPage` true, no `uid`) unless
 the step is about one element, and open every capture with Read before you
-send it: compare the image itself, never the page text. Where they disagree, either fix the step or send the
+send it: compare the image itself, never the page text. Where you need the
+page's text to find what to click, read only the region the step works in,
+such as with `evaluate_script` returning that region's text, rather than a
+snapshot of the whole page. Where a capture and its "check after" text disagree, either fix the step or send the
 product back to build as [references/driving-rules.md](references/driving-rules.md) says, and do not post until they agree. Following the steps is what tests them: a step
 you skipped or improvised around is a step the operator will trip on. Why:
 [references/measurements.md](references/measurements.md).

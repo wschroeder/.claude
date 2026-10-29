@@ -22,6 +22,7 @@
 - Why rapid mode does not commit
 - Why rapid mode has no size limit
 - Why `beads` and `proof` come from `bd show`
+- Why a step that changes data comes last or puts the data back
 - Why the steps are printed in full in the message
 - Why you start what the demo needs yourself
 - Why you do the setup a phone cannot do
@@ -231,6 +232,12 @@ Measured: the operator took a whole padding rework in rapid mode on purpose, and
 ## Why `beads` and `proof` come from `bd show`
 
 Measured: an S15 demo record put the enemy test under the wrong card, written by a session that had run no `bd` command at all, and both cards had to be closed twice.
+
+Measured (2026-10-29): a demo worker ran one `bd show` of all seven cards, a 20,094-character result, and one whole-page `take_snapshot` of 35,431 characters. Those were its two largest results, and it handed off having written nothing to the demo file. That is why the cards are read one at a time for their acceptance criteria, and the page text is read only for the region a step works in.
+
+## Why a step that changes data comes last or puts the data back
+
+Measured (2026-10-29): a demo's merge step used up the one record set up for it, so the next session had to walk the whole demo a second time on fresh data.
 
 ## Why the steps are printed in full in the message
 
