@@ -292,6 +292,8 @@ Measured (2026-10-24): a demo asked the operator what an imported value field ho
 
 Measured: the S2 demo of one project waited 17.7 minutes for its first reply, and the S1 demo waited 385. A push sent in the same batch as the screenshots reached one operator 22 seconds before the steps, with nothing yet to do.
 
+Measured (2026-10-29): two demo sessions wrote the demo, sent the files and the push, and ended the turn on the push. Each got "[Your previous response had no visible output. Please continue and produce a user-visible response.]" within a second. One answered by posting a 4,471-character copy of its 7,469-character demo, and the operator asked for nothing to be repeated. Two earlier sessions wrote one short line after the push and got no such prompt.
+
 ## Why a worker writes `BLOCKED:` only once the drive is complete
 
 Measured: a worker blocked on the operator with Section 3 not started, and the attended session had to unblock it and relaunch the loop to build the demo.

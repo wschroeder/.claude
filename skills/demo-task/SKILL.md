@@ -346,7 +346,9 @@ as a `session-loop` run, also send one `PushNotification`** naming the slice and
 saying the demo is on their phone. Send one per demo, not one per round of
 feedback. Write the demo message as text first: the summary, every step, the
 phase line, and the ask. Only then call SendUserFile and PushNotification, and
-end the turn with nothing after them. Text written after a tool call reaches the
+end the turn with one line after them that points back and repeats nothing, such
+as "The demo is above." A turn that ends on a tool call gets a prompt for visible
+output, and answering that prompt with the demo again repeats it. Text written after a tool call reaches the
 operator only once that call finishes, so a demo written after the push arrives
 after the notification. The ask still goes last in the message; the push is not
 part of the message. See [references/measurements.md](references/measurements.md).
