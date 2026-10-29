@@ -37,8 +37,9 @@ Report:
 - Tests:          <"not run: the rebase brought in no commits", or the
                    runners the project's CI skips on a pull request,
                    green at the rebased head; a spec that cannot run here
-                   is named and marked UNTESTED — a PRECONDITION recorded
-                   here, NOT a PR-body section>
+                   is named and marked UNTESTED, and so is each line a
+                   rebase resolution added that no test failed without —
+                   a PRECONDITION recorded here, NOT a PR-body section>
 - Reviews:        <the last round of quick-review and security-review
                    found nothing — a PRECONDITION, NOT a PR-body section>
 - Base branch:    <origin/master (or origin/main) — never the local ref>
@@ -73,7 +74,9 @@ commits by the claim each makes, under `git-commit`, "How many commits".
 The history tells the story feature by feature, not in the order the work
 happened: reorder freely, and let the migrations fix the order only where
 they must. Fold every fix commit into the commit it fixes, and fold each
-group into one commit with a message authored through `git-commit`.
+group into one commit with a message authored through `git-commit`. If a
+folded commit's message says that no test failed when you removed a line a
+rebase resolution added, then carry that sentence into the new message.
 When a reordered commit conflicts, resolve the conflict in the commit that
 replays it, as in the rebase above. Never split a claim's group, or move a
 commit into another claim's group, to get past a conflict. If a migration
