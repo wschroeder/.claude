@@ -5,6 +5,7 @@ Read from `demo-task` Section 3 before you drive anything.
 Contents:
 
 - Drive the real UI yourself, with the Chrome tool first
+- A page only a script can produce is still a browser demo
 - A bug your own driving finds means the demo is not ready
 - Drive the thing the definition of released names, play on until the change happens, and name any link you cannot reach
 - Show the reproduction command, and show yourself driving it with the input a person sends
@@ -24,6 +25,12 @@ Contents:
   Chrome tool could not. Do not fetch the pages over HTTP in place of either: a
   fetched page shows no tooltip, no disclosure, and no click, so it is not a
   walk. Why: [references/measurements.md](measurements.md).
+- **A page that only a script can produce is still a browser demo.** Where the
+  walk needs data that a fake model or a test helper writes, have the script
+  save the page's HTML, serve it from the app's own public folder beside its
+  built assets, and capture it with the Chrome tool. Delete the copies
+  afterwards. Saved HTML is not a capture, and "the page with the app's
+  styles" is never a link the walk leaves unchecked while this is possible.
 - **A bug your own driving finds means the demo is not ready**, and so does
   a reviewer finding nobody has fixed yet, such as the one a session loop
   names when it stops. Do not post
