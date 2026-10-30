@@ -60,6 +60,16 @@ commit. Then remove the added line, run its tests, and put it back. If no test
 fails, say so in that commit's message. See
 [references/measurements.md](references/measurements.md).
 
+If the rebase brought in commits, list the files the branch adds with
+`git diff --name-only --diff-filter=A origin/<base> HEAD`, and for each
+directory that holds numbered files, such as migrations, list the base's
+copy with `git ls-tree --name-only origin/<base> <dir>/`. Where a branch file
+and a base file start with the same number, git shows no conflict, but the
+project's migration tool refuses the directory. Renumber the branch's file
+after the base's highest, in the commit that adds it, and run the migration
+tool the deploy uses over the directory. See
+[references/measurements.md](references/measurements.md).
+
 If the rebase brought in no commits, run no tests: TDD already ran them
 against this base. If it brought some in, read the project's CI workflow for
 the runners it runs on a pull request, and leave those to CI's check on the

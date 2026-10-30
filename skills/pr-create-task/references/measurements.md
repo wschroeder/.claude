@@ -8,6 +8,10 @@ Measured: a browser spec passed on 2026-10-16, main then changed the table cell 
 
 Measured (2026-10-28): the rule then said to run every test runner after any rebase. A PR prep started the full unit and integration suite locally, though the project's CI runs those same suites on every pull request and runs no browser tests, and the operator stopped it as wasted time. As worded, the rule also ran every suite after a rebase that brought in nothing, where TDD had already run them against the same base.
 
+## Why a rebase compares the numbers of files both sides added
+
+Measured (2026-10-30): the branch added a numbered migration, and while it was in review the base merged a different migration with the same number. The two files had different names, so the rebase replayed with no conflict. PR prep then ran only the browser tests, leaving the unit and integration suites to CI, and the browser tests' setup applies migrations by sorted filename without checking for a repeated number, so they passed. The whole-branch review ran the integration suite, whose migration tool refused the directory with "duplicate migration file", and 307 tests failed at setup. That finding ended PR prep for the round.
+
 ## Why a resolution that writes new code gets the spec search and the mutation test
 
 Measured (2026-10-28): a rebase brought in a base commit that listed the in-flight states of a background job, both in code and in one spec sentence. The session resolving the conflict added the branch's new state to the code's list, and it ran a mutation test on that line. Its only spec search looked for a word the branch had renamed, so the sentence still left the new state out. In a second conflict, the session moved a base call into a branch helper and ran no test that fails without the call. The whole-branch review caught both, and its findings ended PR prep for that round.
