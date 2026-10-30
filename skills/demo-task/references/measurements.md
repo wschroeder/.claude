@@ -318,3 +318,7 @@ Measured: one demo produced seventeen quoted records, six of which changed how t
 ## Why the operator's own promise to check stops the hand to the retro
 
 Measured: the operator's turn ended "I'll doublecheck that the deployment matches", the session reported the deploy and handed to `retro-task` in the same message, and they replied, "I expected to look at the deployed demo, and suddenly we're doing retro."
+
+## Sending a file of demo steps (2026-10-30)
+
+A supervisor printed every demo step in its message and also sent the steps file to the operator's phone, because one instruction said to send the demo artifact and another called the file the phone's copy. The operator said: "Stop sending the file. The steps in the message are enough." A file of steps now stays on disk as the walk's record.

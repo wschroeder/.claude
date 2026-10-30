@@ -132,7 +132,10 @@ reads, which is the reverse of the order you did the work in.
 
 **First, one paragraph in plain English.** What was built, and what a person
 can now do that they could not do before. No reference tag, no requirement
-id, no bead id, no command, no count, and no word this project invented. If
+id, no bead id, no command, no count, and no word this project invented. A phrase built from a name in the
+code, such as a type, a schema, a function, or a file, counts as one, and so
+does a card title that uses one: say what the change does for a person, or
+say that nothing changes on screen. If
 someone who has not been in the session cannot follow it, it has failed, and
 the rest of the section will fail with it — this paragraph is what the
 operator is asking for when they ask what you did this iteration.
@@ -246,8 +249,8 @@ product back to build as [references/driving-rules.md](references/driving-rules.
 you skipped or improvised around is a step the operator will trip on. Why:
 [references/measurements.md](references/measurements.md).
 
-Print those steps in full in the message that posts the demo. A copy sent to a
-phone or saved to a file comes in addition to them, never in their place.
+Print those steps in full in the message that posts the demo. A copy saved to a file stays on disk as the walk's record, and you do not
+send it: the operator reads the steps in the message.
 See [references/measurements.md](references/measurements.md).
 
 Start whatever the demo needs yourself, such as a build and a server, whether
@@ -348,7 +351,7 @@ file with `SendUserFile` as well as naming its path.** A page, a report, a
 render, a PDF: the operator may be reading this on a phone, where a path on
 this machine is not something they can open. Send it and give the path, so
 either route works. A file of operate-it steps is not this kind of demo: Section
-3 puts its steps in the message, and the file is only the phone's copy.
+3 puts its steps in the message, and the file is the walk's record, so do not send it.
 
 **Where the demo follows a background run the operator was not watching, such
 as a `session-loop` run, also send one `PushNotification`** naming the slice and

@@ -193,8 +193,10 @@ git -C <repo> log --oneline -20
 python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <start>
 ```
 
-Where the stopped session produced a demo artifact, paste the demo output
-into your message and send the file with SendUserFile. Reading it with a tool
+Where the stopped session produced a demo to look at, such as a page, a
+render, or a PDF, send it with SendUserFile. A file of demo steps stays on
+disk as the walk's record: paste its steps into your message and do not send
+the file. Reading it with a tool
 puts it in your context only, and the operator sees nothing but your summary.
 
 **The last review's findings are owed work, and nothing in the loop owns
