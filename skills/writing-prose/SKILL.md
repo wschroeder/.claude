@@ -71,6 +71,35 @@ internal register before you draft, and check the draft against this list:
 - Leave out what is not a gap, a problem, or a finding for this reader, even when
   it cost you work to rule out.
 
+## Answer each sentence rule in writing
+
+This applies at tier two and tier three. Tier one keeps its three passes.
+
+After the voice check, read the finished text against every subsection of
+`~/.claude/CLAUDE.md` "Communication Style" except these five, which govern
+layout and the reply: "Choices and options get visual
+separation", "When you need an answer, the ask goes last and says what to do",
+"Answer what I asked, and do nothing more", "Keep explanations short", and
+"Tables and dense layout". A subsection added to CLAUDE.md later joins the check
+unless you add it to that list.
+
+Put the answers in the reply that hands the text over, under a heading
+"Sentence rules", one entry per subsection, named by its heading. Each entry
+takes one of three answers:
+
+- Quote every sentence you fixed under that rule, before and after.
+- If you fixed none, give the number of sentences you read for it.
+- If the rule cannot apply to this text, say why in a few words, such as "no
+  dates".
+
+Under "A follow-on sentence takes a colon, not a full stop", list every sentence
+in the text that has no main verb, including headings' captions and bullets, and
+mark each fixed or kept with the reason. If there are none, say so.
+
+An entry that says only "checked", "no issues", or "passes" is an open item,
+and so is an entry with no answer. An open item stops the hand-over. See
+[references/measurements.md](references/measurements.md).
+
 ---
 
 ## Tier one — one point, no sections
@@ -164,9 +193,11 @@ Save the text to a file in the scratchpad and run `python3
 scripts/voice_stats.py <file>`. Mark each maxim candidate, silent tail, closing
 verb, punchline, and comma candidate it lists keep or cut, and each missing
 comma candidate add or leave, as tier one says. Fix every one you cut or mark
-add. Then run tier one's other two passes over the text.
-Report any band it misses in one line with the reason you kept the text as it
-is, or rewrite until it lands.
+add. Report any band it misses in one line with the reason you kept the text as
+it is, or rewrite until it lands.
+
+Then answer each sentence rule in writing, as "Answer each sentence rule in
+writing" says.
 
 ---
 
@@ -290,7 +321,8 @@ saying what a thing is not before saying what it is — "rather than", "instead 
 whether the reader is being asked to hold too much at once. A maxim candidate is a
 sentence that closes a block by generalising into a saying; cut it by default.
 Mark the silent tails, closing verbs, punchlines, comma candidates, and missing
-comma candidates it lists the way tier one says.
+comma candidates it lists the way tier one says. Then answer each sentence rule
+in writing, as "Answer each sentence rule in writing" says.
 
 Then measure length against the budget from step 0. **Over budget means cutting
 ideas**, which readmits you to step 3, because dropping an idea changes the graph.

@@ -18,6 +18,10 @@ Measured: one run drew only on the declared source files and silently dropped an
 
 Measured on 2026-10-27: a session loaded this skill to rewrite 46 one-sentence definitions shown on screen and ran the voice check, which listed no commas. The operator then found a comma before an "or" that joined two objects of one verb. A pass that checked each comma by name then found ten. A later read for the other sentence rules found seven more sentences to fix after the comma pass. Two could be read two ways, and one reached its main verb through a clause that a reader takes as its own subject and verb.
 
+## Why each sentence rule takes a written answer
+
+Measured on 2026-10-30: a session loaded this skill at tier two to write a reference page listing an app's screens. It ran the voice check, fixed the three items it listed, and skipped the two passes the step named. The operator then found that 22 of the page's 25 entries opened with a caption that had no main verb, which CLAUDE.md bans. The skill already said the CLAUDE.md rules apply to everything; the session read that and still checked only what the script printed. The session's own estimate was that a required "checked" line would have been rubber-stamped too, so each answer has to quote what was fixed or count what was read.
+
 ## Why the inversion ceiling is easy to blow
 
 Measured: one draft scored 16.5 against a ceiling of 2.0, and fourteen of its eighteen hits were the single phrase "rather than".
