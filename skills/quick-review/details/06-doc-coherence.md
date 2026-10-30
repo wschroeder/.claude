@@ -38,7 +38,9 @@ Sibling files that explicitly track the migration (a TODO.md, a CHANGELOG entry,
 
 ## 6.7 Old rule still stated
 
-Angles 6.1-6.4 read the lines the diff touched, and 6.5 reads distant docs about a deleted symbol. Neither reads an untouched line that states a rule the diff changed. Name each rule the diff changes in one sentence, such as "an account with no verified statement adds nothing to the totals". Grep every file the diff edits, and the spec pages, for the old rule's key words, and quote each hit. Fix each one, or give it a line saying why it stays.
+Angles 6.1-6.4 read the lines the diff touched, and 6.5 reads distant docs about a deleted symbol. Neither reads an untouched line that states a rule the diff changed. Name each rule the diff changes in one sentence, such as "an account with no verified statement adds nothing to the totals". Grep every file the diff edits, and the spec pages, for the old rule's key words, and quote each hit. Grep too for each column code, field name, or identifier that stands for one of the rule's terms, because a comment often states the rule in those rather than in words. Fix each hit, or give it a line saying why it stays.
+
+Measured (2026-10-29): a slice changed an imported item's date from "the received date, else the status date" to the later of the two. Its 6.7 grepped for "oldest" and "received", fixed three hits, and wrote DEMONSTRATED. A comment on the item's type said the same old rule in the outside system's two column codes, which contain neither word, and the whole-branch review found it. The slice's own 6.8 had quoted a spec sentence naming both codes.
 
 Measured (2026-10-20): the outside reviewer found stale text in all four ranges it read, and our own review found none of it first. One hit was a comment in an aggregates module that still said records with no document contribute nothing, two lines below a comment the diff had updated. Others were a form hint, an analytics header, and a line in `features.md`. The same kind of finding had come from the outside reviewer on the two slices before.
 

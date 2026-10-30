@@ -410,7 +410,9 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
   6.6   Deletion test, every block       each listed comment block: keep plus its why, or delete
   6.7   Old rule still stated            each rule the diff changes: grep the files it
                                           edits and docs/spec for the old rule's
-                                          words; each hit fixed or given a reason
+                                          words and for each code, field, or
+                                          identifier the code names its terms by;
+                                          each hit fixed or given a reason
                                           proof: state each changed rule in one
                                           sentence, then quote each hit and what
                                           became of it; no rule named → finding
