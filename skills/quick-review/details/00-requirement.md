@@ -40,6 +40,22 @@ Give each criterion one of three dispositions:
 The same demonstration discipline applies here as everywhere else: "the handler
 looks like it does this" is not a disposition for **met**.
 
+Where a design document you read for the requirement records the operator's
+answer on a criterion and that answer narrows it, check the diff against the narrowed line instead and
+write **met as narrowed**, citing its file and line. A handoff's Decision line
+does not count, because a later handoff can shorten or drop it.
+
+## When the operator accepts a Flag
+
+When the operator answers a Flag with "accept as is" or its equivalent, write
+their answer, quoted and dated, into the design document beside the
+requirement it narrows, in the same turn. Say what the requirement now means
+in plain words. Measured on 2026-10-28: an operator accepted a Flag that a
+request might exceed a rate limit. The answer lived only in handoffs, one
+handoff written near the context limit shortened it to a bare label, the next
+dropped it, and two days later the whole-branch review raised the same Flag
+and stopped PR prep on a question the operator had already answered.
+
 Check each criterion on every failure path the diff adds, not only on the path that
 succeeds. A catch, a fallback, or a retry that gives up is a path, and **met** needs
 a test that reaches the criterion's outcome through it, or a line saying why the

@@ -557,7 +557,7 @@ An acknowledgment in a moduledoc, comment, commit message, PR body, this review'
 
 Surviving candidates get one of three:
 - **Fix** — bug. Include the fix.
-- **Flag** — needs human judgment. A suspected deadlock is never a "traced, not run" Flag: run the pair (2.18) first, then classify what it showed.
+- **Flag** — needs human judgment. A suspected deadlock is never a "traced, not run" Flag: run the pair (2.18) first, then classify what it showed. When the operator accepts a Flag as it stands, write their answer, quoted and dated, into the project's design document beside the requirement it narrows, in the same turn: [details/00-requirement.md](details/00-requirement.md).
 - **Note** — must be aware to ship safely, but not a bug or judgment call. If you can't articulate what the developer should DO with the information, drop. A Note that says work or data can be lost is a Fix or a Flag.
 
 ## Output
