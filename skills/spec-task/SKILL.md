@@ -370,15 +370,13 @@ Rules for this section:
 - If a proof command already passes, then the requirement is `built` — mark
   it and keep it out of Section 6. One that fails with "no such test" is the
   expected shape of unbuilt work.
-- **If a requirement concerns a constant of any kind, then the slice commits
-  no script or test for it.** A constant is any fixed value: text a person
-  reads, a label, a list of options, a setting, a version, a pinned digest, or
-  a revision hash. Prove it with a one-off command that reads the value, such
-  as `node --version`. The demo, where the operator reads it on screen,
-  proves it too. A
-  requirement that a thing merely exists, such as "every label has a
-  definition", gets the same proof. Write a constant into a design document
-  only where that document already names it. See
+- **If a requirement concerns a constant of any kind, then it gets no
+  script, no test, and no one-off proof command.** A constant is any fixed
+  value: text a person reads, a label, a list of options, a setting, a
+  version, a pinned digest, or a revision hash. The operator sees it in the
+  demo, on screen. A requirement that a thing merely exists, such as "every
+  label has a definition", is treated the same way. Write a constant into a
+  design document only where that document already names it. See
   [references/why.md](references/why.md).
 - A command that cannot be run yet says so and says why, per CLAUDE.md
   rule 3. Do not paste an imagined result.

@@ -402,9 +402,12 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
   6.2   Docstring contract               every listed error case reachable
   6.3   Name-vs-body check               validate_*/verify_*/ensure_* perform action;
                                           each test's title matches its assertions
-                                          proof: quote each added or renamed test's
-                                          title beside the assertion line proving
-                                          each thing it names; no line → finding
+                                          proof: quote each added, renamed, or
+                                          changed test's title beside the assertion
+                                          line proving each thing it names, and each
+                                          of its assertions beside the title words
+                                          it proves; a thing named with no line, or
+                                          a line with no title words → finding
   6.4   PR/commit-message-vs-diff check  claimed enforcement is present
   6.5   Distant-doc symbol drift         deleted symbol still named in distant docs/
   6.6   Deletion test, every block       each listed comment block: keep plus its why, or delete
@@ -417,8 +420,11 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           sentence, then quote each hit and what
                                           became of it; no rule named → finding
   6.8   Spec sentence vs code            each spec sentence the diff adds or edits,
-                                          and each existing spec step governing a
-                                          path the diff changes (a retry or resume
+                                          and each existing spec sentence, on any
+                                          spec page, governing a path the diff
+                                          changes; a word diff that shows only a
+                                          rename does not exempt a sentence whose
+                                          code path changed (a retry or resume
                                           that reuses a stored result: quote the step
                                           on what a retry reads again):
                                           split it into the cases it names; a class
@@ -467,10 +473,15 @@ Tests over eyeballing. The review's primary job is to identify behaviors lacking
                                           test named for the bug, or no symptom
                                           line → finding
   7.23  Excess tests                     a copy of another test's cases, an
-                                          assertion outside the title, a CSS class,
-                                          a pinned derived literal, a second variant
+                                          assertion outside the title, a CSS class
+                                          in any kind of test, whatever the
+                                          project's selector rule names, a pinned
+                                          derived literal, a second variant
                                           proof: per deletion, quote where each
-                                          assertion now lives and a mutation it fails
+                                          assertion now lives and a mutation it fails;
+                                          per added or changed test, quote one
+                                          assertion that no other test in its file
+                                          makes; none → finding
 
 Test-infrastructure hazards (7.12-7.21), listed in details/07-test-coverage.md:
   walk them for any diff that adds or edits a test: global mocks, sandbox
@@ -542,6 +553,8 @@ For each surviving candidate that would be Fix or Flag, ask whether applying the
 - **Performance** — hot-path latency, memory, allocation pressure, query plans
 - **Maintainability** — symmetry with siblings, reduced special-casing, clearer invariants, less hidden coupling
 - **Spec compliance** — RFC/standard alignment, cross-system contract adherence, accessibility standards (WAI-ARIA roles and the keyboard and focus contracts they imply)
+
+A missing test of any kind for a constant is never a finding, symmetry with siblings included, because a constant gets no test: `spec-task`, "If a requirement concerns a constant of any kind".
 
 If YES to at least one, recommend the fix. The bar is "positive signal on any axis," not "positive on all axes." This is the anti-waffling rule — it prevents the "technically correct but maybe not worth it" drift. A 5-line fix that measurably improves one axis beats a 0-line "ship as-is" that improves none. This section is the only place the axes are defined; `writing-code`, `pr-respond-task` and `pr-feedback-task` point here rather than restating them.
 

@@ -443,13 +443,12 @@ spec session wrote the demo card around a save forged from the browser
 console, the workers built it as written, and the operator, working the demo,
 called that step "crazy town" and asked what it was trying to do.
 
-## A constant is proved by reading it
+## A constant is seen in the demo
 
 Rule: a requirement about a constant of any kind, whether text, a label, a
-list, a setting, or a version, is proved by a one-off command that reads the
-value or by the operator reading it in the demo. The slice commits no script or
-test for it and adds no design-document text about it that was not already
-there.
+list, a setting, or a version, gets no script, no test, and no one-off proof
+command. The operator reads it in the demo. The slice adds no design-document
+text about it that was not already there.
 
 Why: "no such test" as the expected shape of unbuilt work led a planning
 session to invent check scripts for a version bump. Measured (2026-10-23): the
@@ -468,3 +467,9 @@ label had a definition. At the demo the operator had both removed: "They catch
 nothing other than that something exists. Retro: I do not want tests at all for
 verifying constants of any kind. I already have a note about this for
 configuration validation, and this might be a general extension of it."
+
+Measured (2026-10-30): a whole-branch review found an untested response-schema
+constant and proposed a test for symmetry with its siblings, and the retro
+proposed a one-off command in its place. The operator removed both: "we
+shouldn't be testing for a constant at all. It isn't just about committed
+tests. It's just a waste of time."
