@@ -371,5 +371,14 @@ exception is the rapid mode in `demo-task`: while the operator has that mode
 on, they have chosen speed over rigor for the tweaks they are trying, and the
 tests get written once they approve rather than before the change.
 
+Tests cover behavior, not how a screen is put together. A change that only
+places, wraps, or labels markup, or that reuses a component a test already
+checks somewhere, gets a demo instead of a test. A test that only checked such
+markup is deleted rather than rewritten. A constant gets no test of its own.
+
+When you edit a test, run the files you edited before you call the work done.
+This holds for every kind of test, including a kind you were told not to run
+in general.
+
 @~/.claude/CLAUDE-environment.md
 @~/.claude/CLAUDE-private.md

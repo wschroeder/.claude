@@ -4,7 +4,7 @@ What's tested, what isn't, edge cases, trivially passing assertions. **You must 
 
 **Tests must assert outcomes, not implementation.** A test that checks "this function was called" or "the query contains this clause" is testing wiring, not behavior. The correct test asserts the observable result: the DB row exists with the right values, the API returned the right response, the error was the expected one. Mock call_history assertions are a smell — they prove a code path ran, not that it worked.
 
-**Tests over eyeballing.** The review's primary job is to identify behaviors that lack test coverage — not to substitute for tests by reading code carefully. For every finding in passes 1-5, ask: "is there a test that would catch this?" If yes, the finding is already guarded. If no, the missing test IS the finding.
+**Tests over eyeballing.** The review's primary job is to identify behaviors that lack test coverage — not to substitute for tests by reading code carefully. For every finding in passes 1-5, ask: "is there a test that would catch this?" If yes, the finding is already guarded. If no, the missing test IS the finding. A change to how a screen is put together, or a reuse of a component a test already checks, is not a coverage gap: CLAUDE.md gives it a demo instead.
 
 ## 7.1 Failure path coverage
 

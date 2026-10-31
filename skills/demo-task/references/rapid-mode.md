@@ -44,8 +44,10 @@ many tweaks it takes.
 
 **Their approval is what starts the polish**, in this order, in this session:
 
-1. Write the tests the changes should have had. They are late, and that was
-   the operator's call to make.
+1. Write the tests the changes should have had, under CLAUDE.md's rule that
+   how a screen is put together gets a demo and not a test. Where every change
+   is of that kind, write none and say so in one line. Tests that are owed are
+   late, and that was the operator's call to make.
 2. Load `quick-review` over everything the mode produced, then
    `security-review` when `writing-code`'s list says the diff needs one, and
    apply what they find under the review skill's own gate.
