@@ -180,6 +180,8 @@ directives the operator handed you. Each principle names the concrete
 behavior, not a label for it. If the operator highlighted no principle this
 session, write `None` — do not invent one.
 
+**Never derive a rule from a principle.** Quote the operator's words and stop. "Do not run integration tests" carried as "so write no new test" is a new rule the operator never gave, and the next session obeys it over every skill. In particular, a limit on running a kind of test never forbids writing one: CLAUDE.md has the session run any test file it edits. Measured (2026-10-31): a handoff turned "No running integration or e2e tests" into "integration tests may not run. So write no new test", the build proved a SQL fix by hand, and the whole-branch review filed the missing test as a Fix.
+
 **Carry the operator's definition of released here, word for word, whenever no
 project document holds it.** An operator working in a repository they do not
 own may keep it in the handoff on purpose, and `demo-task` and `spec-task`
