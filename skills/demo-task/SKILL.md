@@ -391,7 +391,10 @@ and the file that holds its demo, and stop. Write `BLOCKED:` only once Section
 changed. A worker that hands off before then writes an ordinary handoff naming
 the Section it stopped in, or the step it has still to drive, as the next step,
 because a worker can drive and capture and the operator should only be asked
-to try a demo that exists. See [references/measurements.md](references/measurements.md). Write it through the skill rather than by hand, however close the
+to try a demo that exists. Where that worker stopped partway through the walk,
+the handoff also carries a line `WALK: <path to the walk record>`, relative to
+the repository root or absolute: the loop driver counts a step added to that
+file as progress, and stops the run after two sessions that add none. See [references/measurements.md](references/measurements.md). Write it through the skill rather than by hand, however close the
 ceiling is: the handoff point is a budget and not a limit. No requirement
 reaches `demoed` from an unattended run, because that status is what a person
 looking at the thing produces; they stay `built` until someone has looked. A

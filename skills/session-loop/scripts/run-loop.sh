@@ -511,6 +511,15 @@ for row in sorted(rows, key=lambda r: r["id"]):
 ' || true
 }
 
+# A session walking a demo commits nothing and moves no card. The step it adds
+# lands in the gitignored walk record that the handoff names on a WALK: line.
+walk_path() {
+  local path
+  path="$(sed -n 's/^WALK:[[:space:]]*//p' "$HANDOFF_PATH" | head -n 1)"
+  [ -n "$path" ] || return 0
+  case "$path" in /*) printf '%s\n' "$path" ;; *) printf '%s\n' "$REPO/$path" ;; esac
+}
+
 wait_out_limit() {
   printf '  %s hit the usage limit; it resets in %s minutes. Waiting, then trying once more.\n' \
     "$1" "$(($2 / 60))"
@@ -627,6 +636,10 @@ $PENDING_FINDINGS"
   # rewrite as progress and start another session on the same code, forever.
   TREE_BEFORE="$(git -C "$REPO" rev-parse 'HEAD^{tree}')"
   BOARD_BEFORE="$(board_state)"
+  # The record the handoff named going in, so that a session cannot count as
+  # progress by naming a fresh record of its own.
+  WALK_PATH="$(walk_path)"
+  WALK_BEFORE="$([ -z "$WALK_PATH" ] || cksum 2>/dev/null < "$WALK_PATH" || true)"
   HANDOFF_BEFORE="$(cksum < "$HANDOFF_PATH")"
 
   set -- -p "$PENDING_FINDINGS$(cat "$HANDOFF_PATH")$(protocol)"
@@ -735,6 +748,11 @@ SUMMARY
     if [ "$BOARD_BEFORE" != "$(board_state)" ]; then
       HANDOFF_ONLY_RUNS=0
       printf '  the session committed nothing but moved cards on the board; carrying on.\n'
+      continue
+    fi
+    if [ -n "$WALK_PATH" ] && [ "$WALK_BEFORE" != "$(cksum 2>/dev/null < "$WALK_PATH")" ]; then
+      HANDOFF_ONLY_RUNS=0
+      printf '  the session committed nothing but added to the walk record; carrying on.\n'
       continue
     fi
     # A finding written into the handoff is progress too: a session out of room

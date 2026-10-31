@@ -220,6 +220,41 @@ case "${STUB_MODE:-commit}" in
          git add -A && git commit -qm "stub: fixed the findings" ;;
     esac
     ;;
+  walkonly)
+    # Walks one more demo step each call, records it in the gitignored walk
+    # record its handoff names, and commits nothing. The fourth call finishes.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    walk="${STUB_WALK:-.plans/walk/record.txt}"
+    if [ "$n" -ge 4 ]; then
+      printf 'BLOCKED: the walk is finished.\nWALK: %s\n' "$walk" > HANDOFF.md
+    else
+      echo "step $n matched" >> "$walk"
+      printf 'Continue the walk.\nWALK: %s\nWalked %s.\n' "$walk" "$n" > HANDOFF.md
+    fi
+    ;;
+  walkstalled)
+    # Rewrites the handoff each call, names the walk record, and adds no step.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -ge 4 ]; then
+      printf 'BLOCKED: the driver never stopped.\nWALK: .plans/walk/record.txt\n' > HANDOFF.md
+    else
+      printf 'Continue the walk.\nWALK: .plans/walk/record.txt\nTried %s.\n' "$n" > HANDOFF.md
+    fi
+    ;;
+  walkswitch)
+    # Names a new walk record on every handoff and adds no step to the one the
+    # handoff it was given named.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -ge 4 ]; then
+      printf 'BLOCKED: the driver never stopped.\n' > HANDOFF.md
+    else
+      echo "step 1 matched" > ".plans/walk/record-$n.txt"
+      printf 'Continue the walk.\nWALK: .plans/walk/record-%s.txt\n' "$n" > HANDOFF.md
+    fi
+    ;;
   statusonly)
     # Moves a card on the board and commits nothing, the way a session does
     # when it sends a card back to build. Its second call changes nothing at
@@ -531,6 +566,59 @@ export STUB_MODE=handoffboardhandoff
 status="$(run_loop)"
 check "handoff-only sessions with a card move between them do not stop the run" 0 "$status"
 check "every session of the run with a card move ran" 4 "$(cat "$STUB_COUNT_FILE")"
+drop_fixture
+
+# --- a session walking a demo commits nothing and moves no card, so the step it
+#     adds to the walk record named on the handoff's WALK: line is its progress.
+#     The record is gitignored, like the handoff. ---
+new_walk_fixture() {
+  new_fixture
+  echo "/.plans/" >> "$REPO/.git/info/exclude"
+  mkdir -p "$REPO/.plans/walk"
+  : > "$REPO/.plans/walk/record.txt"
+  local walk=.plans/walk/record.txt
+  [ "${1:-}" = absolute ] && walk="$REPO/$walk"
+  printf 'Continue the walk.\nWALK: %s\n' "$walk" > "$REPO/HANDOFF.md"
+}
+
+new_walk_fixture
+export STUB_MODE=walkonly
+status="$(run_loop)"
+check "walk sessions that each add a step to the walk record do not stop the run" 0 "$status"
+check "every walk session ran" 4 "$(cat "$STUB_COUNT_FILE")"
+drop_fixture
+
+new_walk_fixture absolute
+export STUB_MODE=walkonly
+export STUB_WALK="$REPO/.plans/walk/record.txt"
+status="$(run_loop)"
+check "a walk record named by an absolute path counts its steps as progress" 0 "$status"
+check "every walk session with an absolute record path ran" 4 "$(cat "$STUB_COUNT_FILE")"
+unset STUB_WALK
+drop_fixture
+
+new_walk_fixture
+rm "$REPO/.plans/walk/record.txt"
+export STUB_MODE=walkonly
+status="$(run_loop)"
+check "a walk record that does not exist yet does not stop the run" 0 "$status"
+check "every walk session ran after the record was created" 4 "$(cat "$STUB_COUNT_FILE")"
+drop_fixture
+
+new_walk_fixture
+export STUB_MODE=walkstalled
+status="$(run_loop)"
+check "walk sessions that add no step stop after two handoff rewrites" 1 "$status"
+check "the second stalled walk session is the last one run" 2 "$(cat "$STUB_COUNT_FILE")"
+grep -q "two sessions in a row committed nothing and only rewrote the handoff" "$ROOT/out.txt"
+check "the stalled walk is reported as handoff rewrites" 0 $?
+drop_fixture
+
+new_walk_fixture
+export STUB_MODE=walkswitch
+status="$(run_loop)"
+check "naming a new walk record each session is not progress" 1 "$status"
+check "the second session naming a new walk record is the last one run" 2 "$(cat "$STUB_COUNT_FILE")"
 drop_fixture
 
 # --- a session that rewrites the last commit without changing the code must not

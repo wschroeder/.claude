@@ -68,6 +68,10 @@ something.
    A session that moved a card's status but no tree made progress all the
    same, because bd keeps its board outside the git tree: the next session
    runs with no review in between, since there is no new commit to read.
+   So did a session that changed the walk record named on the `WALK:` line
+   of the handoff it started from, because a session walking a demo commits
+   nothing and moves no card, and the record is gitignored. A record that a
+   session names for the first time counts only from the session after it.
    So did a session that only rewrote the handoff, such as one that recorded
    a review finding it had no room left to fix. A second such session in a
    row stops the run, so rewriting the handoff cannot spin the loop.
