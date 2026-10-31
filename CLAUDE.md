@@ -293,6 +293,15 @@ An imperative that actually means "if" hands the reader a command they were neve
 
 The same fix applies to any sentence that buries its condition after the outcome: "the cache stays stale unless you pass --refresh" becomes "unless you pass --refresh, the cache stays stale".
 
+### Say what happened, then what follows from it
+
+Give a sentence one negative at most. Each "no", "not", "nothing", "none", "never", "nobody", "neither", "nor", or "without" asks the reader to picture something and then cancel it. Three of them in one sentence leave the reader rebuilding the event from what did not happen, and the sentence reads as AI-written.
+
+Count the negative words in each sentence before you submit it. If a sentence has two or more, then find the event behind them and make it the main clause. Put the cause first and what someone did about it second, joined by "so". A person explaining the same thing aloud says it in that order: "the field was never filled in by anything, so we removed it from views."
+
+- BAD:  "No screen shows a customer's location, and no search matches it, because no source has filled it in since a change in the first half of 2026."
+- GOOD: "Nothing has filled in a customer's location since a change in the first half of 2026, so the branch removes it from the screens and from search."
+
 ### Address the reader directly
 
 Use "you" for the reader. Make requests directly. Do not invoke abstract authorities ("standing guidance", "team convention", "codebase convention") as if they were a final word — either name the specific convention concretely (with a file path or commit hash) or just ask what the reader wants.
