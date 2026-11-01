@@ -199,6 +199,13 @@ To check a title, ask what a reader would do differently after reading only the 
 - BAD:  "The list misses four systems, and three of the fourteen reach no item."
 - GOOD: "Which systems each review step reads and writes"
 
+### Do not end a sentence on a flourish
+
+Do not close a sentence with a clause that is there for its ring rather than for what it tells the reader. If the closing clause states a fact, give it plain words and, if it needs one, a sentence of its own. If it states nothing the reader needs, cut it.
+
+- BAD:  "The app refuses to save the order until you enter a quantity, and the refusal names the items."
+- GOOD: "The app will not save the order until you enter a quantity. Its message lists the items that still need one."
+
 ### Commas
 
 Every list of three or more items takes a comma before the final "and" or "or" — in prose, in bullets, in headings, in commit messages, and in anything else you write. The one exception is quoted text: reproduce a quotation exactly as its source wrote it, missing comma and all.
