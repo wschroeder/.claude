@@ -17,6 +17,7 @@ governs what the code and its comments look like once the loop reaches Green.
 | Any edit to a status or health page's markup or styles | `status-page`, before the edit | global |
 | PostgreSQL schema: migrations, DDL, `COMMENT ON` | [references/sql-schema-postgres.md](references/sql-schema-postgres.md) | this skill's references |
 | A control a person uses: button, form, dialog, inline edit, row action; a label, help text, a definition, or a tooltip on a screen; a link, redirect, or form action built from request parameters; a page's own contents list on a phone | [references/ux-design.md](references/ux-design.md) | this skill's references |
+| A how-to or help guide a person reads in the app: its steps, screenshots, problem sections, and links | `writing-prose` [references/how-to.md](../writing-prose/references/how-to.md) | global |
 | A Godot game played in a phone's browser: web export, serving it to an iPhone, touch input | [references/godot-web-phone.md](references/godot-web-phone.md) | this skill's references |
 | TypeScript: data entering from a request, a file, a model reply, or a query | [references/typescript-parse-at-the-edge.md](references/typescript-parse-at-the-edge.md) | this skill's references |
 | Ecto migrations | `elixir-migrations`, `safe-migration` | one project only |

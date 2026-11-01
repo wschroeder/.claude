@@ -1,6 +1,6 @@
 ---
 name: writing-prose
-description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, or a proposal; when organizing a brain dump; when choosing section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
+description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, a proposal, or a how-to or help guide; when organizing a brain dump; when choosing section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
 ---
 
 ## Purpose
@@ -141,6 +141,11 @@ to explain back to them — is neither a sentence rule nor a composition
 decision, so neither CLAUDE.md nor this body covers it. Read
 [references/register.md](references/register.md) before writing as the operator
 to someone they have written to before.
+
+A how-to or help guide carries rules of its own about steps, screenshots,
+problem sections, links, and the reader's vocabulary. Read
+[references/how-to.md](references/how-to.md) before you plan one, because it
+also changes the order of work when a set holds more than one guide.
 
 ---
 
