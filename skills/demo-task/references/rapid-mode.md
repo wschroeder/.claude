@@ -44,8 +44,9 @@ many tweaks it takes.
 
 **Their approval is what starts the polish**, in this order, in this session:
 
-1. Write the tests the changes should have had, under CLAUDE.md's rule that
-   how a screen is put together gets a demo and not a test. Where every change
+1. Write the tests the changes should have had, under `tdd-cycle`'s rule that
+   a test asserts what a person reads, never the markup around it, so how a
+   screen is put together gets a demo and not a test. Where every change
    is of that kind, write none and say so in one line. Tests that are owed are
    late, and that was the operator's call to make.
 2. Load `quick-review` over everything the mode produced, then
