@@ -138,7 +138,7 @@ That test catches the agentless passive too: "the fix goes back into the section
 - BAD:  "the row drops out of the read, and nothing reports it"
 - GOOD: "the parser skips the row and raises no error"
 
-Before you reach for the passive, name the actor you are about to hide. If you can name one, you may not hide them, and "nobody in particular acts" is no longer available to you. The passive is right only where you cannot name anyone: nobody in particular acts, or the thing acted on is genuinely the subject, or the verb is load-bearing technical vocabulary ("every token is appended to the context").
+Before you reach for the passive, name the actor you are about to hide. If you can name one, you may not hide them behind the passive. The passive is right only where you cannot name anyone: the action belongs to people in general, or the thing acted on is genuinely the subject, or the verb is load-bearing technical vocabulary ("every token is appended to the context").
 
 An abstract noun with an active verb of motion is the same defect wearing a disguise: "Duplication goes to the review", "the fix goes back into the sections", and "a late realisation has to go back". Ask what would have to be true for the subject to perform that verb; if the answer is nothing, you have found the missing actor.
 
@@ -149,7 +149,7 @@ An abstract noun with an active verb of motion is the same defect wearing a disg
 - "Everything the dashboard shows a customer sits somewhere in the billing pipeline." — the junction reads "a customer sits", so the reader hands the verb to the customer and then has to take it back.
 - "A sentence whose brackets appear only after the final item is done only when the sentence asserts one thing." — the junction reads "the final item is done", a complete thought, and the real main clause turns out to start back at "is".
 
-**A dropped "that" usually sets this up.** "Everything the dashboard shows" reads as finished at "shows", so "a customer" arrives with nowhere to go until the reader reopens the clause. Restore the "that" whenever the clause's verb could take a further object. When that verb can take none, the dropped "that" costs nothing, so "the ordered line every number travels" needs no repair.
+**A dropped "that" usually sets this up.** "Everything the dashboard shows" reads as finished at "shows", so "a customer" arrives with nowhere to go until the reader reopens the clause. Restore the "that" whenever the clause's verb could take a further object. When that verb can take none, the dropped "that" costs nothing, so "the ordered line every number travels" needs no repair. That allowance stops at a clause whose subject is "nothing" or "no" with a noun, such as "an item no shelf holds": rewrite it under "Say that a thing is missing".
 
 A clause inside the subject is fine when the reader cannot misattach it. "A response that claims nothing about the project gets no special format" signposts its clause with "that" and offers the main verb nothing it would plausibly take, so it reads in one pass. A subordinate clause standing in front of the subject and closed by a comma is fine for the same reason: the comma finishes it before the subject starts.
 
@@ -307,7 +307,20 @@ Give a sentence one negative at most. Each "no", "not", "nothing", "none", "neve
 Count the negative words in each sentence before you submit it. If a sentence has two or more, then find the event behind them and make it the main clause. Put the cause first and what someone did about it second, joined by "so". A person explaining the same thing aloud says it in that order: "the field was never filled in by anything, so we removed it from views."
 
 - BAD:  "No screen shows a customer's location, and no search matches it, because no source has filled it in since a change in the first half of 2026."
-- GOOD: "Nothing has filled in a customer's location since a change in the first half of 2026, so the branch removes it from the screens and from search."
+- GOOD: "A customer's location has been blank since a change in the first half of 2026, so the branch removes it from the screens and from search."
+
+### Say that a thing is missing
+
+Never make a negated noun the subject of a clause: "an item no shelf holds", "nothing reports it", "no source has filled it in". The reader has to picture an actor that does not exist and then watch it fail to act. Make the missing thing the subject and give it a word that says it is missing, or name whoever looked for it.
+
+- BAD:  "When searching for an item no shelf holds"
+- GOOD: "When searching for an item that isn't on any shelf"
+- GOOD: "When searching for an item missing from every shelf"
+- GOOD: "When searching for an item the search couldn't find on any shelf"
+- BAD:  "the row drops out of the read, and nothing reports it"
+- GOOD: "the parser skips the row and raises no error"
+
+"Name the actor and the verb" asks for a real actor. Where the event is an absence, the actor is whoever looked, or the subject is the missing thing itself, and "nobody" or "nothing" fills neither role.
 
 ### Address the reader directly
 
