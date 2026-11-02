@@ -395,10 +395,15 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 
 A machine may add rows through `CLAUDE-private.md`.
 
-Always use TDD principles for code additions, changes, and deletions. The one
-exception is the rapid mode in `demo-task`: while the operator has that mode
-on, they have chosen speed over rigor for the tweaks they are trying, and the
-tests get written once they approve rather than before the change.
+Always use TDD principles for code additions, changes, and deletions, with two
+exceptions. While the operator has the rapid mode in `demo-task` on, they have
+chosen speed over rigor for the tweaks they are trying, and the tests get
+written once they approve rather than before the change. A change that alters
+only what a screen shows, such as its markup, styles, wording, or images, gets
+no test at all: build it, look at it in the browser, and demo it, as
+`tdd-cycle`'s "A screen-only card skips the test" says. A change that also
+reaches what the app stores, what it computes, or which route or permission
+serves a page keeps its tests.
 
 When you edit a test, run the files you edited before you call the work done.
 This holds for every kind of test, including a kind you were told not to run

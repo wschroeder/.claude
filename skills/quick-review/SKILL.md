@@ -581,7 +581,7 @@ Surviving candidates get one of three:
 # Quick Review
 
 **Mission:** <one sentence>
-**Requirement:** <source, or "none found"> — <each criterion: met / partly met / not met>
+**Requirement:** <source, or "none found"> — <each criterion: met / partly met / not met; partly met and not met are each a Flag>
 **Scope:** <N files, M lines, against <merge-base>>
 
 ## Fixes

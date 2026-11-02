@@ -31,6 +31,10 @@ If the repository has a `.beads` directory, run `bd ready` and name the card thi
 
 If `bd ready` returns nothing while open cards exist, name the blocker holding them and stop rather than picking one anyway. If no ready card covers the change you were asked for, edit nothing: say in one line that no card covers it, and hand the work to `spec-task`. That holds when the operator names the change directly, and when the change fixes something broken in a deployment. The one exception is a fault the current slice made that its own demo found: `demo-task` sends that back here with no card, so name the demo finding in place of the card and build the fix. If there is no `.beads` directory, say so in one line and carry on — the cycle does not require a backlog.
 
+### A screen-only card skips the test
+
+A card is screen-only when its change alters only what a screen shows: markup, styles, wording, or images. A change that also reaches what the app stores, what it computes, or which route or permission serves a page is not screen-only. For a screen-only card, write no test and run no mutation. Build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c. See [references/measurements.md](references/measurements.md).
+
 ### 0. Probe Boundaries (before writing the test)
 
 Before writing the test, identify boundaries it will touch — external APIs, database schemas, libraries you haven't used in this session, framework conventions you're uncertain about. For each, write a throwaway probe and paste its actual output into the conversation.
@@ -120,6 +124,10 @@ yourself writing "this is the user's call" or "doesn't block."
 
 **Every clause of every criterion.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "at least six", "every", "none covering"), and each member of a list a condition names ("a draft or an archived record" is two clauses). For each clause, make one mutation that breaks that clause alone, and confirm a test fails. A bound over a random or repeated process gets a mutation that breaks it on some runs, not all of them. When a clause survives, tighten the test until that mutation fails it. See [references/measurements.md](references/measurements.md).
 
+**Check every clause against what you built, with or without tests.** Before the card moves, list each clause of each acceptance criterion, mark it met or not met, and put its evidence beside it: the mutation a test caught, or, on a screen-only card, the screenshot that shows it. A clause that is partly met is not met. A card with any clause not met stays `in_progress`, and its note names the clause. This check runs even when the operator has turned tests off.
+
+**If the data as it stands cannot meet a clause, build the data.** That is part of the card, not a decision for the operator: add records to the project's fictional data, or put existing fictional records into the state the clause needs and restore them afterwards. Ask the operator only when no data you could make would meet the clause. See [references/measurements.md](references/measurements.md).
+
 **No conditional assertions, and no skipped tests.** When the test controls its data, it asserts on that data every time it runs. An assertion wrapped in `if result:` or `if rows:` passes by asserting nothing whenever the condition is false. If the test does not control its data yet, give it a setup step that does. If a test is marked skip, delete it: a skipped test reports nothing and still reads like coverage.
 
 **Putting it back.** Copy the file aside before you mutate it and restore from
@@ -150,7 +158,7 @@ the ask: a one-line bug does not carry a 200-line diff.
 
 **4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying three things: what the code now does, the 4a receipt, and the commit. Nothing moves on a working tree that still holds the change.
+Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying four things: what the code now does, the 4a receipt where the card has tests, the clause list, and the commit. Nothing moves on a working tree that still holds the change.
 
 **The card moves only after step 10's reviews have run on its diff.** Where you
 commit before them, leave the card `in_progress`, and if you hand off before
@@ -254,7 +262,7 @@ When activated:
 5. **Implement minimum code**: Write just enough to pass
 6. **Run it (should pass)**: Verify it works. Where the change reaches something a person sees or plays — a web page, a game scene, a desktop window, a terminal screen — run that thing too and use it by hand, then look at what changed before the next test. Keep that loop tight: every green, not once at the end. `writing-code` step 0 says how
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
-8. **Self-Review**: Close the Step 4 gates — a mutation for each clause of each criterion, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
+8. **Self-Review**: Close the Step 4 gates — a mutation for each clause of each criterion, every clause marked met or not met with its evidence, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 10. **Run the review sequence**: once the feature is done, use the running thing by hand one last time (`writing-code` step 0), then run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 

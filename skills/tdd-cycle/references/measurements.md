@@ -43,3 +43,11 @@ Measured: two build sessions ran without a single check, one of them to 374,944 
 ## Why `keep going` means keep going
 
 Measured: a session read "126,411 of 170,000 — keep going", reasoned that a full card cycle runs 126,000 to 141,000 tokens and would not fit, and handed off at 141,304 with two cards' room left. The session that followed reached its first commit at 114,028 and then closed a second and a third card for 21,239 and 14,670.
+
+## Why a screen-only card skips the test
+
+Measured (2026-10-30 and 2026-11-01): one session wrote unit tests for markup that only reused a tested component, and the operator had them deleted; a later review rewrote a broken markup test instead of deleting it. A run of eight help guides then shipped with no tests at all, and every problem it had was caught by someone reading the screens or the prose, never by a test. The operator's account after that run: tests of pure screen changes are close to useless and brittle in the area that changes most.
+
+## Why every clause is checked even with no tests, and why the builder builds missing data
+
+Measured (2026-11-01): with tests switched off, the only clause-by-clause check of a card's criteria went with them, because it ran through mutation. A builder looked at its screenshots twelve times, found five of eleven planned screenshots had no source in the fictional data, wrote "partly met", filed no flag, logged the drop as its own decision, and moved the card to demoable. The operator caught it at the demo an hour later. The session that filled the gaps put existing fictional records into each state the shots needed and restored them afterwards: the answer had been within the builder's reach the whole time.
