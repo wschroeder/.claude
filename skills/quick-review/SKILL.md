@@ -528,7 +528,7 @@ The diff is not the only place that talks about the diff's symbols. Mechanical g
                                           files, every language
 ```
 
-Classify each hit as a maintenance gap, a hidden contract, or a stale reference, as `details/09-test-suite-reach.md` "Classifying hits" defines them. If the greps return no hits, print the greps and "0 hits": the grep is the artifact.
+Classify each hit as a maintenance gap, a hidden contract, or a stale reference, as `details/09-test-suite-reach.md` "Classifying hits" defines them. A stale reference that still states a rule the diff changed is a **Fix**, never a Note, as the scope rule at the top of this skill says. Example: a runbook step that still sets up credentials for a deployment the diff removed is a Fix. If the greps return no hits, print the greps and "0 hits": the grep is the artifact.
 
 ---
 
