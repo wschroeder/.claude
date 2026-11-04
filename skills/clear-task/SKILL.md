@@ -348,8 +348,9 @@ the next session either writes it in, files a card for it, or strikes it.
 **A choice of the agent's that leaves something for the operator is an open
 question too.** Where a `Decision (Claude)` in §4 defers a fix, a gap, or a
 behavior change to the operator, for them to judge, approve, or meet in a demo,
-list it here in one line that names what they have to decide. §10 is never
-`None` while §4 holds one. See [references/measurements.md](references/measurements.md).
+or sets what the app does in a case the card's acceptance criteria do not
+cover, such as refusing to start on a malformed setting, list it here in one
+line that names what they have to decide. §10 is never `None` while §4 holds one. See [references/measurements.md](references/measurements.md).
 
 **A question for the operator that nobody has asked them stays here.** Where
 this session raised something for the operator to decide, or announced a
@@ -427,7 +428,8 @@ response. Answer each:
 - Is §11 a question that this response answers? If so, does §8's first step put
   that answer in front of the operator and wait, instead of calling it answered?
 - Which `Decision (Claude)` in §4 leaves something for the operator to decide or
-  see, and does §10 list each one?
+  see, or sets behavior the acceptance criteria do not cover, and does §10 list
+  each one?
 - Which question for the operator did this session raise, or say it would ask
   later, that the operator never saw? Is each one in §10, and none of them in a
   card or under "Mentioned, not ours"?

@@ -415,6 +415,8 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           repository root, all files, for the old
                                           rule's words and for each code, field, or
                                           identifier the code names its terms by;
+                                          grep each identifier on its own, with
+                                          no pattern around it, and read every hit;
                                           each hit fixed or given a reason
                                           proof: state each changed rule in one
                                           sentence, then quote each hit and what

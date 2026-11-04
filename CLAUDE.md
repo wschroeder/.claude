@@ -1,6 +1,6 @@
 ## Skills Gate (MANDATORY)
 
-**Before any other tool call on a new request, check the routing tables.** Those are the Global Skills Routing table at the bottom of this file, plus the routing table in any project `CLAUDE.md` loaded for the current directory. If a row matches the request, your FIRST tool call MUST be the Skill tool loading that skill. If several rows match, load every one of their skills before any other tool, one Skill call each. No other tool — not Bash, not Read, not Grep, not Agent — fires before it. This is a hard precondition on every request, not advice.
+**Before any other tool call on a new request, check the routing tables.** Those are the Global Skills Routing table at the bottom of this file, plus the routing table in any project `CLAUDE.md` loaded for the current directory. If a row matches the request, your FIRST tool call MUST be the Skill tool loading that skill. If several rows match, load every one of their skills before any other tool, one Skill call each. A handoff, or any prompt that lists ordered steps, is matched one step at a time: before the first tool call, load the skills the first step needs, and load each later step's skills when you reach that step. No other tool — not Bash, not Read, not Grep, not Agent — fires before it. This is a hard precondition on every request, not advice.
 
 If no row matches, proceed normally and say nothing about it. Most requests match no row. The failure this gate prevents is starting work that a skill covers without loading it — not the absence of a skill.
 
