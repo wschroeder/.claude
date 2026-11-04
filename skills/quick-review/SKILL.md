@@ -60,7 +60,7 @@ narrated absence costs, is in [details/why-the-gates.md](details/why-the-gates.m
 
 Every in-scope angle resolves to exactly one of three states. There is no fourth: "carried" from an earlier session is not a disposition, so a whole-branch review checks each angle again against HEAD and cites an earlier session's artifact only when it names that artifact and shows the code it covered has not changed since. The artifact covers only the functions it names: a file unchanged since an earlier round is not covered where that round's mutations never touched a function in it.
 
-- **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: the mutation receipt `tdd-cycle` 4a left, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact.
+- **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: the mutation receipt `tdd-cycle` 4a left, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact. A mutation receipt proves only the mutations it names: check it against `tdd-cycle`'s "One mutation per constraint" list, and run each mutation it misses yourself before you write DEMONSTRATED.
 - **N/A** — the angle is not live in this diff. One line of why (`no SQL here`, `no auth surface touched`).
 - **`hypothesis:`** — you suspect a problem but could not produce the artifact. Flag it anyway, labeled. Honest, not hidden.
 

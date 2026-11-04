@@ -3,8 +3,14 @@
 ```
 Assertion strength /   RECEIPT. Quote the tdd-cycle 4a mutation receipt for each
 test coverage          assertion the diff adds, from the card note, the handoff,
-                       or this session. Do not mutate again here.
-                       Receipt present and "caught" → DEMONSTRATED clean.
+                       or this session.
+                       Receipt present and "caught" → DEMONSTRATED clean for
+                       the mutations the receipt names, and only those. For
+                       each validation pattern and each guard or condition in
+                       a new or changed function, check the receipts against
+                       the list below; run each mutation they miss yourself,
+                       one at a time, and print each result. Each survivor is
+                       a FINDING.
                        Receipt missing, or "survived" with no tightened
                        assertion after it → FINDING, fixed by running 4a.
                        Never judge an assertion "specific enough" by reading it.
