@@ -322,3 +322,11 @@ Measured: the operator's turn ended "I'll doublecheck that the deployment matche
 ## Sending a file of demo steps (2026-10-30)
 
 A supervisor printed every demo step in its message and also sent the steps file to the operator's phone, because one instruction said to send the demo artifact and another called the file the phone's copy. The operator said: "Stop sending the file. The steps in the message are enough." A file of steps now stays on disk as the walk's record.
+
+## Why a walk on a different configuration is asked about first (2026-11-04)
+
+A walk ran a language-model feature on a smaller model than the operator's environment named, because the named model's rate limit rejected every request. The demo post explained the swap under its own heading, but its one ask also asked for feedback and for acceptance. The operator answered only the feedback, the question rode through eight handoffs as unanswered, and two hours later the operator asked what the swap meant.
+
+## Why a feedback fix is walked before it is reviewed (2026-11-04)
+
+One feedback point on a prompt's wording took eight rounds of fixes. Each round edited, ran the full review, committed, and only then walked, and four of the fixes failed the walk. Loading the build, review, commit, and handoff skills cost about 100,000 tokens a round, so each round filled a session of its own.

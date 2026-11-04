@@ -203,6 +203,11 @@ reproduction command to write until they approve.
 The demo shows the definition of released being met. Not the tests
 passing — the thing itself, doing what the slice promised.
 
+**A walk that departs from the operator's own configuration waits on their
+yes.** If the walk needs a different model, dataset, or setting from the one
+the operator's environment names, ask about that alone, before you walk, and
+keep it out of Section 4's feedback ask. See [references/measurements.md](references/measurements.md).
+
 One record:
 
 ```
@@ -373,6 +378,11 @@ Record what comes back verbatim, one record per point:
 
 Feedback you paraphrase is feedback you have already decided about. Quote
 first; interpret in Section 6.
+
+**A fix the operator's feedback asks for is tried before it is reviewed.** Edit
+the working tree, restart the app, and walk the step the feedback names. Repeat
+until it matches. Then run `writing-code`'s reviews and commit once, on the
+version that passed, and walk every step again. See [references/measurements.md](references/measurements.md).
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
 nobody reads a question in the transcript and nobody runs the demo, so commit
