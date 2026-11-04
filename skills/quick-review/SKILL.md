@@ -399,6 +399,12 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
   6.1   Comment-vs-body check            statements following comment actually fire;
                                           a claim that a value stays safe elsewhere
                                           → run it through every path that place has
+                                          proof: split each added or changed comment
+                                          or description into the claims it makes,
+                                          and quote beside each claim the line that
+                                          makes it true, including when a card
+                                          dictated the wording; a claim with no
+                                          line → finding
   6.2   Docstring contract               every listed error case reachable
   6.3   Name-vs-body check               validate_*/verify_*/ensure_* perform action;
                                           each test's title matches its assertions
