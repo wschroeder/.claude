@@ -173,17 +173,18 @@ $ git commit -m "<what changed>"
 $ bd update <id> --status demoable
 $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
-  Commit a1b2c3d. quick-review Checklist:
-  Pass 1: 1.3 return values DEMONSTRATED, both callers read the bool
-  Pass 2: 2.1 boundary input DEMONSTRATED, row 19 returns false
-  Pass 3: N/A, no error path in the diff
-  ..."
+  Commit a1b2c3d. quick-review's full report printed in this session at
+  14:02Z: 1 fix, 0 flags. Re-round after the fix to can_move_down re-read
+  the diff with `git diff 9f8e7d6 -- .` at 14:09Z: nothing new."
 ```
 
-**A review is clean only when its Output block printed in this session.** Quote
-its printed Checklist in the note, one line per pass. Where no Output block
-printed, the review did not run: leave the card `in_progress` and write
-`quick-review owed` in the note and the handoff. A budget line saying `finish
+**The card moves only after quick-review's full Output block has printed in
+this session's own output.** The note points to that printed report, with the
+time it printed and its count of fixes and flags; it never stands in for the
+report. A note that carries a checklist or a "rest N/A" summary of a report
+nobody printed is not a review. Where no Output block printed, the review did
+not run: leave the card `in_progress` and write `quick-review owed` in the
+note and the handoff. A budget line saying `finish
 the step you are on` does not finish a review that has not printed. Why:
 [quick-review's why-the-gates.md](../quick-review/details/why-the-gates.md),
 "Why the receipt is a checklist".

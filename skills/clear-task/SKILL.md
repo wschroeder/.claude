@@ -155,6 +155,13 @@ terms.** A design they signed off, a layout they accepted, or a scope they
 agreed to goes into this section with the time of the approval, stated in full.
 It never goes in as a clause inside a next step in §8.
 
+**When the operator says a card's work is applied, merged, or working, record
+those cards as accepted.** Write `Decision (operator, <timestamp>, "<their
+words>")` naming each card it covers, and put nothing in §10 asking them to
+accept the cards by name. Example: the operator writes "the migration ran on
+staging, go ahead and merge it", so the cards that built the migration go into
+this section as accepted, with that sentence quoted.
+
 **Label a decision "operator" only beside their own words.** Write
 `Decision (operator, <timestamp>, "<their words>")`, quoting the typed turn or
 answer that made it. A choice you reached, even one they let stand, is

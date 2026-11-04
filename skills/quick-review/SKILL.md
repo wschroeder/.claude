@@ -411,9 +411,9 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
   6.4   PR/commit-message-vs-diff check  claimed enforcement is present
   6.5   Distant-doc symbol drift         deleted symbol still named in distant docs/
   6.6   Deletion test, every block       each listed comment block: keep plus its why, or delete
-  6.7   Old rule still stated            each rule the diff changes: grep the files it
-                                          edits and docs/spec for the old rule's
-                                          words and for each code, field, or
+  6.7   Old rule still stated            each rule the diff changes: grep from the
+                                          repository root, all files, for the old
+                                          rule's words and for each code, field, or
                                           identifier the code names its terms by;
                                           each hit fixed or given a reason
                                           proof: state each changed rule in one
@@ -608,7 +608,7 @@ Surviving candidates get one of three:
   Every file in scope, marked read or skipped; a skip names its reason in a few words.
 ```
 
-Print this output in the session, and carry the Requirement line and the Checklist into the handoff. They never go into a commit message, because `git-commit` keeps session measurements out of the body.
+Print this output in the session, and carry the Requirement line and the Checklist into the handoff. A card note or a handoff points to the printed block, by the time it printed; it never replaces it. They never go into a commit message, because `git-commit` keeps session measurements out of the body.
 
 ## Re-review and the fix loop
 
@@ -619,5 +619,7 @@ The caller runs this loop; the passes above are one iteration of it.
 **Then filter what is left through the Yes-to-any gate above.** If the fix improves any one axis, apply it without pausing for user confirmation, then re-run `quick-review` against the updated tree, and `security-review` too when `writing-code`'s list says the diff needs one. Repeat until a pass against the current working tree surfaces no findings that clear the gate. Only then does the commit decision arise. Do not pause to ask the user between iterations unless there is a genuine design question that cannot be resolved from existing context.
 
 Any fix made during review starts another full round of review: all nine passes over the whole diff, with targeted re-checks added for the fix. In a staged review, the round re-runs each stage whose files changed and the cross-group stage, as [details/stages.md](details/stages.md) "After a fix" says. A prior round's dismissals do not bind amended code.
+
+**A re-round line names the command that re-read the diff.** Where you report a later round, write the command you ran after the fix and the time it ran: "Re-round after the fix to the date parser: `git diff 9f8e7d6 -- .` at 14:09Z, nothing new." If no command re-read the diff after the fix, the re-round did not happen: run it, or report one round and name the fix as unreviewed.
 
 The rules that decide when the loop is finished, the targeted re-checks, and anti-anchoring: [details/review-fix-loop.md](details/review-fix-loop.md).
