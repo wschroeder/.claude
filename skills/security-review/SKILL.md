@@ -104,6 +104,9 @@ security concerns except where the change interacts with them.
 **Authentication and authorization**
 - Authentication bypass logic
 - Privilege escalation paths
+- A grant whose rule picks its grantees, or a view that reads its tables as its
+  owner: prove it with `quick-review`'s authorization-scope proof, run as a
+  role that meets the rule and holds nothing else
 - Session management flaws
 - Session fixation: a session ID that survives login unchanged
 - Session IDs carried in URLs
