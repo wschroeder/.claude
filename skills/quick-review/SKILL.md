@@ -344,7 +344,10 @@ Sibling consistency:
   5.5   Private-helper duplication       deletion test for near-identical defp;
                                           the same edit made in several copies, or
                                           one shape in two notations (JSON schema
-                                          and Zod) → derive one, or a drift test;
+                                          and Zod) → derive one, or a drift test
+                                          with one mutation per branch; count
+                                          copies in every file the branch adds,
+                                          earlier migrations included;
                                           a shared helper serving a new kind runs
                                           that kind's own reader, parser, and
                                           default: name each, or it is a finding;
