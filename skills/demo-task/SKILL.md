@@ -312,6 +312,14 @@ drive it with a script kept in that folder that takes the captures and
 prints those lines, so the session reads each step's result and not the
 page snapshot.
 
+**Before the walk's first step, run two checks.** If `git check-ignore -q
+.tmp/demos/x` exits non-zero, append `/.tmp/demos/` to `.gitignore` and commit
+that line on its own. If `git ls-files` lists a demo file or walk record
+outside that folder, as an earlier walk or a handoff may have left, move it
+into the walk's folder, `git rm --cached` it, and commit that on its own. With
+the folder ignored, `git add` refuses a walk file, whatever a handoff says.
+See [references/measurements.md](references/measurements.md).
+
 **If anything has been committed since the captures were taken, go back to
 Section 3 and walk every step again.** That covers a supervisor resuming a
 worker's `BLOCKED:` demo and a fix committed mid-stop alike. A fresh capture

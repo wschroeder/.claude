@@ -215,6 +215,15 @@ committed it, because the loop stops on a dirty tree. Naming
 `/.tmp/demos/<date>-<slug>/`, and having `session-loop` ignore it, gives the
 file a home that the dirty-tree check never sees.
 
+Measured (2026-11-05, later the same day): two sessions that had loaded that
+rule still committed a walk record to a `demos/` folder tracked since before
+the rule. The handoff they started from was written under the older text: it
+named that path and made "commit it" the step's done condition, and the nearer
+instruction won. Only `session-loop`'s one-time setup added the ignore line, so
+the repository never had it. The operator called a paragraph saying the skill
+outranks a handoff "silly" and asked to make sure no walk stays committed, so
+the check now runs before every walk and makes `git add` refuse the file.
+
 ## Why everything the operator reads is plain English
 
 Measured: one run opened its demo with twelve refs and ten labelled records, and the operator's whole reply was that they did not understand any of it. The records were correct. Nobody could read them.
