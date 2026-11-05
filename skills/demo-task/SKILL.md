@@ -273,13 +273,14 @@ the operator only the test they do on the phone. See [references/measurements.md
 
 Before you post, set what the operator said during the spec beside your
 captures. For each of their answers the cards and design documents quote, say
-whether a capture shows the build matching it, and raise any capture that
-shows something they turned down. See [references/measurements.md](references/measurements.md).
+whether a capture shows the build matching it. See [references/measurements.md](references/measurements.md).
 
 Then read each capture taken just before the operator acts, such as a button
-offered, a door, or a counter, as a player who has never seen the game. Say
-whether that player could tell what the input will act on, and raise any capture
-where they could not, even where the spec never decided it. See [references/measurements.md](references/measurements.md).
+offered, a door, or a counter, as a player who has never seen the game. If any
+capture shows something they turned down, or something that player could not
+make sense of, fix it before you post and walk again, whether or not the spec
+covers it. Raise it with the operator only when the fix needs a choice they
+have not made. See [references/measurements.md](references/measurements.md).
 
 Before you drive anything, read
 [references/driving-rules.md](references/driving-rules.md). It holds the rules

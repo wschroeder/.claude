@@ -334,3 +334,7 @@ One feedback point on a prompt's wording took eight rounds of fixes. Each round 
 ## Why a step that spends money is asked about first (2026-11-05)
 
 The rule above named only a different model, dataset, or setting. A demo's last step asked a language-model feature a question, which costs money, so the session left it unwalked and put the approval into the one ask beside the feedback request. The operator answered "accept" and nothing about the step, which is the same outcome the 2026-11-04 measurement recorded.
+
+## Why a capture that reads wrong is fixed before the post (2026-11-05)
+
+The rule above said to raise a capture a newcomer could not make sense of, "even where the spec never decided it". A walk caught a language-model feature naming an internal key and database table in its answer. The session judged that outside the spec and listed it under "Look at" in the demo post. The operator answered that it should have been fixed: they had already asked that the feature not name internal tables. The rule that a bug found while driving means the demo is not ready sat in `driving-rules.md`, which the skill only points to, while the "raise" rule sat just above the stop, so the nearer one won.
