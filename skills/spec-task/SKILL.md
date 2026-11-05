@@ -416,8 +416,8 @@ Rules for this section:
   available skills; if nothing is listed, say so in one line and write the
   requirement anyway.
 - **The card that carries that requirement writes the operator's steps and
-  commits no script.** Its design writes the demo file's operate-it steps by
-  `demo-task` Section 3's method, with a "check after" line for each thing
+  commits no script.** Its design writes the demo file's operate-it steps,
+  into `/.tmp/demos/<date>-<slug>/demo.md`, by `demo-task` Section 3's method, with a "check after" line for each thing
   the person will see. Its proof is the demo's own walk of those steps, so
   its check reads "walked at the demo". The card adds no browser test, drive
   script, or driver to the repository. See

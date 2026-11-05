@@ -302,7 +302,10 @@ Drive the product through that way, with the input a person there sends, and
 read the captures. A demo resumed at this section skips Section 3 otherwise.
 See [references/measurements.md](references/measurements.md).
 
-**Record the walk on disk as you go**: in the walk's folder, the commit the
+**Record the walk on disk as you go**: in the walk's folder,
+`/.tmp/demos/<date>-<slug>/` at the root of the working tree, which also holds
+the demo file, its captures, and any driver. Never commit anything in it: it
+guides the operator and is not part of the product. Record there the commit the
 walk runs on and one line per finished step naming its captures and whether
 it matched its "check after" text. Where a walk runs past about ten steps,
 drive it with a script kept in that folder that takes the captures and
@@ -388,7 +391,7 @@ version that passed, and walk every step again. See [references/measurements.md]
 
 **Unattended, this stop is a line in a file.** Inside a `session-loop` run
 nobody reads a question in the transcript and nobody runs the demo, so commit
-what is already done. Stop every server you started in this session, and write
+what is already done, never the walk's folder. Stop every server you started in this session, and write
 the command that starts it into the demo file's steps; the supervisor starts it
 again at the demo stop. Write that start command, and the walk command, each as
 a short numbered list of commands, each a single command runnable as printed,

@@ -94,10 +94,10 @@ Contents:
   line what you did.
 - **A demo driver and its captures never go into the repository.** Where the
   walk needs a script of your own, such as a driver, a capture harness, or a
-  fixture generator, write it under a folder the project already ignores,
+  fixture generator, write it in the walk's folder, `/.tmp/demos/<date>-<slug>/`,
   beside the captures. Send the captures to the operator with `SendUserFile`.
-  Do not commit a browser test written to show the demo, a directory of past
-  captures, or a caption sheet describing them. See
+  Do not commit the demo file, a browser test written to show the demo, a
+  directory of past captures, or a caption sheet describing them. See
   [references/measurements.md](measurements.md).
 - **Being unable to drive it is a finding, not a caveat.** Where the
   definition of released says the operator operates the thing and you cannot

@@ -40,7 +40,12 @@ blocked, or fails.
 cd <repo> && git rev-parse --show-toplevel && git log --oneline -3
 git status --porcelain
 ls -l HANDOFF.md 2>/dev/null && git check-ignore -v HANDOFF.md
+git check-ignore -v .tmp/demos/x
 ```
+
+Where git ignores `/HANDOFF.md` but not `.tmp/demos/x`, append `/.tmp/demos/`
+to the file the first `-v` line names, because `demo-task` keeps the walk's
+folder there. Where that file is `.gitignore`, commit the line on its own.
 
 ### 2. No HANDOFF.md, or it is not gitignored
 
@@ -66,9 +71,10 @@ In order:
    word for word. Its §0 check resolves that to the file. Do not name the
    artifact for it; §0 treats a form supplied in the arguments as an input
    to check rather than as the answer.
-3. On yes, add `/HANDOFF.md` to `.gitignore` and commit that line on its
-   own. Committing carries the standing permission in `git-commit`. On no,
-   append `/HANDOFF.md` to `.git/info/exclude`, which commits nothing.
+3. On yes, add `/HANDOFF.md` and `/.tmp/demos/` to `.gitignore` and commit
+   those lines on their own. Committing carries the standing permission in
+   `git-commit`. On no, append both to `.git/info/exclude`, which commits
+   nothing.
 4. Read the file back and confirm `git status --porcelain` comes back
    clean.
 

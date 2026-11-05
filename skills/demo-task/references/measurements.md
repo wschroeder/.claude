@@ -205,6 +205,16 @@ This replaced an older rule that committed the driver and sent it through
 `quick-review` and `security-review` before the commit. With nothing committed,
 there is nothing for those reviews to read.
 
+Measured (2026-11-05): two slices in one day committed their demo file under a
+`docs/demos/` folder, and the operator had both dropped from the branch: "You
+were supposed to guide me with these instructions, not make them part of the
+commit." The skill said to keep the walk in "the walk's folder" and never said
+where that folder was. The unattended worker searched the history for earlier
+demo files, found the other slice's commit, wrote its own file beside it, and
+committed it, because the loop stops on a dirty tree. Naming
+`/.tmp/demos/<date>-<slug>/`, and having `session-loop` ignore it, gives the
+file a home that the dirty-tree check never sees.
+
 ## Why everything the operator reads is plain English
 
 Measured: one run opened its demo with twelve refs and ten labelled records, and the operator's whole reply was that they did not understand any of it. The records were correct. Nobody could read them.
