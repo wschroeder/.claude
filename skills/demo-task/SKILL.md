@@ -464,6 +464,10 @@ Work every Section 4 record to one of six outcomes, and no seventh:
   operator's words in the reason.
 - Rejected, with one line saying why.
 
+Writing a feedback point onto a card in Jira, Trello, or any other outside
+tracker is not one of the six. Do it only when the operator asks for that
+write, as `~/.claude/CLAUDE.md` "Change a card only when I ask" says.
+
 **The slice just demoed is closed, and no outcome above reopens it.** A new
 requirement or a revision is work for a later slice; `spec-task` places it
 and writes its EARS text once Planning decides to pull that slice. Never

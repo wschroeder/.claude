@@ -231,6 +231,13 @@ credential is for and what it unlocks. If the operator handed over no
 credentials, write `None` here — and then leave the whole credentials heading
 OUT of the prompt in §13.
 
+**Name a real environment's resources, never their values.** A principal id,
+client id, tenant or subscription id, key, token, or connection string from a
+real environment stays out of every section of the prompt, a `verified` line
+included. Write the resource's name instead, as `~/.claude/CLAUDE.md` "Keep an
+Identifier Where You Found It" says. Only the test values the operator handed
+over for this purpose go here as literals.
+
 ## 8. Next steps (ordered, next action first)
 
 The remaining plan, ordered by execution sequence, not importance. The
@@ -500,7 +507,7 @@ Learned this session (tags intact — `verified` names the probe,
 `hypothesis:` does not):
 <from §6>
 
-Credentials / test access (paste literal values):
+Credentials / test access (literal test values only; name real resources):
 <from §7 — omit this heading entirely if §7 is None>
 
 Next steps, in order:
