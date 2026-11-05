@@ -203,10 +203,11 @@ reproduction command to write until they approve.
 The demo shows the definition of released being met. Not the tests
 passing — the thing itself, doing what the slice promised.
 
-**A walk that departs from the operator's own configuration waits on their
-yes.** If the walk needs a different model, dataset, or setting from the one
-the operator's environment names, ask about that alone, before you walk, and
-keep it out of Section 4's feedback ask. See [references/measurements.md](references/measurements.md).
+**A walk step that needs the operator's yes waits on it.** If a step needs a
+different model, dataset, or setting from the one the operator's environment
+names, or spends money, such as a paid API call, ask about that alone, before
+you walk, and keep it out of Section 4's feedback ask. If they say no, leave
+the step out of the walk and write "the walk did not check this" against it. See [references/measurements.md](references/measurements.md).
 
 One record:
 

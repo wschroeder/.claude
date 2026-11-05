@@ -330,3 +330,7 @@ A walk ran a language-model feature on a smaller model than the operator's envir
 ## Why a feedback fix is walked before it is reviewed (2026-11-04)
 
 One feedback point on a prompt's wording took eight rounds of fixes. Each round edited, ran the full review, committed, and only then walked, and four of the fixes failed the walk. Loading the build, review, commit, and handoff skills cost about 100,000 tokens a round, so each round filled a session of its own.
+
+## Why a step that spends money is asked about first (2026-11-05)
+
+The rule above named only a different model, dataset, or setting. A demo's last step asked a language-model feature a question, which costs money, so the session left it unwalked and put the approval into the one ask beside the feedback request. The operator answered "accept" and nothing about the step, which is the same outcome the 2026-11-04 measurement recorded.
