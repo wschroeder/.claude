@@ -1679,6 +1679,10 @@ check "a run that hands findings on still finishes" 0 "$status"
 PROMPT="$(tr '\n' ' ' < "$STUB_PROMPT_FILE" | tr -s ' ')"
 case "$PROMPT" in *"proposal, not an order"*) ok=0 ;; *) ok=1 ;; esac
 check "the session handed a finding is told it may put it down" 0 "$ok"
+case "$PROMPT" in *"through tdd-cycle, so its reviews run before the commit"*) ok=0 ;; *) ok=1 ;; esac
+check "the session handed a finding builds its fix through tdd-cycle" 0 "$ok"
+case "$PROMPT" in *"changes only what a screen shows skips the test"*) ok=0 ;; *) ok=1 ;; esac
+check "a screen-only fix is told it skips the test" 0 "$ok"
 drop_fixture
 
 # --- a path in a finding is a name, not a pattern ---

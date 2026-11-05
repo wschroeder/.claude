@@ -968,6 +968,11 @@ repository already makes — write the finding into the handoff with one line
 saying why you are leaving it, and carry on with the work. That is not DONE and
 it is not a blocked handoff.
 
+Fix each one you act on the way you build any change: through tdd-cycle, so its
+reviews run before the commit. A fix that changes only what a screen shows skips
+the test, as tdd-cycle's \"A screen-only card skips the test\" says, and still
+gets the reviews.
+
 $(cat "$FINDINGS_FILE")
 
 --- end of what the reviewer found; your handoff follows ---
