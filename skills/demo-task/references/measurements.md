@@ -357,3 +357,11 @@ The rule above named only a different model, dataset, or setting. A demo's last 
 ## Why a capture that reads wrong is fixed before the post (2026-11-05)
 
 The rule above said to raise a capture a newcomer could not make sense of, "even where the spec never decided it". A walk caught a language-model feature naming an internal key and database table in its answer. The session judged that outside the spec and listed it under "Look at" in the demo post. The operator answered that it should have been fixed: they had already asked that the feature not name internal tables. The rule that a bug found while driving means the demo is not ready sat in `driving-rules.md`, which the skill only points to, while the "raise" rule sat just above the stop, so the nearer one won.
+
+## Why every figure on a capture is read against the others (2026-11-05)
+
+The capture rule named only the control a person is about to use. Before a post, a session opened every capture and checked each against the figure its step expected. Two of those captures also showed a page whose band charts added up to 33 while its heading counted 22 customers, and a weighted percentage the totals beside it could not produce. The session did not mention either. The operator asked whether anything in the numbers looked strange, and only then did the session look.
+
+## Why any question about the product's behavior is searched first (2026-11-05)
+
+The search rule covered only a question carried in from a handoff. After the operator asked whether anything looked strange, a session opened its answer with "I missed two things" and recommended a new rule: that a stated drop should leave one kind of account at full value. The design documents' financial rules already decided the question, because every account's figure comes from its own rate, and the session read them only after the operator asked why it would invent a worse rule. The ask rule's demand for a recommendation reached the answer first, and the search rule did not reach it at all.

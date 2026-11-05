@@ -282,6 +282,13 @@ make sense of, fix it before you post and walk again, whether or not the spec
 covers it. Raise it with the operator only when the fix needs a choice they
 have not made. See [references/measurements.md](references/measurements.md).
 
+Then read every figure on every capture against the others on the same
+screen, not only the figures a step expects. Where two should agree, such as a
+count against the total a heading gives, a percentage against the totals
+behind it, or one figure shown in two places, say whether they do. If they
+disagree and the slice caused it, fix it before you post. If the slice did not
+cause it, state the mismatch in the post as something the walk found. See [references/measurements.md](references/measurements.md).
+
 Before you drive anything, read
 [references/driving-rules.md](references/driving-rules.md). It holds the rules
 for driving the walk: which browser tool, what counts as a person's input, what
@@ -360,9 +367,12 @@ next — deciding what comes after this slice is Planning's job, not this
 stop's. The ask is the last thing in the message, per CLAUDE.md "When you
 need an answer, the ask goes last and says what to do".
 
-**Before the post carries a question from a handoff to the operator, search
-the design documents for its answer.** Where they answer it, quote the line
-and drop the question. See [references/measurements.md](references/measurements.md).
+**Before you put any question about how the product behaves to the operator,
+search the design documents for its answer.** That covers a question from a
+handoff, one you raise yourself, and one you raise while answering their
+feedback. When the operator asks whether something looks wrong, check each
+oddity against the design documents before you call it a miss. Where they
+answer it, quote the line and drop the question. See [references/measurements.md](references/measurements.md).
 
 **Where the demo is something to read rather than something to run, send the
 file with `SendUserFile` as well as naming its path.** A page, a report, a
@@ -518,7 +528,8 @@ chain, and handing on turns their check into something nobody ever collects.
 See [references/measurements.md](references/measurements.md).
 
 **If the operator's acceptance asks a question or asks for something next,
-then answer the question in prose and do what they asked.** The retro
+then answer the question in prose and do what they asked.** Search the
+design documents first, as Section 4 says, before you call anything a miss. The retro
 follows that work. Do not answer them with a question about which to do
 first. "Do not ask whether to run it" still holds when they ask for nothing
 else. Why: [references/measurements.md](references/measurements.md).
