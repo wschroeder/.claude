@@ -449,10 +449,12 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           each unchanged sentence naming a
                                           sibling; say whether the new member
                                           follows it; left unsaid → finding
-  6.9   Spec lists additions             each column, route, setting, or audit
-                                          action the diff adds: quote its line on
-                                          the spec page that lists things of that
-                                          kind; no line → finding
+  6.9   Spec lists additions             each table, view, column, route, setting,
+                                          or audit action the diff adds: quote its
+                                          line on the spec page that lists things
+                                          of that kind; a new table or view needs
+                                          its own section of columns; no line →
+                                          finding
 ```
 
 For 6.6, run `python3 ~/.claude/skills/writing-code/scripts/comment_share.py` over Pass 0's scope; with no `--base` it already measures from the merge base, uncommitted and untracked work included. Paste its per-file lines. Give every block it lists "keep" with the non-obvious why it explains, or "delete", and read a file over 10% twice. The bill is not clean while any block lacks a disposition. `writing-code` "Measure before declaring done" owns the rule.

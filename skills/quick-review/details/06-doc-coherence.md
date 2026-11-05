@@ -58,10 +58,12 @@ A sentence that names a whole class names one case for each member of that class
 
 ## 6.9 Spec lists additions
 
-6.5 checks distant docs for what the diff deletes. Nothing checks them for what it adds. A spec often keeps one page that lists every thing of a kind: the schema page lists columns and constraints, the routes page lists routes, the configuration page lists settings, and the audit page lists actions. For each column, constraint, route, setting, or audit action the diff adds, find that page and quote the line that names the addition. A missing line is a finding, whether or not the diff touched that page.
+6.5 checks distant docs for what the diff deletes. Nothing checks them for what it adds. A spec often keeps one page that lists every thing of a kind: the schema page lists columns and constraints, the routes page lists routes, the configuration page lists settings, and the audit page lists actions. For each table, view, column, constraint, route, setting, or audit action the diff adds, find that page and quote the line that names the addition. A missing line is a finding, whether or not the diff touched that page. A new table or view needs a section of its own that lists its columns. A name in a paragraph, such as the list of migrations, does not count.
 
-Discovery method: list the migration's `add column` and `add constraint` lines, each new route path, each new key in the config schema, and each new audit action string. Then grep `docs/spec/` for each name.
+Discovery method: list the migration's `create table`, `create view`, `add column`, and `add constraint` lines, each new route path, each new key in the config schema, and each new audit action string. Then grep `docs/spec/` for each name.
 
 Measured (2026-10-22): three migrations added two columns, a check pairing them, and a new table, and `database-schema.md` named none of them. No line of our reviews under 5.20, 6.5, or 6.8 named a migration, a column, or the schema page. The outside reviewer found it.
+
+Measured (2026-11-05): a branch added three views, and the schema page gave only one of them a section with its columns. Our review wrote "6.9: [the schema page] and [the security page] both name the view", and another wrote "6.9 N/A: no column ... added ([the function] is listed in [the schema page]'s paragraph)". The whole-branch review found the two views missing their sections.
 
 Comment/code drift is how `hypothesis:` creeps into production code. Treat every comment added in the diff as a testable assertion about the body below it.
