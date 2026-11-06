@@ -66,7 +66,7 @@ Every in-scope angle resolves to exactly one of three states. There is no fourth
 
 "I read it and it looks fine" is not a disposition. It is the satisficing slot. Delete it.
 
-**Angles 1.3 and 2.1 owe one line per changed function.** List every function in the diff that is new or whose arguments or return value changed. Each one gets its own 1.3 line naming every caller, including callers outside the diff, with the grep and its hit count printed beside the list, and its own 2.1 line saying what that caller does with the result. One example standing in for the whole diff is not a disposition.
+**Angles 1.3, 2.1, and 6.8 owe one line per item.** For 1.3 and 2.1, list every function in the diff that is new or whose arguments or return value changed. Each one gets its own 1.3 line naming every caller, including callers outside the diff, with the grep and its hit count printed beside the list, and its own 2.1 line saying what that caller does with the result. For 6.8, list every condition the diff's code applies in a path a spec sentence governs: each filter, guard, early return, and exit, the fix this review just made included. Each one gets its own line quoting the code line and the spec words that state it, or "no words → finding". One example standing in for the whole diff is not a disposition.
 
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
@@ -616,6 +616,11 @@ Surviving candidates get one of three:
        2.3 self-race: DEMONSTRATED, two concurrent saves left one row
        2.5 replay: N/A, the route takes no client-supplied id
   e.g. Pass 3 — Error handling: N/A, no error path in the diff
+  e.g. Pass 6 — Doc coherence
+       6.8 import.sh:28 "No files to read in $dir" (both folders): spec says
+           "cannot read the files in the source folder": target folder
+           has no words → finding
+       6.8 import.sh:64 "$undo is missing": no words → finding
 
 ## Files
   Every file in scope, marked read or skipped; a skip names its reason in a few words.
