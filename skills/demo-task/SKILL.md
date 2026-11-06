@@ -76,7 +76,10 @@ command line, the slice takes the usual route.
 
 On this route, run Section 1, then skip Sections 2 and 3: run no proof
 commands, write no walk, take no captures, and write no operate-it steps. In
-Section 4, print the whole diff in the message, file by file, and ask the
+Section 4, print the whole diff in the message, file by file, exactly as `git diff`
+prints it with its context lines. Never trim it to the changed lines: an
+unchanged line between two edits is often the one that still states the old
+rule. Ask the
 operator to read it as a code review and say what is wrong. In Section 5, close
 each card they accepted with their words as its reason. Sections 6 and 7 run
 as usual.
