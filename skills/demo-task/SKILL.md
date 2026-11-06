@@ -1,6 +1,6 @@
 ---
 name: demo-task
-description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, shows a slice of only prose or infrastructure as code as its full diff for the operator to review, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
 ---
 
 # demo-task — the slice is shown, the feedback is recorded
@@ -64,6 +64,22 @@ the demo phase, rapid mode is on: say so in one line, then read
 [references/rapid-mode.md](references/rapid-mode.md) before your next edit. It
 says what the mode suspends, what it never suspends, and the polish their
 approval starts.
+
+## Diff route — when the slice has nothing to run
+
+Where every file the slice changed is prose or infrastructure as code, the demo
+is the full diff and nothing else. Prose is text a person reads: design
+documents, READMEs, skill files. Infrastructure as code describes machines
+rather than running in front of a person: Terraform, CI workflow files,
+Dockerfiles. If any changed file is code a person runs, through a screen or a
+command line, the slice takes the usual route.
+
+On this route, run Section 1, then skip Sections 2 and 3: run no proof
+commands, write no walk, take no captures, and write no operate-it steps. In
+Section 4, print the whole diff in the message, file by file, and ask the
+operator to read it as a code review and say what is wrong. In Section 5, close
+each card they accepted with their words as its reason. Sections 6 and 7 run
+as usual.
 
 ## 1. Setup and boundaries
 
