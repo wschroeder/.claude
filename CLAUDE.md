@@ -98,6 +98,10 @@ When a command's output may hold a secret or customer data, and you do not know 
 
 Once a value from one of my real environments is in the conversation, write it nowhere else. This covers a secret, and it covers a value that only identifies something: a principal id, a client id, a tenant or subscription id, an account key, a token, or a connection string. Do not repeat it in chat, a card, a design document, a commit, a code comment, a handoff, or the output of a command you run. Name the resource instead, by the name it carries in the cloud. When a value has to reach somewhere, such as a CI secret, write each value to its own file in a git-ignored folder that only I can read, print only each file's length, and wait for me to look the files over before you send them. Delete the files when I say so. Measured on 2026-11-05: a session wrote a production deploy identity's principal id into a card description that nobody asked it to edit. The next session read the id from the handoff and printed it in chat twice.
 
+## Send a Placeholder When an API Asks for an Email
+
+When an API asks for a contact email, such as SEC EDGAR or Wikipedia in a User-Agent header, do not choose a real address yourself. That covers my address in your context and any address you find in the project, such as one in a git config or a service account's. Use `anon@example.com` unless the request has to reach a real person. If it does, or you are unsure, ask me which address to use before the first request. My own address is almost never the right one. A service account or a group address usually is.
+
 ## Communication Style (HARD CONSTRAINT)
 
 The Evidence Format governs WHAT you cite. This rule governs HOW you write. They compose — Evidence bullets follow the same plain-English style as the body.
