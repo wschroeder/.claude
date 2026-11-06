@@ -66,6 +66,11 @@ output becomes a REF that anchors the code you're about to write.
 - Reading the file at HEAD, a `git diff`, or a grep result — those confirm what
   the code SAYS, not what the running system DOES.
 
+Before you write `UNPROBED` for an outside service you may not call, run the
+client that sits on your side of it: read what the installed CLI or SDK sends
+for that command, and run its serializer or parser on a sample input. The
+`UNPROBED` line then names that check and what it showed.
+
 When a probe is impractical write `UNPROBED — <reason>`; when no boundary is
 crossed write `EXEMPT — <reason>`. Never stage file reads, greps or diffs under
 a "Probe" heading. `tdd-cycle` runs this as step 0 of its loop, against the
