@@ -167,6 +167,12 @@ On 2026-10-13 session `b8fc24aa` sat idle from about 22:45 until the operator
 replied "Looks good" at 06:06 CT. Its handoff dated that reply "about 22:50
 CT", and "Where things stand" carried the same time. The session ran no `date`.
 
+On 2026-11-06 a session did run `date` before its handoff, and "Where things
+stand" was right. The handoff still dated the operator's acceptance "about
+10:55" and three of their decisions "about 10:50", where the transcript stamps
+them 11:17 and 11:16. `date` had given only the present, and the rule named no
+source for an earlier turn, so the session estimated one.
+
 ## §5 — an inherited directive lasted one handoff
 
 The operator typed "let's undo that commit" at 08:51. The handoff written at

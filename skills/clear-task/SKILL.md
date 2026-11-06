@@ -93,6 +93,10 @@ Run `date` before writing any time into the prompt, and take "Where things
 stand" and every timestamp from it; never estimate one. Reading the clock is
 not a re-run.
 
+`date` gives only the present. For an earlier event, such as the operator's
+turn, write a time only where this session read it from a tool's output.
+Otherwise write "before" and the `date` reading. See [references/measurements.md](references/measurements.md).
+
 Where this session never ran the command, say that instead of filling the gap
 in. "No `git status` since the commit at f30be46" is a fact the fresh chat can
 act on; an invented status line is not.
