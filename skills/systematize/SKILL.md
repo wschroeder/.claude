@@ -3,63 +3,31 @@ name: systematize
 description: Turns work you have repeated into machinery, and keeps the skill library from growing past the point where the model stops finding things. Covers the whole lifecycle — deciding between a script and a skill, where a script lives and when to extend an existing one rather than write another, creating a skill, extending one, merging two, and retiring one — plus the slot pattern that lets a global skill reach project-specific mechanics without naming them. Use when a workflow keeps recurring, when something done by hand three times should become a script, when asked to capture or save something as a skill, when a skill is outdated or wrong, when two skills overlap, or when the library needs pruning.
 ---
 
-# systematize — machinery for what you repeat, without a library nobody can search
-
 ## When this fires
 
-Having done the same thing by hand in three separate sessions. Not twice, and
-not "this could recur" — three times, observed.
-
-The test is the same **operation**, not the same command names. Three unrelated
-things that each begin with `git status` are not a pattern. A probe written,
-run, and cleaned up by hand in thirty sessions is.
-
-Three by hand is a defect, and it is fixed before the work that surfaced it
-continues. Noting it for later is how a fourth and a fifth happen.
+1. Build machinery once you have done the same operation by hand in three separate sessions, observed, not predicted.
+2. Judge sameness by the operation, not by the command names it starts with.
+3. Fix the third repetition before you continue the work that surfaced it.
 
 ## First decide: script or skill
 
-Getting this wrong is worse than doing nothing.
-
-**A sequence of commands that is the same every time is a script.** It never
-becomes a skill. A skill makes the next session read a paragraph where it could
-have run one command, and it pays that cost on every load.
-
-**A judgment that keeps coming out wrong the same way is a skill.** The thing
-being captured is a decision, an order of investigation, a trap worth naming —
-something a command cannot encode.
-
-**Most repetition is neither**, and gets nothing.
+1. Make a sequence of commands that is the same every time into a script, never a skill.
+2. Make a judgment that keeps coming out wrong the same way into a skill: a decision, an order of investigation, or a trap worth naming.
+3. Give most repetition neither.
 
 ### Where a script lives
 
-- If anything other than a skill would still call it — a task-runner recipe, a
-  design doc, CI, a person — it goes in the project's existing `scripts/`
-  directory, exposed through the task runner.
-- If deleting the skill would leave it with no caller, it goes with the skill at
-  `<skill>/scripts/`, and is deleted when the skill is.
+1. Put a script that anything besides a skill would call, such as a task-runner recipe, CI, or a person, in the project's existing `scripts/` directory, exposed through the task runner.
+2. Put a script only one skill calls at `<skill>/scripts/`, and delete it with the skill.
+3. Never create a new top-level directory for scripts.
+4. Give every script a test beside it, and wire skill-owned tests into the project's gate with a glob.
 
-Never a new top-level directory. Every script gets a test beside it, and the
-skill-owned tests are wired into the project's gate with a glob so a new skill
-joins without the gate being edited.
+### A new script is the last resort
 
-### A new script is the last resort too
-
-The same rule that governs skills below. Before writing one, find out whether an
-existing script already does the reading yours would have to do — the same files
-parsed, the same filtering, the same output. Extend that one. A second script
-beside it parses the same files again, drifts from the first, and only one of the
-two has tests.
-
-Finding it is the hard part, because a skill's own machinery sits at
-`<skill>/scripts/` and nothing lists it. Look in two places before you start: the
-skill descriptions already in front of you, since a skill that owns a script
-usually names it there, and then the `scripts/` directory of whichever skill the
-work touches. See [references/measurements.md](references/measurements.md).
+1. Before writing a script, look for one that already reads the same files, filters the same way, or prints the same output, and extend it.
+2. Look in the skill descriptions in front of you and in the `scripts/` directory of each skill the work touches.
 
 ## The three-level hierarchy
-
-Skills load in layers. Every edit respects these budgets:
 
 | Layer | What | When loaded | Budget |
 |-------|------|-------------|--------|
@@ -67,33 +35,15 @@ Skills load in layers. Every edit respects these budgets:
 | Core instructions | SKILL.md body | On activation | under 500 lines |
 | References | `references/*.md` | Read on demand | Unbounded |
 
-A skill body is declarative. It says what to do, in what order, and what not to
-do. It does not argue the case. Rationale, measurements, research citations,
-worked derivations and the history of why a rule was tightened all belong in
-`references/`, where a reader who disputes a rule pays for the argument and
-nobody else does. The test: delete a sentence and ask whether the instruction
-still tells you what to do. If it does, the sentence was the treatise, and it
-moves.
-
-Heavy content — templates, scripts over 20 lines, full API examples, large
-lookup tables — belongs in `references/`, linked with a plain markdown link:
-`See [references/foo.md](references/foo.md)`.
-
-Reference files over 100 lines open with a table of contents. SKILL.md is the
-index; references are the detail. A reference may point at another reference —
-that is lazy loading working, and a cross-reference made in context is worth
-keeping. Two shapes are not. A chain, where opening one file obliges you to open
-a third, makes the cost of following a link unbounded; keep every target a leaf.
-And the instruction to open a given file belongs in exactly one place: a
-reference that restates the body's own pointer gets that file read twice.
-
-**Point at a reference with a condition and an order to read it now.** Put
-the pointer at the step that needs the file, give it a condition the model
-can check from what is in front of it ("if the diff adds a migration"), and
-tell it to read the file now. A model skips a bare "Worked examples:" or
-"see" link, so put every required step in the body, or behind a pointer of
-that shape. Rationale may sit behind a bare link, because nobody has to
-read it. See [references/measurements.md](references/measurements.md).
+1. Keep each layer inside its budget.
+2. Write the body as instructions only: what to do, in what order, and what not to do.
+3. Put rationale, measurements, research citations, and history in `references/`; if deleting a sentence leaves the instruction intact, move it.
+4. Put templates, scripts over 20 lines, full API examples, and large lookup tables in `references/`.
+5. Open a reference over 100 lines with a table of contents.
+6. Keep every reference a leaf: a reference may point at another, but never at one that obliges a third.
+7. Give the order to open a given reference in exactly one place.
+8. Point at a required reference at the step that needs it, with a condition the model can check ("if the diff adds a migration") and an order to read it now, because a model skips a bare "see" link.
+9. Put a required step in the body or behind a pointer of that shape; only rationale may sit behind a bare link.
 
 ## Write rules as a short list
 
@@ -103,47 +53,27 @@ This holds for `~/.claude/CLAUDE.md` and for every skill body and reference.
 2. Keep a short "such as" phrase only when it names what triggers the rule.
 3. Cut every BAD and GOOD pair, worked example, and "Measured on" story.
 4. Delete a cut example; never move it into `references/`.
-5. Keep ordered steps, commands, templates, and scripts, because a model runs
-   them rather than reading them as examples.
+5. Keep ordered steps, commands, templates, lookup tables, and scripts, because they are not examples.
 6. Name a rule by its topic, such as "the comma rule", and never by its number.
 
 ## Creating a skill
 
-Creating a new skill is the **last** resort. Try adding a section to an existing
-skill first, and create a new one only when you can say which existing skills
-you considered and why each is a poor home.
-
-For a task-shaped skill — one whose whole point is forcing a specific ordered
-response as proof the rules were followed — use `create-task-skill` instead.
-This skill covers the ordinary kind.
+1. Try adding a section to an existing skill first, and create a new one only when you can name the skills you considered and why each is a poor home.
+2. For a task-shaped skill, one that forces a specific ordered response as proof the rules were followed, use `create-task-skill` instead.
 
 ### 1. Name what recurred
 
-What operation, what problem it solves, what should pull the skill in, and what
-the steps actually are. Pull them from the sessions where it happened rather
-than from how you would describe it now.
+1. Name the operation, the problem it solves, what should pull the skill in, and the steps, taken from the sessions where it happened.
 
 ### 2. Write the description
 
-The description is the only part loaded every session, so it is the whole of
-what the model has when deciding whether to open the skill.
+1. Write it in the third person: "Guides Claude through…", "Turns…", "Covers…".
+2. Name the trigger terms: the words, errors, and file types that mean this skill applies.
+3. Keep it under 1024 characters.
+4. Say what makes the skill different from its neighbours.
+5. Put the trigger phrasings in the description's sentences, the casual and the precise form, because `activation:` is not a real field and nothing reads it.
 
-- Third person: "Guides Claude through…", "Turns…", "Covers…".
-- Name the trigger terms — the specific words, errors, or file types that mean
-  this skill applies.
-- Under 1024 characters, specific rather than generic.
-- Say what makes it *different* from its neighbours. A description that could
-  equally describe two skills is how the wrong one gets picked.
-
-### 3. Put the trigger phrasings in the description too
-
-There is no separate keyword field. `activation:` is not real — neither the
-Agent Skills spec nor Claude Code reads it, and eight skills here carried one
-for months doing nothing. The description is the only text loaded at startup,
-so the phrasings that should pull the skill in go in its sentences: the casual
-form and the precise form, the file types, and the errors a person would paste.
-
-### 4. Write the body
+### 3. Write the body
 
 ```markdown
 ---
@@ -165,142 +95,82 @@ description: [third person, trigger terms, under 1024 chars]
 [When to act without asking, when to stop and ask, what to report]
 ```
 
-Every command in the body must have been run, because it is the part a reader
-copies.
+1. Run every command in the body before you write it down.
 
-### 5. Propose before writing
+### 4. Propose before writing
 
-Show the frontmatter and the section outline, say which existing skills you
-considered, and wait. Write the file only after approval.
+1. Show the frontmatter, the section outline, and the skills you considered, and wait for approval before writing the file.
 
-### 6. Add the routing row in the same edit
+### 5. Add the routing row in the same edit
 
-A skill nothing routes to is a skill nothing loads.
+1. Add the skill's routing row in the edit that creates it.
 
 ## Slots: reaching project mechanics from a global skill
 
-A global skill must never name a project's commands. Instead it names a slot:
+1. Never name a project's commands in a global skill; name a slot instead:
 
 > If `project-<step>` appears in the available skills, load it. If nothing is
 > listed, do the step by hand and say so in one line.
 
-The project fills the slot with a project skill of that name under
-`<repo>/.claude/skills/`. Adding one modifies no existing skill, and the skill
-listing every session already carries is what makes it discoverable — no lookup
-call needed.
-
-`tdd-cycle` step 0 and `project-probe` are the worked example.
+2. Fill the slot with a project skill of that name under `<repo>/.claude/skills/`.
+3. Use `tdd-cycle` step 0 and `project-probe` as the model.
 
 ## Updating a skill
 
-Read the whole skill first. Keep what works; change what is wrong.
-
-**Just do it** for typos, clearer wording, an obvious
-trigger phrasing the description is missing.
-
-**Ask first** for restructuring, removing sections, changing what the skill is
-for, or anything that would conflict with another skill.
-
-When the body passes 500 lines, move heavy content into `references/` rather
-than trimming the substance.
-
-**Commit in the same turn.** Commit every edit to a skill or to
-`~/.claude/CLAUDE.md` in the turn that makes it, through `git-commit`, staging
-by path. An approved edit left uncommitted gets carried forward as "the file
-holds it" and nobody commits it. See [references/measurements.md](references/measurements.md).
+1. Read the whole skill first.
+2. Make typo fixes, clearer wording, and an obvious missing trigger phrasing without asking.
+3. Ask first before restructuring, removing a section, changing what the skill is for, or anything that conflicts with another skill.
+4. When the body passes 500 lines, move heavy content into `references/` rather than trimming the substance.
+5. Commit every edit to a skill or to `~/.claude/CLAUDE.md` in the turn that makes it, through `git-commit`, staging by path.
 
 ## Keep every client and project out of `~/.claude`
 
-`~/.claude` is a public repository. Everything written into it carries only the
-general shape of what happened: skill bodies, references, scripts and their
-comments, CLAUDE.md, and the commit message.
+`~/.claude` is a public repository. This covers skill bodies, references, scripts and their comments, CLAUDE.md, and commit messages.
 
-Leave out anything a stranger could look up or that tells them what a client's
-business is:
-
-- client, vendor, product, and project names, and the names of the systems a
-  client uses;
-- ticket keys, bead ids, pull request numbers, and repository or worktree
-  names;
-- the client's domain nouns, such as what the app's records are and what its
-  users do with them;
-- table, column, function, route, file, and log-event names from a client's
-  code, and data values quoted from it;
-- the names of people other than the operator.
-
-Keep the failure itself: what the session or review checked, what it missed,
-and what caught it. Write it with neutral stand-ins: a record, a document, a
-line item, a parent record, a customer, an outside system, a nightly sync, and
-`ABC-123` for an issue key. Date a measurement in a reference, and give it no ticket. Public tools, libraries, and published research keep their names.
-
-This overrides `git-commit`'s rule to name the tracking issue: a commit in
-`~/.claude` names none.
-
-Before every commit in `~/.claude`, read each added line of `git diff --cached`,
-the message included, against the list above. See [references/measurements.md](references/measurements.md).
+1. Leave out client, vendor, product, and project names, and the names of systems a client uses.
+2. Leave out ticket keys, bead ids, pull request numbers, and repository or worktree names.
+3. Leave out the client's domain nouns, such as what the app's records are and what its users do with them.
+4. Leave out table, column, function, route, file, and log-event names from a client's code, and data values quoted from it.
+5. Leave out the names of people other than the operator.
+6. Keep the failure itself, written with neutral stand-ins such as a record, a customer, an outside system, a nightly sync, and `ABC-123`.
+7. Date a measurement in a reference, and give it no ticket.
+8. Keep the names of public tools, libraries, and published research.
+9. Name no issue in a `~/.claude` commit, overriding `git-commit`'s rule to name the tracking issue.
+10. Before every commit in `~/.claude`, read each added line of `git diff --cached`, the message included, against this list.
 
 ## Merging skills
 
-Merge when skills overlap in purpose, are always used together, duplicate each
-other's content, or are so granular they should have been sections.
-
-Do not merge skills with different purposes that merely touch, skills with
-conflicting approaches, or skills that are already focused.
-
-1. Read every skill being merged, in full.
-2. For each, name its core purpose, its unique value, and what it duplicates.
-3. Design the merged skill — a name covering all of them, one description
-   carrying every trigger phrasing the originals answered to, and content
-   organised logically rather than concatenated.
-4. Show the outline and what is being dropped. Wait for approval.
-5. Write the merged skill.
-6. Delete the old files, update every routing row, and grep for anything else
-   that named them. A merge that leaves the old names referenced is half done.
-
-Watch for content that has gone stale in one of the sources — a tool that is no
-longer used, an example naming something retired. A merge is the moment to drop
-it, not carry it forward.
+1. Merge skills that overlap in purpose, are always used together, duplicate each other, or are so small they should be sections.
+2. Do not merge skills with different purposes that merely touch, skills with conflicting approaches, or skills that are already focused.
+3. Read every skill being merged in full.
+4. For each, name its core purpose, its unique value, and what it duplicates.
+5. Design the merged skill: one name covering all of them, one description carrying every trigger phrasing the originals had, and content organised by topic.
+6. Show the outline and what you are dropping, and wait for approval.
+7. Write the merged skill.
+8. Delete the old files, update every routing row, and grep for anything else that names them.
+9. Drop stale content, such as a retired tool, rather than carrying it forward.
 
 ## Retiring a skill
 
-The half that keeps a library usable.
+1. Retire a skill nothing has loaded in months, one whose content moved elsewhere, one whose subject no longer exists, or one that cannot show it improved quality.
+2. Delete the directory and the routing row, and grep for the name across skills and CLAUDE.md files.
+3. Prefer retiring to keeping a skill "in case".
 
-Retire when nothing has loaded it in months, when its content moved into another
-skill, or when the thing it describes no longer exists. A process rule or a
-skill that cannot show it improved quality goes too. Delete the directory,
-delete the routing row, and grep for the name across skills and CLAUDE.md files.
+## The cap
 
-Prefer retiring to keeping something "in case" — a skill kept for a case that
-never comes still costs every load, and still competes with the right skill for
-selection.
-
-## The cap, and why it is a hard rule
-
-Adding a skill makes every other skill harder to find. What degrades first is
-**selection**, not the context budget — the model picks the wrong skill because
-a similar description shadowed the right one.
-
-See [references/measurements.md](references/measurements.md).
-
-The global set is capped at about two dozen. A new global skill that would
-push it past that means merging or retiring one first, in the same change.
-Project skills sit in their own repo and are counted against that repo, not the
-global set.
+1. Keep the global set at about two dozen skills, because each new skill makes the model pick the wrong one more often.
+2. Merge or retire a global skill in the same change as any addition that would pass the cap.
+3. Count project skills against their own repository, not the global set.
 
 ## What makes a good skill
 
-Repeated multi-step workflows. Decision frameworks used often. Safety-critical
-processes. Traps that are easy to forget and expensive to rediscover.
-
-Not: one-off tasks, processes too variable to write down, things already
-documented where a reader would look anyway, a single command, or anything
-needing human judgment at every step.
+1. Capture repeated multi-step workflows, decision frameworks used often, safety-critical processes, and traps that are expensive to rediscover.
+2. Do not capture one-off tasks, processes too variable to write down, things already documented where a reader would look, a single command, or anything needing human judgment at every step.
 
 ## What not to do
 
-- Do not create a skill for something a script should do.
-- Do not rewrite an existing skill wholesale without asking.
-- Do not remove content before understanding why it is there.
-- Do not let SKILL.md pass 500 lines without splitting into `references/`.
-- Do not build a mega-skill that covers everything; it will shadow the rest.
-- Do not leave old names referenced after a merge or a retirement.
+1. Do not create a skill for something a script should do.
+2. Do not rewrite an existing skill wholesale without asking.
+3. Do not remove content before understanding why it is there.
+4. Do not build a mega-skill that covers everything.
+5. Do not leave old names referenced after a merge or a retirement.
