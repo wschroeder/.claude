@@ -1,40 +1,29 @@
 # bd in spec-task
 
-Read this when Section 1 finds that the repository keeps its cards in bd. It
-holds what Section 1 checks and what Section 7 writes. The measurements behind
-both are in [bd-behavior.md](bd-behavior.md).
+1. Read this when Section 1 finds that the repository keeps its cards in bd. The measurements behind it are in [bd-behavior.md](bd-behavior.md).
 
 ## Section 1: what to check
 
-Real output, not paraphrase:
+1. Print the real output, not a paraphrase:
 
 ```
 $ bd list --status open 2>&1 | tail -3
 ```
 
-State whether bd is already initialized here and the issue prefix in use.
-
-If `.beads/` is absent and `bd where` prints no database path, do NOT run `bd init` here. Record it as a
-precondition for `backlog-task`, in exactly this form:
+2. State whether bd is already initialized here and the issue prefix in use.
+3. If `.beads/` is absent and `bd where` prints no database path, do NOT run `bd init` here; record it as a precondition for `backlog-task`, in exactly this form:
 
 ```
 $ bd init --skip-agents --skip-hooks -p <prefix>
 ```
 
-**Both flags are required.** Without them bd writes a `CLAUDE.md`, an
-`AGENTS.md`, a SessionStart hook and five git hooks whose instructions
-contradict this machine's, and none of those hooks does measured work.
-
-bd makes its own commit on init whatever flags it is given. Expect that
-commit, and do not report it as work this session did.
+4. Require both flags, because without them bd writes a `CLAUDE.md`, an `AGENTS.md`, a SessionStart hook, and five git hooks that contradict this machine's instructions.
+5. Expect the commit bd makes on init, and do not report it as work this session did.
 
 ## Section 7: the command list
 
-The exact commands, not yet run. One `bd create` per task, one
-`bd dep add` per blocking edge, one `bd dep relate` per related pair, and one
-`bd label add` per current-slice task.
-
-Current-slice tasks get the full form:
+1. Write the exact commands, not yet run: one `bd create` per task, one `bd dep add` per blocking edge, one `bd dep relate` per related pair, and one `bd label add` per current-slice task.
+2. Give current-slice tasks the full form:
 
 ```
 bd create "<title>" -t task -p <0-4> \
@@ -47,24 +36,14 @@ bd dep relate <id> <related-id>
 bd label add <id> slice:S<n>
 ```
 
-Sketched later tasks get the title and the edges only — no `--acceptance`,
-no `-e`, and no slice label:
+3. Give sketched later tasks the title and the edges only, with no `--acceptance`, no `-e`, and no slice label:
 
 ```
 bd create "<title>" -t task --silent
 bd dep add <blocked-id> <blocker-id>
 ```
 
-The slice label is what separates the board's lanes that `demo-task`
-reads. `--spec-id` carries the design document the card serves, which is the
-link from a card back to the product rule it is building.
-
-Use this per-issue form, or `bd create --file` with the section format
-`backlog-task` Section 3 gives. Neither `--file` nor `--graph` creates a
-dependency or sets a spec id, so list `bd dep add` and `bd update --spec-id`
-after either. Do not use `bd create --graph` at all: it reports success while
-dropping the acceptance criteria, which is the one field this template exists
-to produce.
-
-Where Section 1 found no `.beads/` and `bd where` found no database, this list's first line is
-`bd init --skip-agents --skip-hooks -p <prefix>`, both flags required.
+4. Give every current-slice task its slice label, because `demo-task` reads the board's lanes from it, and its `--spec-id`, the design document the card serves.
+5. Use this per-issue form, or `bd create --file` with the section format `backlog-task` Section 3 gives, and list `bd dep add` and `bd update --spec-id` after `--file`, because it sets neither.
+6. Never use `bd create --graph`: it reports success while dropping the acceptance criteria.
+7. Where Section 1 found no `.beads/` and `bd where` found no database, make this list's first line `bd init --skip-agents --skip-hooks -p <prefix>`, both flags required.
