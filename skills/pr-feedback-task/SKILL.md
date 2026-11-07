@@ -111,9 +111,8 @@ The five checks:
    - **The PR did not introduce the cited code, but the code sits in
      the path the PR is already touching**, such as the same function the
      diff edits, a helper the changed code calls, or a query whose result
-     the PR's new behavior now relies on. Fix it here, because the
-     operator does not defer related work. Record it under **Accepted**,
-     never Rejected.
+     the PR's new behavior now relies on. Record it under **Accepted**,
+     never Rejected, because the operator does not defer related work.
    - **The PR did not introduce the cited code AND the code is
      unrelated to anything the PR touches**, such as a different module,
      an untouched call path, or code the change neither calls nor depends
@@ -169,9 +168,9 @@ The five checks:
 
 For each finding, output the disposition with its evidence:
 
-### Accepted — real issue, will fix
+### Accepted — real issue, in scope
 1. Give the thread URL, file:line, the finding, evidence the issue is real at HEAD, its scope, and the mechanism traced.
-2. Count as in scope pre-existing code in the path the PR is already touching (check 2), and fix it here rather than in a deferred ticket.
+2. Count as in scope pre-existing code in the path the PR is already touching (check 2), and send it on with the PR's other findings rather than to a deferred ticket.
 3. For cross-file or runtime claims, include the probe command and its actual output, or `UNPROBED` with the impracticality reason.
 
 ### Rejected — unrelated pre-existing code (out of scope)
