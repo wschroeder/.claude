@@ -192,7 +192,7 @@ to be the operator's call about the product and goes to the design document
 instead.
 
 Where the choice between two changes is real, put them up as named options per
-CLAUDE.md, "Choices and options get visual separation", and recommend one. Do
+the CLAUDE.md options rule, and recommend one. Do
 not hand the operator a blank space to invent a third in.
 
 **Open the ask with the phase line**, directly above the question — the
@@ -202,8 +202,7 @@ path a review's findings take, this stop's capitalized:
 review -> RETRO -> spec
 ```
 
-Then ask, per CLAUDE.md, "When you need an answer, the ask goes last and says
-what to do". One decision: make this batch, or strike the parts they do not
+Then ask, per the CLAUDE.md ask rule. One decision: make this batch, or strike the parts they do not
 want. The ask is the last thing in the message.
 
 Nothing is written until they answer, and signoff here covers this batch and no

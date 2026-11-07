@@ -75,16 +75,14 @@ internal register before you draft, and check the draft against this list:
 
 This applies at tier two and tier three. Tier one keeps its three passes.
 
-After the voice check, read the finished text against every subsection of
-`~/.claude/CLAUDE.md` "Communication Style" except these five, which govern
-layout and the reply: "Choices and options get visual
-separation", "When you need an answer, the ask goes last and says what to do",
-"Answer what I asked, and do nothing more", "Keep explanations short", and
-"Tables and dense layout". A subsection added to CLAUDE.md later joins the check
-unless you add it to that list.
+After the voice check, read the finished text against every rule in
+`~/.claude/CLAUDE.md` "Communication Style" except the five that govern the
+reply: the options rule, the ask rule, the rule to answer only what was asked,
+the chat-length rule, and the tables rule. A rule added to CLAUDE.md later joins
+the check unless you add it to that list.
 
 Put the answers in the reply that hands the text over, under a heading
-"Sentence rules", one entry per subsection, named by its heading. Each entry
+"Sentence rules", one entry per rule, named by its topic. Each entry
 takes one of three answers:
 
 - Quote every sentence you fixed under that rule, before and after.
@@ -92,7 +90,7 @@ takes one of three answers:
 - If the rule cannot apply to this text, say why in a few words, such as "no
   dates".
 
-Under "A follow-on sentence takes a colon, not a full stop", list every sentence
+Under the colon rule, list every sentence
 in the text that has no main verb, including headings' captions and bullets, and
 mark each fixed or kept with the reason. If there are none, say so.
 
@@ -123,10 +121,10 @@ silent. A closing
 verb is "settled" or "resolved", which says a question closed without saying
 how: write the act instead, such as "nobody has checked". A punchline is a
 clause tacked on with ", and" that ends on a negative count or an absence: cut
-it from a title, a headline, or an opening sentence, as CLAUDE.md "Do not end a
-headline on a punchline" says, and mark it keep or cut elsewhere. A comma
+it from a title, a headline, or an opening sentence, as the CLAUDE.md headline rule
+says, and mark it keep or cut elsewhere. A comma
 candidate is a comma before a coordinating conjunction or a trailing "because"
-or "since": mark it keep only by naming the CLAUDE.md "Commas" rule that allows
+or "since": mark it keep only by naming the CLAUDE.md comma rule that allows
 it. A missing comma candidate is a bare "and", "but", "or", "so", or "yet" that
 a pronoun or a determiner follows: mark it add when the words after the
 conjunction carry a subject of their own, and mark it leave otherwise. A band

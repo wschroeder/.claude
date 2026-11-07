@@ -142,7 +142,7 @@ def main():
     for s in m["punchlines"]:
         print("  " + s)
     print("\ncomma candidates (%d) -- mark each keep or cut with the CLAUDE.md"
-          " \"Commas\" rule that allows it:" % len(m["comma_candidates"]))
+          " comma rule that allows it:" % len(m["comma_candidates"]))
     for s in m["comma_candidates"]:
         print("  " + s)
     print("\nmissing comma candidates (%d) -- mark each add or leave: a second"

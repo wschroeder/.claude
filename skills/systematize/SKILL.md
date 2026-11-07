@@ -92,9 +92,20 @@ the pointer at the step that needs the file, give it a condition the model
 can check from what is in front of it ("if the diff adds a migration"), and
 tell it to read the file now. A model skips a bare "Worked examples:" or
 "see" link, so put every required step in the body, or behind a pointer of
-that shape. Rationale and worked examples may sit behind a bare link,
-because nobody has to read them. See
-[references/measurements.md](references/measurements.md).
+that shape. Rationale may sit behind a bare link, because nobody has to
+read it. See [references/measurements.md](references/measurements.md).
+
+## Write rules as a short list
+
+This holds for `~/.claude/CLAUDE.md` and for every skill body and reference.
+
+1. State each rule as a numbered imperative of one or two sentences.
+2. Keep a short "such as" phrase only when it names what triggers the rule.
+3. Cut every BAD and GOOD pair, worked example, and "Measured on" story.
+4. Delete a cut example; never move it into `references/`.
+5. Keep ordered steps, commands, templates, and scripts, because a model runs
+   them rather than reading them as examples.
+6. Name a rule by its topic, such as "the comma rule", and never by its number.
 
 ## Creating a skill
 
@@ -147,18 +158,15 @@ description: [third person, trigger terms, under 1024 chars]
 ### 1. [Step]
 ### 2. [Step]
 
-## Key guidelines
-
-## Examples
-### What good looks like
-### What to avoid
+## Rules
+1. [One- or two-sentence imperative]
 
 ## Autonomous behaviour
 [When to act without asking, when to stop and ask, what to report]
 ```
 
-Every example in the body must have been run. An example nobody executed is the
-most expensive kind of wrong, because it is the part a reader copies.
+Every command in the body must have been run, because it is the part a reader
+copies.
 
 ### 5. Propose before writing
 
@@ -187,7 +195,7 @@ call needed.
 
 Read the whole skill first. Keep what works; change what is wrong.
 
-**Just do it** for typos, a missing example, clearer wording, an obvious
+**Just do it** for typos, clearer wording, an obvious
 trigger phrasing the description is missing.
 
 **Ask first** for restructuring, removing sections, changing what the skill is

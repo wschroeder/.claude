@@ -135,13 +135,8 @@ Tag every item here the way §3 tags completed work:
   did not measure is a hypothesis, however obvious it feels right now.
 
 Split the observation from the explanation BEFORE tagging either one: a
-reading and the diagnosis you drew from it are two claims. Write:
-
-    verified: forward vs reversed field order diverges, 4 of 4 blocks, at
-      cdfbe35 — sweep output above.
-    hypothesis: the rout/flee path is what makes it order-dependent.
-
-NOT "MEASURED: order diverges because the rout path is order-dependent."
+reading and the diagnosis you drew from it are two claims, so give each its
+own line and its own tag.
 
 **A known failure in the current Jira issue's own work is not a hypothesis to
 carry forward.** Write it as needing a card, name the skill that cuts it

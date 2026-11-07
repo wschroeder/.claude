@@ -71,12 +71,6 @@ list below.
 written down" restates the feature as a gap and gives no reason for it. A fix
 names what was broken, because for a fix that is the reason.
 
-BAD: `Nothing measured how the importer handles real uploads, so nobody knew how many needed a person.`
-GOOD: `The harness runs real uploads through the importer and reports how many went through without a person, compared against the hand-kept ledger.`
-
-BAD: `Wires per-IP rate limiting on the three POST endpoints and revokes the descendant chain on refresh-token reuse`
-GOOD: `Per-IP rate limiting and refresh-token chain revocation are preconditions for partner-facing rollout, not optional polish.`
-
 **Record the major decisions, and leave out the small ones.** A major decision
 is significant to the feature, and a later reader would want it called out:
 flipping a feature flag from false to true, or measuring against a hand-kept

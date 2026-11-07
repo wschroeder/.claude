@@ -240,42 +240,6 @@ When activated:
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 10. **Run the review sequence**: once the feature is done, use the running thing by hand one last time (`writing-code` step 0), then run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 
-## Example Flow
-
-**User**: "I need a function to validate email addresses"
-
-**Claude**:
-```elixir
-# Step 1: Write test (Red)
-test "validate_email returns :ok for valid email" do
-  assert Validator.validate_email("user@example.com") == :ok
-end
-```
-
-Run test - should fail since function doesn't exist.
-
-```elixir
-# Step 2: Implement minimum (Green)
-def validate_email(email) when is_binary(email) do
-  :ok
-end
-```
-
-Run test - passes!
-
-**Claude**: "Should we add test cases for invalid emails?"
-
-**User**: "Yes"
-
-```elixir
-# Step 3: Next test (Red again)
-test "validate_email returns error for invalid email" do
-  assert Validator.validate_email("not-an-email") == {:error, :invalid_format}
-end
-```
-
-And so on...
-
 ## After each task, read your own room
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
