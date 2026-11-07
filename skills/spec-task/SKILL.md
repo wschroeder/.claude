@@ -1,6 +1,6 @@
 ---
 name: spec-task
-description: Turns a design conversation into updated design documents and a slice of cards whose acceptance criteria are EARS requirements, each with the command that proves it. Writes the design documents itself and stops short of literal code. On a returning initiative it decides and sizes the next slice from the design, the backlog, and the last retro, and cuts it into sized tasks; where the project uses bd (beads), it also writes the create commands and hands them to backlog-task. Use when asked to write a spec, spec something out, turn a design or a discussion into requirements, define acceptance criteria, decide or size the next slice, or break designed work into tickets or a backlog, and when work has been designed but nothing durable has been written down.
+description: Turns a design conversation into updated design documents and a slice of cards whose acceptance criteria are EARS requirements, each with the command that proves it. Writes the design documents itself and stops short of literal code. On a returning initiative it decides and sizes the next slice from the design, the backlog, and the last demo's feedback, and cuts it into sized tasks; where the project uses bd (beads), it also writes the create commands and hands them to backlog-task. Use when asked to write a spec, spec something out, turn a design or a discussion into requirements, define acceptance criteria, decide or size the next slice, or break designed work into tickets or a backlog, and when work has been designed but nothing durable has been written down.
 ---
 
 # spec-task — design conversation in, a changed design and a backlog out
@@ -181,7 +181,8 @@ rewrite one the operator supplies that does not.
 **Then decide which slice this pass specifies.** On a brand-new initiative
 there is no slice yet — that is the walking skeleton Section 4 cuts.
 Otherwise, read the repository's look-ahead sketch if it keeps one, the
-backlog, and — following a retro — its findings, and name the next slice:
+backlog, the last demo's feedback, and — following a retro on a review —
+its findings, and name the next slice:
 
 ```
   slice:      S<n> — <name>
@@ -213,10 +214,10 @@ nothing to commit first. Write it through the skill rather than by hand,
 however close the ceiling is.
 
 **Open the ask with the phase line**, directly above the question — the
-four phases in order, this stop's capitalized.
+three phases in order, this stop's capitalized.
 
 ```
-SPEC -> build -> demo -> retro
+SPEC -> build -> demo
 ```
 
 Proceed with the slice above, or name a different one?
@@ -283,10 +284,10 @@ written after them — or the one plain sentence that every question went to
 out of scope and there is nothing here for them to do.
 
 **Where there are questions, open the ask with the phase line**, directly
-above them — the four phases in order, this stop's capitalized:
+above them — the three phases in order, this stop's capitalized:
 
 ```
-SPEC -> build -> demo -> retro
+SPEC -> build -> demo
 ```
 
 ## 4. Requirements in EARS, each with the command that proves it

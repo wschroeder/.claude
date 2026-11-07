@@ -94,10 +94,10 @@ instead, and the creation waits behind it.
 Where `bd init` has to run first, say so in one line.
 
 **Open the ask with the phase line**, directly above the question — the
-four phases in order, this stop's capitalized:
+three phases in order, this stop's capitalized:
 
 ```
-SPEC -> build -> demo -> retro
+SPEC -> build -> demo
 ```
 
 Then ask, per CLAUDE.md "When you need an answer, the ask goes last and
@@ -171,9 +171,8 @@ Report a mismatch and leave it for `spec-task` to fix.
 Name both handoffs, in one line each. `tdd-cycle` takes the cards, and
 each task's proof command is the test to drive to red first. When the
 slice's last card closes, `tdd-cycle` step 4d hands to `demo-task` for the
-demo; `demo-task` hands to `retro-task`, which inspects the run itself and
-then returns to `spec-task`, which decides the next slice and returns
-here.
+demo; `demo-task` hands to `spec-task`, which decides the next slice and
+returns here.
 
 **The build runs as a `session-loop` run, not as a string of sessions the
 operator clears by hand.** The cards exist now and nothing between here and the

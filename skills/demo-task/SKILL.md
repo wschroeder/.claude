@@ -1,6 +1,6 @@
 ---
 name: demo-task
-description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, shows a slice of only prose or infrastructure as code as its full diff for the operator to review, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `retro-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, once `retro-task` has run.
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, shows a slice of only prose or infrastructure as code as its full diff for the operator to review, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `spec-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, which it hands to.
 ---
 
 # demo-task — the slice is shown, the feedback is recorded
@@ -364,10 +364,10 @@ such as an account that merging consumes, the next walk uses another such
 record or puts new data in place. It never skips the walk.
 
 **Open the ask with the phase line**, directly above the question — the
-four phases in order, this stop's capitalized:
+three phases in order, this stop's capitalized:
 
 ```
-spec -> build -> DEMO -> retro
+spec -> build -> DEMO
 ```
 
 **Ask for one thing: that the operator work the demo themselves and say what
@@ -516,7 +516,7 @@ Then say what changed and where. Name every design document edited and quote
 the sentence each one gained or lost, name every card created or closed by its
 id, and commit both through `git-commit`.
 
-## 7. Hand to `retro-task`
+## 7. Hand to `spec-task`
 
 Before handing off, read your own room:
 
@@ -529,40 +529,38 @@ section you stopped at and what that section still owes — a record you have
 not worked, an answer the operator is waiting on — so the handoff cannot write
 this phase down as finished.
 
-Otherwise, hand to `retro-task` now, in the same turn, before anything is
-specified. The demo is over and its feedback is recorded, which is the
-moment the process cycle closes. `retro-task` reads the run itself, takes
-its own signoff, commits what was accepted, and hands on to `spec-task`,
-which decides and specifies whatever slice comes next. Do not skip the
-hand-off because the slice was small, and do not ask whether to run it — a
-retro that waits to be asked for does not happen.
+Otherwise, hand to `spec-task` now, in the same turn. The demo is over and
+its feedback is recorded, which is the moment the cycle closes and the next
+one starts. `spec-task` decides and specifies whatever slice comes next. Do
+not skip the hand-off because the slice was small, and do not ask whether to
+run it — a hand-off that waits to be asked for does not happen.
 
 **One exception, and it is the operator's own words.** Where they said they
 would do something themselves — open the deployed page, complete a sign-in,
 look at the output on their own machine — and have not reported back, stop
 here and wait for them. Say in one line what you are waiting on and that the
-retro follows it. An operator who says they will do a thing has told you to
+spec follows it. An operator who says they will do a thing has told you to
 stop, because that thing is usually the last unproven link in Section 3's
 chain, and handing on turns their check into something nobody ever collects.
 See [references/measurements.md](references/measurements.md).
 
 **If the operator's acceptance asks a question or asks for something next,
 then answer the question in prose and do what they asked.** Search the
-design documents first, as Section 4 says, before you call anything a miss. The retro
+design documents first, as Section 4 says, before you call anything a miss. The spec
 follows that work. Do not answer them with a question about which to do
 first. "Do not ask whether to run it" still holds when they ask for nothing
 else. Why: [references/measurements.md](references/measurements.md).
 
 ## What this template does NOT do
 
-- Does not decide, size, or pull the next slice. That is `spec-task`, once
-  `retro-task` has run.
+- Does not decide, size, or pull the next slice. That is `spec-task`, which
+  Section 7 hands to.
 - Does not write requirements in EARS or author proof commands. That is
   `spec-task`.
 - Does not run the work. That is `tdd-cycle`, and `session-loop` when the
   run is unattended.
 - Does not inspect the process, read the run's own transcripts, or change a
-  skill. That is `retro-task`, which Section 7 hands to.
+  skill. That is `systematize`, when the operator asks for it.
 - Does not close beads or repair failing proof commands.
 - Does not decide the definition of released. The operator settles it, and
   `spec-task` Section 1 is where that conversation happens.

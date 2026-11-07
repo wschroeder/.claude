@@ -236,11 +236,11 @@ data, start the server again, and leave it running for the operator, as
 demo-task Section 3 says. See [references/measurements.md](references/measurements.md).
 
 **Open the ask with the phase line**, directly above the question, or closing
-the report where nothing needs deciding — the four phases in order, with the
+the report where nothing needs deciding — the three phases in order, with the
 one the loop stopped in capitalized:
 
 ```
-spec -> BUILD -> demo -> retro
+spec -> BUILD -> demo
 ```
 
 ### 8. Then measure yourself, before starting anything else

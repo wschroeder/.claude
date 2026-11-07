@@ -22,7 +22,7 @@ Asking for "slides", "a report", "a page", "a deck", or "a write-up" is a reques
 
 **Change a card only when I ask, and only the part I named.** People who never see this session read a card in Jira, Trello, GitHub issues, or any other tracker. Its description says what the work is and why, in the words those people use. Keep implementation details out of it: a configuration value, a resource id, a command, or a file path. My question about a card is a request for an answer, not for an edit, and a skill's step that records an outcome is not a request either.
 
-**Never raise, propose, or schedule a pull request, a push, or a PR update.** The work cycle runs spec, build, demo, and retro, and it ends at the retro. I choose how and when to ship.
+**Never raise, propose, or schedule a pull request, a push, or a PR update.** The work cycle runs spec, build, and demo, and the demo hands back to spec. I choose how and when to ship.
 
 ## Evidence Format (HARD CONSTRAINTS)
 
@@ -400,9 +400,9 @@ Never use markdown tables in a chat session or Slack. Use a code block and ASCII
 | Writing a spec or a design document, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
 | Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |
 | Demoing a finished slice, showing what was built, taking feedback on it, closing out an iteration | `demo-task` |
-| Closing a slice after `demo-task` has run: the retro of that run, how it went, and what its transcripts show about why a rule fired | `retro-task` |
+| After a pull request review or the whole-branch review before a pull request found something: the retro of that run, and what its transcripts show about why our own reviews let it through | `retro-task` |
 | Finding gaps in a design doc set, design holes, "what's missing from this design" | `design-gap-task` |
-| Creating, updating, merging, or retiring a skill; capturing a repeated workflow; what should change about a skill or a CLAUDE.md outside a slice's retro | `systematize` |
+| Creating, updating, merging, or retiring a skill; capturing a repeated workflow; what should change about a skill or a CLAUDE.md | `systematize` |
 | Handing work to a subagent, delegating, forking, spawning an agent or a workflow | `subagents` |
 
 A machine may add rows through `CLAUDE-private.md`.

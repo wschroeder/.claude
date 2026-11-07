@@ -318,7 +318,7 @@ write the handoff through `clear-task` and say you have, in the same turn.
 Do not ask permission first — the operator set the ceiling, so reaching it
 is not a decision they need to make twice.
 
-`demo-task` and `retro-task` each end this way, and a session running only
+`demo-task` ends this way, and a session running only
 this loop is the one that never checks. See [references/measurements.md](references/measurements.md).
 
 **On `finish the step you are on`, finish the card in hand, commit it, write the handoff through `clear-task` yourself, and stop.** Do not start the next card.
