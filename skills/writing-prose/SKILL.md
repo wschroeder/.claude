@@ -5,27 +5,15 @@ description: Composes prose a person reads for its argument — dumping every po
 
 ## Purpose
 
-This skill owns **composition**: what gets said, in what order, under what
-headings. Three other places own the rest, and this file never restates them.
+This skill owns composition: what gets said, in what order, under what headings.
 
-- `~/.claude/CLAUDE.md` "Communication Style (HARD CONSTRAINT)" owns every rule
-  about a sentence — the actor and the verb, commas, invented labels, the colon
-  for a follow-on sentence, where the ask goes. Those rules apply to everything
-  you emit, this reply included, whether or not this skill is loaded.
-- `writing-code` owns code and the comments inside it. It decides whether a
-  comment should exist at all and what it may say; the first tier below governs
-  only how the sentence reads.
-- A branded print build — a brand, a page format, and a PDF — belongs to
-  whichever skill your private routing names for it. This skill reaches that
-  skill only when the ask names that kind of deliverable, and it never decides
-  the brand itself.
+1. Take every sentence rule from `~/.claude/CLAUDE.md` "Communication Style (HARD CONSTRAINT)", and never restate one here.
+2. Leave code and the comments inside it to `writing-code`; this skill governs only how a comment's sentences read.
+3. Leave a brand, a page format, and a PDF to the print skill your private routing names, and reach that skill only when the ask names that kind of deliverable.
 
 ## Pick the tier first
 
-**The test: does the output have parts whose order could be wrong?**
-
-Count the parts you are planning. Not words — parts. A doc-comment has one. A
-design document has many.
+1. Count the parts you plan, not the words, and pick the tier from this table.
 
 | Parts | Tier | Machinery |
 |-------|------|-----------|
@@ -33,204 +21,90 @@ design document has many.
 | Several parts, one sitting | Tier two | a list in your working notes |
 | Sections a reader navigates | Tier three | an idea file and a graph |
 
-**Erring upward is the failure mode this test exists to prevent.** Building a
-graph for a two-sentence comment is worse than loading nothing, because it spends
-the reader's patience and yours on a structure with one node. When the tier is
-genuinely unclear, take the lower one and say in one line which you took.
+2. If the tier is unclear, take the lower one and say in one line which you took.
 
-## A reference names a thing, never a position
+## Rules for every tier
 
-Every tier. Anything a reader follows — in prose, in a heading, in a commit
-message — names something they can grep for or act on: a heading, a function,
-a quoted phrase, a file name, a row's key. Never a position: not a line number,
-a line range, a row number, or "the third item". The file moves, the number
-does not, and it then points at real text saying something else, which a reader
-trusts. See [references/measurements.md](references/measurements.md).
-
-A line range in your own working notes is fine, because you print the lines it
-names and throw the notes away.
+1. Name anything a reader follows by something they can grep for or act on, such as a heading, a function, a quoted phrase, a file name, or a row's key.
+2. Never point a reader at a line number, a line range, a row number, or "the third item"; a line range is fine only in your own working notes.
 
 ## Text that leaves the team
 
-Every tier. When the reader is outside the team — a customer, a client
-stakeholder, anyone who will read the words without you there — switch from the
-internal register before you draft, and check the draft against this list:
+When the reader is outside the team, such as a customer or a client stakeholder, switch from the internal register before you draft, and check the draft against these rules.
 
-- Cut the history: when a rule was written, what a field used to hold, how the
-  data reaches the app today. Name a thing as it stands now ("our current rule").
-- Cut the supporting evidence the reader will not act on. Keep one number when it
-  is the finding; drop the counts that only prove it.
-- Turn every `hypothesis:` into a question to the reader, and never into a flat
-  claim. "Suggesting a bank rule?" hands the guess to the people who can answer it.
-- Write your findings in the first person: "I found", "I haven't found", "I
-  believe". "It isn't there" claims more than you searched.
-- Give each number its so-what in the same sentence, and close any arithmetic the
-  reader would otherwise do: if 436 of 488 are found, say where the other 52 went.
-- Use the reader's own names for things, such as the label on their screen, and
-  never your description of it.
-- Leave out what is not a gap, a problem, or a finding for this reader, even when
-  it cost you work to rule out.
+1. Cut the history, and name a thing as it stands now ("our current rule").
+2. Cut evidence the reader will not act on, and keep one number only when it is the finding.
+3. Turn every `hypothesis:` into a question to the reader, never a flat claim.
+4. Write findings in the first person: "I found", "I haven't found", "I believe".
+5. Give each number its so-what in the same sentence, and close any arithmetic the reader would otherwise do.
+6. Use the reader's own names for things, such as the label on their screen.
+7. Leave out whatever is not a gap, a problem, or a finding for this reader, even when it cost you work to rule out.
+
+## Run the voice check
+
+Every tier runs this on its finished text.
+
+1. Save the text to a file in the scratchpad and run `python3 scripts/voice_stats.py <file>`.
+2. Mark each maxim candidate, silent tail, closing verb, punchline, and comma candidate keep or cut, and fix every one you cut.
+3. Cut a maxim candidate, a sentence that closes a block by generalising into a saying, by default.
+4. Rewrite a silent tail, a sentence that ends on what nobody did, to name the actor that stayed silent.
+5. Replace a closing verb such as "settled" or "resolved" with the act, such as "nobody has checked".
+6. Cut a punchline, a clause tacked on with ", and" that ends on a negative count or an absence, from a title, a headline, or an opening sentence.
+7. Mark a comma candidate keep only by naming the CLAUDE.md comma rule that allows it.
+8. Mark each missing comma candidate add when the words after the conjunction carry a subject of their own, and leave otherwise.
+9. Report a band the script says you missed in one line with the reason you kept the text, or rewrite until it lands; on short text, ignore the bands.
 
 ## Answer each sentence rule in writing
 
-This applies at tier two and tier three. Tier one keeps its three passes.
+Tier two and tier three run this after the voice check.
 
-After the voice check, read the finished text against every rule in
-`~/.claude/CLAUDE.md` "Communication Style" except the five that govern the
-reply: the options rule, the ask rule, the rule to answer only what was asked,
-the chat-length rule, and the tables rule. A rule added to CLAUDE.md later joins
-the check unless you add it to that list.
-
-Put the answers in the reply that hands the text over, under a heading
-"Sentence rules", one entry per rule, named by its topic. Each entry
-takes one of three answers:
-
-- Quote every sentence you fixed under that rule, before and after.
-- If you fixed none, give the number of sentences you read for it.
-- If the rule cannot apply to this text, say why in a few words, such as "no
-  dates".
-
-Under the colon rule, list every sentence
-in the text that has no main verb, including headings' captions and bullets, and
-mark each fixed or kept with the reason. If there are none, say so.
-
-An entry that says only "checked", "no issues", or "passes" is an open item,
-and so is an entry with no answer. An open item stops the hand-over. See
-[references/measurements.md](references/measurements.md).
+1. Read the finished text against every rule in `~/.claude/CLAUDE.md` "Communication Style" except the five that govern the reply: the options rule, the ask rule, the rule to answer only what was asked, the chat-length rule, and the tables rule. A rule added to CLAUDE.md later joins the check unless you add it to that list.
+2. Put the answers in the reply that hands the text over, under a heading "Sentence rules", one entry per rule, named by its topic.
+3. Answer each entry by quoting every sentence you fixed under that rule, before and after; or by giving the number of sentences you read for it; or by saying in a few words why the rule cannot apply, such as "no dates".
+4. Under the colon rule, list every sentence that has no main verb, including headings' captions and bullets, and mark each fixed or kept with the reason.
+5. Treat an entry that says only "checked", "no issues", or "passes", and an entry with no answer, as an open item, and do not hand the text over while one is open.
 
 ---
 
 ## Tier one — one point, no sections
 
-A code comment, a commit message, a Slack reply, a short email, a one-paragraph
-answer.
+A code comment, a commit message, a Slack reply, a short email, or a one-paragraph answer.
 
-The CLAUDE.md sentence rules apply, and no composition machinery does. Write it,
-then check it against those rules in three separate passes: one for commas, one
-for where each subject ends and its main verb begins, and one for sentences a
-reader could take two ways. Do not dump, do not outline, and do not announce a
-count. See [references/measurements.md](references/measurements.md).
-
-Before it goes out, save the text to a file in the scratchpad and run `python3
-scripts/voice_stats.py <file>`. Mark each maxim candidate, silent tail, closing
-verb, punchline, and comma candidate it lists keep or cut, and fix every one you
-cut. Mark each missing comma candidate it lists add or leave, and add the comma
-to every one you mark add. A silent tail is a sentence that ends on what nobody
-did, such as "and nothing reports it", where it could name the actor that stayed
-silent. A closing
-verb is "settled" or "resolved", which says a question closed without saying
-how: write the act instead, such as "nobody has checked". A punchline is a
-clause tacked on with ", and" that ends on a negative count or an absence: cut
-it from a title, a headline, or an opening sentence, as the CLAUDE.md headline rule
-says, and mark it keep or cut elsewhere. A comma
-candidate is a comma before a coordinating conjunction or a trailing "because"
-or "since": mark it keep only by naming the CLAUDE.md comma rule that allows
-it. A missing comma candidate is a bare "and", "but", "or", "so", or "yet" that
-a pronoun or a determiner follows: mark it add when the words after the
-conjunction carry a subject of their own, and mark it leave otherwise. A band
-the script reports missed does not stop short text, because a few sentences make
-a noisy rate.
-
-One addition, because it is the only ordering decision a single point has: say
-the point in the first sentence. Everything after it is support.
-
-Register — how formal to be, how warm, and how much of the reader's own world
-to explain back to them — is neither a sentence rule nor a composition
-decision, so neither CLAUDE.md nor this body covers it. Read
-[references/register.md](references/register.md) before writing as the operator
-to someone they have written to before.
-
-A how-to or help guide carries rules of its own about steps, screenshots,
-problem sections, links, and the reader's vocabulary. Read
-[references/how-to.md](references/how-to.md) before you plan one, because it
-also changes the order of work when a set holds more than one guide.
+1. Say the point in the first sentence, and let everything after it support that point.
+2. Do not dump, outline, or announce a count.
+3. Check the text against the CLAUDE.md rules in three separate passes: one for commas, one for where each subject ends and its main verb begins, and one for sentences a reader could take two ways.
+4. Run the voice check.
+5. If you are writing as the operator to someone they have written to before, read [references/register.md](references/register.md) now.
+6. If you are planning a how-to or help guide, read [references/how-to.md](references/how-to.md) now, before planning, because it changes the order of work when a set holds more than one guide.
 
 ---
 
 ## Tier two — several parts, one sitting
 
-An email carrying three asks, a PR body, a findings report, an in-repo README,
-one section of a design document, a handoff.
+An email carrying three asks, a PR body, a findings report, an in-repo README, one section of a design document, or a handoff.
 
-### 1. Dump the parts before deciding anything about them
-
-Write every point you might make, one per line, in your working notes. No
-numbers, no headings, no ordering, and no count of how many there will be. The
-dump is allowed to be longer than the output.
-
-Give a line of its own to any point that came from your own knowledge rather
-than from a source. That list is allowed to be long. It is not allowed to be
-invisible.
-
-### 2. Order the parts by what each needs the reader to already have
-
-For each part, name what the reader must already hold to understand it. A part
-whose prerequisite comes later moves after it. Parts with no prerequisite can go
-anywhere, and that freedom is a choice you make rather than a constraint you
-discovered.
-
-### 3. Check three things before you write the headings
-
-- **Every part in the output traces to a line in the dump.** A part with no line
-  behind it was invented during layout, which is where the worst ordering
-  defects come from. Either add its line to the dump, or cut the part.
-- **Every line in the dump either lands in a part or gets a one-line reason for
-  being dropped.** A line that silently vanishes is a decision nobody recorded.
-- **Nothing announces a count.** "Three things", "the four questions", "two
-  reasons" — a count written before the items exist is a promise the rest of the
-  output then has to keep, and it keeps it with filler.
-
-### 4. Write the headings, the opening summary, and the title last
-
-A heading is a claim about what a section contains, so it cannot be written
-honestly before the section exists. Write the body, then read each part and name
-what it actually says. If a heading names something the part's own prose never
-mentions, the heading is wrong, not the prose.
-
-An opening summary is the same case, one level up: it summarizes a body, so it
-comes after the body.
-
-### 5. Run the voice check on the finished text
-
-Save the text to a file in the scratchpad and run `python3
-scripts/voice_stats.py <file>`. Mark each maxim candidate, silent tail, closing
-verb, punchline, and comma candidate it lists keep or cut, and each missing
-comma candidate add or leave, as tier one says. Fix every one you cut or mark
-add. Report any band it misses in one line with the reason you kept the text as
-it is, or rewrite until it lands.
-
-Then answer each sentence rule in writing, as "Answer each sentence rule in
-writing" says.
+1. Dump every point you might make in your working notes, one per line, with no numbers, headings, order, or count.
+2. Give a line of its own to every point that came from your own knowledge rather than from a source.
+3. For each part, name what the reader must already hold to understand it, and move a part after any part it needs.
+4. Check that every part in the output traces to a line in the dump; add the line or cut the part.
+5. Check that every line in the dump lands in a part or gets a one-line reason for being dropped.
+6. Check that nothing announces a count.
+7. Write the body, then the headings, then any opening summary, then the title, each from what the finished text actually says.
+8. Rename any heading that names something its own part's prose never mentions.
+9. Run the voice check, then answer each sentence rule in writing.
 
 ---
 
 ## Tier three — sections a reader navigates
 
-A design document, a whitepaper, a deck, a specification, a long report.
+A design document, a whitepaper, a deck, a specification, or a long report. Run the steps in order, and print every output a step names.
 
-The steps are ordered, and each one's output is what the next one reads. Do not
-run them out of order and do not skip the printing — a structure nobody printed
-is a structure nobody reviewed.
+### 0. Write the one sentence and the word budget
 
-### 0. Write the one sentence, and the word budget
-
-Before dumping anything, write the single sentence the whole document argues, and
-the number of words it gets. Both go at the top of `ideas.tsv` as comments.
-
-**The sentence is the filter.** Every idea earns its place by serving that
-sentence, and an idea that is merely true, merely interesting, or merely nearby
-is a rabbit hole that costs the reader the main point. A dump is allowed to be
-long; the document is not.
-
-**A document that shows status argues nothing**, such as a coverage map or an
-inventory. Its sentence names what it covers, and its title names that coverage
-too. Do not manufacture a claim for it to argue.
-
-**The budget is a constraint, not an outcome.** Pick it from what the reader will
-actually read, not from what the material could fill. Measure against it at step
-7. A draft over budget gets ideas cut, never sentences compressed — compressing
-sentences is how a document keeps every rabbit hole and becomes unreadable
-instead of merely long.
+1. Before dumping anything, write the single sentence the whole document argues and the number of words it gets, as comments at the top of `ideas.tsv`.
+2. Admit an idea only when it serves that sentence.
+3. For a document that shows status, such as a coverage map or an inventory, make the sentence and the title name what it covers, and do not invent a claim for it.
+4. Pick the budget from what the reader will actually read.
 
 ### 1. Dump every idea, keyed by a word slug
 
@@ -240,21 +114,10 @@ instead of merely long.
 idea<TAB>source<TAB>locator<TAB>the one sentence it supports
 ```
 
-`idea` is a **word slug**, never a number — `evidence-first`, not `1`. A numeric
-key is an order, and there is no order yet.
-
-`source` and `locator` cite where the idea came from. **Print the cited lines.**
-For every row with a real source, paste the actual `sed -n '<range>p'` output
-underneath — real output, never a paraphrase. Writing a sentence that the cited
-line does not say is the cheapest error to make and the most expensive to find,
-because every step after this one treats the row as true. See [references/measurements.md](references/measurements.md).
-
-An idea from your own knowledge, the audience's context, or a framing device
-carries `-` in both and a sentence saying where it came from. **This list is
-where a document loses its best material.** Nothing can check it, so it is the
-one part of the dump that depends entirely on you sweeping wide before you start:
-the research behind the argument, what the audience already believes, the
-comparison that makes the point land. See [references/measurements.md](references/measurements.md).
+1. Key each idea with a word slug such as `evidence-first`, never a number.
+2. For every row with a real source, paste the real `sed -n '<range>p'` output of the cited lines underneath it.
+3. Give an idea from your own knowledge, the audience's context, or a framing device `-` in both source columns and a sentence saying where it came from.
+4. Sweep wide for those unsourced ideas before you start: the research behind the argument, what the audience already believes, and the comparison that makes the point land.
 
 ### 2. Declare the graph
 
@@ -264,164 +127,69 @@ comparison that makes the point land. See [references/measurements.md](reference
 from<TAB>rel<TAB>to
 ```
 
-- `needs` — a reader must hold `to` before `from` makes sense. These produce the
-  order, both between sections and between the items inside one section. A numbered
-  list whose items constrain each other gets a `needs` edge per pair that does, and
-  the script sequences them rather than leaving the numbering to whoever typed it.
-- `example-of` — `from` is evidence for the claim `to`. These produce the
-  sections: a claim plus its examples is one section.
-- `same` — `from` and `to` make the same point. These catch two sections doing
-  one section's work.
-
-Every idea gets at least one edge. An idea with none is reported as an orphan,
-and an orphan is either an idea that belongs in a section or an idea to drop with
-a reason.
+1. Use `needs` when a reader must hold `to` before `from` makes sense; give a `needs` edge to each pair of items inside a numbered list that constrain each other.
+2. Use `example-of` when `from` is evidence for the claim `to`.
+3. Use `same` when `from` and `to` make the same point.
+4. Give every idea at least one edge.
 
 ### 3. Derive the grouping and the order
 
     python3 scripts/graph_order.py --ideas ideas.tsv --graph graph.tsv
 
-Valid output is the real output of that command. It prints the groups, the
-levels, the item order inside any section whose members constrain each other, the
-orphans, and any edge it refused. Do not advance while it exits non-zero — it
-refuses an empty idea file, a duplicated slug, a self-edge, a truncated edge line,
-an orphan, and a cycle, rather than reporting a clean bill on any of them.
+1. Take the groups as the sections and the levels as the order.
+2. Do not advance while the script exits non-zero.
 
-The groups are the sections. The levels are the order. Neither was typed.
+### 4. Answer the free choices in writing
 
-### 4. Answer the free choices the sort leaves, in writing
+1. For each level the script names as holding more than one group, write one line saying which group goes first and why.
 
-The script names every level holding more than one group, because those are
-positions the prerequisites do not settle. For each, write one line saying which
-group you put first and why. A free choice you do not write down is a choice you
-will not remember making, and it is the one a reader will question.
+### 5. Draft the body
 
-### 5. Draft the body against the derived order
+1. Write one unit per group, in the order the levels give, as prose only, with no headings, titles, numbering, or counts.
 
-One unit per group, in the order the levels give. Draft prose only — no
-headings, no titles, no numbering, and no count of anything.
+### 6. Write the headings and titles
 
-### 6. Write the headings and titles from the finished body
+1. Name each unit from its finished prose, then title the document from the whole, then write any opening summary last.
 
-Read each unit's finished prose and name what it says. Then the document title,
-from the whole. The opening summary, if the document has one, comes last of all.
+### 7. Run the checks
 
-### 7. Run the checks a script can settle
-
-Re-run the derivation against the graph as it now stands, because step 6 usually
-changes it:
-
-    python3 scripts/graph_order.py --ideas ideas.tsv --graph graph.tsv
-
-Then measure the prose itself, which the graph says nothing about:
-
-    python3 scripts/voice_stats.py draft.txt
-
-Three numbers decide whether it reads like a person wrote it. **Inversions** count
-saying what a thing is not before saying what it is — "rather than", "instead of",
-"not X but Y". The ceiling is low and easy to blow; see
-[references/measurements.md](references/measurements.md). **Median sentence length** and **long-sentence share** say
-whether the reader is being asked to hold too much at once. A maxim candidate is a
-sentence that closes a block by generalising into a saying; cut it by default.
-Mark the silent tails, closing verbs, punchlines, comma candidates, and missing
-comma candidates it lists the way tier one says. Then answer each sentence rule
-in writing, as "Answer each sentence rule in writing" says.
-
-Then measure length against the budget from step 0. **Over budget means cutting
-ideas**, which readmits you to step 3, because dropping an idea changes the graph.
-
-The script settles grouping, order, orphans, and cycles. The rest cannot be
-scripted. **Each item takes a written answer naming something concrete. An item
-with no written answer is an open item, and an open item stops the step** —
-"looks fine" is not an answer.
-
-What the graph now settles, and what to check against it:
-
-- **A group spans adjacent units or none.** A group too large for one unit splits,
-  and the `within:` sequence tells you where: cut it where the unconstrained members
-  end and the constrained tail begins, and give each unit its own members. What is
-  wrong is a group appearing in two units that are **not adjacent**, or two units
-  drawing on the **same members**. Name which of those two you found, and which unit
-  gets cut or merged. A sixteen-idea group split across two neighbouring pages is
-  correct and gets no finding.
-- **Every unit traces to at least one idea, and every idea lands or is logged
-  dropped.** Both directions. A unit no idea produced is the defect this tier
-  exists to prevent, and it is the direction nobody checks.
-- **Each heading's key noun appears in its own unit's prose.** A word that lives
-  in seven headings and no paragraph is a label nobody defined.
-- **Every announced count equals the number of items behind it.** Count them.
-
-What a person still has to read for:
-
-- **Cold reader.** Name the first unit where someone meeting this cold would be
-  lost without an earlier unit, or state that there is none.
-- **The reader's actual ask.** Quote what you were asked for. Name the units that
-  answer it and give their positions. If the answer sits in the last third behind
-  material nobody asked about, say so and move it.
-- **One idea per unit.** Name any unit whose point cannot be stated without "and"
-  or "or". Two ideas in one unit is two units, which means the graph is missing an
-  edge.
-- **Nameable transitions.** Write the transition between each pair of consecutive
-  units as a short sentence. A transition you cannot write is a seam; name it.
-- **What the derivation revealed.** One line on what printing the groups and levels
-  showed that your plan did not, or "nothing".
-
-**Any structural change readmits you to step 3.** Adding a unit, dropping one, or
-moving one changes the graph, which changes the grouping and the order, which
-makes every written answer above describe a document that no longer exists.
-Re-run the script and re-answer the checks. A handoff telling the next session to
-re-run this is not a substitute for re-running it.
+1. Re-run `python3 scripts/graph_order.py --ideas ideas.tsv --graph graph.tsv` against the graph as it now stands.
+2. Run the voice check on `draft.txt`, and keep inversions ("rather than", "instead of", "not X but Y"), median sentence length, and long-sentence share inside the script's bands.
+3. Answer each sentence rule in writing.
+4. If the draft is over budget, cut ideas, never sentences, and go back to step 3.
+5. Give each item below a written answer naming something concrete; an item without one is open and stops the step.
+   - A group spans adjacent units or none: name any group that appears in two units that are not adjacent, or any two units that draw on the same members, and which unit you cut or merged.
+   - Every unit traces to at least one idea, and every idea lands or is logged dropped.
+   - Each heading's key noun appears in its own unit's prose.
+   - Every announced count equals the number of items behind it.
+   - Cold reader: name the first unit where someone meeting this cold would be lost, or state that there is none.
+   - The reader's actual ask: quote it, name the units that answer it and their positions, and move them forward if they sit in the last third.
+   - One idea per unit: name any unit whose point needs "and" or "or" to state.
+   - Transitions: write the transition between each pair of consecutive units as a short sentence, and name any you cannot write.
+   - What the derivation revealed: one line, or "nothing".
+6. After any structural change, re-run step 3 and answer these checks again.
 
 ### 8. Choose the form
 
-The content is organized. Now, and not before, decide what it gets built as.
+1. Decide what the content gets built as only after the content is organized.
 
 ---
 
 ## Choosing the form
 
-**The default is a local file at a path that fits the repository**, per
-`~/.claude/CLAUDE.md` "Local Files by Default, No Publishing Without Asking". A
-design document goes in `docs/` or `design/`; a report goes wherever similar
-documents already live; when nothing fits, the session scratchpad, and say so.
-Markdown, unless the ask names another format.
-
-**A branded print build happens only when the ask names one.** Check your private
-routing for a skill that owns branded print deliverables. If the ask names that
-kind of deliverable and your routing lists such a skill, then load it, hand it
-the derived order from step 3, and follow it from its first section onward. If
-the ask names none, finish in the default form and do not raise the subject.
-
-**Publishing is a separate ask again**, and the answer is no unless the operator
-asks for it in their own words. This holds however the document was built.
-
----
+1. Write a local file at a path that fits the repository, in Markdown unless the ask names another format, as `~/.claude/CLAUDE.md` "Local Files by Default, No Publishing Without Asking" says.
+2. If the ask names a branded print deliverable and your private routing lists a skill for it, load that skill, hand it the derived order from step 3, and follow it from its first section; otherwise do not raise the subject.
+3. Publish only when the operator asks in their own words.
 
 ## What this skill does not cover
 
-Sentence, comma, word, and label rules — `~/.claude/CLAUDE.md` "Communication
-Style (HARD CONSTRAINT)". Code, comments, and docstrings — `writing-code`.
-Commit messages — `git-commit`. A pull request body's required content —
-`pr-create-task`, which this skill's tier two serves. Requirements, acceptance
-criteria, and task sizing — `spec-task`. A brand, page architecture, print gates,
-and PDF export — the print skill your private routing names. Whether to write the
-document at all.
+Sentence rules belong to CLAUDE.md "Communication Style", code and comments to `writing-code`, commit messages to `git-commit`, a pull request body's content to `pr-create-task`, requirements to `spec-task`, and branded print to the print skill your private routing names.
 
 ## Autonomous behaviour
 
-Pick the tier without asking, and say in one line which you picked. Run tier one
-and tier two inline without stopping.
-
-For tier three, what happens after step 4 depends on what the body will cost to
-rebuild, so say in one line which of these two you are in. If a person drafts the
-body — an email, a design document, a report someone types out — then stop after
-step 4 and show the operator the derived order and the free choices, because
-reordering after that body is written means rewriting its paragraphs. If a
-generator writes the body from a declared list of parts, then reordering costs a
-rebuild and nothing else: carry on without stopping, and let the skill driving
-you choose what it puts in front of the operator instead. Showing someone a list
-of section slugs is not worth a stop when they could be reading the words.
-
-Report the script output verbatim rather than summarizing it. When a check
-cannot be closed, report it with what it would take, rather than reclassifying it
-as a preference.
+1. Pick the tier without asking, and say in one line which you picked.
+2. Run tier one and tier two inline without stopping.
+3. At tier three, if a person drafts the body, stop after step 4 and show the operator the derived order and the free choices.
+4. At tier three, if a generator writes the body from a declared list of parts, carry on without stopping.
+5. Report script output verbatim.
+6. Report a check you cannot close with what it would take to close it.
