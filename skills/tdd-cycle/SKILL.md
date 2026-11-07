@@ -3,18 +3,20 @@ name: tdd-cycle
 description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, each criterion clause marked met or not met, and the commit id — closing it belongs to demo-task, once somebody has watched it work.
 ---
 
+
 ## Purpose
-Guide through a test-driven development cycle, helping build incrementally with tests leading the way.
+
+1. Use this skill to build incrementally through a test-driven cycle, with tests leading the way.
 
 ## Companion skill — load first, every language
 
-Load `writing-code` before writing the test. This skill drives the loop; `writing-code` governs how the code and tests get written — comment discipline, naming over narration, error returns that match what callers destructure, keeping raw secrets out of logs, guarding at the function boundary, and which language skill applies. For Elixir it routes on to `elixir-development` (pipe-style Ecto, schema `changeset/2` over `Ecto.Changeset.change/2`, test hygiene, `capture_log`, `Mock` requiring `async: false`). Skipping it means writing the green code blind to the conventions it must follow.
-
-`writing-code` and `elixir-development` are both global. The TypeScript skills and `elixir-migrations` live in a single project and will not load elsewhere.
+1. Load `writing-code` before writing the test: this skill drives the loop, and `writing-code` governs how the code and tests get written and which language skill applies.
+2. For Elixir, let `writing-code` route on to `elixir-development` (pipe-style Ecto, schema `changeset/2` over `Ecto.Changeset.change/2`, test hygiene, `capture_log`, `Mock` requiring `async: false`).
+3. Expect `writing-code` and `elixir-development` to load anywhere; the TypeScript skills and `elixir-migrations` live in a single project and will not load elsewhere.
 
 ## Execution Setup
 
-Before running any `mix` commands, load the direnv environment (per `elixir-development`):
+1. Before running any `mix` commands, load the direnv environment (per `elixir-development`):
 ```bash
 cd /path/to/project
 eval "$(direnv export bash)"
@@ -23,70 +25,76 @@ mix test path/to/test.exs
 
 ## TDD Cycle
 
-The cycle is **Probe → Gray → Red → Green → Refactor**. Probe observes unfamiliar boundaries before any test exists. Gray is the state where the test has been written but not yet run — its outcome is unknown. Red is what happens when you run it and it fails (the *result* of running, not a starting phase). Green is when it passes. Refactor is when you fix structure — what the next test will attach to — not when you tidy names, comments or duplication; those belong to the review that follows.
+1. Run the cycle as **Probe → Gray → Red → Green → Refactor**: Probe observes unfamiliar boundaries before any test exists, Gray is a test written but not yet run, Red is the result of running it and seeing it fail, Green is when it passes, and Refactor fixes structure.
+2. In Refactor, fix what the next test will attach to, and leave names, comments, and duplication to the review that follows.
 
 ### Before the cycle: name the card you are building
 
-If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will build — its id, its title, and the proof command in its acceptance criteria. `backlog-task` created these cards and put that proof command there; `bd show <id>` prints its spec id, which names the design document holding the product rule behind it. That proof command is the test to drive to red in step 1. You are not choosing what to build here; you are reading which card is unblocked.
-
-If `bd ready` returns nothing while open cards exist, name the blocker holding them and stop rather than picking one anyway. If no ready card covers the change you were asked for, edit nothing: say in one line that no card covers it, and hand the work to `spec-task`. That holds when the operator names the change directly, and when the change fixes something broken in a deployment. The one exception is a fault the current slice made that its own demo found: `demo-task` sends that back here with no card, so name the demo finding in place of the card and build the fix. If there is no `.beads` directory, say so in one line and carry on — the cycle does not require a backlog.
+1. If the repository has a `.beads` directory, run `bd ready` and name the card this cycle will build: its id, its title, and the proof command in its acceptance criteria.
+2. Run `bd show <id>` for its spec id, which names the design document holding the product rule behind it.
+3. Drive that proof command to red in step 1; you are reading which card is unblocked, not choosing what to build.
+4. If `bd ready` returns nothing while open cards exist, name the blocker holding them and stop rather than picking one anyway.
+5. If no ready card covers the change you were asked for, edit nothing: say in one line that no card covers it, and hand the work to `spec-task`, both when the operator names the change directly and when it fixes something broken in a deployment.
+6. Make one exception: for a fault the current slice made that its own demo found, `demo-task` sends it back here with no card, so name the demo finding in place of the card and build the fix.
+7. If there is no `.beads` directory, say so in one line and carry on.
 
 ### A screen-only card skips the test
 
-A card is screen-only when its change alters only what a screen shows: markup, styles, wording, or images. A change that also reaches what the app stores, what it computes, or which route or permission serves a page is not screen-only. For a screen-only card, write no test. Build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c. See [references/measurements.md](references/measurements.md).
+1. Treat a card as screen-only when its change alters only what a screen shows: markup, styles, wording, or images.
+2. Treat a change that also reaches what the app stores, what it computes, or which route or permission serves a page as not screen-only.
+3. For a screen-only card, write no test: build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c. See [references/measurements.md](references/measurements.md).
 
 ### 0. Probe Boundaries (before writing the test)
 
-Before writing the test, identify boundaries it will touch — external APIs, database schemas, libraries you haven't used in this session, framework conventions you're uncertain about. For each, write a throwaway probe and paste its actual output into the conversation.
-
-**Project probe mechanics.** If `project-probe` appears in the available skills, load it before writing the probe — it holds how this project builds, runs and cleans up a throwaway probe, including the failure modes that report success. Where nothing is listed, run the probe by hand and say in one line that the project supplies no probe helper.
-
-- A probe is one-shot: a curl, a SQL query, an IEx snippet, a small script. Its purpose is to confirm the shape of the boundary before you encode an expectation about it.
-- The probe's output becomes a REF. The test you write in step 1 is anchored to that observation, not to a pattern-matched guess.
-- A probe is something that **ran on this machine in the last few minutes and produced output in the chat.** "The docs say," "I've used this before," and "based on the schema file" are not probes — see Rule 11 in the global Evidence Format.
-- Pure internal logic is exempt. Probes are for boundaries you don't own; tests cover the surfaces you do.
-- Code you own that reads data a boundary produced, such as a model's reply, an uploaded file, or a third-party payload, is not pure internal logic. Probe a real sample of that data before you write the test. If fetching a fresh sample costs money, read one the app already stored from a fictional file. If none exists, say so in the card note.
-- Detail, exemptions and rationale: [references/probing.md](references/probing.md).
-
-Without this step, the test in step 1 encodes an assumption rather than an observation, and Red → Green can both pass while the live boundary behaves differently — the test was wrong, not the code.
+1. Before writing the test, identify the boundaries it will touch: external APIs, database schemas, libraries you haven't used in this session, and framework conventions you're uncertain about.
+2. For each, write a throwaway probe and paste its actual output into the conversation.
+3. **Project probe mechanics.** If `project-probe` appears in the available skills, load it before writing the probe. If nothing is listed, run the probe by hand and say in one line that the project supplies no probe helper.
+4. Make a probe one-shot: a curl, a SQL query, an IEx snippet, or a small script that confirms the shape of the boundary.
+5. Cite the probe's output as a REF, and anchor step 1's test to that observation.
+6. Count as a probe only something that **ran on this machine in the last few minutes and produced output in the chat**, never "the docs say", "I've used this before", or "based on the schema file", under the global Evidence Format's rule that design docs describe intent.
+7. Exempt pure internal logic: probes are for boundaries you don't own.
+8. Treat code you own that reads data a boundary produced, such as a model's reply, an uploaded file, or a third-party payload, as a boundary, and probe a real sample of that data before you write the test.
+9. If fetching a fresh sample costs money, read one the app already stored from a fictional file, and if none exists, say so in the card note.
+10. Read [references/probing.md](references/probing.md) for detail and exemptions.
 
 ### 1. Write the Test (Gray) and Run It (Red)
-- Ask what functionality needs to be implemented
-- **Test what the audience sees, at the level of the feature, never a single module.**
-- **Write no test for behavior someone checked by hand when automating the check costs too much**, such as repeated calls to a paid API. A change that only moves a setting is the usual case: any test you could still write there asserts the setting's new value, which only repeats the diff. Say in one line who ran the hand check and what it found, then move on. See [references/measurements.md](references/measurements.md).
-- **Write no test for a constant.** A test that asserts only a fixed value, such as a label's text, a list's members, or a setting, only repeats the source. So does a test that asserts only that a thing exists. `spec-task` proves a constant by reading it. See [../spec-task/references/why.md](../spec-task/references/why.md).
-- **Give each behavior one test, at the lowest level that can observe it.** Before you write a test, find the one that already proves this behavior, and add your case there or write nothing. A browser test that repeats what an integration test proves is a copy, and so is a test whose cases another test already runs.
-- **Assert only what the test's title names.** An assertion about another step's output belongs in that step's test, so that one regression fails one test.
-- **Assert what a person reads or what the system stores, never the markup around it.** Match the message text, not its CSS classes. When a state shows only through styling, such as a done step against a pending one, add a stable attribute to the markup (`data-state="done"`) and assert that.
-- **Pin no output the code derives from another source.** A test that pins a literal generated from a schema, a validator, or a table only proves the generator ran. Test the conversion once, for every caller.
-- **Vary one thing per test.** A new input variant gets its own case. Never fold it into a test about something else, such as a concurrency test.
-- **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until the check prints what the card expects, and commit, all in one pass, with no probe. A sentence the app builds from data is behavior, not fixed text, and takes the full cycle.
-- **When the bug is something you saw on screen, test what it stopped the person doing.** Ask what the person could not do because of it. Write the test so it performs that action and asserts the values the person reads afterward. A test of layout, such as whether a control fits its cell, helps only while you work the design toward what the operator has in mind: run it during that work, and delete it once the operator has looked at the result, because layout changes for reasons nobody calls a bug. Do not count the action test as covering the layout either. See [references/measurements.md](references/measurements.md).
-- **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
-- **Nobody runs a slow suite, so keep every test fast.** Never sleep in a test: wait on the condition itself, or control the clock.
-- **Name the interface before the test file exists.** Say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss. Leave it unnamed and the assertion lands wherever it is cheapest to write, which is usually an internal.
-- Anchor the test against the probe output from step 0 — the test asserts behavior you've observed at the boundary, not behavior you've imagined
-- Write a single, focused test for that functionality. At this point the test exists but hasn't run yet — that's Gray.
-- Run the test; it should fail (Red) because the implementation doesn't exist yet
-- Verify the test is actually testing what you think it is — a test that passes too easily, or fails for the wrong reason, doesn't count
+
+1. Ask what functionality needs to be implemented.
+2. **Test what the audience sees, at the level of the feature, never a single module.**
+3. **Write no test for behavior someone checked by hand when automating the check costs too much**, such as repeated calls to a paid API or a change that only moves a setting; say in one line who ran the hand check and what it found, then move on. See [references/measurements.md](references/measurements.md).
+4. **Write no test for a constant**, such as a label's text, a list's members, or a setting, and no test that asserts only that a thing exists; `spec-task` proves a constant by reading it. See [../spec-task/references/why.md](../spec-task/references/why.md).
+5. **Give each behavior one test, at the lowest level that can observe it.** Before you write a test, find the one that already proves this behavior, and add your case there or write nothing.
+6. **Assert only what the test's title names**, and put an assertion about another step's output in that step's test.
+7. **Assert what a person reads or what the system stores, never the markup around it.** If a state shows only through styling, add a stable attribute to the markup (`data-state="done"`) and assert that.
+8. **Pin no output the code derives from another source**, such as a literal generated from a schema, a validator, or a table; test the conversion once, for every caller.
+9. **Vary one thing per test**, and give a new input variant its own case.
+10. **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until it prints what the card expects, and commit, all in one pass, with no probe.
+11. Treat a sentence the app builds from data as behavior, which takes the full cycle.
+12. **When the bug is something you saw on screen, test what it stopped the person doing**: perform that action in the test and assert the values the person reads afterward.
+13. Run a layout test, such as whether a control fits its cell, only while working the design toward what the operator has in mind, delete it once the operator has looked at the result, and do not count the action test as covering the layout. See [references/measurements.md](references/measurements.md).
+14. **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
+15. **Keep every test fast**, and never sleep in a test: wait on the condition itself, or control the clock.
+16. **Name the interface before the test file exists**: say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss.
+17. Anchor the test against the probe output from step 0.
+18. Write a single, focused test for that functionality (Gray).
+19. Run the test and see it fail (Red) because the implementation doesn't exist yet.
+20. Verify the test is testing what you think it is; a test that passes too easily, or fails for the wrong reason, doesn't count.
 
 ### 2. Implement Minimum Code (Green)
-- Write the minimum code needed to make the test pass
-- Don't add extra features or abstractions yet
-- Focus on making the test pass, not on perfect code
-- Run the test to verify it passes (Green)
+
+1. Write the minimum code needed to make the test pass, with no extra features or abstractions.
+2. Run the test to verify it passes (Green).
 
 ### 3. Refactor (structure only)
-- Improve structure while keeping tests passing
-- Consider edge cases or improvements
-- **What does NOT happen here.** Collapsing duplication, renaming for readability, and auditing comments. `writing-code` governs names and comments as the code is written, and the review that follows this loop owns what is left: `quick-review` 5.5 runs the deletion test on near-identical helpers, 2.2 and 6.3 catch names and comments that lie. Running those passes here means paying for them twice.
-- **(a) Dead code the change orphaned.** With the green tests as your safety net, remove now-unreachable branches, helpers the change left with no caller, and commented-out blocks it stranded. This one stays in the loop: no review pass downstream looks for it, and you are the only reader who knows what this change orphaned.
-- **(b) Rule-of-three pass.** If this green just landed the **3rd** same-shape edit across files (dispatcher arms, schema fields, registry registrations, event subscribers, dashboard tiles), pause and consider lifting to a registry / behaviour / dispatch table / extension point — but ONLY if you can name the next concrete feature that will land against it: a file path, ticket, or named feature, not a vague articulation. If you can't name the follow-on, ship the lockstep edit and revisit when a 4th case shows up. One is a function; two is a coincidence; three is a pattern; lifting without a named follow-on is premature abstraction.
-- **(c) Hindsight Open-Closed (in retrospect, not speculative).** Don't design abstractions ahead of time. *Recognize* them in retrospect — when (b) triggers AND you have a named follow-on, prefer OCP-shaped lift targets: extension points where new cases **register themselves** rather than require editing a central dispatcher. Behaviours, registries, dispatch tables, plug pipelines — over a `case`/`cond` that grows an arm per case. The signal is always backwards-looking: "this case I just landed required edits across N existing files; the next one will too unless I lift now."
 
-  **The measurement: count *modifications to existing files*, not total files touched.** A new feature/case under an OCP-compliant design lands almost entirely in *new* files (a new module plus its registration). The smell is when adding a case forces edits to many existing files — dispatcher + call sites + tests + docs + schema. Fixes naturally update existing code; that's not the OCP signal. The OCP signal is when **additions** require lockstep edits across the existing codebase. A new case should add ~1 line to an existing registration point and otherwise live in new files; needing to modify 8 existing files to introduce one new case means the structure is closed to the extension you're actually trying to perform.
-
-  **Run the count. Do not estimate it.** Before declaring the green done:
+1. Improve structure while keeping tests passing, and consider edge cases.
+2. **What does NOT happen here.** Do not collapse duplication, rename for readability, or audit comments: `writing-code` governs those as the code is written, and `quick-review` 5.5, 2.2, and 6.3 own what is left.
+3. **(a) Dead code the change orphaned.** With the green tests as your safety net, remove now-unreachable branches, helpers the change left with no caller, and commented-out blocks it stranded.
+4. **(b) Rule-of-three pass.** If this green just landed the **3rd** same-shape edit across files, such as dispatcher arms, schema fields, registry registrations, event subscribers, or dashboard tiles, consider lifting to a registry, behaviour, dispatch table, or extension point, but ONLY if you can name the next concrete feature that will land against it: a file path, ticket, or named feature.
+5. If you can't name the follow-on, ship the lockstep edit and revisit when a 4th case shows up.
+6. **(c) Hindsight Open-Closed (in retrospect, not speculative).** When (b) triggers and you have a named follow-on, prefer extension points where new cases **register themselves**, such as behaviours, registries, dispatch tables, or plug pipelines, over a `case`/`cond` that grows an arm per case.
+7. **Count *modifications to existing files*, not total files touched.** Treat additions that require lockstep edits across existing files as the signal, and expect a new case to add about one line to an existing registration point and otherwise live in new files.
+8. **Run the count. Do not estimate it.** Before declaring the green done:
 
   ```bash
   # uncommitted work
@@ -96,47 +104,50 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
   git show --name-status --format='' <ref> | awk -F'\t' '$1=="A"{n++; new=new"\n    + "$2; next} $1=="M"{m++; mod=mod"\n    ~ "$2} END{printf "OCP count: %d new file(s), %d existing file(s) modified%s%s\n", n+0, m+0, new, mod}'
   ```
 
-  Drop generated paths from the count before reading it — lockfiles, `.uid` and `.import` sidecars, anything a build step writes. Then act on the number:
-
-  - **2 or fewer existing files modified.** Nothing to do.
-  - **3 to 7.** Read the modified list, not just the count. If the same file shows up for the same reason on consecutive additions, that file is the dispatcher. Name it in the handoff even if you do not lift it now.
-  - **8 or more.** Stop. Either name the extension point and lift, or write one line in the commit body saying why the lockstep edit is right this time. Do not pass this silently.
-
-  A fix is exempt — fixes change existing code by definition. The count governs a change that *adds* a case, a feature, or a variant.
-
-  Print the count when you report the change, the same way the test result gets printed. A measurement nobody prints is a measurement nobody makes.
-  Rationale: [references/open-closed.md](references/open-closed.md).
-- **(d) Re-run tests** to ensure nothing broke.
+9. Drop generated paths from the count before reading it, such as lockfiles, `.uid` and `.import` sidecars, and anything a build step writes. Then act on the number:
+   - **2 or fewer existing files modified.** Nothing to do.
+   - **3 to 7.** Read the modified list, not just the count. If the same file shows up for the same reason on consecutive additions, that file is the dispatcher. Name it in the handoff even if you do not lift it now.
+   - **8 or more.** Stop. Either name the extension point and lift, or write one line in the commit body saying why the lockstep edit is right this time.
+10. Exempt a fix; the count governs a change that *adds* a case, a feature, or a variant.
+11. Print the count when you report the change, the same way the test result gets printed. Rationale: [references/open-closed.md](references/open-closed.md).
+12. **(d) Re-run tests** to ensure nothing broke.
 
 ### 4. Self-Review (mandatory before declaring done)
 
-After GREEN and before handing off or saying "complete", close these gates.
-A failing gate is fixed in the loop, not reclassified as a "design question" and
-handed to the user to defer it. Hand a decision to the user only when their answer
-changes the design or product behavior (which type, which name, clear-vs-error). A
-missing validation, an unguarded write, or a robustness fix is a gate to close, not
-a question to ask — the tell that you are rationalizing a deferral is catching
-yourself writing "this is the user's call" or "doesn't block."
+1. After GREEN and before handing off or saying "complete", close these gates, and fix a failing gate in the loop.
+2. Hand a decision to the user only when their answer changes the design or product behavior, such as which type, which name, or clear-vs-error; close a missing validation, an unguarded write, or a robustness fix yourself.
+3. If you catch yourself writing "this is the user's call" or "doesn't block", treat it as a deferral and close the gate.
 
-**4a. Check every clause against what you built, with or without tests.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "every"), and each member of a list a condition names ("a draft or an archived record" is two clauses). Before the card moves, mark each clause met or not met, and put its evidence beside it: the test that proves it and the run that printed its result, or, on a screen-only card, the screenshot that shows it. How strongly a test pins its clause is `quick-review`'s to check, by mutation. A clause that is partly met is not met. A card with any clause not met stays `in_progress`, and its note names the clause. This check runs even when the operator has turned tests off.
+**4a. Check every clause against what you built, with or without tests.**
 
-**If the data as it stands cannot meet a clause, build the data.** That is part of the card, not a decision for the operator: add records to the project's fictional data, or put existing fictional records into the state the clause needs and restore them afterwards. Ask the operator only when no data you could make would meet the clause. See [references/measurements.md](references/measurements.md).
+1. Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "every"), and each member of a list a condition names ("a draft or an archived record" is two clauses).
+2. Before the card moves, mark each clause met or not met, with its evidence beside it: the test that proves it and the run that printed its result, or, on a screen-only card, the screenshot that shows it.
+3. Leave how strongly a test pins its clause to `quick-review`'s mutation check.
+4. Mark a partly met clause not met, keep a card with any clause not met `in_progress`, and name the clause in its note.
+5. Run this check even when the operator has turned tests off.
+6. **If the data as it stands cannot meet a clause, build the data**: add records to the project's fictional data, or put existing fictional records into the state the clause needs and restore them afterwards.
+7. Ask the operator only when no data you could make would meet the clause. See [references/measurements.md](references/measurements.md).
+8. **No conditional assertions, and no skipped tests.** When the test controls its data, assert on that data every time it runs, never inside `if result:` or `if rows:`.
+9. If the test does not control its data yet, give it a setup step that does.
+10. If a test is marked skip, delete it.
 
-**No conditional assertions, and no skipped tests.** When the test controls its data, it asserts on that data every time it runs. An assertion wrapped in `if result:` or `if rows:` passes by asserting nothing whenever the condition is false. If the test does not control its data yet, give it a setup step that does. If a test is marked skip, delete it: a skipped test reports nothing and still reads like coverage.
+**4b. Scope.**
 
-**4b. Scope.** You implemented exactly the ask — no drive-by refactors, no
-speculative abstractions, no unrelated cleanup. Every file in `git diff --stat` is
-directly required by the change; if one isn't, revert it. Line count proportional to
-the ask: a one-line bug does not carry a 200-line diff.
+1. Implement exactly the ask, with no drive-by refactors, no speculative abstractions, and no unrelated cleanup.
+2. Revert any file in `git diff --stat` that the change does not directly require.
+3. Keep the line count proportional to the ask.
 
-**4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
+**4c. The hand-off, when the work came from a tracked issue.**
 
-Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying three things: what the code now does, the clause list with its evidence, and the commit. Nothing moves on a working tree that still holds the change.
-
-**The card moves only after step 10's reviews have run on its diff.** Where you
-commit before them, leave the card `in_progress`, and if you hand off before
-they run, name in the handoff each card and the reviews it still owes.
-See [references/measurements.md](references/measurements.md). The order:
+1. Skip this when nothing tracks the work, and say in one line that you did.
+2. Commit first, with no card id anywhere in the message, as `git-commit` requires.
+3. **Stage by path, never `git add -u`**, because moving the card writes `.beads/interactions.jsonl`.
+4. In a git worktree, skip the next two rules, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says.
+5. Outside one, unstage bd's own `.beads/issues.jsonl` from a code commit with `git restore --staged .beads/issues.jsonl`.
+6. Run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes.
+7. Then move the card, with a note carrying three things: what the code now does, the clause list with its evidence, and the commit.
+8. Move nothing on a working tree that still holds the change.
+9. **The card moves only after step 10's reviews have run on its diff.** If you commit before them, leave the card `in_progress`, and if you hand off before they run, name in the handoff each card and the reviews it still owes. See [references/measurements.md](references/measurements.md). The order:
 
 ```
 $ git commit -m "<what changed>"
@@ -151,78 +162,37 @@ $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
   the diff with `git diff 9f8e7d6 -- .` at 14:09Z: nothing new."
 ```
 
-**The card moves only after quick-review's full Output block has printed in
-this session's own output.** The note points to that printed report, with the
-time it printed and its count of fixes and flags; it never stands in for the
-report. A note that carries a checklist or a "rest N/A" summary of a report
-nobody printed is not a review. Where no Output block printed, the review did
-not run: leave the card `in_progress` and write `quick-review owed` in the
-note and the handoff. A budget line saying `finish
-the step you are on` does not finish a review that has not printed. Why:
-[quick-review's why-the-gates.md](../quick-review/details/why-the-gates.md),
-"Why the receipt is a checklist".
+10. **The card moves only after quick-review's full Output block has printed in this session's own output.** Make the note point to that printed report, with the time it printed and its count of fixes and flags; never let it stand in for the report.
+11. If no Output block printed, the review did not run: leave the card `in_progress` and write `quick-review owed` in the note and the handoff.
+12. Do not treat a budget line saying `finish the step you are on` as finishing a review that has not printed. Why: [quick-review's why-the-gates.md](../quick-review/details/why-the-gates.md), "Why the receipt is a checklist".
+13. **Built is not done, and this loop cannot say it is.** Move the card to `demoable`, never closed; `demo-task` closes it once the operator has watched it work.
+14. If `bd update --status demoable` is rejected, say in one line that the project has not registered the status, close the card with `bd close --reason` carrying the same three things, and carry on.
+15. Leave the registering command, `bd config set status.custom "demoable:wip"`, to the project.
+16. Never move a card with no commit behind it. See [references/measurements.md](references/measurements.md).
+17. Leave everything else the finished diff owes to `quick-review`'s catalog, walked once by the review that follows this loop, and how the code and its logs are written to `writing-code`.
 
-**Built is not done, and this loop cannot say it is.** The card goes to
-`demoable`, where it waits for somebody to watch it work; `demo-task` closes it
-once the operator has. A card this loop closed itself would reach Done having
-been seen by nobody, which is how six requirements on one project were marked
-accepted off two screenshots. A demoable card is excluded from `bd ready`, so
-the next cycle does not pick it up again.
+**4d. The slice, when the card you just moved was its last.**
 
-Where `bd update --status demoable` is rejected, the project has not registered
-the status. Say so in one line, close the card with `bd close --reason` carrying
-the same three things, and carry on — the reason is the record either way. The
-command that registers it is `bd config set status.custom "demoable:wip"`, and
-it is the project's to run rather than this loop's.
-
-A card moved with no commit is a claim that work happened, contradicted by the repository. See [references/measurements.md](references/measurements.md).
-
-Everything else the finished diff owes — doc and code agreeing, sibling symmetry,
-duplication across near-identical helpers, names and comments that lie, behavioral
-regression, whether a test reaches the branch it names, empty-value semantics — is
-`quick-review`'s catalog, walked once by the review that follows this loop instead
-of twice. How the code and its logs are written is `writing-code`.
-
-**4d. The slice, when the card you just moved was its last.** Run `bd ready`
-and `bd list --label slice:S<n> --status open`. Where there is no `.beads` and
-the tasks live in the handoff, read its task list instead: every task done is
-the same empty lane. When the slice's lane comes
-back empty, **the slice is built and this loop is over — hand to
-`demo-task`.** It runs every proof command, builds the demo the
-operator operates themselves, and takes their feedback; none of that is
-this skill's job and none of it happens if you go straight to the next
-slice. Say in one line that the slice is built, then **invoke
-`demo-task` in that same turn**. Do not end the turn first: naming the
-hand-off and stopping leaves the operator to type the instruction this step
-exists to make unnecessary. Do not specify the next slice, and do not
-summarize the slice in place of the demo.
+1. Run `bd ready` and `bd list --label slice:S<n> --status open`.
+2. If there is no `.beads` and the tasks live in the handoff, read its task list instead; every task done is the same empty lane.
+3. When the slice's lane comes back empty, **the slice is built and this loop is over — hand to `demo-task`.**
+4. Say in one line that the slice is built, then **invoke `demo-task` in that same turn**, without ending the turn first.
+5. Do not specify the next slice, and do not summarize the slice in place of the demo.
 
 ### 5. Repeat
 
-**A turn that names its own next step takes it, in the same turn.** Whatever
-you have just written that you will do next — the next card, the probe before
-it, the section still to write — do it now rather than ending on the sentence
-that names it. The operator cannot tell a turn that is still working from one
-that has stopped, so ending there leaves them to type an instruction you had
-already worked out. See [references/measurements.md](references/measurements.md).
-
-Where the next step genuinely needs the operator — an approval, a question only
-they can answer — the ask goes last and says what to do, per CLAUDE.md. Naming
-a step you could have taken yourself is not an ask.
-
-- Work out whether there are more test cases to add
-- **Failure paths are the next tests, not a gate at the end.** Every new error
-  branch, every external call with a new error shape, every new `else` arm gets
-  its own test. A test that asserts only happy-path behavior is half a test.
-- Continue the cycle
-- Build up functionality incrementally
+1. **A turn that names its own next step takes it, in the same turn**, such as the next card, the probe before it, or the section still to write. See [references/measurements.md](references/measurements.md).
+2. If the next step needs the operator, such as an approval or a question only they can answer, put the ask last and say what to do.
+3. Work out whether there are more test cases to add.
+4. **Failure paths are the next tests, not a gate at the end.** Give every new error branch, every external call with a new error shape, and every new `else` arm its own test.
+5. Continue the cycle, building up functionality incrementally.
 
 ## Key Principles
 
-- **One test at a time**: Don't write multiple tests upfront
-- **Small steps**: Each test should cover one small piece of functionality
-- **Build incrementally**: Better to have working code piece-by-piece than a whole module that might get thrown away
-- **Let tests guide design**: Tests reveal the API and structure naturally
+1. **One test at a time**: don't write multiple tests upfront.
+2. **Small steps**: make each test cover one small piece of functionality.
+3. **Build incrementally**: prefer working code piece by piece to a whole module that might get thrown away.
+4. **Let tests guide design**: let the tests reveal the API and structure.
 
 ## Autonomous Behavior
 
@@ -234,7 +204,7 @@ When activated:
 3. **Name the interface, then write one test**: say which public function or module the assertion attaches to, then create a focused test anchored to the probe output for that specific functionality
 4. **Run it (should fail)**: Verify the test fails as expected (Red is the result, not a phase you start in)
 5. **Implement minimum code**: Write just enough to pass
-6. **Run it (should pass)**: Verify it works. Where the change reaches something a person sees or plays — a web page, a game scene, a desktop window, a terminal screen — run that thing too and use it by hand, then look at what changed before the next test. Keep that loop tight: every green, not once at the end. `writing-code` step 0 says how
+6. **Run it (should pass)**: Verify it works. Where the change reaches something a person sees or plays — a web page, a game scene, a desktop window, a terminal screen — run that thing too and use it by hand, then look at what changed before the next test, every green, not once at the end. `writing-code` step 0 says how
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
 8. **Self-Review**: Close the Step 4 gates — every clause of each criterion marked met or not met with its evidence, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
@@ -244,48 +214,31 @@ When activated:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-Run it each time a card or a handoff task passes its proof, and after every
-commit, before you start the next one. A card this loop builds never closes, and
-where the tasks live in the handoff nothing moves at all. See [references/measurements.md](references/measurements.md).
-
-Past the ceiling it reports, hand off rather than starting the next card:
-write the handoff through `clear-task` and say you have, in the same turn.
-Do not ask permission first — the operator set the ceiling, so reaching it
-is not a decision they need to make twice.
-
-`demo-task` ends this way, and a session running only
-this loop is the one that never checks. See [references/measurements.md](references/measurements.md).
-
-**On `finish the step you are on`, finish the card in hand, commit it, write the handoff through `clear-task` yourself, and stop.** Do not start the next card.
-
-**On `keep going`, keep going.** The script has already compared your context
-to the ceiling, so there is no second estimate to make and no room to overrule
-it. In particular, do not price the next card at what this whole session has
-cost: most of that was the climb back in, which you have paid and the next
-session has not, so a card costs far less from here than it did from a standing
-start. See [references/measurements.md](references/measurements.md).
+1. Run it each time a card or a handoff task passes its proof, and after every commit, before you start the next one. See [references/measurements.md](references/measurements.md).
+2. If the reading is past the ceiling, hand off rather than starting the next card: write the handoff through `clear-task` and say you have, in the same turn, without asking permission first. See [references/measurements.md](references/measurements.md).
+3. **On `finish the step you are on`, finish the card in hand, commit it, write the handoff through `clear-task` yourself, and stop.** Do not start the next card.
+4. **On `keep going`, keep going**, and do not price the next card at what this whole session has cost. See [references/measurements.md](references/measurements.md).
 
 ## What NOT to Do
 
-❌ Don't write production code before tests
-❌ Don't write a test at an interface you haven't named out loud first
-❌ Don't write a test against an unfamiliar boundary without probing it first
-❌ Don't substitute "the docs say" or "I've seen this API before" for an actual probe
-❌ Don't write multiple tests at once
-❌ Don't skip the refactor step
-❌ Don't collapse duplication or polish names inside the loop — that is review's pass, and doing it here pays for it twice
-❌ Don't add features not driven by tests
-❌ Don't write complex implementations on first pass
-❌ Don't ship an "extension" that requires modifying N existing files in lockstep — that's the OCP violation, not a successful refactor
+1. Don't write production code before tests.
+2. Don't write a test at an interface you haven't named out loud first.
+3. Don't write a test against an unfamiliar boundary without probing it first.
+4. Don't substitute "the docs say" or "I've seen this API before" for an actual probe.
+5. Don't write multiple tests at once.
+6. Don't skip the refactor step.
+7. Don't collapse duplication or polish names inside the loop; that is review's pass.
+8. Don't add features not driven by tests.
+9. Don't write complex implementations on first pass.
+10. Don't ship an "extension" that requires modifying N existing files in lockstep.
 
 ## What TO Do
 
-✅ Probe unfamiliar boundaries before writing the test
-✅ Name the interface the test asserts against before the test file exists
-✅ Write one failing test against the observed shape
-✅ Write minimum code to pass
-✅ Refactor structure while green; leave duplication and name polish to review
-✅ Two structural levers, named: **(1) rule-of-three**, **(2) Hindsight Open-Closed** when *adding* a case requires editing many existing files. Apply in retrospect, never speculatively.
-✅ Repeat
-✅ Let tests guide the design
-✅ Hand the finished diff to the review sequence — green is not done
+1. Probe unfamiliar boundaries before writing the test.
+2. Name the interface the test asserts against before the test file exists.
+3. Write one failing test against the observed shape.
+4. Write minimum code to pass.
+5. Refactor structure while green; leave duplication and name polish to review.
+6. Use two structural levers, **(1) rule-of-three** and **(2) Hindsight Open-Closed** when *adding* a case requires editing many existing files, in retrospect and never speculatively.
+7. Repeat, and let tests guide the design.
+8. Hand the finished diff to the review sequence, because green is not done.
