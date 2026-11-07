@@ -59,7 +59,7 @@ and stopped PR prep on a question the operator had already answered.
 Check each criterion on every failure path the diff adds, not only on the path that
 succeeds. A catch, a fallback, or a retry that gives up is a path, and **met** needs
 a test that reaches the criterion's outcome through it, or a line saying why the
-criterion does not apply there. Pass 3 angle 3.6 carries the worked example: a
+criterion does not apply there. Angle 3.6 in [error-handling.md](error-handling.md) carries the worked example: a
 criterion that held on success and broke inside a catch the branch added.
 
 ## Effects the requirement does not ask for

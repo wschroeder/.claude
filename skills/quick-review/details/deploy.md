@@ -1,8 +1,40 @@
-# Pass 8 — Second-order
+# Migrations, deploys, and scheduled readers
 
-Downstream systems, caches, cron jobs, deploy coordination. **Higher classification bar:** second-order findings must be triggered by THIS deploy, not a hypothetical future change. "If you later move modules to separate OTP apps" is hypothetical — drop it. "This deploy changes a cached value that cron job X reads at midnight" is concrete — keep it.
+Read this file now, before Pass 1, when the diff adds a migration, changes deploy or job configuration, or changes a value that a cache or a scheduled job reads.
 
-## 8.1 This-deploy triggers
+Each angle below belongs to the pass its number names. Walk it in that pass, give it a disposition, and print its line in the Checklist under that pass.
+
+**Pass 8 has a higher bar.** A second-order finding must be triggered by this deploy, not a hypothetical future change. "If you later move modules" is dropped. "This deploy changes a cached value a cron job reads at midnight" is kept.
+
+## Checklist lines
+
+```
+Pass 5:
+  5.12  Config-block consistency         sibling block key sets diff
+Pass 8:
+  8.1   This-deploy triggers              concrete cron/cache/dependent reads
+  8.2   Data precedes code (SCOPE GUARD) Read scope guard FIRST. Filter PRs
+                                          are NOT in scope — destructive recs on
+                                          filter-excluded rows are CATEGORY ERRORS.
+                                          Only NEW write-time invariants trigger.
+                                          So does a new column new code reads:
+                                          run the reader on an old row's value
+  8.3   Rollback after user edits         run each down migration after the edits
+                                          the feature allows, then up again, then the
+                                          previous release's writers on what is left
+```
+
+### 5.12 Config-block consistency
+
+When the diff introduces a NEW `config :app, Module, ...` (or any keyword-list config block) ADJACENT to an existing block of the same shape (same module key, sibling app keys, same role), diff the key sets:
+
+- For every key present in the sibling but absent in the new block, decide per-key: (a) flag for addition, OR (b) require an inline `# omitted because ...` comment explaining the omission.
+- For every key present in the new block but absent in the sibling, ask whether the sibling needs the same key (parallel evolution) — symmetric to 5.1 same-module sibling logic.
+- Pay attention to library-defined defaults: a missing key may not be inert. `ExOauth2Provider`, Guardian, Oban, Phoenix endpoint configs all have keys that change behavior silently when omitted (token TTLs, scopes, salts, secret material, default revocation policy). The sibling block is the ground truth for what the library expects in this codebase.
+
+The diff between sibling config blocks IS the finding — surface it explicitly.
+
+### 8.1 This-deploy triggers
 
 Enumerate concrete downstream surfaces this deploy actually touches:
 
@@ -16,7 +48,7 @@ For each, ask: when does the next consumer encounter the change? If it's a midni
 
 These are real deploy-coordination findings. Hypothetical second-order findings ("if you later add caching") are not.
 
-## 8.2 Data precedes code (SCOPE GUARD — read FIRST)
+### 8.2 Data precedes code (SCOPE GUARD — read FIRST)
 
 **Scope guard:** this angle applies ONLY when the diff introduces a NEW write-time invariant — a validator, schema constraint, NOT NULL, unique index, registration check, or other rule that NEW rows must satisfy.
 
@@ -34,7 +66,7 @@ The Destructive-recommendation gate in Classify applies to any data-cleanup reco
 
 Measured (2026-10-22): a migration added `pdf_page_count` with no backfill, and the export bundle refused any file whose PDF ran past its page limit and had no count recorded. Our review wrote "8.2 Data before code: clear. The new columns are nullable." The outside reviewer found that every long file processed before the migration could no longer download. The fix backfilled the count from existing audit events, else from the pages read, and a migration test seeds rows at the version before and checks each one after.
 
-## 8.3 Rollback after user edits
+### 8.3 Rollback after user edits
 
 In scope whenever the diff adds a down migration, and especially a down migration that reverses a seed or a data change. A down migration finds its rows by some key. If users can change that key through the feature (rename, delete, merge, change which value is primary), then the rollback can miss the rows it was written to remove, and a later up can then collide with what it left behind.
 
@@ -43,11 +75,3 @@ Method: on a scratch database, run the up migration and then each supported edit
 A rollback also brings back the previous release's code, so run that code as well as the down migration. On a scratch database that holds what the feature left behind, run the previous release's writers, at least every import or sync that writes the tables the feature changed, and show what they write. Measured (2026-10-26): a feature let a person merge an imported record into one the nightly sync created, and the new importer skipped the merged record by reading a table the feature added. Our review ran the down and up migrations against the new code and wrote "Pass 8: 8.3 DEMONSTRATED above". It never ran the previous release's import, which does not know that table and creates the merged record again as a second record. The outside reviewer found it.
 
 A finding here is usually a Flag or a Note, not a Fix. Whether a rollback has to survive user edits is a decision for the person who owns the deploy, and the cure (an immutable seed marker, say) changes the schema. Say what the rollback leaves behind so the PR body or the runbook can record it.
-
-## 8.4 Shared destinations
-
-In scope whenever the diff writes a named thing into a place where other runs' output also lands: a folder another system reads, a bucket, a queue, a table keyed by name, or a file a downstream import picks up. For each name, ask what two runs with overlapping input would write. If the name comes only from the input, such as a record id, then two runs that share a record write the same name, and the second overwrites or collides with the first.
-
-Method: run the code twice with one input in common, and list the names each run wrote. Every name must be different, or the review must quote the rule at the destination that keeps them apart. A test that pins one run's names proves nothing about the second run.
-
-Measured (2026-10-22): each export bundle named its PDFs by document id alone. Two bundles that shared a document would drop two files of one name into the downstream system's import folder. Our review recorded that the PDF name had moved from file id to document id, and judged it as a change in behavior. It answered the concurrency angles with "no concurrency and no I/O", because one run has none. The outside reviewer found it, and the fix named each PDF `<bundle id>-<document id>.pdf`.

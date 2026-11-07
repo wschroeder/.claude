@@ -1,6 +1,6 @@
 ---
 name: quick-review
-description: Fast single-agent code review in nine structured angle passes, each having to say where it landed. Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Also holds the Yes-to-any gate that every fix has to clear — security, performance, maintainability, spec compliance — and the loop that re-runs the reviews until the working tree comes back clean. Use when reviewing code changes, diffs or PRs, when asked for a quick review or a code review, and when deciding what to do with the findings afterwards.
+description: Fast single-agent code review in nine structured angle passes, each having to say where it landed, with conditional angle files the diff's own content calls in (queries, concurrency, callers, endpoints, error handling, outside formats, deploys, markup, tests, TypeScript, Elixir). Fights LLM magic-number satisficing by forcing explicit per-angle analysis. Also holds the Yes-to-any gate that every fix has to clear — security, performance, maintainability, spec compliance — and the loop that re-runs the reviews until the working tree comes back clean. Use when reviewing code changes, diffs or PRs, when asked for a quick review or a code review, and when deciding what to do with the findings afterwards.
 ---
 
 # Quick Review
@@ -9,16 +9,16 @@ Structured 9-pass code review. Each pass has a named-angle CHECKLIST. The checkl
 
 ## Orchestrator guidance
 
-Run the review in the session that wrote the change, not in a subagent. That session holds the mission, the card, and the decisions behind the diff, and it needs them to tell a real finding from a false alarm. Do NOT pre-select which angles to check — the checklists below are the source of truth. If a concern recurs across sessions, fix the skill instead.
+Run the review in the session that wrote the change, not in a subagent. That session holds the mission, the card, and the decisions behind the diff, and it needs them to tell a real finding from a false alarm. Do NOT pre-select which angles to check — the checklists below, and the files the trigger table in **Conditional angles** calls for, are the source of truth. If a concern recurs across sessions, fix the skill instead.
 
 ## Workflow
 
 1. **Pass 0 — Determine diff scope.** Cumulative `<merge-base>..HEAD` against `origin/<default_branch>` (`git fetch` first), plus uncommitted working tree. Full read; no truncation, no `| head -N`. If the orchestrator passed a delta scope (e.g., `HEAD~1..HEAD` on an amended commit), STOP and request cumulative.
    **Then size it.** Measure the diff and the room this session has left. If the diff takes more than a third of that room, plan the review as stages before reading any of it: [details/stages.md](details/stages.md).
 2. **Load skills.** The language skill, any project guideline skill that matches the diff, and every `CLAUDE.md` from repo root to the diff's directory. Each adds named angles to its pass. The list and the command that finds the CLAUDE.md files: [details/skills-to-load.md](details/skills-to-load.md).
-3. **State Mission** in one sentence. Security is `security-review`'s, except input validation (4.24): `writing-code` says which diffs owe one.
+3. **State Mission** in one sentence. Security is `security-review`'s, except input validation (4.24, in [details/outside-formats.md](details/outside-formats.md)): `writing-code` says which diffs owe one.
 4. **Check the requirement.** Find the issue, card, or spec the diff serves and check the diff against each of its acceptance criteria. Method: [details/00-requirement.md](details/00-requirement.md).
-5. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed. Write each pass to the notes file as it finishes; see "Record each pass as it finishes".
+5. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Before Pass 1, read every file the table in **Conditional angles** calls for. Write each pass to the notes file as it finishes; see "Record each pass as it finishes".
 6. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
 7. **Output** per template, printed in the session after any Evidence block CLAUDE.md asks for, never folded into it.
 
@@ -65,8 +65,6 @@ Every in-scope angle resolves to exactly one of three states. There is no fourth
 
 "I read it and it looks fine" is not a disposition. It is the satisficing slot. Delete it.
 
-**Angles 1.3, 2.1, and 6.8 owe one line per item.** For 1.3 and 2.1, list every function in the diff that is new or whose arguments or return value changed. Each one gets its own 1.3 line naming every caller, including callers outside the diff, with the grep and its hit count printed beside the list, and its own 2.1 line saying what that caller does with the result. For 6.8, list every condition the diff's code applies in a path a spec sentence governs: each filter, guard, early return, and exit, the fix this review just made included. Each one gets its own line quoting the code line and the spec words that state it, or "no words → finding". Then list every step, job, or function whose order or behavior the diff changes, grep the project's spec pages for its name and for what it does, and print each grep with its hit count. Every sentence the grep finds gets its own line quoting it and saying whether it still holds on every run that reaches the step, or "contradicted → finding"; a sentence stating the old order is the usual miss. One example standing in for the whole diff is not a disposition.
-
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
 Demonstrating every angle bankrupts the review, so the burden is tiered by blast radius:
@@ -86,31 +84,54 @@ The deliverable of the review IS these artifacts. The Fix/Flag/Note label is a s
 
 ---
 
+## Conditional angles
+
+The passes below hold the angles that apply to every diff. The rest live in files, one per kind of change. Before Pass 1, read the diff against each row and read every file whose condition it meets, now. Each angle in a file keeps its pass number: walk it in that pass and print its line there.
+
+| If the diff ... | Read now, before Pass 1 |
+|-----------------|-------------------------|
+| adds or changes a query, a table, a view, or a column, or carries a value from one function to another through a new field | [details/queries.md](details/queries.md) |
+| has two paths that can write the same rows, takes a lock, retries, or runs a job that can run twice or overlap itself | [details/concurrency.md](details/concurrency.md) |
+| adds a function, or changes one's arguments, return value, or error shape | [details/callers.md](details/callers.md) |
+| adds or changes a route, an endpoint, or a request handler, or mints or consumes a credential | [details/endpoints.md](details/endpoints.md) |
+| adds or changes a catch, a rescue, an error return, a fallback, or a warn or error log | [details/error-handling.md](details/error-handling.md) |
+| parses a format from outside (a file, a model's reply, a third-party payload) or takes input from outside the process | [details/outside-formats.md](details/outside-formats.md) |
+| adds a migration, changes deploy or job configuration, or changes a value a cache or a scheduled job reads | [details/deploy.md](details/deploy.md) |
+| changes markup, a browser event handler, or text a person reads on a screen | [details/markup.md](details/markup.md) |
+| adds, changes, or deletes a test | [details/tests.md](details/tests.md) |
+| touches a `.ts`, `.tsx`, `.js`, or `.jsx` file | [details/language-typescript.md](details/language-typescript.md) |
+| touches a `.ex` or `.exs` file | [details/language-elixir.md](details/language-elixir.md) |
+
+In the Checklist, give each file you did not read one line naming the condition and why the diff does not meet it.
+
 ## Pass 1 — Call-graph and seam analysis
 
-Worked examples: `details/01-call-graph.md`.
-
 ```
-Seam checks:
-  1.1   Schema-query alignment           index every new where/orderBy column
-  1.2   Query consistency                every sameness query (dedup, unique index,
-                                          lookup) side by side; each compares one expression
-                                          and leaves out the same rows (superseded,
-                                          hidden, deleted); a match that picks one
-                                          of several candidates: build two, say
-                                          what the loser's subject gets
-  1.3   Return-value assumptions         3-level caller trace; recovered-error
-                                          checkpoints are NOT terminal; each early return
-                                          names every state reaching it, another row too
+  1.2   Query consistency                grep every other query of the same table
+                                          for the same entity; compare where clauses,
+                                          and account for a broader lookup
+                                          every sameness query (dedup, unique index,
+                                          merge, lookup) side by side; each compares one
+                                          expression and leaves out the same rows
+                                          (superseded, hidden, deleted); a match that
+                                          picks one of several candidates: build two,
+                                          say what the loser's subject gets
   1.4   Handoff completeness             grep every unchanged reader of the new table
                                           or state, a new value in an old column
                                           or audit action too, and drive each one; what
-                                          it shows from each new state is true
+                                          it shows from each new state is true;
+                                          readers include existence checks, delete
+                                          guards, and re-resolvers run when a page opens
+                                          a write that clears a marker, releases a
+                                          claim, or changes where a value came from:
+                                          name the row's state afterwards and check the
+                                          value and its label (a source badge) against
+                                          the spec
                                           a new value in an old column: grep the
                                           table, not the value; each sum, count,
-                                          list, picker, and write target shows or
-                                          offers that state's row in or out, as
-                                          the spec says; "not a total" is no N/A
+                                          list, picker, merge target, and write target
+                                          shows or offers that state's row in or out,
+                                          as the spec says; "not a total" is no N/A
                                           a state that leaves the totals: name
                                           each thing a user put on the row and
                                           where it counts now; "stays on the row"
@@ -121,73 +142,32 @@ Seam checks:
                                           is not proof; in each state, submit every
                                           choice each control offers and quote the
                                           server's answer; a refusal is a finding
-  1.5   Spec contract changes            @spec change → every caller updated
-
-Forward data propagation:
-  1.6   Extracted-but-not-forwarded      trace each extracted value end-to-end
-  1.7   New-field-not-threaded           new map key → downstream pattern-match
-  1.8   Filter-dimension gaps            upstream filter covers downstream dims
-  1.9   Control-flow coupling            independent side-effects in one branch
-  1.10  Behavioral regression            git show <base>:<path>; diff old vs new
-  1.11  Documented-placeholder UX        silent-zero-row UX is itself the finding
-  1.12  Closure capture vs accumulator   outer-scope intent → accumulator threading
-  1.13  Magic-constant aligned to param  derive literal from configurable
-  1.14  Time-window ceiling              round up, never truncate
-
-Conditional seams (1.15a-1.18), listed in details/01-call-graph.md:
-  walk 1.15a-e when the diff mints or consumes a credential, 1.16 when
-  it keys a bucket or audit row by client identity, and 1.17-1.18 when
-  it migrates many call sites or branches on a role; N/A otherwise.
-
-Producer coverage:
-  1.19  New-field producers              every path that creates or edits the row
-                                          can set the field a new check needs
+  1.10  Behavioral regression            every touched function with callers:
+                                          `git show <base>:<path>`, compare the old
+                                          return and side effects with the new; a
+                                          difference the author did not state is a
+                                          regression, even where the new tests pass
 ```
 
 ## Pass 2 — Adversarial
 
-Construct an input/state that crashes the code. Concurrent execution, partial failures, stale data, unexpected NULL. Worked examples: `details/02-adversarial.md`.
+Construct an input or a state that crashes the code: concurrent execution, partial failure, stale data, an unexpected NULL. For each new path, name the database or outside-API state that makes it crash instead of returning an error.
 
 ```
-Side-effect call hygiene:
-  2.1   Discarded results                fallible call result ignored; a void or
-                                          detached promise doing durable work names the
-                                          stored record that reruns it after a restart,
-                                          or it is a Fix
-  2.2   Semantic completeness            name promises X, body delivers partial-X;
-                                          today's call sites passing proves only
-                                          that nothing is open now
-  2.3   Defense-in-depth in isolation    boundary guards independent of caller;
-                                          "the page always sends it" drops nothing
-                                          proof: post the request without the
-                                          field and quote what the server answers
-  2.20  Checker evasion                  a linter, scanner, or allowlist the diff
-                                          adds or changes: one input per way round
-                                          it (case, computed key, spread, look-alike
-                                          type), each run through the checker
-  2.23  Cancelled browser default        each preventDefault, stopPropagation, or
-                                          `return false` the diff adds: list every
-                                          element the handler reaches and what the
-                                          browser does there by default (a label
-                                          focuses or toggles its field, a link
-                                          navigates, a summary toggles, a submit
-                                          button submits); drive one of each with
-                                          real input and quote what happened
-
-Concurrency / race shapes:
-  2.4   Divergent-input races            race handler :ok; payloads diverge
-  2.5   Shared-state race severity       auth/billing/single-use, or a gate other
-                                          code trusts (verified, approved, posted)
-                                          → Fix-class
-  2.6a-c Tag used as access control    cloud resource tagged after create,
-                                          on overwrite, or after delete: see 2.6
-  2.7   Self-race / lease TOCTOU         2 runs at once: every write, not just 1 step
-                                          proof: run two copies at once against real
-                                          Postgres, or quote the lock both take first
-  2.18  Cross-writer race                each write path against every OTHER writer
-                                          of its rows and their FK parents, listed by
-                                          name, deferred steps too, one test each; a sibling
-                                          that locks where this path does not → finding
+  2.2   Semantic completeness            name promises X, body delivers part of X;
+                                          judge the body against every input its
+                                          name promises, not today's call sites,
+                                          which prove only that nothing is open now
+  2.18  Cross-writer race                each write path: list the tables it writes
+                                          and the FK parents; grep every OTHER writer,
+                                          deleter, or merger of those rows, inside the
+                                          diff and out, deferred ones too (a job that
+                                          resumes from what it captured, a model call
+                                          in flight while a person edits); name the
+                                          lock, constraint, or transaction ordering
+                                          each pair; nothing between them → finding;
+                                          a sibling that locks where this path does
+                                          not → finding; one test per pair
                                           proof: hold the other writer open (pg_sleep),
                                           run this one, show the outcome
                                           reading the SQL, "one statement", or a
@@ -212,106 +192,49 @@ Concurrency / race shapes:
                                           after a path deletes, combines, or leaves
                                           duplicates of rows, run every other writer
                                           once more afterwards and show it holds
-        2.7/2.18 proofs assert the promised invariant ("≤ 30 rows"), not "no errors",
-                                          at replicas × pool size copies at once
-  2.19  Read skew                        2+ queries, read-only too; writer between
-                                          them → re-check selecting condition;
-                                          a decision judges the same read its
-                                          re-check compares; two nulls never match
-
-Auth boundary:
-  2.9   Identifier parse/comparison      .startsWith vs .origin; case folding
-  2.10  Trigger-vs-precondition order    cheap filter before side-effecting mint
-
-Error swallowing:
-  2.11  Discarded error tuple            TS/JS and Elixir shapes: see 2.11-2.12
-
-Cost and resource shapes (CWE-400 / CWE-770):
-  2.14  N+1 calls                        query or remote call inside a loop;
-                                          first: does the DB already store what
-                                          it fetches? then read that, not batch;
-                                          a view or CTE read inside a per-row
-                                          subquery or lateral join counts, even
-                                          when the page makes one call
-                                          proof: explain analyze on data at least
-                                          the size of a real book, quoting the loop
-                                          count of each scan of that view or CTE; a
-                                          plan read on a dev database is not proof
-  2.15  Quadratic scans                  nested pass over one collection;
-                                          membership test on a list in a loop;
-                                          a SubPlan under a correlated not exists,
-                                          even when its loop count is 1
-  2.16  Resource not released            handle / socket / listener / timer /
-                                          process opened with no close path
-  2.17  Unbounded growth                 cache / map / table / state only added to;
-                                          a whole file, response, or archive held
-                                          in memory names what limits its size,
-                                          in helpers the diff calls too
-                                          proof: the quoted limit, or peak memory
-                                          with one input as large as expected
-                                          measured at the largest size the
-                                          deployment allows
-  2.21  Unbounded attempt                each retry loop, outside call, or lock wait
-                                          names what limits one attempt
-                                          proof: the quoted limit and a test that
-                                          fails without it; a retry count is not one
-  2.22  Partial compatibility check      a check that two things fit: every field
-                                          the consumer reads from each is compared
+                                          a child insert against a parent another
+                                          writer deletes or merges: lock the parent
+                                          first, or the insert fails on the FK (23503)
+                                          proofs assert the promised invariant ("≤ 30
+                                          rows"), not "no errors", at replicas × pool
+                                          size copies at once
+  2.20  Checker evasion                  a linter, scanner, or allowlist the diff
+                                          adds or changes: one input per way round
+                                          it (case, computed key, spread, look-alike,
+                                          a type with no declaration site, a value
+                                          stored first), each run through the checker
+                                          ways that share one thing the checker trusts
+                                          (a type, a flag, a declaration site): name it,
+                                          run the checker with that trust removed on
+                                          the fixtures and the real codebase; a reason
+                                          to keep the trust stays a hypothesis until
+                                          that run shows the false alarm
 ```
 
-## Pass 3 — Error handling / information exposure
+## Pass 3 — Error handling
 
-Failure modes, pattern-match style, sibling consistency, observability of failure paths. Worked examples: `details/03-error-info.md`.
-
-```
-  3.1   Error propagation trace          duplicate logging across chain levels
-  3.2   Logging discipline               two-tier policy per language: see 3.2a-3.2b
-  3.5   capture_log assertion shape      `assert log == ""` vs `refute log =~`
-  3.6   Silent catch-alls at boundaries  webhook 200 regardless of B's return;
-                                          each catch the diff adds: what a person
-                                          sees afterward, against each criterion
-  3.7   with-chain escape hatches        else `_ ->` conflates step failures
-  3.8   with-chain over-gating           optional step gates critical step
-  3.9   Error-class differentiation      AbortError vs TypeError vs domain
-  3.13  CWE-754 unusual-condition checks dead guards; collapsed error classes
-  3.14  A failure log names its operation each warn/error inside a download, run,
-                                          or request carries that operation's id
-```
+Every Pass 3 angle is conditional: `error-handling.md`, and the language files for logging discipline. With neither read, print one line saying why.
 
 ## Pass 4 — Data correctness
 
-Boundaries, nil semantics, type coercion across system boundaries, interpolation safety. Worked examples: `details/04-data-correctness.md` + language-specific in `details/language-typescript.md`.
+For each field the new code reads, grep the file for every other read of the same field, and flag any read that guards against a missing value differently.
 
 ```
-Semantic boundaries:
-  4.1   Empty-value semantics            "nothing" vs "everything" vs "reject";
+  4.1   Empty-value semantics            empty means "nothing requested",
+                                          "everything", or "reject": say which the
+                                          code does and which the product means;
                                           blank is null, '', only spaces, and what
-                                          each transform leaves; a promised rule
+                                          each transform leaves; run each through every
+                                          transform, then the guard; a promised rule
                                           holds even where no input reaches it today;
                                           a filter that can drop every row an
-                                          aggregate reads: sum is null, not 0
-  4.2   Schema default ≠ DB default      Ecto struct default vs migration NULL
-  4.3   Redaction/truncation completeness all sinks (throw, log, cause) use redacted
-
-TS/JS-specific shapes (4.4-4.19):  16 angles, listed with worked examples in
-                                   details/04-data-correctness.md. Walk them for any
-                                   .ts/.tsx/.js/.jsx diff; skip as N/A otherwise.
-
-CWE class checks:
-  4.21  CWE-193 off-by-one               slice/loop/buffer bounds; two paths
-                                          bounding the same thing differently:
-                                          see 5.7
-  4.22  CWE-697 incorrect comparison     `==` vs `===`; loose equality
-  4.24  CWE-20 input validation          trust shape/type/range without check;
-                                          a raw outside value past the edge, or
-                                          coerced where it lands → parse at the edge
-
-Linked input:
-  4.25  Linked-input normalization       outside data that links its own records:
-                                          loops of any length, not only self-links
-  4.26  Outside-format variants          each construct a parser reads: every
-                                          variant the format allows is read or
-                                          refused, never skipped
+                                          aggregate reads: sum is null, not 0; drive
+                                          that case and quote what each reader of the
+                                          aggregate does with the null
+  4.26  Outside-format variants          each construct a parser reads: open the
+                                          format's spec at that element, list its
+                                          siblings and alternatives; every variant is
+                                          read or refused, never skipped
                                           proof: drive each variant through every
                                           path that reads the same field (create,
                                           match, pair); a path that reads it
@@ -320,13 +243,10 @@ Linked input:
 
 ## Pass 5 — Conventions
 
-Module patterns, naming, def/defp visibility, sibling function symmetry, reuse, and hygiene. Worked examples: `details/05-conventions.md`. ARIA contracts: `details/accessibility-aria.md`.
-
 ```
-Sibling consistency:
-  5.1   Sibling-endpoint conventions     param source / auth scheme / response /
-                                          error vocabulary; same helpers
-  5.5   Private-helper duplication       deletion test for near-identical defp;
+  5.5   Private-helper duplication       deletion test for near-identical helpers:
+                                          bodies that differ only in name collapse
+                                          unless they differ meaningfully today;
                                           the same edit made in several copies, or
                                           one shape in two notations (JSON schema
                                           and Zod) → derive one, or a drift test
@@ -340,11 +260,12 @@ Sibling consistency:
                                           literal copying a constant the diff
                                           defines) → import it, and name the one
                                           place that spells it out on purpose
-  5.6   Helper functions called          same validate_*/authorize_*/audit_*
   5.7   Same-module sibling consistency  asymmetric guards/clauses/fallbacks;
-                                          a match proves the convention, never
-                                          the behavior; two helpers giving one
-                                          verdict both honor a reviewer's choice;
+                                          a match settles only this angle, never a
+                                          Pass 1, 2, or 4 angle, and a flaw both
+                                          share is a finding against both;
+                                          two helpers giving one verdict both honor
+                                          a reviewer's saved choice;
                                           a rule applied to one kind of a family:
                                           name each sibling kind, shown in or out
                                           by a test or a spec line; two siblings
@@ -352,41 +273,32 @@ Sibling consistency:
                                           stay a candidate until you quote the
                                           spec line or test saying which is
                                           right, and "behaves correctly" cites it
-  5.8   Within-function return-shape     all branches same shape (no :ok mix)
-  5.9   Behaviour declaration consistency `@behaviour`/`@impl` symmetry across siblings
-
-Cross-cutting infra:
-  5.10  CORS preflight                   OPTIONS on browser-callable endpoints
-  5.11  Pipeline shared-assign precedence multiple plug writers → last-wins risk
-  5.12  Config-block consistency         sibling block key sets diff
-
-Frontend / UI:
-  5.13-5.14 ARIA contract, button hygiene see 5.13-5.14 for any markup diff
-
-Reuse and hygiene:
-  5.15  Codebase-wide reuse              grep repo for an existing function that
-                                          already does, or could do, the new job
-  5.16  Leftover code                    debug prints, commented-out code, focused
-                                          tests, TODO without a ticket; a field every
+  5.16  Leftover code                    grep added lines for debug output, code
+                                          in comments, focused tests (.only, fit,
+                                          @tag :focus), and TODO/FIXME/XXX/HACK
+                                          without a ticket; each is a Fix, a TODO
+                                          a Flag asking for a ticket; a field every
                                           producer sets to a constant and no
                                           consumer reads (grep for readers)
-  5.17  Deprecated API calls             compiler / linter deprecation warnings
-                                          on touched files
   5.18  Readability                      name that needs a comment; wrapper that
-                                          adds nothing; mixed abstraction levels
+                                          adds nothing; mixed abstraction levels;
+                                          cite the line
   5.19  Project linter and formatter     run the repo's own check on touched files
   5.20  Project CLAUDE.md duties         each rule there whose trigger the diff
-                                          meets: quote where the diff obeys it
+                                          meets: quote where the diff obeys it;
+                                          no line → Fix
 ```
 
 ## Pass 6 — Doc/code coherence
 
-For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touched in the diff: verify the code delivers on it. Worked examples: `details/06-doc-coherence.md`.
+For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touched in the diff: verify the code delivers on it.
 
 ```
   6.1   Comment-vs-body check            statements following comment actually fire;
                                           a claim that a value stays safe elsewhere
-                                          → run it through every path that place has
+                                          → run it through every path that place has;
+                                          a claim that a transform yields a shape →
+                                          run every input shape its type admits
                                           proof: split each added or changed comment
                                           or description into the claims it makes,
                                           and quote beside each claim the line that
@@ -432,101 +344,74 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           applies to that case (a filter, a guard, an
                                           early return): quote the spec words that
                                           state it; no words → finding
-                                          a new member of a class (a kind, a
-                                          source, a state): grep docs/spec for
-                                          each unchanged sentence naming a
-                                          sibling; say whether the new member
-                                          follows it; left unsaid → finding
-  6.9   Spec lists additions             each table, view, column, route, setting,
-                                          or audit action the diff adds: quote its
-                                          line on the spec page that lists things
-                                          of that kind; a new table or view needs
-                                          its own section of columns; no line →
-                                          finding
+                                          a member added to, removed from, or exempted
+                                          from a class (a kind, a source, a state):
+                                          grep docs/spec for each unchanged sentence
+                                          naming the class or a sibling; say whether
+                                          it still holds; left unsaid → finding
+  6.9   Spec lists additions             each table, view, column, constraint, route,
+                                          setting, or audit action the diff adds
+                                          (list the migration's create and add lines,
+                                          new routes, config keys, audit strings, and
+                                          grep docs/spec for each): quote its line on
+                                          the spec page that lists things of that
+                                          kind; a new table or view needs its own
+                                          section of columns, and a name in a
+                                          paragraph does not count; no line → finding
 ```
+
+**Angle 6.8 owes one line per item.** List every condition the diff's code applies in a path a spec sentence governs: each filter, guard, early return, and exit, the fix this review just made included. Each one gets its own line quoting the code line and the spec words that state it, or "no words → finding". Then list every step, job, or function whose order or behavior the diff changes, grep the project's spec pages for its name and for what it does, and print each grep with its hit count. Every sentence the grep finds gets its own line quoting it and saying whether it still holds on every run that reaches the step, or "contradicted → finding"; a sentence stating the old order is the usual miss. One example standing in for the whole diff is not a disposition.
 
 For 6.6, run `python3 ~/.claude/skills/writing-code/scripts/comment_share.py` over Pass 0's scope; with no `--base` it already measures from the merge base, uncommitted and untracked work included. Paste its per-file lines. Give every block it lists "keep" with the non-obvious why it explains, or "delete", and read a file over 10% twice. The bill is not clean while any block lacks a disposition. `writing-code` "Measure before declaring done" owns the rule.
 
 ## Pass 7 — Test coverage
 
-Tests over eyeballing. The review's primary job is to identify behaviors lacking test coverage. **You MUST have read the FULL test diff before claiming a coverage gap.** Tests must assert outcomes, not implementation. Worked examples: `details/07-test-coverage.md`.
+Tests over eyeballing. The review's primary job is to identify behaviors lacking test coverage. **You MUST have read the FULL test diff before claiming a coverage gap.** Tests must assert outcomes, not implementation. A change to how a screen is put together is not a coverage gap: it gets a demo. An operator's request for few tests never turns a missing test of what a write path stores into a Note: file a Flag that quotes the operator's own words. If the test diff came back truncated, read the rest before this pass. For every finding in passes 1-5, ask whether a test would catch it: if none would, the missing test is the finding. An assertion on a mock's call history proves a path ran, not that it worked.
 
 ```
-  7.1   Failure path coverage            test exists for external-call failure
   7.2   Side-effect coverage             each side effect independently asserted
-  7.3   Refactored-code coverage         pre-refactor tests exist; if not, flag
-  7.4   End-to-end path coverage         integration test for cross-module flow
-  7.5   New external API without mocks   test files include fixture/mock
-  7.6   Partial-chain tests masking gaps middle-layer mocked despite change
-  7.7   Symmetry cross-check (Pass 5×6)  symmetric production changes → symmetric tests
-  7.8   Test intent vs test effect       earlier guards short-circuit target branch
-  7.9   Test-to-test assertion symmetry  siblings assert same invariants
-  7.10  Range-assertions correctness gap pin to exact value when known
-  7.11  Tests added by current loop      verify behavior; don't lock status quo
-  7.22  A fixed bug's test               the assertion goes into the feature test
-                                          that had the hole, and asserts the
-                                          symptom a person saw
-                                          proof: quote that feature test's title
-                                          and the line asserting the symptom; a
-                                          test named for the bug, or no symptom
-                                          line → finding
+  7.8   Test intent vs test effect       every added or changed test: earlier guards
+                                          short-circuit the target branch; trace setup
+                                          to assertion, and fix the inputs so the
+                                          branch the title names is reached
+  7.11  Tests added by current loop      each test written in this review: its
+                                          assertion checked against the mission, not
+                                          the code; don't lock status quo
   7.23  Excess tests                     a copy of another test's cases, an
                                           assertion outside the title, a CSS class
                                           in any kind of test, whatever the
                                           project's selector rule names, a pinned
-                                          derived literal, a second variant
+                                          derived literal, a second variant, setup
+                                          copied a third time (→ a helper)
                                           proof: per deletion, quote where each
                                           assertion now lives and a mutation it fails;
                                           per added or changed test, quote one
                                           assertion that no other test in its file
                                           makes; none → finding
-
-Test-infrastructure hazards (7.12-7.21), listed in details/07-test-coverage.md:
-  walk them for any diff that adds or edits a test: global mocks, sandbox
-  ownership, tracers, shared ETS, clocks, call counts, skips, casts, regexes
 ```
 
 ## Pass 8 — Second-order
 
-Downstream systems, caches, cron jobs, deploy coordination. **Higher classification bar:** must be triggered by THIS deploy, not hypothetical future change. "If you later move modules" — drop. "This deploy changes a cached value cron job X reads at midnight" — keep. Worked examples: `details/08-second-order.md`.
-
-```
-  8.1   This-deploy triggers              concrete cron/cache/dependent reads
-  8.2   Data precedes code (SCOPE GUARD) Read scope guard FIRST. Filter PRs
-                                          are NOT in scope — destructive recs on
-                                          filter-excluded rows are CATEGORY ERRORS.
-                                          Only NEW write-time invariants trigger.
-                                          So does a new column new code reads:
-                                          run the reader on an old row's value
-  8.3   Rollback after user edits         run each down migration after the edits
-                                          the feature allows, then up again, then the
-                                          previous release's writers on what is left
-  8.4   Shared destinations               each name the diff writes where other
-                                          runs' output also lands: two runs with
-                                          overlapping input never make one name
-                                          proof: run two with a shared input and
-                                          list the names each wrote
-```
+Every Pass 8 angle is conditional: `deploy.md` holds 8.1-8.3 and `concurrency.md` holds 8.4. With neither read, print one line saying why.
 
 ## Pass 9 — Test-suite reach
 
-The diff is not the only place that talks about the diff's symbols. Mechanical grep of `test/` for every public symbol the diff touches, and of the whole repository for every value it changes (9.9). Worked examples: `details/09-test-suite-reach.md`.
+For every public function or module the diff adds, renames, deletes, or changes the behavior of, `grep -rn` its bare name across the test tree. A hit in a test file the diff did not modify is the likeliest finding.
 
 ```
-  9.1   Bare-name grep                   function/module/struct name in tests
-  9.2   BEAM mock/tracer targeting       :dbg, :meck, Mock, Mox: see 9.2-9.4
-  9.5   Literal call-count assertions    stale on diff's call-count change
-  9.6   assert_called / assert_received  message-pattern references
-  9.7   Telemetry handlers               attach/detach for touched events
-  9.8   Comment-thread stitches          describe / test / @moduletag strings
   9.9   Whole-repo copies                every changed constant, list, enum, text
                                           a user reads, or count a document
-                                          states: grep its name and one
-                                          member from the repository root, all
-                                          files, every language
+                                          states: `git grep -n` from the repository
+                                          root, never a package directory, all
+                                          files, every language, for its name and
+                                          one unchanged member; a count with its
+                                          noun ("12 records"); a hit outside the
+                                          diff that holds the old value → Fix
 ```
 
-Classify each hit as a maintenance gap, a hidden contract, or a stale reference, as `details/09-test-suite-reach.md` "Classifying hits" defines them. A stale reference that still states a rule the diff changed is a **Fix**, never a Note, as the scope rule at the top of this skill says. Example: a runbook step that still sets up credentials for a deployment the diff removed is a Fix. If the greps return no hits, print the greps and "0 hits": the grep is the artifact.
+Classify each hit as one of three. A **maintenance gap** is a test encoding behavior the diff changes on purpose: Flag it with its file, line, and assertion. A **hidden contract** is behavior the diff changed without meaning to: a Fix. A **stale reference** is text still naming the old name or behavior: a Fix when it still states a rule the diff changed, as the scope rule at the top of this skill says, such as a runbook step that still sets up credentials for a deployment the diff removed. If the greps return no hits, print the greps and "0 hits": the grep is the artifact. The Elixir mock and tracer greps (9.2-9.7) are in `language-elixir.md`.
+
+Why each body angle reads as it does, with the misses behind it: [references/worked-examples.md](references/worked-examples.md). Nobody needs to read it to run the review.
 
 ---
 

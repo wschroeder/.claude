@@ -1,100 +1,121 @@
-# Pass 7 — Test coverage
+# Tests the diff adds or changes
 
-What's tested, what isn't, edge cases, trivially passing assertions. **You must have read the FULL test diff before claiming a coverage gap.** If the test diff was truncated or partially read, re-read the remainder before this pass. A false "missing test" flag wastes more time than any real gap.
+Read this file now, before Pass 1, when the diff adds, changes, or deletes a test. Angles 7.2, 7.8, 7.11, and 7.23 stay in the body.
 
-**Tests must assert outcomes, not implementation.** A test that checks "this function was called" or "the query contains this clause" is testing wiring, not behavior. The correct test asserts the observable result: the DB row exists with the right values, the API returned the right response, the error was the expected one. Mock call_history assertions are a smell — they prove a code path ran, not that it worked.
+## Contents
 
-**Tests over eyeballing.** The review's primary job is to identify behaviors that lack test coverage — not to substitute for tests by reading code carefully. For every finding in passes 1-5, ask: "is there a test that would catch this?" If yes, the finding is already guarded. If no, the missing test IS the finding. A change to how a screen is put together, or a reuse of a component a test already checks, is not a coverage gap: it gets a demo, per `tdd-cycle`, "Assert what a person reads or what the system stores, never the markup around it."
+- 7.1 Failure path coverage
+- 7.3 Refactored-code coverage
+- 7.4 End-to-end path coverage
+- 7.5 New external API without test mocks
+- 7.6 Partial-chain tests masking gaps
+- 7.7 Symmetry cross-check (Pass 5 × Pass 6)
+- 7.9 Test-to-test assertion symmetry
+- 7.10 Range-assertions are correctness gaps, not style
+- 7.12 Global-mock + async combination
+- 7.13 Mox in :global mode without `set_mox_from_context`
+- 7.14 Ecto Sandbox ownership leaks
+- 7.15 Shared ETS / named processes
+- 7.16 Timer/clock reliance
+- 7.17 `:dbg.p(:all, :c)` global tracer
+- 7.18 Literal-integer call-count assertions
+- 7.19 `describe.skip` / `test.skip` / `it.skip` without an inline tracker reference
+- 7.20 `as any` / `as unknown as X` in test mocks
+- 7.21 Test URL / response-shape assertions with weak regex
+- 7.22 A fixed bug's test belongs to the feature, and asserts the symptom
 
-**Delete a test of screen markup that the diff breaks; do not update its expectation.**
+Each angle below belongs to the pass its number names. Walk it in that pass, give it a disposition, and print its line in the Checklist under that pass.
 
-**An operator's request for few tests never turns a missing test of what the app stores into a Note.** When a write path — what a save, an import, or a sync leaves in storage — has no test and an instruction to write few tests seems to cover it, file a Flag that quotes the instruction word for word, so the operator decides. A handoff's summary of the instruction is not the instruction: quote the operator's own turn. Which wording a screen shows is a constant, even where a branch picks between two wordings, and gets no test and no finding. Measured (2026-10-31): handoffs relayed the operator's "I don't expect much of anything in the way of tests" as "as few tests as possible", and a build review found that no test checked an import keeping a stored field and filed nothing. The whole-branch review filed it as a Fix; the operator then declined it because a tested sibling field used the same pattern, and declined a test of which sentence a screen picks as a test of a constant.
+**Delete a test of screen markup that the diff breaks; do not update its expectation.** Walk 7.12-7.21, the hazards of test infrastructure (global mocks, sandbox ownership, tracers, shared ETS, clocks, call counts, skips, casts, regexes), for every test the diff adds or edits.
 
-## 7.1 Failure path coverage
+## Checklist lines
+
+```
+Pass 7:
+  7.1   Failure path coverage            test exists for external-call failure
+  7.3   Refactored-code coverage         pre-refactor tests exist; if not, flag
+  7.4   End-to-end path coverage         integration test for cross-module flow
+  7.5   New external API without mocks   test files include fixture/mock
+  7.6   Partial-chain tests masking gaps middle-layer mocked despite change
+  7.7   Symmetry cross-check (Pass 5×6)  symmetric production changes → symmetric tests
+  7.9   Test-to-test assertion symmetry  siblings assert same invariants
+  7.10  Range-assertions correctness gap pin to exact value when known
+  7.22  A fixed bug's test               the assertion goes into the feature test
+                                          that had the hole, and asserts the
+                                          symptom a person saw
+                                          proof: quote that feature test's title
+                                          and the line asserting the symptom; a
+                                          test named for the bug, or no symptom
+                                          line → finding
+```
+
+### 7.1 Failure path coverage
 
 For every external API call or side-effecting operation, is there a test for when it fails? A missing failure-path test is more dangerous than any code pattern, because the pattern can be refactored away silently.
 
-## 7.2 Side-effect coverage
-
-For operations with multiple side effects (e.g., attach payment method AND set as default), is each side effect independently asserted? A test that only checks the first side effect won't catch the second being dropped.
-
-## 7.3 Refactored-code coverage
+### 7.3 Refactored-code coverage
 
 When code is extracted into a new function or restructured, identify behaviors that had no test coverage before the refactor. Those are the landmines — the refactor is safe if tests existed, dangerous if they didn't. Flag the missing test, not the refactoring.
 
-## 7.4 End-to-end path coverage
+### 7.4 End-to-end path coverage
 
 For each modified code path that crosses module boundaries (e.g., GraphQL mutation → context module → external API), check whether an integration test exercises the full chain end-to-end — not just individual units in isolation.
 
-## 7.5 New external API without test mocks
+### 7.5 New external API without test mocks
 
 When the diff adds a call to an external service (Stripe, Clever, AWS, any HTTP client), check that test files include a corresponding mock or fixture for that call. A missing mock means CI will either hit the real API (flaky, slow, dangerous) or fail with a connection error — both of which indicate the test suite does not cover the new path.
 
-## 7.6 Partial-chain tests masking gaps
+### 7.6 Partial-chain tests masking gaps
 
 When tests exist for the entry point (e.g., the controller test) but those tests mock out the middle layer, and the diff changed behavior in that middle layer, the existing tests are not exercising the changed code. Flag this — the test passes but does not cover the change.
 
-## 7.7 Symmetry cross-check (Pass 5 × Pass 6)
+### 7.7 Symmetry cross-check (Pass 5 × Pass 6)
 
 For each production code change identified in Pass 5 as a symmetric/sibling application (function B received the same change as function A), verify that B's change has corresponding test coverage. When A's change has a dedicated test but B's does not, flag it — the model's tendency is to see extensive test additions and conclude "tests look good" without per-path verification.
 
-## 7.8 Test intent vs test effect
-
-Read each new test's body end-to-end. Does execution actually reach the branch the test's name claims to exercise, or does an earlier guard / validation / nil check / regex / length check short-circuit before that branch runs? A test named "rejects malformed JSON" that hits a session-nil check *before* JSON parsing has never touched malformed-JSON code; a test named "rejects wrong PKCE verifier" that uses a 22-char string fails the 43-char length regex *before* reaching `secure_compare`. The test's name lies; the code path is untested.
-
-For every test whose name describes a specific rejection or code path, trace execution setup → assertion and confirm the claimed code path fires. If earlier validations short-circuit, fix the test inputs to pass those validations so the target branch is reached.
-
-**This angle applies to EVERY added or modified test in the diff — not just the test the reviewer's prompt points at.**
-
-## 7.9 Test-to-test assertion symmetry
+### 7.9 Test-to-test assertion symmetry
 
 Sibling tests (same setup pattern, adjacent in the file, testing the same surface from different angles) should assert the same invariants. If test A checks `used_at is nil` / `:counters.get(_, 1) == 0` / a specific error shape, the siblings should too — otherwise the invariant is enforced in only one branch, and the next regression hides in the siblings. Group tests by setup/target and flag assertion asymmetry within the group.
 
-## 7.10 Range-assertions are correctness gaps, not style
+### 7.10 Range-assertions are correctness gaps, not style
 
 An assertion that permits multiple distinct values when the correct value is known (`conn.status in [400, 502]` instead of `== 502`, `body =~ "error"` when the exact message is specified, `refute is_nil(x)` when `== expected_value` is meant) is a test-quality gap, NOT a style nit. A regression into the wrong-but-permitted value passes CI silently.
 
 If the test author knows exactly which status/message/value should be returned, the assertion must pin to that value. Only permit a range when the test genuinely tolerates all values in the range (rare; document why).
 
-## 7.11 Tests added by the current review loop are not authoritative
-
-When a test was WRITTEN during the current review (not pre-existing), ask: does the test VERIFY behavior the mission claims, or does it DOCUMENT the behavior the code happens to produce? A test that locks the status quo of code we just wrote can freeze a wrong design.
-
-For every test authored in-loop, re-evaluate its assertion against the mission, not against the code. This is the dual of the anti-anchoring rule: anti-anchoring says prior dismissals don't bind; this says prior in-loop additions don't certify.
-
-## 7.12 Global-mock + async combination
+### 7.12 Global-mock + async combination
 
 `use *Case` that defaults to `async: true` combined with `import Mock` / `with_mock` / `:meck.new/*`. `:meck` patches modules process-globally; concurrent tests in other files can observe the stubbed module. Requires `async: false` on any module using Mock. Flag as LEGIT — known flakiness hazard, not a style nit.
 
-## 7.13 Mox in :global mode without `set_mox_from_context`
+### 7.13 Mox in :global mode without `set_mox_from_context`
 
 Similar concern when Mox is used across process boundaries.
 
-## 7.14 Ecto Sandbox ownership leaks
+### 7.14 Ecto Sandbox ownership leaks
 
 `setup_all` that opens a DB connection without `allow`ing spawned processes — async tests that spawn tasks will see DB state from siblings.
 
-## 7.15 Shared ETS / named processes
+### 7.15 Shared ETS / named processes
 
 Tests that write to a named GenServer or ETS table without teardown leak state between runs.
 
-## 7.16 Timer/clock reliance
+### 7.16 Timer/clock reliance
 
 `Process.sleep`, `DateTime.utc_now()` comparisons in assertions — flaky under load.
 
-## 7.17 `:dbg.p(:all, :c)` global tracer
+### 7.17 `:dbg.p(:all, :c)` global tracer
 
 `:dbg.p(:all, :c)` attaches the tracer to ALL processes in the BEAM, not just the test process. Concurrent tests (especially `async: true` modules in the same VM) can fire trace events that contaminate the receiver's count.
 
 Recommend `:dbg.p(specific_pid, :c)` scoped to the test's spawned process, or a baseline-diff approach (snapshot a counter before and after and assert on the delta) instead of an absolute count. Treat any `:dbg.p(:all, ...)` in a test file as LEGIT — it is a latent contaminator regardless of whether today's suite happens to pass.
 
-## 7.18 Literal-integer call-count assertions
+### 7.18 Literal-integer call-count assertions
 
 `assert 4 == :counters.get(...)`, `assert 2 == length(call_history)`, `assert N == Enum.count(...)` patterns are brittle to UNRELATED PR changes. A refactor breaks the test even when behavior is correct, whether it legitimately reduces a call count by one or legitimately ADDS a call (e.g. a new audit log).
 
 Prefer asserting outcome correctness (the right row exists, the right response shape is returned) plus, if Redis-traffic / call-count regression guards are genuinely needed, a SEPARATE telemetry-counted test isolated from outcome tests. When you see a literal-integer count assertion in a test, ask: "what does this break on if someone adds an unrelated call site?" — the answer is usually "this test, silently, in a different PR's CI."
 
-## 7.19 `describe.skip` / `test.skip` / `it.skip` without an inline tracker reference
+### 7.19 `describe.skip` / `test.skip` / `it.skip` without an inline tracker reference
 
 A skipped describe block silently accumulates into permanent dead coverage if the tracker isn't self-evident in the describe string. The skip target's name should carry an issue id or tracking-doc reference (`[P7.x — see TODO.md]`, `[LEG-123]`, `[blocked by ticket X]`) so a CI reporter shows the deferral without the reader having to grep the codebase.
 
@@ -102,11 +123,11 @@ A head-comment in the file is not a substitute — CI reporters render the descr
 
 The fix is mechanical: append `[<tracker-ref>]` to the skip string. Apply per-skip in the diff; do not bundle "all 21 skips" into a separate cleanup PR — the skip is touched by the diff just by existing in a file the diff modified.
 
-## 7.20 `as any` / `as unknown as X` in test mocks
+### 7.20 `as any` / `as unknown as X` in test mocks
 
 ESLint usually catches `as any` but it's worth flagging during review because mocks are where the type system is most often bypassed and where the runtime contract drifts silently. Tests should declare reusable mock types once (`type SessionMock = Awaited<ReturnType<typeof auth>>`) and reuse them across cases; the `as any` shortcut accumulates entropy as the test suite grows.
 
-## 7.21 Test URL / response-shape assertions with weak regex
+### 7.21 Test URL / response-shape assertions with weak regex
 
 Per 7.10 Range-assertions: if the test setup knows exactly which fixture value should land in the assertion (a specific school id, a specific status, a specific message), pin to that value. A regex like `/school=/` matching ANY value can silently pass on broken scope filtering — the assertion proves a `school=` param appears, not that the RIGHT param appears. Same for `expect(body).toContain("error")` when the exact error string is known.
 
@@ -116,23 +137,8 @@ Mechanical fix: replace `/.../ ` with `/...=<expected-value>(?:[&#]|$)/` or `toE
 
 These (7.12-7.21) are production-of-correctness issues, not style. A test suite with one of these hazards will eventually produce false greens on a PR that the review cannot catch by reading the diff alone.
 
-## 7.22 A fixed bug's test belongs to the feature, and asserts the symptom
+### 7.22 A fixed bug's test belongs to the feature, and asserts the symptom
 
 A bug, whether a reviewer, a Jira issue, or a user reported it, usually means a feature test missed some coverage. Put the assertion into that feature test, where it reads as part of the behavior, rather than into a new test named after the bug. Assert the symptom a person saw: the flag, the message, the status, or the page text. A figure that implies the symptom is not enough, because the code between the figure and what the person sees can still break.
 
 Measured (2026-10-22): a reviewer reported that a customer whose line items were all excluded showed no overdue flag. The fix's test asserted the customer's computed balance and the analytics overdue count, but not the flag. Its mutation proof changed the figure, so it never showed that the test would catch a missing flag. The reviewer's next pass asked for `expect(customer!.flags.map((flag) => flag.flag)).toContain('overdue')`. When `flag.ts` emitted a renamed flag, only that line failed.
-
-## 7.23 Excess tests
-
-Pass 7 hunts for missing tests, and this angle hunts for the opposite. Every test the diff adds is a finding when it does any of these:
-
-- It repeats another test. A browser test that proves what an integration test proves is a copy, and so is a unit test whose cases a sibling test already runs.
-- It asserts something its title does not name, such as another step's output. One regression then fails several tests, and the title no longer says what broke.
-- It matches markup instead of content: a CSS class, a utility-class regex, or a wrapper element. Assert the text a person reads. When a state shows only through styling, the fix is a stable attribute in the markup (`data-state`), not a class match.
-- It pins a literal that the code derives from another source, such as a reply schema generated from a validator. Such a test only proves the generator ran.
-- It folds a second input variant into a test about something else.
-- It copies setup that two other tests copy too. Fold the setup into a helper.
-
-The fix is to delete the test or the assertion, which `git-commit` folds into the commit that introduced it. Before you delete, find a home for every assertion the test held that no other test makes: move it into the neighbouring test that sets up the same state. Then mutate the production line that the moved assertion covers, and show that the test now fails.
-
-Measured (2026-10-29): a branch added 1064 test lines for one feature. A pare-down cut 172 of them: an end-to-end spec, five tests whose assertions others already made, class-matching regexes, and assertions about one step in tests titled for another. One test had been the only one checking a streamed fragment. Its assertion moved into a neighbour that set up the same failed state, and when the route stopped passing that state, the neighbour failed. Matching step labels alone left the timeline tests unable to tell a done step from a pending one, which is the gap a `data-state` attribute closes.
