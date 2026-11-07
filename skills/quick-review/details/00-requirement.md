@@ -1,6 +1,6 @@
 # Requirement check — does the diff do what was asked?
 
-Run this after you state the Mission and before the Class Checklist. The Mission
+Run this after you state the Mission and before the passes. The Mission
 comes from the diff and the PR text, so it says what the author believes the change
 does. This step checks the change against what someone asked for.
 

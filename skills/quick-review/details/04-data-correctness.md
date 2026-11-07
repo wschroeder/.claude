@@ -108,15 +108,11 @@ Octal interpretation of leading-zero strings in older runtimes. `parseInt("08")`
 
 Prefix/suffix match when exact intended. `"abc-".match(/abc/)` succeeds; `/^abc$/` is the exact intent.
 
-## 4.20-4.24 CWE class checks
+## 4.21, 4.22, 4.24 CWE class checks
 
-- **CWE-190 Integer Overflow / Wraparound** — arithmetic on untrusted bounds, 32-bit counters.
 - **CWE-193 Off-by-one** — slice sizes, loop bounds, buffer lengths.
 - **CWE-697 Incorrect Comparison** — type coercion (`==` vs `===`), loose equality, template-literal truthiness over `undefined`.
-- **CWE-707 Improper Neutralization** — missing input validation at the system boundary.
 - **CWE-20 Improper Input Validation** — trusting shape/type/range of an input without a check.
-
-See `details/class-checklist-cwes.md` for worked examples.
 
 ## 4.25 Linked-input normalization
 

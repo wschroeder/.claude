@@ -151,12 +151,6 @@ Worked example: a Health page listed failed files in two steps. The first query 
 
 Artifact: run the real writer between the two reads, and assert what the path reports. Wrap the function that makes the second query so that it runs the writer first, then calls through. A test named like `does not list a file as failed when someone retries it while Health reads the files` does this. Reading the two queries and arguing that the window is small is not this artifact.
 
-## 2.8 Pre-auth information oracles
-
-For any endpoint that performs both a resource lookup (by caller-supplied identifier) AND authentication, check the ORDER of those operations. If the resource lookup runs first and its failure modes produce distinguishable error messages or status codes ("already used" vs "expired" vs "not found" vs "invalid signature"), an unauthenticated caller who can enumerate or guess identifiers gets an oracle into internal state — token/code lifecycle, user existence, session status.
-
-Fix is either to authenticate before any resource-state disclosure, or to collapse all pre-auth failure modes into a single opaque error. Applies to OAuth token endpoints, password-reset flows, session-validation endpoints, and any lookup-then-auth pattern.
-
 ## 2.9 Identifier parse/comparison asymmetry
 
 When code compares a parsed URL/path/header/token component against an allowlist, name the components the parser strips. Does the stripped piece matter for security?
@@ -207,16 +201,6 @@ Side-effect-named verbs are the trap: `revoke`, `notify`, `flush`, `expire`, `in
 The `_ = fallible_call()` shape is one syntactic form. The same bug class also hides in `case fallible_call() do {:ok, _} -> ...; {:error, _} -> <fall-through> end` patterns where the `{:error, _}` arm does NOT log, retry, or propagate the error. Audit every `{:error, _}` (or `{:error, _reason}`) arm in `case` / `with` blocks: if the arm produces no `Logger.*` call AND no retry AND no propagation upward (the function returns `:ok` / a default counter / a sentinel as if the call succeeded), flag as Fix-class.
 
 **Concrete failure shape:** `case AccessTokens.revoke(descendant) do {:ok, _} -> count + 1; {:error, _} -> count end` inside a chain-walk — the failure neither increments a counter nor logs, so a chain-walk that fails every revoke silently swallows the breach signal AND leaves descendants live. Both observability AND security degrade.
-
-## 2.13 Lookup-then-filter cardinality leak
-
-When a function performs a wide lookup (e.g., `Repo.get_by(Token, value: x)`, `Repo.one(from t in Token, where: t.value == ^x)`, `find_by_email/1` searching the entire users table) and THEN filters the result by an authorization predicate (`client_id`, `tenant_id`, `owner_id`, `org_id`, ABAC subject scope), the response distinguishes "doesn't exist anywhere" from "exists but you can't see it". That distinction is information disclosure — an authenticated caller learns about records belonging to OTHER tenants/clients/owners just by getting a different error code or status.
-
-**Concrete shape:** `lookup_revocation_target/1` searches the entire `oauth_user_access_tokens` table → `check_revocation_ownership/2` returns `invalid_client` when `app_id` doesn't match → any client can probe whether a token belongs to a different client.
-
-Fix is to scope the lookup query by the authorization predicate at the DATABASE level, not after the fetch — `get_by_token_for(token, application_id)` uses `WHERE value = ? AND application_id = ?`, so cross-tenant hits return `nil` and look identical to "doesn't exist". RFC 7009 §2.2 specifically requires this collapse for token revocation.
-
-Once folded, the post-fetch authorization check often becomes dead code — remove it.
 
 ## 2.14 N+1 calls
 

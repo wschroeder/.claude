@@ -16,12 +16,11 @@ Run the review in the session that wrote the change, not in a subagent. That ses
 1. **Pass 0 — Determine diff scope.** Cumulative `<merge-base>..HEAD` against `origin/<default_branch>` (`git fetch` first), plus uncommitted working tree. Full read; no truncation, no `| head -N`. If the orchestrator passed a delta scope (e.g., `HEAD~1..HEAD` on an amended commit), STOP and request cumulative.
    **Then size it.** Measure the diff and the room this session has left. If the diff takes more than a third of that room, plan the review as stages before reading any of it: [details/stages.md](details/stages.md).
 2. **Load skills.** The language skill, any project guideline skill that matches the diff, and every `CLAUDE.md` from repo root to the diff's directory. Each adds named angles to its pass. The list and the command that finds the CLAUDE.md files: [details/skills-to-load.md](details/skills-to-load.md).
-3. **State Mission** in one sentence. If diff touches an auth surface (`oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `signin`, `signout`, `/.well-known/`, routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`), Read `details/rfc-oauth.md` BEFORE passes start and list the RFC sections governing each touched endpoint in the mission line.
+3. **State Mission** in one sentence. Security is `security-review`'s, except input validation (4.24): `writing-code` says which diffs owe one.
 4. **Check the requirement.** Find the issue, card, or spec the diff serves and check the diff against each of its acceptance criteria. Method: [details/00-requirement.md](details/00-requirement.md).
-5. **Walk the Class Checklist** in [details/class-checklist-cwes.md](details/class-checklist-cwes.md): mark each CWE class IN SCOPE or N/A. Every IN-SCOPE class is a mandatory angle in its pass.
-6. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed. Write each pass to the notes file as it finishes; see "Record each pass as it finishes".
-7. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
-8. **Output** per template, printed in the session after any Evidence block CLAUDE.md asks for, never folded into it.
+5. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Read the matching `details/0N-*.md` for discovery methods and worked examples when needed. Write each pass to the notes file as it finishes; see "Record each pass as it finishes".
+6. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
+7. **Output** per template, printed in the session after any Evidence block CLAUDE.md asks for, never folded into it.
 
 ### Record each pass as it finishes
 
@@ -73,17 +72,15 @@ Every in-scope angle resolves to exactly one of three states. There is no fourth
 Demonstrating every angle bankrupts the review, so the burden is tiered by blast radius:
 
 - **Every Fix and every Flag always demonstrates.** Assert a bug → prove it runs or breaks. Findings are few; this is cheap.
-- **A clean bill demonstrates only for these five classes** when in scope. For them, `DEMONSTRATED` REQUIRES the artifact below; bare prose is an invalid disposition:
+- **A clean bill demonstrates only for these three classes** when in scope. For them, `DEMONSTRATED` REQUIRES the artifact below; bare prose is an invalid disposition:
   1. Assertion strength / test coverage
-  2. Injection / untrusted input (SQL, command, path)
-  3. Authorization scope
-  4. Atomicity / TOCTOU
-  5. Error-return shape (raise vs `{:error, _}`)
-- **All other angles** may use a prose disposition — but it must be an *observation that cites the line*, never a story. (This boundary is the tunable knob. Widen it for security-sensitive diffs; the five above are the floor.)
+  2. Atomicity / TOCTOU
+  3. Error-return shape (raise vs `{:error, _}`)
+- **All other angles** may use a prose disposition — but it must be an *observation that cites the line*, never a story. (This boundary is the tunable knob. The three above are the floor; injection and authorization proofs are `security-review`'s.)
 
 ### Proof-shape catalog
 
-Each of the five classes above has one artifact that licenses its clean bill, listed in [details/proof-shapes.md](details/proof-shapes.md). Read it before you mark any of the five `DEMONSTRATED`.
+Each of the three classes above has one artifact that licenses its clean bill, listed in [details/proof-shapes.md](details/proof-shapes.md). Read it before you mark any of the three `DEMONSTRATED`.
 
 The deliverable of the review IS these artifacts. The Fix/Flag/Note label is a summary *derived* from them, never a substitute for them.
 
@@ -223,14 +220,11 @@ Concurrency / race shapes:
                                           re-check compares; two nulls never match
 
 Auth boundary:
-  2.8   Pre-auth information oracles     lookup-then-auth distinguishable errors
   2.9   Identifier parse/comparison      .startsWith vs .origin; case folding
   2.10  Trigger-vs-precondition order    cheap filter before side-effecting mint
 
 Error swallowing:
   2.11  Discarded error tuple            TS/JS and Elixir shapes: see 2.11-2.12
-  2.13  Lookup-then-filter cardinality   wide lookup + post-auth-filter leaks
-                                          existence across tenants
 
 Cost and resource shapes (CWE-400 / CWE-770):
   2.14  N+1 calls                        query or remote call inside a loop;
@@ -272,8 +266,6 @@ Failure modes, pattern-match style, sibling consistency, observability of failur
 ```
   3.1   Error propagation trace          duplicate logging across chain levels
   3.2   Logging discipline               two-tier policy per language: see 3.2a-3.2b
-  3.3   Shell-trace credential exposure  `set -x` over secret-handling commands
-  3.4   Cloud-init / journald log sinks  xtrace lands in durable log; secret TTL
   3.5   capture_log assertion shape      `assert log == ""` vs `refute log =~`
   3.6   Silent catch-alls at boundaries  webhook 200 regardless of B's return;
                                           each catch the diff adds: what a person
@@ -281,9 +273,6 @@ Failure modes, pattern-match style, sibling consistency, observability of failur
   3.7   with-chain escape hatches        else `_ ->` conflates step failures
   3.8   with-chain over-gating           optional step gates critical step
   3.9   Error-class differentiation      AbortError vs TypeError vs domain
-  3.10  CWE-209 sensitive info in error  stack traces; secrets in error strings
-  3.11  CWE-532 sensitive info in log    tokens, PII, passwords, session IDs
-  3.12  CWE-497 system-data exposure     hostnames, pod IDs, DB errors leaked
   3.13  CWE-754 unusual-condition checks dead guards; collapsed error classes
   3.14  A failure log names its operation each warn/error inside a download, run,
                                           or request carries that operation's id
@@ -309,12 +298,10 @@ TS/JS-specific shapes (4.4-4.19):  16 angles, listed with worked examples in
                                    .ts/.tsx/.js/.jsx diff; skip as N/A otherwise.
 
 CWE class checks:
-  4.20  CWE-190 int overflow             arithmetic on untrusted bounds
   4.21  CWE-193 off-by-one               slice/loop/buffer bounds; two paths
                                           bounding the same thing differently:
                                           see 5.7
   4.22  CWE-697 incorrect comparison     `==` vs `===`; loose equality
-  4.23  CWE-707 boundary input           neutralize at system boundary
   4.24  CWE-20 input validation          trust shape/type/range without check;
                                           a raw outside value past the edge, or
                                           coerced where it lands → parse at the edge
@@ -333,14 +320,12 @@ Linked input:
 
 ## Pass 5 — Conventions
 
-Module patterns, naming, def/defp visibility, sibling function symmetry, reuse, and hygiene. Worked examples: `details/05-conventions.md`. ARIA contracts: `details/accessibility-aria.md`. RFC compliance: `details/rfc-oauth.md`.
+Module patterns, naming, def/defp visibility, sibling function symmetry, reuse, and hygiene. Worked examples: `details/05-conventions.md`. ARIA contracts: `details/accessibility-aria.md`.
 
 ```
 Sibling consistency:
   5.1   Sibling-endpoint conventions     param source / auth scheme / response /
                                           error vocabulary; same helpers
-  5.2-5.4 RFC compliance               auth endpoints: every spec param, value,
-                                          and status code; see 5.2-5.4
   5.5   Private-helper duplication       deletion test for near-identical defp;
                                           the same edit made in several copies, or
                                           one shape in two notations (JSON schema
@@ -605,8 +590,6 @@ Surviving candidates get one of three:
   One line per demonstrate-line class that was in scope: <class>: <what ran> → <result>
   e.g. assertion-strength: mutated session.ex:88 `>=` -> `>`, the
        expiry clause; auth_controller_test.exs still passed → FINDING
-  e.g. authz-scope: ran district_search as teacher subject with foreign state_id
-       → 0 rows returned → DEMONSTRATED clean
   An in-scope class with no artifact here is an incomplete review, not a clean one.
 
 ## Checklist

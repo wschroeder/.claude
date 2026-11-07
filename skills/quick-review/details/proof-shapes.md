@@ -48,23 +48,6 @@ test coverage          "specific enough" by reading it, and never cite a
                          clause "<clause>"  mutated <file>:<line>
                            <original> -> <mutated>   <run result>  caught
 
-Injection / untrusted  Feed the adversarial input through the REAL entry point and
-input                  show it rejected/escaped, OR quote the exact line that
-                       parameterizes/neutralizes and show the value cannot reach a
-                       raw sink. "No literal DROP found" is NOT proof.
-
-Authorization scope    Construct the row the new gate should exclude; run the
-                       query/resolver AS the unprivileged subject; show it is absent
-                       from the result. "The gate looks correct" is NOT proof.
-                       A grant or a view is a gate too. Create a role that
-                       holds only what the grant's rule requires, apply the
-                       rule, and as that role read the object and each table
-                       it reads. A view without security_invoker reads as its
-                       owner, so a row the role cannot read in a base table
-                       must be missing from the view. A list of the roles
-                       that hold grants today is NOT proof: the rule picks who
-                       holds them later.
-
 Atomicity / TOCTOU     Owes two artifacts.
                        AGAINST ITSELF (2.7): run two copies of the path at once
                        and show what each one wrote, OR quote the lock both

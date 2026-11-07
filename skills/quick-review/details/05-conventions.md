@@ -14,32 +14,6 @@ When the diff adds a new public action (controller action, route, GraphQL resolv
 
 List the siblings' conventions explicitly before classifying findings; an unjustified deviation is a Fix-class maintainability finding (per the "yes to any" gate).
 
-## 5.2 RFC parameter completeness
-
-Status-code vocabulary (5.4) is one slice of RFC compliance; PARAMETER vocabulary is the other. When implementing an RFC-defined endpoint, enumerate every spec-defined parameter for that endpoint from the RFC and verify each one is either honored or explicitly rejected. **Silent ignore is a spec violation, not a defensive default.**
-
-Method: list the RFC parameters in a comment in the controller action, then grep the body to confirm each is read. A parameter that the body never references is silently dropped — pick honor (parse, validate, route through the chain) or reject (`invalid_request`/`invalid_scope` with a description). Document the choice.
-
-The same discipline applies to SCIM filter/sort params, OneRoster filter/sort params, JSON:API query params, OData $filter/$select. Surveying the spec is one-time work; missing a parameter creates a long-tail compatibility bug for one specific integrator who reads the RFC carefully.
-
-See `details/rfc-oauth.md` for worked examples on OAuth2 endpoints specifically.
-
-## 5.3 Spec-permitted value wrongly rejected
-
-RFC parameter completeness (5.2) catches SILENT IGNORE (the body never reads `params["scope"]`). The companion failure mode is WRONG REJECTION — the body reads the parameter, runs validation, and rejects values the spec explicitly permits, usually with a deliberate comment justifying the choice.
-
-Enumerate each RFC-defined parameter's ACCEPT-SET (values the spec MUST or MAY allow) AND REJECT-SET (values the spec REQUIRES rejection of) before classifying the implementation as compliant. A deviation in EITHER direction is Fix-class spec compliance, not style.
-
-Author comments justifying the deviation ("supported posture", "deliberate narrower contract", "library default") are NOT exemptions — the "Author-acknowledged deviation is not exempt" rule in Classify applies.
-
-See `details/rfc-oauth.md` for the OAuth-specific accept-set / reject-set enumerations.
-
-## 5.4 RFC 6749 §5.2 status-code vocabulary
-
-For OAuth2 endpoints specifically, verify status codes match the RFC's narrow rules. `invalid_client` returns **401** ONLY when the client attempted authentication via the `Authorization` header (Basic or Bearer) — the 401 is paired with `WWW-Authenticate`. `invalid_client` from BODY-credential failure (client_id/client_secret in form params) returns **400**. All other token-endpoint errors (`invalid_request`, `invalid_grant`, `invalid_scope`, `unsupported_grant_type`, `unauthorized_client`) return **400** unconditionally.
-
-A handler that emits 401 for `invalid_client` on body-credential failure is over-eager and trips client retry/refresh stacks expecting `WWW-Authenticate`. Flag mismatches as Fix-class spec compliance, not style.
-
 ## 5.5 Private-helper duplication
 
 Sibling-endpoint consistency (5.1) focuses on PUBLIC actions; the same scrutiny applies to PRIVATE helpers within the same module (or its imports). Look for `defp` functions with substantially-identical bodies — same `case`/`cond` structure, same response shape, same control flow, same conditional branching on the same predicate (`basic_auth_attempted?/1`, `authenticated_via_header?/1`, etc.).

@@ -74,6 +74,22 @@ file. Test files are in scope. Read surrounding context for each touched file �
 callers, callees, sibling functions — because a vulnerability is usually a
 mismatch between what a function assumes and what its callers actually pass.
 
+## Step 3 — Read the references the diff calls for
+
+Check each condition against the diff, and read the file now when it holds:
+
+- If the diff touches an auth surface (a path or route containing `oauth`,
+  `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `signin`, `signout`, or
+  `/.well-known/`), read [references/rfc-oauth.md](references/rfc-oauth.md)
+  and list the RFC sections governing each touched endpoint in the scope line.
+- If the diff adds or changes a shell script, or code that generates one
+  (cloud-init, user-data, a Dockerfile `RUN`, a pod-spec command, a
+  `<wrapper> -c '...'` call), read
+  [references/shell-secrets.md](references/shell-secrets.md).
+- If any bullet below is live in the diff, read its section of
+  [references/cwe-examples.md](references/cwe-examples.md) before you mark it
+  `clear`.
+
 ## Objective
 
 Identify HIGH-CONFIDENCE security vulnerabilities with real exploitation
@@ -100,13 +116,24 @@ security concerns except where the change interacts with them.
 - NoSQL injection
 - Path traversal in file operations
 - SSRF where untrusted input controls the host or protocol
+- Open redirect: a `Location` built from input without an allowlist on the
+  parsed origin
+- Input that reaches an interpreter, a path, or markup without being
+  neutralized at the boundary where it entered
+- Arithmetic on an untrusted bound that can overflow or wrap
 
 **Authentication and authorization**
 - Authentication bypass logic
 - Privilege escalation paths
+- Missing authentication: an endpoint with none at all
+- Missing or wrong authorization, including a record fetched by a caller's key
+  that is not scoped to the caller (IDOR)
+- A wide lookup filtered by an authorization predicate afterwards, so "exists
+  but not yours" answers differently from "does not exist"
+- A pre-auth oracle: a lookup by caller-supplied id that runs before
+  authentication and fails with distinguishable errors
 - A grant whose rule picks its grantees, or a view that reads its tables as its
-  owner: prove it with `quick-review`'s authorization-scope proof, run as a
-  role that meets the rule and holds nothing else
+  owner
 - Session management flaws
 - Session fixation: a session ID that survives login unchanged
 - Session IDs carried in URLs
@@ -121,6 +148,8 @@ security concerns except where the change interacts with them.
 - Hardcoded API keys, passwords, or tokens
 - Passwords stored in plaintext or under a fast, unsalted hash
 - Credentials or sensitive data sent over an unencrypted connection
+- A scheme downgrade from `https://` to `http://`, or mixed content in a
+  trusted-host comparison
 - Weak cryptographic algorithms or implementations
 - Improper key storage or management
 - Insufficient cryptographic randomness
@@ -138,6 +167,10 @@ security concerns except where the change interacts with them.
   Check every message, log line, and stored field the new data reaches, old
   code included. An unchanged error that now quotes a new kind of value, such
   as a file name that carries a customer's name, is exposure this diff added.
+- A secret in a shell trace: a command that handles a secret while `set -x`
+  or `bash -x` is on, whose stderr lands in a durable log
+- Error messages carrying stack traces, secrets, internal hostnames, or
+  database errors back to an untrusted caller
 - PII handling violations
 - Request parameters copied into a link, redirect, or form for another route
   A copied query string carries whatever the previous page sent, such as a
@@ -274,6 +307,21 @@ three statuses:
   false-positive filter.
 - `found`: name the Vuln section that holds it.
 
+A `clear` on SQL, command, or path injection, or on any authorization bullet,
+needs an artifact that ran in this session, quoted beside it:
+
+- Injection: feed the adversarial input through the real entry point and show
+  it rejected or escaped, or quote the exact line that parameterizes or
+  neutralizes it and show the value cannot reach a raw sink. "No literal DROP
+  found" is not proof.
+- Authorization: construct the row the gate should exclude, run the query or
+  resolver as the unprivileged subject, and show the row is absent. For a grant
+  or a view, create a role that holds only what the grant's rule requires,
+  apply the rule, and as that role read the object and each table it reads. A
+  view without `security_invoker` reads as its owner, so a row the role cannot
+  read in a base table must be missing from the view. A list of the roles that
+  hold grants today is not proof, because the rule picks who holds them later.
+
 A category whose bullets are all `n/a` takes one line. Add a note after a status
 only when there is something worth reading, such as a candidate the filter
 dropped, and then name the exclusion or precedent that dropped it.
@@ -288,6 +336,9 @@ Input validation
 - NoSQL injection: n/a
 - Path traversal: n/a
 - SSRF: n/a
+- Open redirect: n/a
+- Neutralization at the boundary: clear
+- Arithmetic overflow: n/a
 Authentication and authorization: n/a
 Crypto and secrets: n/a
 Injection and code execution
@@ -298,6 +349,8 @@ Injection and code execution
 - XSS: found, Vuln 1
 Data exposure
 - Sensitive data logging: clear. Precedent 1 dropped `foo.py:57`, a logged URL.
+- Secret in a shell trace: n/a
+- Error messages to untrusted callers: clear
 - PII handling: n/a
 - Copied request parameters: n/a
 - API data leakage: n/a
@@ -312,7 +365,7 @@ rewritten to prevent.
 
 1. Resolve the scope and read everything in it, including untracked files.
 2. Use a sub-task to identify vulnerabilities, passing it the categories,
-   methodology, and full diff.
+   methodology, full diff, and the paths of the references Step 3 called for.
 3. For each candidate, launch a parallel sub-task to filter false positives,
    passing it the hard exclusions and precedents above.
 4. Drop anything the filter scored below 8.

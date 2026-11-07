@@ -297,7 +297,8 @@ decision arises:
 1. `quick-review` against the change.
 2. `security-review` against the change, when the diff touches any of these:
    input from outside the program (a request, a file, the clipboard, a message,
-   a command-line argument), authentication or authorization, a network call or
+   a command-line argument), authentication or authorization (a session, a token,
+   or an OAuth, OIDC, SAML, or other sign-in route included), a network call or
    a listening server, a shell or subprocess command, a SQL or other query
    string, a secret, token or credential, a file path built from input,
    deserialization, or an added or changed dependency. When it touches none of

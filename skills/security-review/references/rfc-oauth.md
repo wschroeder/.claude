@@ -1,6 +1,6 @@
 # Auth-surface RFC compliance
 
-When the diff touches any module/file whose path contains `oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `ws_auth`, `signin`, `signout`, OR introduces routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`, `/.well-known/`, treat the diff as "auth surface" and consult the relevant RFCs by name BEFORE running the other passes:
+When the diff touches any module/file whose path contains `oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `ws_auth`, `signin`, `signout`, OR introduces routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`, `/.well-known/`, treat the diff as "auth surface" and consult the relevant RFCs by name before you walk the categories:
 
 - **RFC 6749** (OAuth 2.0 core): §5.2 error responses, §6 refresh, §3.3 scope
 - **RFC 6750** (Bearer tokens)
@@ -15,7 +15,7 @@ When the diff touches any module/file whose path contains `oauth`, `auth`, `toke
 - **LTI 1.3**
 - **OpenID Connect Core**
 
-List the specific RFC sections that govern each touched endpoint as a comment in the review's mission line. Skipping this trigger means RFC compliance gets caught only when a reviewer happens to read the relevant spec. **Brush up on the spec first, THEN review** — review without spec context is creativity, review with spec context is verification.
+List the specific RFC sections that govern each touched endpoint in the scope line. Skipping this trigger means RFC compliance gets caught only when a reviewer happens to read the relevant spec. **Brush up on the spec first, THEN review** — review without spec context is creativity, review with spec context is verification.
 
 ---
 
@@ -88,13 +88,13 @@ Path comparison MUST be exact (including trailing slash, case, and query if regi
 
 When present in an OAuth2-with-OIDC flow, the response MUST include `id_token`. Treating `openid` as opaque scope without ID-token issuance is non-conformant.
 
-**Method:** for every RFC-bound endpoint touched by the diff, write the spec's accept-set and reject-set as a comment AT REVIEW TIME (in your reasoning, not necessarily in the code), then walk the implementation's validators against both sets. Author comments justifying the deviation ("supported posture", "deliberate narrower contract", "library default") are NOT exemptions — see the "Author-acknowledged deviation is not exempt" rule under Classify.
+**Method:** for every RFC-bound endpoint touched by the diff, write the spec's accept-set and reject-set as a comment AT REVIEW TIME (in your reasoning, not necessarily in the code), then walk the implementation's validators against both sets. Author comments justifying the deviation ("supported posture", "deliberate narrower contract", "library default") are NOT exemptions: a comment that names the deviation is the reason to check it, never a reason to pass it.
 
 ---
 
 ## CORS preflight for browser-callable auth endpoints
 
-RFC 9700 (OAuth 2.0 for Browser-Based Apps) recommends CORS support on token endpoints for SPA clients using authorization-code + PKCE. See Pass 5.10 for the three valid CORS-handling patterns.
+RFC 9700 (OAuth 2.0 for Browser-Based Apps) recommends CORS support on token endpoints for SPA clients using authorization-code + PKCE. `quick-review` 5.10 lists the three valid CORS-handling patterns.
 
 ---
 
@@ -104,7 +104,7 @@ Three places to check:
 
 1. **Token presentation** — `Authorization: Bearer <token>` is the canonical form. Query parameter (`?access_token=...`) and form body (`access_token=...`) are also defined but discouraged. If the diff adds a non-header consumption path, ensure it's gated behind a deliberate use-case.
 2. **Audience** — the consumer must verify the token's audience matches its own resource server identifier. A token minted for resource server A accepted by resource server B is a confused-deputy hazard.
-3. **Scope** — verify the consumer enforces the scope. Per Pass 1.15b Scope asymmetry: token has `scope:admin` but resolver only checks `current_user.is_admin` — scope is decorative, not load-bearing.
+3. **Scope** — verify the consumer enforces the scope. For example, a token has `scope:admin` but resolver only checks `current_user.is_admin` — scope is decorative, not load-bearing.
 
 ---
 
