@@ -5,24 +5,13 @@ description: Security review of a code change, scoped the same way the other rev
 
 # Security Review
 
-You are a senior security engineer reviewing a code change for vulnerabilities
-that a real attacker could exploit.
-
-This skill replaces the built-in `/security-review`, which hardcoded
-`git diff origin/HEAD...` into four shell commands that ran before its
-instructions loaded. In a repository with no `origin` remote every one of them
-failed with `fatal: ambiguous argument 'origin/HEAD...'` and the skill aborted
-before it started. It also never looked at uncommitted work, so the usual case —
-"I just changed this, review it" — was outside what it could see.
+1. Review the code change as a senior security engineer, for vulnerabilities a real attacker could exploit.
+2. Review uncommitted work as well as commits, and never assume an `origin` remote exists.
 
 ## Step 1 — Resolve the scope (do this first, with Bash)
 
-Run the commands yourself. Nothing here is embedded in frontmatter, so no git
-failure can stop the skill from loading. If a command fails, fall through to the
-next option and say which one you landed on.
-
-**Argument vocabulary.** Same as the `quick-review` skill, so the two are asked
-for a scope the same way:
+1. Run the commands yourself. If a command fails, fall through to the next option and say which one you landed on.
+2. Take the scope argument from this vocabulary, the same as `quick-review`'s:
 
 ```
 (no argument)     branch changes plus everything uncommitted   <- default
@@ -36,8 +25,7 @@ last              git show HEAD
 <PR number>       gh pr diff <number>
 ```
 
-**Finding the base commit.** Try these in order and stop at the first that
-works. Never assume `origin` exists:
+3. Find the base commit by trying these in order, stopping at the first that works:
 
 1. `git remote` — if it lists a remote, get the default branch from
    `git symbolic-ref --quiet refs/remotes/origin/HEAD`, falling back to
@@ -50,33 +38,24 @@ works. Never assume `origin` exists:
    Review the working tree, plus `git show HEAD` if the working tree is clean.
    Say plainly that this is what you did and why.
 
-**Untracked files are part of the diff.** `git diff` does not show a file git has
-never seen, so a brand-new module is invisible to every diff command above. This
-is the single most common way a security review silently covers nothing:
+4. Treat untracked files as part of the diff, because `git diff` does not show a file git has never seen:
 
 ```
 git status --porcelain          # '??' entries are untracked
 ```
 
-Read every untracked source file in the scope IN FULL and review it as added
-lines. A new file is usually the most security-relevant thing in a change, not
-the least.
-
-**Confirm the scope before reviewing.** State in one line what you are reviewing
-and how you resolved it — "no remote configured, so: merge-base with local main
-(51203bc)..HEAD plus 2 untracked files". If the resolved scope is empty, say so
-and stop. Do not review the whole repository because the diff came back blank.
+5. Read every untracked source file in the scope IN FULL and review it as added lines.
+6. State in one line what you are reviewing and how you resolved it, in the shape "no remote configured, so: merge-base with local main (51203bc)..HEAD plus 2 untracked files".
+7. If the resolved scope is empty, say so and stop; never review the whole repository because the diff came back blank.
 
 ## Step 2 — Read everything in scope
 
-Read the complete diff, no truncation and no `| head -N`, plus every untracked
-file. Test files are in scope. Read surrounding context for each touched file —
-callers, callees, sibling functions — because a vulnerability is usually a
-mismatch between what a function assumes and what its callers actually pass.
+1. Read the complete diff, with no truncation and no `| head -N`, plus every untracked file, test files included.
+2. Read the surrounding context of each touched file, such as callers, callees, and sibling functions, and check what each function assumes against what its callers actually pass.
 
 ## Step 3 — Read the references the diff calls for
 
-Check each condition against the diff, and read the file now when it holds:
+1. Check each condition against the diff, and read the file now when it holds:
 
 - If the diff touches an auth surface (a path or route containing `oauth`,
   `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `signin`, `signout`, or
@@ -92,18 +71,16 @@ Check each condition against the diff, and read the file now when it holds:
 
 ## Objective
 
-Identify HIGH-CONFIDENCE security vulnerabilities with real exploitation
-potential. This is not a general code review. Focus ONLY on security
-implications newly introduced by this change. Do not comment on pre-existing
-security concerns except where the change interacts with them.
+1. Identify HIGH-CONFIDENCE security vulnerabilities with real exploitation potential; this is not a general code review.
+2. Focus ONLY on security implications newly introduced by this change, and comment on pre-existing concerns only where the change interacts with them.
 
-1. **Minimize false positives.** Only flag issues where you are >80% confident of
+3. **Minimize false positives.** Only flag issues where you are >80% confident of
    actual exploitability.
-2. **Avoid noise.** Skip theoretical issues, style concerns, and low-impact
+4. **Avoid noise.** Skip theoretical issues, style concerns, and low-impact
    findings.
-3. **Focus on impact.** Prioritize what could lead to unauthorized access, data
+5. **Focus on impact.** Prioritize what could lead to unauthorized access, data
    exposure, or system compromise.
-4. **Exclusions.** Do not report denial of service or resource exhaustion,
+6. **Exclusions.** Do not report denial of service or resource exhaustion,
    secrets stored on disk that are otherwise secured, or rate limiting.
 
 ## Security categories to examine
@@ -165,42 +142,30 @@ security concerns except where the change interacts with them.
 **Data exposure**
 - Sensitive data logging or storage
   Check every message, log line, and stored field the new data reaches, old
-  code included. An unchanged error that now quotes a new kind of value, such
-  as a file name that carries a customer's name, is exposure this diff added.
+  code included. Count an unchanged error that now quotes a new kind of value
+  as exposure this diff added.
 - A secret in a shell trace: a command that handles a secret while `set -x`
   or `bash -x` is on, whose stderr lands in a durable log
 - Error messages carrying stack traces, secrets, internal hostnames, or
   database errors back to an untrusted caller
 - PII handling violations
 - Request parameters copied into a link, redirect, or form for another route
-  A copied query string carries whatever the previous page sent, such as a
-  client framework's state, a token, or a filter, into a page that never meant
-  to accept it. Flag any URL built from the whole incoming query rather than
-  from parameters named one by one.
+  Flag any URL built from the whole incoming query rather than from parameters
+  named one by one.
 - API endpoint data leakage
 - Debug information exposure
 
-Something exploitable only from the local network can still be HIGH severity.
+1. Rate something exploitable only from the local network HIGH where its impact warrants it.
 
 ## Methodology
 
-**Phase 1, repository context.** Identify the security frameworks and libraries
-already in use, the established secure-coding patterns, and the existing
-sanitization and validation helpers. Understand the project's threat model — a
-local single-player game and a multi-tenant web service do not have the same one.
-
-**Phase 2, comparative analysis.** Compare the change against those existing
-patterns. Deviations from a pattern the codebase already uses are the highest
-signal findings available.
-
-**Phase 3, vulnerability assessment.** Trace data flow from untrusted input to
-sensitive operations. Look for privilege boundaries crossed unsafely, injection
-points, and unsafe deserialization.
+1. **Phase 1, repository context.** Identify the security frameworks and libraries already in use, the established secure-coding patterns, the existing sanitization and validation helpers, and the project's threat model.
+2. **Phase 2, comparative analysis.** Compare the change against those existing patterns, and weigh a deviation from one the codebase already uses as the highest signal.
+3. **Phase 3, vulnerability assessment.** Trace data flow from untrusted input to sensitive operations, looking for privilege boundaries crossed unsafely, injection points, and unsafe deserialization.
 
 ## False-positive filtering
 
-Read the code to determine whether a finding is real. You do not need to build an
-exploit.
+1. Read the code to decide whether a finding is real; you do not need to build an exploit.
 
 **Hard exclusions.** Automatically drop findings matching these:
 
@@ -252,15 +217,14 @@ exploit.
     input to reach it.
 11. Notebook (`*.ipynb`) findings require a concrete path from untrusted input.
 
-**Signal quality.** For each surviving finding ask: is there a concrete
-exploitable path? Is this a real risk or a theoretical best practice? Are there
-specific code locations? Would a security team act on it?
+**Signal quality.**
+
+1. Keep a surviving finding only if it has a concrete exploitable path, is a real risk rather than a theoretical best practice, names specific code locations, and is one a security team would act on.
 
 ## Output
 
-Markdown, in this order: the resolved scope in one line, then one section per
-finding with the most severe first, then the files, then the checklist. When
-there are no findings, say so plainly where the finding sections would go.
+1. Write Markdown in this order: the resolved scope in one line, one section per finding with the most severe first, the files, and the checklist.
+2. If there are no findings, say so plainly where the finding sections would go.
 
 ```
 # Vuln 1: XSS: `foo.py:42`
@@ -274,16 +238,12 @@ there are no findings, say so plainly where the finding sections would go.
   auto-escaping enabled.
 ```
 
-**Severity.** HIGH is directly exploitable and leads to remote code execution, a
-data breach, or authentication bypass. MEDIUM requires specific conditions but
-has significant impact. LOW is defense-in-depth.
-
-**Confidence**, 1 to 10. Report nothing below 8.
+3. Rate **Severity** HIGH for a directly exploitable flaw leading to remote code execution, a data breach, or authentication bypass; MEDIUM for one that needs specific conditions but has significant impact; and LOW for defense-in-depth.
+4. Rate **Confidence** from 1 to 10, and report nothing below 8.
 
 ### Files
 
-Give every file in scope its own line, marked read or skipped. Every skip names
-its reason in a few words.
+1. Give every file in scope its own line, marked read or skipped, and give every skip its reason in a few words.
 
 ```
 ## Files
@@ -295,9 +255,7 @@ its reason in a few words.
 
 ### Checklist
 
-Give every bullet under "Security categories to examine" one line, named in a
-few words, under its category and in the same order. Each line takes one of
-three statuses:
+1. Give every bullet under "Security categories to examine" one line, named in a few words, under its category and in the same order, with one of three statuses:
 
 - `n/a`: no line in scope does what the bullet names. Decide from the code you
   read, never from file names or from how the change describes itself. Changing
@@ -307,8 +265,7 @@ three statuses:
   false-positive filter.
 - `found`: name the Vuln section that holds it.
 
-A `clear` on SQL, command, or path injection, or on any authorization bullet,
-needs an artifact that ran in this session, quoted beside it:
+2. Back a `clear` on SQL, command, or path injection, or on any authorization bullet, with an artifact that ran in this session, quoted beside it:
 
 - Injection: feed the adversarial input through the real entry point and show
   it rejected or escaped, or quote the exact line that parameterizes or
@@ -320,11 +277,10 @@ needs an artifact that ran in this session, quoted beside it:
   apply the rule, and as that role read the object and each table it reads. A
   view without `security_invoker` reads as its owner, so a row the role cannot
   read in a base table must be missing from the view. A list of the roles that
-  hold grants today is not proof, because the rule picks who holds them later.
+  hold grants today is not proof.
 
-A category whose bullets are all `n/a` takes one line. Add a note after a status
-only when there is something worth reading, such as a candidate the filter
-dropped, and then name the exclusion or precedent that dropped it.
+3. Give a category whose bullets are all `n/a` one line.
+4. Add a note after a status only when there is something worth reading, such as a candidate the filter dropped, and then name the exclusion or precedent that dropped it.
 
 ```
 ## Checklist
@@ -357,10 +313,6 @@ Data exposure
 - Debug information: n/a
 ```
 
-The files and the checklist are what make a clean report distinguishable from a
-review that looked at nothing, which is the exact failure this skill was
-rewritten to prevent.
-
 ## Running it
 
 1. Resolve the scope and read everything in it, including untracked files.
@@ -370,8 +322,5 @@ rewritten to prevent.
    passing it the hard exclusions and precedents above.
 4. Drop anything the filter scored below 8.
 
-For a small change — a handful of files with no auth, network, or database
-surface — do the analysis directly rather than spawning sub-tasks, and say that
-is what you did. Spawning three agents to review a forty-line value object costs
-more than it finds. The general rule, and the prompt contract for the cases
-where delegating does pay, is in `subagents`.
+5. For a small change, a handful of files with no auth, network, or database surface, do the analysis directly rather than spawning sub-tasks, and say that is what you did.
+6. Take the general rule on delegating, and the prompt contract for the cases where it pays, from `subagents`.
