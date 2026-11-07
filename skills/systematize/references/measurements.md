@@ -17,3 +17,7 @@ Measured (2026-10-23): retros, reviews of missed findings, and examples had writ
 ## Why the global set is capped
 
 Measured, in *More Skills, Worse Agents? Skill Shadowing Degrades Performance When Expanding Skill Libraries* (Databricks, 2026): pass rate dropped 21% going from a small useful set to 202 skills, shadowing accounted for up to 68% of the loss and was the only statistically significant effect, and the share of runs choosing the right skill fell from 88.0% to 52.6%. Degradation was already measurable at 52 skills and rose monotonically with size.
+
+## Why a pointer carries a condition and an order to read now
+
+Measured (2026-11-07) over the transcripts of past sessions: only 5 of 553 printed quick-review reports came from a session that had opened one of its per-pass detail files, each linked as "Worked examples:" with no condition. References linked with a checkable condition and an order to read now were read: one bd-commands pointer of that shape was read 35 times, and one row of a routing table 48 times.

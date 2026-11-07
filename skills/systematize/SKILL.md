@@ -87,6 +87,15 @@ a third, makes the cost of following a link unbounded; keep every target a leaf.
 And the instruction to open a given file belongs in exactly one place: a
 reference that restates the body's own pointer gets that file read twice.
 
+**Point at a reference with a condition and an order to read it now.** Put
+the pointer at the step that needs the file, give it a condition the model
+can check from what is in front of it ("if the diff adds a migration"), and
+tell it to read the file now. A model skips a bare "Worked examples:" or
+"see" link, so put every required step in the body, or behind a pointer of
+that shape. Rationale and worked examples may sit behind a bare link,
+because nobody has to read them. See
+[references/measurements.md](references/measurements.md).
+
 ## Creating a skill
 
 Creating a new skill is the **last** resort. Try adding a section to an existing
