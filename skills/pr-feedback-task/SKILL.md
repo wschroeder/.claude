@@ -5,18 +5,13 @@ description: Gathers every source of feedback on a pull request and works out wh
 
 # pr-feedback-task — check readiness, evaluate legitimacy
 
-For the PR feedback task in $ARGUMENTS (or the current branch's PR if
-none specified), respond with the following sections in order. Produce
-the evaluation through Recommended Actions, then reach the hand-off gate
-(final section), which sends any legitimate finding back through the cycle.
-
-The output discipline is structural: each section must contain actual
-tool output, not paraphrased summaries. A missing section, a hollow
-section, or out-of-order sections are all invalid outputs.
+1. For the PR feedback task in $ARGUMENTS, or the current branch's PR if none is named, respond with the following sections in order.
+2. Produce the evaluation through Recommended Actions, then reach the hand-off gate, which sends any legitimate finding back through the cycle.
+3. Put actual tool output in each section, not paraphrased summaries; a missing, hollow, or out-of-order section is an invalid output.
 
 ## Readiness Check
 
-Surface the state of every feedback source. Use:
+1. Surface the state of every feedback source. Use:
 
 ```bash
 # (a) PR overview — review states, decision, status checks, merge readiness.
@@ -52,7 +47,7 @@ gh api graphql \
   -F owner=<owner> -F repo=<repo> -F pr=<pr>
 ```
 
-Report:
+2. Report:
 
 ```
 - CodeRabbit check_run:    <status — "Review skipped" counts as DONE,
@@ -85,7 +80,7 @@ Report:
 
 ## Feedback Inventory
 
-Paste raw output (not paraphrased) from all three sources:
+1. Paste raw output, not paraphrased, from all three sources:
 
 ```
 gh api repos/{owner}/{repo}/pulls/<pr>/comments    # inline review comments
@@ -93,197 +88,120 @@ gh api repos/{owner}/{repo}/pulls/<pr>/reviews     # top-level review bodies
 gh api repos/{owner}/{repo}/issues/<pr>/comments   # general PR conversation
 ```
 
-For each thread, surface: file:line, author (CodeRabbit / Cursor Bugbot /
-human reviewer / other), body, `in_reply_to_id`, `isResolved`,
-`isOutdated`. Skip resolved and outdated threads from evaluation, but
-list them in the inventory so the count reconciles.
+2. For each thread, surface: file:line, author (CodeRabbit / Cursor Bugbot / human reviewer / other), body, `in_reply_to_id`, `isResolved`, and `isOutdated`.
+3. Skip resolved and outdated threads from evaluation, but list them in the inventory so the count reconciles.
 
 ## Legitimacy Evaluation
 
-**Bot findings are HYPOTHESES, not facts.** For each unresolved
-non-outdated thread, apply the five-check discipline before assigning a
-disposition (from `william-linear-workflow/symphony/WORKFLOW.md:163-166`):
+1. **Bot findings are HYPOTHESES, not facts.** For each unresolved non-outdated thread, apply the five checks below before assigning a disposition.
+2. **The bot's severity label carries zero weight — never record it, never anchor to it.** Do not write "stated Major" or quote the bot's rating in your output.
+3. After you have traced legitimacy and scope yourself, assign the real priority from the actual consequence and who it reaches, overriding the bot freely in either direction, and state your own severity with the reasoning that earned it.
 
-**The bot's severity label carries zero weight — never record it, never
-anchor to it.** A "Critical", a "Major", a "Medium", a "nitpick" tag —
-none of them is an input to prioritization. A bot rates from a local
-pattern match, usually blind to the call chain: it will brand an
-unreachable pattern "critical", and tag a scope-critical bug a "nitpick".
-After you have traced legitimacy and scope yourself, YOU assign the real
-priority from the actual consequence and who it reaches — overriding the
-bot freely in either direction (down when it misunderstood the call
-chain, up when it underweighted the scope). Do not write "stated Major"
-or quote the bot's rating in your output as if it carried evidentiary
-weight; state your own severity with the reasoning that earned it. You
-know this codebase; the bot does not.
+The five checks:
 
 1. **Read the current code at HEAD yourself.** Do not trust the bot's
-   quoted snippet. Bots reference stale state, hallucinate code paths,
-   and pattern-match on names rather than mechanisms. CodeRabbit's own
-   prompt-for-AI-agents: "Verify each finding against current code. Fix
-   only still-valid issues, skip the rest with a brief reason, keep
-   changes minimal."
+   quoted snippet; fix only still-valid issues, and skip the rest with a
+   brief reason.
 2. **Confirm the finding is in this PR's mission scope.** Run
    `git diff <base>..HEAD -- <file>` and verify whether the diff
-   touches the cited code path. There are three outcomes here, not two
-   — and the middle one is the trap, where reviews punt work they
-   should keep:
+   touches the cited code path. Expect three outcomes:
 
    - **The PR introduced the cited code.** In scope. Evaluate it with
      the mechanism and reachability checks below.
    - **The PR did not introduce the cited code, but the code sits in
-     the path the PR is already touching** — the same function the diff
-     edits, a helper the changed code calls, a query whose result the
-     PR's new behavior now relies on. Fix it here. This is the
-     operator's standing rule: don't defer related work. A pre-existing
-     bug directly under the change you are making is yours to fix in
-     this PR, because the next reader will take your diff as a statement
-     that the path you touched is sound. This is NOT a Rejected
-     disposition — record it under **Accepted** and fix it in the same
-     PR.
+     the path the PR is already touching**, such as the same function the
+     diff edits, a helper the changed code calls, or a query whose result
+     the PR's new behavior now relies on. Fix it here, because the
+     operator does not defer related work. Record it under **Accepted**,
+     never Rejected.
    - **The PR did not introduce the cited code AND the code is
-     unrelated to anything the PR touches** — a different module, an
-     untouched call path, code the change neither calls nor depends on.
-     This is the only genuinely out-of-scope case, and the only
-     legitimate **Rejected — unrelated pre-existing code** disposition.
-     The reply must cite the diff check AND state the lack of
+     unrelated to anything the PR touches**, such as a different module,
+     an untouched call path, or code the change neither calls nor depends
+     on. Only this case takes **Rejected — unrelated pre-existing code**.
+     Make the reply cite the diff check AND state the lack of
      dependency ("git diff confirms this PR's diff does not touch the
      cited path, and the change neither calls nor relies on it; the
      issue, if real, predates this PR and is unrelated to its
      mission").
-3. **Verify the mechanism in this instance.** A bot saying "this could
-   leak X" is an observation that a pattern is present, not proof the
-   mechanism applies. Two distinct checks are required:
+3. **Verify the mechanism in this instance**, with two separate checks:
 
    **(a) Syntactic mechanism — does the code do what the bot says?**
-   Trace the call graph or state machine; reproduce the failure where
+   Trace the call graph or state machine, and reproduce the failure where
    possible. If the code doesn't do what the bot describes, the finding
    is **Rejected — mechanism not present**.
 
    **(b) Reachability — does the triggering input actually arrive?**
-   Confirming that the function crashes / leaks / mis-orders on certain
-   input (3a) is different from confirming that input arrives in
-   production. Bots pattern-match on names and shapes; they don't trace
-   what constrains the input upstream. Ask where the triggering input
-   comes from and what limits its shape — an LLM-output parser is
-   constrained by the prompt; a user-input handler may be constrained
-   by an upstream validator; an internal call site is constrained by
-   the caller's contract; a struct field is constrained by its
-   typespec. When upstream constraints make the input unreachable, the
-   mechanism is present but cannot fire — per `~/.claude/CLAUDE.md`:
-   *"Don't add error handling, fallbacks, or validation for scenarios
-   that can't happen. Trust internal code and framework guarantees.
-   Only validate at system boundaries."* This is a legitimate
-   **Rejected — input unreachable** disposition. The reply must name
-   the upstream constraint, not just say "mechanism not present" — the
-   mechanism IS present, the triggering input isn't.
+   Ask where the triggering input comes from and what limits its shape,
+   such as a prompt that constrains an LLM-output parser, an upstream
+   validator, a caller's contract, or a field's typespec. If upstream
+   constraints make the input unreachable, the finding is **Rejected —
+   input unreachable**, because validation belongs only at system
+   boundaries. Make the reply name the upstream constraint, not "mechanism
+   not present".
 
-   Conflating (a) with (b) is the most common review error and the
-   reason this step was promoted to two sub-checks. A probe that
-   confirms (a) does NOT establish (b). The probe shows the failure
-   mode is real if the triggering input arrives; it does not show the
-   input arrives.
+   Never treat a probe that confirms (a) as establishing (b).
 
-4. **Distinguish bot pushback from operator pushback.** A bot's reply
-   to your earlier fix that re-asserts its original concern without
-   new evidence is itself a hypothesis. Re-evaluate with the three
-   checks above; do not capitulate to repeated assertions.
+4. **Distinguish bot pushback from operator pushback.** Treat a bot's
+   reply that re-asserts its original concern without new evidence as a
+   hypothesis, re-evaluate with the three checks above, and do not
+   capitulate to repeated assertions.
 5. **Probe the mechanism whenever the finding spans a module boundary,
    questions an algorithm or logic, or claims runtime behavior.**
-   Staring at code in your head is not a probe. Reading the file at
-   HEAD is not a probe either — it confirms what the code SAYS, not
-   what the running system DOES. An acceptable probe is something that
-   ran on this machine in the last few minutes and produced output now
-   in the chat: a `mix run -e "..."` snippet, an IEx session, a one-
-   off test that exercises the actual path, a curl + saved JSON. Paste
-   the probe command AND its real output. That output becomes a [REF]
-   in the disposition.
+   Count as a probe only something that ran on this machine in the last
+   few minutes and produced output now in the chat, such as a
+   `mix run -e "..."` snippet, an IEx session, a one-off test that
+   exercises the actual path, or a curl with saved JSON; reading the file
+   at HEAD is not a probe. Paste the probe command AND its real output,
+   and cite that output as a [REF] in the disposition.
 
-   For algorithmic or logic findings, the probe IS the proof of
-   legitimacy. Don't trust your memory of an API's behavior, the
-   library docs, or pattern-matching on a familiar shape — verify
-   with a light test. The discipline this skill enforces is the same
-   one an experienced developer applies to their own work: rarely
-   trust APIs or your own expertise; manually test with curl,
-   snippets, or one-off scripts while investigating.
+   For algorithmic or logic findings, make the probe the proof of
+   legitimacy rather than your memory of an API, the library docs, or a
+   familiar shape.
 
-   When no boundary is crossed (pure-syntactic findings: formatting,
-   import order, unused var, comment typo, name choice): write
-   `EXEMPT — <reason>` in the disposition. Staring is sufficient for
-   these, but use the literal token so the omission of a probe is
-   visible to the reader.
+   If no boundary is crossed, as with formatting, import order, an unused
+   var, a comment typo, or a name choice, write `EXEMPT — <reason>` in the
+   disposition.
 
-   When a probe is impractical (live prod infra, complex seed, multi-
-   service orchestration): write `UNPROBED — <impracticality reason>`
-   in the disposition, making the limitation explicit instead of
-   pretending the trace is conclusive. The user gets to decide
-   whether to invest in seeding before accepting/rejecting.
-
-   Why this exists: the most expensive misses in this workflow have
-   been cross-file mechanism claims where reading-the-code missed a
-   detail that a 5-line probe would have surfaced in seconds. The
-   probe in `writing-code`'s "Probe before you build" section is the
-   same discipline applied to *building*; this rule applies it to
-   *evaluating bot findings*.
+   If a probe is impractical, as with live prod infra, a complex seed, or
+   multi-service orchestration, write `UNPROBED — <impracticality reason>`
+   in the disposition, and let the user decide whether to invest in
+   seeding before accepting or rejecting.
 
 For each finding, output the disposition with its evidence:
 
 ### Accepted — real issue, will fix
-For each: thread URL, file:line, the finding, evidence the issue is real
-at HEAD, in-scope, with the mechanism traced. "In-scope" includes
-pre-existing code in the path the PR is already touching (check 2), not
-only code the PR introduced — fixing a related pre-existing bug belongs
-here, not in a deferred ticket. For cross-file or runtime claims,
-include the probe command and its actual output (or `UNPROBED` with the
-impracticality reason).
+1. Give the thread URL, file:line, the finding, evidence the issue is real at HEAD, its scope, and the mechanism traced.
+2. Count as in scope pre-existing code in the path the PR is already touching (check 2), and fix it here rather than in a deferred ticket.
+3. For cross-file or runtime claims, include the probe command and its actual output, or `UNPROBED` with the impracticality reason.
 
 ### Rejected — unrelated pre-existing code (out of scope)
-ONLY for pre-existing code the PR neither touches, calls, nor relies on.
-For each: thread URL, file:line, the finding, the `git diff` check
-showing the PR did not touch the cited path, AND a one-line note that
-the change does not call or depend on the cited code — that absence of
-dependency is what makes it unrelated rather than in-path. Pre-existing
-code that sits in the path the PR is already touching (a helper the diff
-calls, a function the diff edits, a query the new behavior relies on)
-does NOT belong here: fix it under this PR and record it under
-**Accepted** (check 2 above). Defer to a separate ticket only when the
-code is genuinely unrelated to the PR's mission.
+1. Use this ONLY for pre-existing code the PR neither touches, calls, nor relies on.
+2. Give the thread URL, file:line, the finding, the `git diff` check showing the PR did not touch the cited path, AND a one-line note that the change does not call or depend on the cited code.
+3. Record pre-existing code in the path the PR is already touching under **Accepted** instead (check 2 above), and defer to a separate ticket only when the code is unrelated to the PR's mission.
 
 ### Rejected — mechanism not present
-For each: thread URL, file:line, the finding, what you traced (call
-graph, state machine, or actual code path), what you found that
-contradicts the bot's pattern-match. For runtime-behavior claims,
-include the probe command and its actual output showing the absence
-(or `UNPROBED` with the impracticality reason).
+1. Give the thread URL, file:line, the finding, what you traced (call graph, state machine, or actual code path), and what you found that contradicts the bot's pattern-match.
+2. For runtime-behavior claims, include the probe command and its actual output showing the absence, or `UNPROBED` with the impracticality reason.
 
 ### Rejected — input unreachable
-For each: thread URL, file:line, the finding, and the upstream
-constraint that prevents the triggering input from arriving. Examples
-of acceptable constraints to cite: a prompt that pins the shape, an
-upstream validator that filters the field, a typespec or pattern-
-matched function head that limits caller input, a schema-level
-NOT NULL / type constraint. The mechanism IS present (3a passed);
-the input that triggers it cannot arrive (3b failed). Per
-`~/.claude/CLAUDE.md`, validation against unreachable scenarios is
-over-engineering. Cite the constraint in the reply so a future
-reader can verify.
+1. Give the thread URL, file:line, the finding, and the upstream constraint that prevents the triggering input from arriving, such as a prompt that pins the shape, an upstream validator that filters the field, a typespec or pattern-matched function head, or a schema-level NOT NULL or type constraint.
+2. Use this only where 3a passed and 3b failed.
+3. Cite the constraint in the reply so a future reader can verify it.
 
 ### Nitpick — worth taking
-For each: thread URL, file:line, and which axis of `quick-review`'s
-Yes-to-any gate the change improves — read the "Yes-to-any gate" section
-of `skills/quick-review/SKILL.md` if it has not been loaded this
-session. Take nitpicks seriously: a nitpick that clears the gate is a
-finding, not a preference.
+1. Give the thread URL, file:line, and which axis of `quick-review`'s Yes-to-any gate the change improves.
+2. If `quick-review` has not been loaded this session, read the "Yes-to-any gate" section of `skills/quick-review/SKILL.md`.
+3. Treat a nitpick that clears the gate as a finding, not a preference.
 
 ### Outdated — code already changed
-For each: thread URL, evidence the cited code path no longer matches.
+1. Give the thread URL and evidence the cited code path no longer matches.
 
 ### Informational
-For each: thread URL, what it is, the planned acknowledgment.
+1. Give the thread URL, what it is, and the planned acknowledgment.
 
 ## Recommended Actions
 
-Ranked list — what to address, in order of priority:
+1. Rank what to address, in order of priority:
 
 ```
 1. <file:line>  <disposition>  <proposed change OR "reply only">
@@ -291,29 +209,16 @@ Ranked list — what to address, in order of priority:
 2. ...
 ```
 
-This template makes no code changes itself — the evaluation is read-only.
-What happens next is decided by the hand-off gate.
+2. Make no code changes; the evaluation is read-only, and the hand-off gate decides what happens next.
 
 ## Hand-off gate — back through the cycle
 
-A PR review is a demo given to people outside the team, and their comments
-are its feedback. A legitimate finding means the work is not finished, so
-the PR work ends here, whatever the finding's size: a comment, a name, or a
-lint fix goes back as surely as a bug.
-
-If the evaluation leaves a genuine question for the operator — an uncertain
-disposition, UNPROBED, a preference, a fix with more than one viable
-approach, a deferral — STOP and ask that question first.
-
-Then, if any finding is Accepted or a Nitpick worth taking, invoke
-`retro-task` on them in the same turn, passing the inventory and every
-disposition with its evidence. `retro-task` asks why our own reviews let
-each one through, and hands the findings to `spec-task`, which turns them
-into the next slice. Say nothing about updating the PR.
-
-If no finding is legitimate, report that and stop. The rebuttal replies
-wait for `pr-respond-task`, which runs only when the operator says to
-update the PR.
+1. Treat a PR review as a demo given to people outside the team and its comments as that demo's feedback.
+2. End the PR work on any legitimate finding, whatever its size, whether a comment, a name, a lint fix, or a bug.
+3. If the evaluation leaves a genuine question for the operator, such as an uncertain disposition, UNPROBED, a preference, a fix with more than one viable approach, or a deferral, STOP and ask that question first.
+4. Then, if any finding is Accepted or a Nitpick worth taking, invoke `retro-task` on them in the same turn, passing the inventory and every disposition with its evidence.
+5. Say nothing about updating the PR.
+6. If no finding is legitimate, report that and stop, and leave the rebuttal replies to `pr-respond-task`, which runs only when the operator says to update the PR.
 
 ## Notes on what this template does NOT do
 
