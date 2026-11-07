@@ -1,6 +1,6 @@
 # bd in spec-task
 
-1. Read this when Section 1 finds that the repository keeps its cards in bd. The measurements behind it are in [bd-behavior.md](bd-behavior.md).
+1. Read this when Section 1 finds that the repository keeps its cards in bd.
 
 ## Section 1: what to check
 

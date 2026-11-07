@@ -6,7 +6,6 @@ description: Fast single-agent code review in nine structured angle passes, each
 # Quick Review
 
 1. Run nine passes, each with a named-angle checklist, and give every live angle one disposition from **Demonstration discipline**: `DEMONSTRATED`, `N/A`, or `hypothesis:`. Never write "looks fine", never stop at the first few findings, and never write "NONE FOUND because <plausible sentence>".
-2. Find the reasons behind the gates in [details/why-the-gates.md](details/why-the-gates.md), the misses behind each angle in [references/worked-examples.md](references/worked-examples.md), and the measurements in [references/measurements.md](references/measurements.md); the review runs without them.
 
 ## Orchestrator guidance
 

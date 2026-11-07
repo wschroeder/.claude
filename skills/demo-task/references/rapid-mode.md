@@ -32,5 +32,3 @@ Turning it off:
 4. Go back to Section 2, run the proof commands over the changed product,
    rebuild Section 3's demo record from what they print, and carry on to
    Section 4's stop.
-
-The reasons and the measured cases behind these rules are in [references/measurements.md](measurements.md).

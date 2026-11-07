@@ -34,7 +34,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 2. If the session had several goals, list each and mark it complete or in-flight.
 3. Name the one task this prompt continues, with its issue id if it has one, in the first line.
 4. List every other issue, card, or topic the session touched under "Mentioned, not ours", one line each.
-5. If the session held something back as a later slice of this work, file it as a bd card or a line in the look-ahead sketch before writing, name the card in §4, and never list it under "Mentioned, not ours". See [references/measurements.md](references/measurements.md).
+5. If the session held something back as a later slice of this work, file it as a bd card or a line in the look-ahead sketch before writing, name the card in §4, and never list it under "Mentioned, not ours".
 6. Write the fix for a fault this slice made as the next session's first step, and file no card for it.
 7. Check, or file a bd card for, every warning, error, or suspected defect the session saw and did not fix, even outside this slice or with only a hypothesized cause; name the card in §4, never under "Mentioned, not ours".
 
@@ -42,7 +42,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 
 1. Quote the ground truth from what commands printed when this session ran them: the branch, commit subjects and hashes, the last `git status`, the suite's test counts, query results, and files written. Say when each ran.
 2. Run `date` before writing any time, and take "Where things stand" and every timestamp from it; never estimate one.
-3. Write a time for an earlier event, such as the operator's turn, only where a tool's output showed it; otherwise write "before" and the `date` reading. See [references/measurements.md](references/measurements.md).
+3. Write a time for an earlier event, such as the operator's turn, only where a tool's output showed it; otherwise write "before" and the `date` reading.
 4. Where this session never ran a command, say so instead of filling the gap.
 5. Re-run nothing to fill this section in.
 6. Reconcile every §3 "done" claim against this section, and label one with no command output behind it unverified rather than probing it into shape.
@@ -58,12 +58,12 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 1. Record the decisions made this session with their reasons, the constraints discovered, and the dead-ends tried with why they failed.
 2. Tag each item `verified`, naming the probe, command, or query and quoting enough output that the claim stands alone, or `hypothesis:` for everything else, however obvious it feels.
 3. Split an observation from the explanation drawn from it before tagging, and give each its own line and tag.
-4. Write a known failure in the current Jira issue's own work as needing a card cut by `spec-task`, placed in §8 ahead of new work, never as an inherited `hypothesis:`. See [references/measurements.md](references/measurements.md).
+4. Write a known failure in the current Jira issue's own work as needing a card cut by `spec-task`, placed in §8 ahead of new work, never as an inherited `hypothesis:`.
 5. Record a dead-end against the tool, call, or path that failed, never as a ban on the class of evidence it served, and name any other route to the same evidence.
 6. Put anything the operator approved, such as a design, a layout, or a scope, here in their terms with the time of approval, stated in full, never as a clause inside a §8 step.
 7. When the operator says a card's work is applied, merged, or working, write `Decision (operator, <timestamp>, "<their words>")` naming each card it covers as accepted, and put nothing in §10 asking them to accept those cards.
 8. Label a decision "operator" only beside their own words, as `Decision (operator, <timestamp>, "<their words>")`. Label a choice the agent reached, even one they let stand, `Decision (Claude, <session>)` with its reason.
-9. For a carried-forward operator decision with no quote, search their turns for one, and relabel it as Claude's where none turns up. See [references/measurements.md](references/measurements.md).
+9. For a carried-forward operator decision with no quote, search their turns for one, and relabel it as Claude's where none turns up.
 10. For every decision in the opening prompt, do one of three things and say which in one line: carry it forward word for word (after the search above for an unquoted `operator` label); record it in the project's design documents and point to the file; or strike it, naming what replaced it or who withdrew it. A shorter restatement is none of the three.
 
 ## 5. Principles the operator highlighted
@@ -108,7 +108,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 
 1. List each path with the greppable identifier inside it that the work turns on, never a line number, taken from what this session opened; mark a recalled path nothing touched `hypothesis:`.
 2. List the links: PR, ticket, design doc, and relevant chat.
-3. List no skills to load first; name each skill in the step it owns. See [references/measurements.md](references/measurements.md).
+3. List no skills to load first; name each skill in the step it owns.
 4. List the setup to reach a working state: workspace directory, `eval "$(direnv export bash)"`, test command, and dev-server port.
 5. Name the environment or workspace, and any secret or environment switch in effect.
 
@@ -117,7 +117,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 1. List everything unresolved that needs an operator decision, or write `None`; invent no decisions, and bury no blocker in §8.
 2. For every question inherited in the opening prompt and about to go on unanswered, do one of three things: file it as a card; write its answer into the design document that should have held it; or strike it. Carrying it a third time is none of the three.
 3. List every operator approval in §4 that no project design document holds yet: what was approved, when, and that the design documents, by the project's own name for them, do not hold it. The three outcomes above then apply.
-4. List in one line every `Decision (Claude)` in §4 that defers a fix, a gap, or a behavior change to the operator, or sets behavior the card's acceptance criteria do not cover, naming what they must decide. §10 is never `None` while §4 holds one. See [references/measurements.md](references/measurements.md).
+4. List in one line every `Decision (Claude)` in §4 that defers a fix, a gap, or a behavior change to the operator, or sets behavior the card's acceptance criteria do not cover, naming what they must decide. §10 is never `None` while §4 holds one.
 5. Keep here every question this session raised or announced for the operator that they have not seen, never as a card or under "Mentioned, not ours"; filing a card becomes an outcome only once the operator has seen it.
 6. If the operator says they do not care about an item, that it does not matter now, or that it waits for a later phase with nowhere named to track it, strike it: quote their words once with the time and drop it from every section. Never treat a "no" to one way of keeping it as a request to offer the next way.
 
@@ -221,11 +221,10 @@ Open questions for you:
 4. Where §0 settled on a worker, never write `pending-handoff.md`; the handoff is `HANDOFF.md` alone. `session-loop` step 2 alone writes its own launch prompt to `pending-handoff.md` after this skill writes `HANDOFF.md`.
 5. If the operator asks a session that has written its handoff and is under the ceiling to keep working, keep working, and rewrite the prompt when it stops.
 6. Where §0 settled on a worker, write §1–§11 as always, write the assembled prompt to `HANDOFF.md`, print no block, and report the path and its line count.
-7. Where §0 settled on a worker, write only what the next card needs: name each open card by id and leave its criteria and notes in bd, and leave out every path, link, environment, and identifier no open card uses. The rules carrying decisions, directives, and the operator's last words forward still hold. See [references/measurements.md](references/measurements.md).
+7. Where §0 settled on a worker, write only what the next card needs: name each open card by id and leave its criteria and notes in bd, and leave out every path, link, environment, and identifier no open card uses. The rules carrying decisions, directives, and the operator's last words forward still hold.
 8. Replace the whole `HANDOFF.md` when writing it, never append. Once the operator has accepted a slice, carry its working rules and their standing decisions, and leave out that slice's status lines, tasks, and requirements.
 9. Make the one turn that writing the file costs the whole report: the path and line count, nothing else. Take no further turn of your own; anything the operator types after it is a new instruction.
 10. Delete a stale `HANDOFF.md` left in the repository rather than writing over it; §0 says whether anyone is coming for it.
-11. Read [references/measurements.md](references/measurements.md) only for the reasons and measured cases behind these rules.
 
 ## Notes on what this template does NOT do
 

@@ -37,13 +37,13 @@ description: Turns work you have repeated into machinery, and keeps the skill li
 
 1. Keep each layer inside its budget.
 2. Write the body as instructions only: what to do, in what order, and what not to do.
-3. Put rationale, measurements, research citations, and history in `references/`; if deleting a sentence leaves the instruction intact, move it.
+3. Delete rationale, measurements, research citations, history, and stories; if deleting a sentence leaves the instruction intact, delete it, and never move it into `references/`.
 4. Put templates, scripts over 20 lines, full API examples, and large lookup tables in `references/`.
 5. Open a reference over 100 lines with a table of contents.
 6. Keep every reference a leaf: a reference may point at another, but never at one that obliges a third.
 7. Give the order to open a given reference in exactly one place.
 8. Point at a required reference at the step that needs it, with a condition the model can check ("if the diff adds a migration") and an order to read it now, because a model skips a bare "see" link.
-9. Put a required step in the body or behind a pointer of that shape; only rationale may sit behind a bare link.
+9. Put a required step in the body or behind a pointer of that shape, and never point at a reference with a bare link.
 
 ## Write rules as a short list
 
@@ -133,10 +133,9 @@ description: [third person, trigger terms, under 1024 chars]
 4. Leave out table, column, function, route, file, and log-event names from a client's code, and data values quoted from it.
 5. Leave out the names of people other than the operator.
 6. Keep the failure itself, written with neutral stand-ins such as a record, a customer, an outside system, a nightly sync, and `ABC-123`.
-7. Date a measurement in a reference, and give it no ticket.
-8. Keep the names of public tools, libraries, and published research.
-9. Name no issue in a `~/.claude` commit, overriding `git-commit`'s rule to name the tracking issue.
-10. Before every commit in `~/.claude`, read each added line of `git diff --cached`, the message included, against this list.
+7. Keep the names of public tools, libraries, and published research.
+8. Name no issue in a `~/.claude` commit, overriding `git-commit`'s rule to name the tracking issue.
+9. Before every commit in `~/.claude`, read each added line of `git diff --cached`, the message included, against this list.
 
 ## Merging skills
 
@@ -155,6 +154,7 @@ description: [third person, trigger terms, under 1024 chars]
 1. Retire a skill nothing has loaded in months, one whose content moved elsewhere, one whose subject no longer exists, or one that cannot show it improved quality.
 2. Delete the directory and the routing row, and grep for the name across skills and CLAUDE.md files.
 3. Prefer retiring to keeping a skill "in case".
+4. Delete a reference file once no skill body or other reference points at it.
 
 ## The cap
 

@@ -65,8 +65,6 @@ git log --no-merges --format='%s' -60
 3. Make one change of mind that reaches several files one commit naming the rule, not one commit per file.
 4. While the branch is unpushed (`git branch -r --contains HEAD` prints nothing), put the next file of the same sweep into the commit already there by amending, under the section below; that amend needs nobody's words.
 
-See [references/measurements.md](references/measurements.md).
-
 ## Fixing work you already committed
 
 1. Fold a fix into the commit on this branch that already covers it, rather than adding a separate `fix: address review feedback` commit.
@@ -74,14 +72,14 @@ See [references/measurements.md](references/measurements.md).
 3. If one of those commits introduced the feature this change touches, fold the change into it, even when it is not `HEAD`, unless the operator asked for a separate commit.
 4. For `HEAD`, use `git commit --amend`. For an older one, commit with `git commit --fixup=<sha>`, then run `git rebase --autosquash <base>`, where `<base>` is the commit the branch started from; that rebase needs no editor and no `-i`.
 5. **Fold each fixup as soon as you commit it, and check the tree after.** Record `pre=$(git rev-parse HEAD)` before the rebase; after it, `git diff "$pre" HEAD` must print nothing, and if it prints anything, stop and report the diff.
-6. If the rebase stops on a conflict you cannot resolve within the one fixup you just made, run `git rebase --abort`, confirm `git rev-parse HEAD` equals `$pre`, and report which commit and which files conflicted. A fold that reorders the whole stack resolves its conflicts under `pr-create-task`. See [references/measurements.md](references/measurements.md).
+6. If the rebase stops on a conflict you cannot resolve within the one fixup you just made, run `git rebase --abort`, confirm `git rev-parse HEAD` equals `$pre`, and report which commit and which files conflicted. A fold that reorders the whole stack resolves its conflicts under `pr-create-task`.
 7. **At a rebase stop caused by a conflict, do not amend**, because `git commit --amend` there rewrites the commit before the one being replayed. Resolve the files, stage them by path, and run `GIT_EDITOR=true git rebase --continue`; amend only at an `edit` stop that reported no conflict.
 8. **Check whether the commit has reached a remote before you decide**, with `git branch -r --contains HEAD`, which prints nothing and exits 0 when no remote has it. Never use `git log @{u}..HEAD`, which aborts on a branch that was never pushed. Run `git fetch` first if the branch may have been pushed from somewhere else.
 
 - **No remote has it** — amend. This is the default; do not ask the user to choose between a follow-up commit and an amend when the commit is unpushed.
 - **A remote already has it** — amending rewrites published history, so the push becomes `git push --force-with-lease` (never a bare `--force`). On your own PR branch that is still the right call, and the `pr-respond-task` skill drives it. On a branch someone else may have pulled, add a new commit instead.
 
-9. **After a fold, rewrite every commit id the handoff records.** Run `git log --oneline HEAD --not --remotes` again and put each new id in place of its old one, matched by position in that list, not by subject, and record ids rather than subjects. See [references/measurements.md](references/measurements.md).
+9. **After a fold, rewrite every commit id the handoff records.** Run `git log --oneline HEAD --not --remotes` again and put each new id in place of its old one, matched by position in that list, not by subject, and record ids rather than subjects.
 10. Stage explicitly, never with `git add -A`.
 11. Keep the existing message unless the fix changes what that commit claims; if it does, re-author the message through this skill, and otherwise use `git commit --amend --no-edit`.
 12. After an amend, run `git show --stat HEAD` and check that it lists the file you meant to fold in, because an amend with nothing staged changes only the message.
@@ -90,7 +88,7 @@ See [references/measurements.md](references/measurements.md).
 ## Safety
 
 - **Committing and amending carry standing permission. Pushing and deploying never do.** Commit when a piece of work is finished, and amend an unpushed commit, without asking first. Push, force-push, `--force-with-lease` push, and deploy each need the user's words for that specific action, every time. Never chain commit → push → deploy.
-- **A repository's own CLAUDE.md can grant standing permission for a deploy to a target it names.** Read the project instructions before you stop to ask: if they name the service and say a deploy to it carries standing permission, deploy there without asking. That grant reaches only the target it names. See [references/measurements.md](references/measurements.md).
+- **A repository's own CLAUDE.md can grant standing permission for a deploy to a target it names.** Read the project instructions before you stop to ask: if they name the service and say a deploy to it carries standing permission, deploy there without asking. That grant reaches only the target it names.
 - **Approval from earlier in the session does not transfer to a push.** Ask again for each push.
 - **"Apply the fixes" is not "push".** Write the fixes to the working tree and commit them; ask separately before putting them on a remote.
 - **Judge a push by whether the process was followed, not by whether the code is right.** A push that skipped the review sequence in `writing-code` is a process violation.

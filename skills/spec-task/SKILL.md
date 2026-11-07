@@ -10,7 +10,6 @@ description: Turns a design conversation into updated design documents and a sli
 3. Produce the two deliverables in Section 5: the design document edits, which Section 8 writes and commits without asking, and the cards, which `backlog-task` creates. Section 9 reviews both.
 4. Where the repository keeps its cards in bd, only read bd here; Section 10 hands the creating to `backlog-task`.
 5. Stop for approval of the slice in Section 1 on a returning initiative; `backlog-task` holds the other stop, approval of the cards.
-6. Read [references/why.md](references/why.md) only when you dispute a rule.
 
 ## The design documents hold the product, and the cards hold the work
 
@@ -21,7 +20,7 @@ description: Turns a design conversation into updated design documents and a sli
 5. Draw the line at literal code: a source file, a function, a test, a stylesheet value, or a configuration key is code, and everything else is product. Ask whether a person using the thing can tell the difference.
 6. Write one card per task, its acceptance criteria carrying the requirement and the command that proves it.
 7. Keep no third document: no plan file, no index, no per-slice leaf, and no record of decisions already made. A product decision goes in the design, a code decision in the code, and everything not yet done is a card.
-8. For an unclear case, ask who would have to open the file to keep the sentence true, and whether they have any reason to. Design prose never points at code; a doc comment may point at a design section. Read [references/two-documents.md](references/two-documents.md) only for the argument behind this.
+8. For an unclear case, ask who would have to open the file to keep the sentence true, and whether they have any reason to. Design prose never points at code; a doc comment may point at a design section.
 9. Specify only the current slice deeply, with EARS text, a proof command, and acceptance criteria on the card; give everything past it one sentence in the look-ahead sketch, if the repository keeps one, and at most a card title with its dependency edges.
 10. On a returning initiative, take Sections 1, 2, and 3 from the design documents and open cards: the stated definition of released, the product rules already settled, and the questions the open cards hold. Research and ask nothing already settled, and specify only the slice Section 1 names.
 11. Build each section from the one above it, and check it with the one below.
@@ -30,7 +29,7 @@ description: Turns a design conversation into updated design documents and a sli
 ## Product rules every design starts from
 
 1. Apply these when Section 3 answers a question, Section 4 writes a requirement, and Section 5 writes a design edit; a question one of them settles is not open.
-2. Where the slice gives one kind a behavior that a sibling kind already has a rule for, apply the sibling's rule first, over the list below. Make any departure an open question that names it, and label any option that departs. See [references/why.md](references/why.md).
+2. Where the slice gives one kind a behavior that a sibling kind already has a rule for, apply the sibling's rule first, over the list below. Make any departure an open question that names it, and label any option that departs.
 
 - Keep the project's purpose in view, and automate wherever possible.
 - Where automation cannot settle a record, a person decides instead of the
@@ -93,7 +92,7 @@ $ ls -d docs design specs 2>/dev/null
 ```
 
 14. Cut a path through the system, not a layer of it, and resize or split the sketch's slice if it no longer fits what exists. Decide only the next slice.
-15. Make one slice one feature: write the `a person can` line as one sentence naming one capability. If it needs an "and" to join two capabilities a user would think of separately, cut there and specify the first half. Let the sentence decide the cut, never the task count. See [references/slice-size.md](references/slice-size.md).
+15. Make one slice one feature: write the `a person can` line as one sentence naming one capability. If it needs an "and" to join two capabilities a user would think of separately, cut there and specify the first half. Let the sentence decide the cut, never the task count.
 16. On a returning initiative, stop here before Section 2's research, asking only the question below; keep Section 3's questions for Section 3.
 17. Inside a `session-loop` run, make this stop a `HANDOFF.md` written through `clear-task`, whose first line reads `BLOCKED:` with one sentence naming the slice awaiting confirmation, and stop. Write it through the skill, never by hand, however close the ceiling is.
 18. Open the ask with the phase line directly above the question, this stop's phase capitalized:
@@ -163,8 +162,8 @@ complex           While <precondition>, when <trigger>, the <system>
      status:   planned | stubbed→S<n> | built | demoed
 ```
 
-5. If a requirement quotes a sentence a person will read on screen, such as a warning or help text, load `writing-prose` and write it through that skill before the slice goes up for approval. See [references/measurements.md](references/measurements.md).
-6. If a requirement adds help text or user documentation, check each passage against the screen it explains: cut what the screen already shows, and keep what a figure means and where it comes from. See [references/measurements.md](references/measurements.md).
+5. If a requirement quotes a sentence a person will read on screen, such as a warning or help text, load `writing-prose` and write it through that skill before the slice goes up for approval.
+6. If a requirement adds help text or user documentation, check each passage against the screen it explains: cut what the screen already shows, and keep what a figure means and where it comes from.
 7. Mark `built` only for what was already true when this section began, never for a command this pass made pass; this template writes no product file.
 8. Give each requirement beyond the current slice one line and nothing else:
 
@@ -178,15 +177,15 @@ complex           While <precondition>, when <trigger>, the <system>
 12. Make each proof command name a specific test, check, or query, never "the tests pass".
 13. Run every proof command now, and read the count of tests it ran, not its exit code.
 14. If a proof command already passes, mark the requirement `built` and keep it out of Section 6; a "no such test" failure is the expected shape of unbuilt work.
-15. If a requirement concerns a constant of any kind, then it gets no script, no test, and no one-off proof command. A constant is any fixed value: text a person reads, a label, a list of options, a setting, a version, a pinned digest, or a revision hash. Treat a requirement that a thing merely exists the same way. Write a constant into a design document only where that document already names it. See [references/why.md](references/why.md).
+15. If a requirement concerns a constant of any kind, then it gets no script, no test, and no one-off proof command. A constant is any fixed value: text a person reads, a label, a list of options, a setting, a version, a pinned digest, or a revision hash. Treat a requirement that a thing merely exists the same way. Write a constant into a design document only where that document already names it.
 16. If a command cannot run yet, say so and why, and never paste an imagined result.
 17. Give anything the operator rejected its own requirement saying it is gone, in the unwanted or state-driven pattern, with a proof that fails while it is still there.
 18. Cite where it was observed for any requirement describing how an existing system behaves, such as "like X does" or a claim about a protocol, format, or product: a URL, a file path, or a command whose output shows it.
 19. Give a requirement to compare against reference material a proof that fails when no reference is saved: name a directory outside the repository for the reference images, and make the proof list at least one image there beside the capture. Require the card's note to name each reference image used; a search result with no picture is not a reference.
 20. End every slice in a requirement whose proof command produces something a person can look at and operate. If every requirement is an internal module, the cut was horizontal.
-21. Where the slice's behavior is reachable only by a request the product's own screens never send, such as a server refusing a save no edit can produce, say so in that last requirement. Prove it with the test that sends the request, have the demo show the screens behaving as before, and never forge the request at the demo. See [references/why.md](references/why.md).
+21. Where the slice's behavior is reachable only by a request the product's own screens never send, such as a server refusing a save no edit can produce, say so in that last requirement. Prove it with the test that sends the request, have the demo show the screens behaving as before, and never forge the request at the demo.
 22. Where the definition of released says a person operates the thing, prove one requirement by the input that person sends, the press, keystroke, or request itself arriving as it does in the assembled product, never by calling the code it would reach. If `project-drive` is listed, load it for how to send real input; if not, say so in one line and write the requirement anyway.
-23. Have the card carrying that requirement write the operator's steps and commit no script: its design writes the demo file's operate-it steps into `/.tmp/demos/<date>-<slug>/demo.md` by `demo-task` Section 3's method, with a "check after" line for each thing the person will see, and its check reads "walked at the demo". Add no browser test, drive script, or driver to the repository. See [references/why.md](references/why.md).
+23. Have the card carrying that requirement write the operator's steps and commit no script: its design writes the demo file's operate-it steps into `/.tmp/demos/<date>-<slug>/demo.md` by `demo-task` Section 3's method, with a "check after" line for each thing the person will see, and its check reads "walked at the demo". Add no browser test, drive script, or driver to the repository.
 24. Aim that input at the thing as a person sees it, never at a coordinate the code returns: name the target from the screen, and compare what answers the input against what the person aims at.
 
 ## 5. What this run writes, and where each piece lands
@@ -229,8 +228,8 @@ complex           While <precondition>, when <trigger>, the <system>
 5. Keep the cards flat, with no parent or epic cards.
 6. If nobody knows yet how to build a task, cut a spike card ahead of it.
 7. Mark cards that touch without waiting on each other as related, and keep `blocked-by` for a card that cannot start until another finishes.
-8. Put a case that would make an earlier card's path fail in that earlier card, never in one queued after it. See [references/measurements.md](references/measurements.md).
-9. Before cutting cards, read the project's `CLAUDE.md` for every rule that an edit lands in the same change as another, and put both edits on the card that changes the code, cutting no card for the second edit alone. See [references/measurements.md](references/measurements.md).
+8. Put a case that would make an earlier card's path fail in that earlier card, never in one queued after it.
+9. Before cutting cards, read the project's `CLAUDE.md` for every rule that an edit lands in the same change as another, and put both edits on the card that changes the code, cutting no card for the second edit alone.
 10. Fold or drop any current-slice task with no proof command; the one exception is the card whose check reads "walked at the demo". A sketched later task has no proof command.
 11. Name the two boundaries where a task hands work to another: which function or data shape one produces and the next consumes.
 12. Print the stories above the task records, one record per story, with every current-slice task in exactly one:

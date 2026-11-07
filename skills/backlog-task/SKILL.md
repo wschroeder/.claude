@@ -14,7 +14,7 @@ description: Creates and verifies the bd (beads) backlog for one slice spec-task
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If you are past the ceiling it reports, hand off BEFORE starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`. See [references/measurements.md](references/measurements.md).
+1. If you are past the ceiling it reports, hand off BEFORE starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`.
 2. Treat this check as deciding whether this phase starts here, separate from the check at the end, which governs the hand to the next phase.
 
 ## 1. Preconditions
@@ -32,7 +32,7 @@ $ bd statuses
 2. State four things: the slice being created, the design documents its cards will name as their spec id, whether bd is initialized here, and whether the tree is clean.
 3. Count bd as initialized if `bd where` prints a database path, even when `ls` finds no `.beads/`, because inside a git worktree bd uses the main checkout's `.beads/`.
 4. **Stop when the tree has uncommitted changes**, because a card's spec id would name a document whose content is absent from history. Say which file is dirty and wait.
-5. **Say whether `demoable` is among the statuses.** If it is missing, put registering it, `bd config set status.custom "demoable:wip"`, into the same approval Section 2 asks for. See [references/measurements.md](references/measurements.md).
+5. **Say whether `demoable` is among the statuses.** If it is missing, put registering it, `bd config set status.custom "demoable:wip"`, into the same approval Section 2 asks for.
 6. **Do not put bd, or any other tool of your own, into a repository the operator did not start.** Compare `git log --reverse --format=%ae | head -1` with the operator's address; if they differ and bd finds no database, create no cards, because `tdd-cycle` step 4d reads the tasks from the handoff.
 7. If bd finds no database, make the first line of Section 3's list `bd init --skip-agents --skip-hooks -p <prefix>`; `spec-task/references/bd-commands.md` says why both flags are required.
 8. Then print the command list verbatim, as `spec-task` Section 7 generated it, never rebuilt here.
@@ -62,7 +62,7 @@ SPEC -> build -> demo
 4. Keep the cards flat, with no parent or epic cards.
 5. Link two cards that touch without one waiting on the other with `bd dep relate <id> <related-id>`, never with a blocking edge.
 6. Never use `bd create --graph` at any size, because it drops the acceptance criteria and only warns.
-7. Never use the flat `Key: value` shape, because bd reports success and lands every field in the description as prose. bd's output for all three forms is in [../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
+7. Never use the flat `Key: value` shape, because bd reports success and lands every field in the description as prose.
 8. Write the file outside the repository, in a scratchpad, never as a new markdown file in the project.
 
 ## 4. Verification, by reading bd back
@@ -83,14 +83,14 @@ $ bd list --label slice:S<n> --status open
 ## 5. Where the work goes next
 
 1. Name both handoffs, in one line each: `tdd-cycle` takes the cards, with each task's proof command as the test to drive to red first; when the slice's last card closes, `tdd-cycle` step 4d hands to `demo-task`, which hands to `spec-task`, which decides the next slice and returns here.
-2. **The build runs as a `session-loop` run, not as a string of sessions the operator clears by hand.** Hand to `session-loop` rather than to a prompt for the operator to paste. See [references/measurements.md](references/measurements.md).
+2. **The build runs as a `session-loop` run, not as a string of sessions the operator clears by hand.** Hand to `session-loop` rather than to a prompt for the operator to paste.
 3. Commit the new cards before invoking it, because the loop refuses a dirty tree.
-4. Run `bd export -o .beads/issues.jsonl` right before you stage that file, because bd writes its own export up to a minute late ([bd-behavior.md](../spec-task/references/bd-behavior.md)). In a git worktree, skip it, as that file's worktree section says. See [references/measurements.md](references/measurements.md).
+4. Run `bd export -o .beads/issues.jsonl` right before you stage that file, because bd writes its own export up to a minute late. In a git worktree, skip it; you are in one when `bd where` prints a directory outside the current checkout.
 5. Before invoking it, read your own room:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-6. **Then invoke `session-loop`, in this turn, whatever that number says**, never only name it in a handoff. See [references/measurements.md](references/measurements.md).
+6. **Then invoke `session-loop`, in this turn, whatever that number says**, never only name it in a handoff.
 7. If you are past the ceiling, invoke it anyway, because the loop's own step 2 writes the handoff through `clear-task`; say which section you stopped at and what it still owes, such as a record you have not worked or an answer the operator is waiting on.
 
 ## 6. Notes on what this template does NOT do

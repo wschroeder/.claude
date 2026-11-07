@@ -18,8 +18,7 @@ description: Lays out a status or health page — the page that answers "is ever
 3. **In a row, colour goes on the icon and the status word only.** Show green
    when a check is healthy too. Do not tint the row, a card, or a tile. Give a
    notice that explains why a check reads red or stale the status colour as a
-   light tint behind its icon and its words, never grey. See
-   [references/measurements.md](references/measurements.md).
+   light tint behind its icon and its words, never grey.
 4. **Pair every colour with a shape and a word.** The icon is a check or a
    cross with an `aria-label` such as "OK" or "Problem", and the status word
    says the same thing in text (WCAG 1.4.1).

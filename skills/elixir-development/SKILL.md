@@ -48,8 +48,6 @@ Repo.all(from u in User, where: u.active == true, order_by: [desc: u.inserted_at
 Repo.all(query, timeout: @timeout)
 ```
 
-2. See [references/ecto-timeouts.md](references/ecto-timeouts.md) for what happens to the connection pool when one of these times out.
-
 ### Migration safety
 
 1. **Never run `mix ecto.reset`** unless explicitly asked and confirmed, because it drops and recreates the database.

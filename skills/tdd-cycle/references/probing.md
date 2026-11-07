@@ -18,7 +18,3 @@
 3. When no probe is practical, such as live production infrastructure, a complex seed, or multi-service orchestration, write `UNPROBED — <impracticality reason>`.
 4. Before writing that you may not call a service, read the installed CLI or SDK code that builds the request, run its serializer on a sample input, and name that check and its result in the `UNPROBED` line.
 5. When no boundary is crossed, such as a pure syntactic finding or a refactor of code from this session, write `EXEMPT — <reason>`.
-
-## Why the rule exists
-
-1. Probe during construction, because an unchecked boundary assumption is the usual cause of code that looks right and does not do what was said.

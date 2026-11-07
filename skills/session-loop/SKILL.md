@@ -49,7 +49,7 @@ Then:
 Load the session-loop skill for <repository path> and launch the loop.
 ```
 
-2. Name the skill in words, never as `/session-loop`, because a submitted prompt that names a skill gets it loaded and nothing has shown a slash command running from one. Why: [references/driver-loop.md](references/driver-loop.md), "Why step 2 writes the launch prompt before the clear".
+2. Name the skill in words, never as `/session-loop`, because a submitted prompt that names a skill gets it loaded and nothing has shown a slash command running from one.
 3. If no auto-clear mod is loaded, stop instead: say the handoff is written, name its first next step, and ask the operator to `/clear` and invoke this skill again.
 
 ### 3. The working tree is dirty
@@ -74,7 +74,7 @@ Load the session-loop skill for <repository path> and launch the loop.
 ### 6. State the run, then launch it
 
 1. State in a few lines the repository, HEAD, what the first session will work on, and that the run ends by itself when a session marks the work `DONE`, hands off blocked, or fails.
-2. State that each session runs under `bypassPermissions`, editing and running whatever it decides to with no prompt. The reasoning is under "Permissions" in [references/driver-loop.md](references/driver-loop.md).
+2. State that each session runs under `bypassPermissions`, editing and running whatever it decides to with no prompt.
 3. Launch it with the Bash tool's `run_in_background` set, and do not poll it: you are re-invoked when it exits.
 
 ```bash
@@ -94,14 +94,14 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <
 ```
 
 2. If the stopped session produced a demo to look at, such as a page, a render, or a PDF, send it with SendUserFile. Paste the steps of a demo-steps file into your message and do not send the file.
-3. If the driver's last line says the reviewer found something, read the file and fix each finding through `tdd-cycle` before you write any demo ask, because nothing in the loop reads the final iteration's findings. Put a finding you judge not worth fixing in the report with the reason. See [references/measurements.md](references/measurements.md).
+3. If the driver's last line says the reviewer found something, read the file and fix each finding through `tdd-cycle` before you write any demo ask, because nothing in the loop reads the final iteration's findings. Put a finding you judge not worth fixing in the report with the reason.
 4. Say what landed, where each session handed off (the `ctx_end` column), and why the loop stopped.
 5. If it stopped on `DONE`, say the work is complete.
 6. If it stopped on `BLOCKED:`, read the first line of `HANDOFF.md` against step 4 before you pass it on, and answer a question about what to do next yourself. If it really is the operator's, put it to them and offer to resume.
-7. Read the handoff's "Open questions for you". Settle each question that is yours, and carry each one that is the operator's into the ask, the demo ask included. See [references/measurements.md](references/measurements.md).
+7. Read the handoff's "Open questions for you". Settle each question that is yours, and carry each one that is the operator's into the ask, the demo ask included.
 8. If that question asks for a demo, load `demo-task` and enter it at Section 3, not Section 4. Start the demo server first with the command the demo file's steps name.
 9. If the worker's walk record names the commit at HEAD, open its captures with Read and check each after-capture against its step; walk every step yourself, capturing as you go, only when HEAD has moved since that walk. Do either before Section 4 composes the ask.
-10. After a walk, reset the demo's data, start the server again, and leave it running for the operator, as demo-task Section 3 says. See [references/measurements.md](references/measurements.md).
+10. After a walk, reset the demo's data, start the server again, and leave it running for the operator, as demo-task Section 3 says.
 11. Open the ask with the phase line, directly above the question, or close the report with it where nothing needs deciding: the three phases in order, with the one the loop stopped in capitalized.
 
 ```
@@ -150,7 +150,7 @@ Details, flags, and the permissions warning:
 4. Match the model to the task: Haiku for wide or mechanical passes where only the answer matters, Sonnet for judgment you will not re-read yourself, and the driver model for the reasoning you hold in this session. If the choice is close, take the more capable model.
 5. Do not delegate work you will review, such as a change you then read line by line.
 6. Run `quick-review` and `security-review` yourself, never in subagents; the loop contract names them outright because a worker never sees this file.
-7. Below about 100,000 context, delegate nothing; the band where delegating wins opens around 130,000, and that is never a reason to hand off early. The arithmetic and a turn-count table: [references/driver-loop.md](references/driver-loop.md) under "Which model runs what".
+7. Below about 100,000 context, delegate nothing; the band where delegating wins opens around 130,000, and that is never a reason to hand off early.
 8. Take the standing exception for investigation, and what a delegation prompt must carry, from `subagents`; the context bands here hold only at the loop's 170,000 ceiling.
 
 ## Shaping a session
@@ -171,15 +171,12 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 
 1. Hand off after a single command, such as the same test, build, or query, fails a third time after two attempts to fix it, whatever the context number says.
 2. Start the count over when a different command fails, but not when the same command fails with a new error.
-3. Commit what you have with a subject saying it is unfinished, and write the handoff naming the command, its latest output, and each fix already tried. Why: [references/driver-loop.md](references/driver-loop.md), "Why three failures hand off".
+3. Commit what you have with a subject saying it is unfinished, and write the handoff naming the command, its latest output, and each fix already tried.
 4. Ask most of all just before the reviews, because review turns cost the most where the context is fullest and a fresh session reads the diff better.
 5. Apply this loop rule only inside the loop; outside it, finish and review a piece of work before you commit it.
 6. Front-load the expensive reading, such as design documents, the code you are matching, and the measurements the work must hit, while the context is small, and read each once.
 7. Put a measurement into the record once, not into the conversation three times.
 8. Wait in one blocking call with a timeout, never by looking repeatedly.
-
-What each of these numbers was measured on:
-[references/driver-loop.md](references/driver-loop.md).
 
 ## Measuring
 

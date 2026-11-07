@@ -7,9 +7,9 @@ description: Closes a finished slice — runs every proof command to find where 
 
 1. For the slice named in $ARGUMENTS, respond with the sections below in order. If $ARGUMENTS is empty, take the slice whose cards are demoable, say which, and quote the query that found it.
 2. Produce three deliverables: the demo in Section 3, the cards moved in Section 5, and the design document edits in Section 6. Section 4 is the one stop; everything after it records what the operator said there.
-3. Write everything the operator reads in plain English, with no requirement id, bead id, or coined word carrying a sentence. See [references/measurements.md](references/measurements.md).
+3. Write everything the operator reads in plain English, with no requirement id, bead id, or coined word carrying a sentence.
 4. Keep CLAUDE.md's Evidence Format in full: the evidence block stays, and every claim carries its tag. Where plain English and evidence pull apart, write the plain sentence and put its tag on it.
-5. Use an id only as a tag after the clause it proves; state what the requirement asks for in the sentence itself. See [references/measurements.md](references/measurements.md).
+5. Use an id only as a tag after the clause it proves; state what the requirement asks for in the sentence itself.
 6. Build each section from the one above it; write no status tag before Section 2's commands have run.
 7. If a section fights the work rather than catching something, say so instead of skipping it.
 
@@ -17,7 +17,7 @@ description: Closes a finished slice — runs every proof command to find where 
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If it reports you are past the ceiling, hand off before Section 1: say so, say no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`. See [references/measurements.md](references/measurements.md).
+1. If it reports you are past the ceiling, hand off before Section 1: say so, say no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`.
 2. Treat this check as separate from Section 7's, which governs the hand to the next phase.
 
 ## Rapid mode — when the operator pauses the formality
@@ -75,7 +75,7 @@ Story: As a <person who uses the product>, I can <what they can do>.
   status: <n> of <m> closed
 ```
 
-6. Fill `beads` and `proof` from each card's acceptance criteria, reading the cards one at a time and keeping only their criteria, and put every proof command under the card whose criteria name it. See [references/measurements.md](references/measurements.md).
+6. Fill `beads` and `proof` from each card's acceptance criteria, reading the cards one at a time and keeping only their criteria, and put every proof command under the card whose criteria name it.
 7. Make the role someone who uses the product, never the developer; name toolchain work on the `proof` line of the story it serves.
 8. Lead with any story whose beads are all closed but whose proof command fails.
 9. Last, write the per-requirement records, which are for you:
@@ -94,7 +94,7 @@ Story: As a <person who uses the product>, I can <what they can do>.
 
 1. **Suspended while rapid mode is on** — see "Rapid mode" above. Produce no artifact and write no reproduction command until the operator approves.
 2. Show the definition of released being met by the thing itself, not by tests passing.
-3. If a walk step needs a model, dataset, or setting other than the operator's environment names, or spends money, ask about that alone before walking, outside Section 4's ask. If they say no, leave the step out and write "the walk did not check this" against it. See [references/measurements.md](references/measurements.md).
+3. If a walk step needs a model, dataset, or setting other than the operator's environment names, or spends money, ask about that alone before walking, outside Section 4's ask. If they say no, leave the step out and write "the walk did not check this" against it.
 4. Write one record:
 
 ```
@@ -108,29 +108,29 @@ Story: As a <person who uses the product>, I can <what they can do>.
 5. Where the operator clicks rather than runs a command, make `operate it` numbered steps, each saying where to click, what to check before, what to do, and what to check after.
 6. Write those steps as a story before driving anything: load `writing-prose` and use its tier-two method, dumping every card and changed behavior and ordering them so each step sets up the next.
 7. Map every rule on every card to a step, or say in one line why it has nothing on screen, and write the mapping under the steps, one line per rule: card, rule, step number. Map each case of a multi-case rule to its own step, and add a step for any case the mapping says went undriven before walking.
-8. Order the steps so the walk can run again from step 1: put a step that changes data after every step that reads it, or follow it with a step that restores it. See [references/measurements.md](references/measurements.md).
+8. Order the steps so the walk can run again from step 1: put a step that changes data after every step that reads it, or follow it with a step that restores it.
 9. If the slice changes a step in the middle of a pipeline, add a walk step capturing the screen just before and just after it, even where the end state alone would pass.
 10. Follow the written steps literally as the drive: capture before and after each step and compare each after-capture with its "check after" text.
 11. Capture the whole page (`fullPage` true, no `uid`) unless the step is about one element, and open every capture with Read before sending it, comparing the image, never the page text.
 12. To find what to click, read only the region the step works in, such as with `evaluate_script`, never a whole-page snapshot.
-13. Where a capture and its "check after" text disagree, fix the step or send the product back to build as [references/driving-rules.md](references/driving-rules.md) says, and post nothing until they agree. See [references/measurements.md](references/measurements.md).
-14. Print the steps in full in the message that posts the demo; keep the file on disk as the walk's record, unsent. See [references/measurements.md](references/measurements.md).
-15. Start whatever the demo needs yourself, such as a build and a server, give the operator what they open with the server's PID, and leave it running until they answer. Where a step restarts the app, tell them to type "restart" and restart it yourself. See [references/measurements.md](references/measurements.md).
-16. Where a step needs setup a phone cannot do, do it yourself, show the evidence it is in place, and hand the operator only the test on the phone. See [references/measurements.md](references/measurements.md).
-17. Before posting, set each answer the operator gave during the spec, as quoted in cards and design documents, beside the captures, and say whether a capture shows the build matching it. See [references/measurements.md](references/measurements.md).
-18. Read each capture taken just before the operator acts as a newcomer would. If one shows something they turned down, or something a newcomer could not make sense of, fix it and walk again before posting, whether or not the spec covers it; raise it only when the fix needs a choice they have not made. See [references/measurements.md](references/measurements.md).
-19. Read every figure on every capture against the others on the same screen, such as a count against a heading's total, and say whether those that should agree do. If the slice caused a mismatch, fix it before posting; if not, state it in the post as a walk finding. See [references/measurements.md](references/measurements.md).
+13. Where a capture and its "check after" text disagree, fix the step or send the product back to build as [references/driving-rules.md](references/driving-rules.md) says, and post nothing until they agree.
+14. Print the steps in full in the message that posts the demo; keep the file on disk as the walk's record, unsent.
+15. Start whatever the demo needs yourself, such as a build and a server, give the operator what they open with the server's PID, and leave it running until they answer. Where a step restarts the app, tell them to type "restart" and restart it yourself.
+16. Where a step needs setup a phone cannot do, do it yourself, show the evidence it is in place, and hand the operator only the test on the phone.
+17. Before posting, set each answer the operator gave during the spec, as quoted in cards and design documents, beside the captures, and say whether a capture shows the build matching it.
+18. Read each capture taken just before the operator acts as a newcomer would. If one shows something they turned down, or something a newcomer could not make sense of, fix it and walk again before posting, whether or not the spec covers it; raise it only when the fix needs a choice they have not made.
+19. Read every figure on every capture against the others on the same screen, such as a count against a heading's total, and say whether those that should agree do. If the slice caused a mismatch, fix it before posting; if not, state it in the post as a walk finding.
 20. Before driving anything, read [references/driving-rules.md](references/driving-rules.md).
 
 ## 4. Stop — show the operator and take the feedback
 
 1. Post Sections 2 and 3 and stop: no status reconciliation, no next slice, no fixes.
 2. **While rapid mode is on, this stop is the sentence or two that "Rapid mode" above calls for**, and nothing below returns until the operator approves.
-3. If the demo gains a new way to reach the product, such as a new build, platform, or kind of input, go back to Section 3, drive it through that way with a person's input, and read the captures before sending. See [references/measurements.md](references/measurements.md).
+3. If the demo gains a new way to reach the product, such as a new build, platform, or kind of input, go back to Section 3, drive it through that way with a person's input, and read the captures before sending.
 4. Record the walk as you go in its folder, `/.tmp/demos/<date>-<slug>/` at the root of the working tree, alongside the demo file, captures, and any driver, and never commit anything in it. Record the commit the walk runs on and one line per finished step naming its captures and whether it matched.
 5. Where a walk runs past about ten steps, drive it with a script in that folder that takes the captures and prints those lines.
-6. Before the walk's first step, run two checks. If `git check-ignore -q .tmp/demos/x` exits non-zero, append `/.tmp/demos/` to `.gitignore` and commit that line alone. If `git ls-files` lists a demo file or walk record outside that folder, move it in, `git rm --cached` it, and commit that alone. See [references/measurements.md](references/measurements.md).
-7. If anything has been committed since the captures were taken, go back to Section 3 and walk every step again; one fresh capture is not a walk. A session may finish an earlier session's walk only when the record names the current HEAD, nothing has touched the walk's data, and it opens every capture it posts with Read. See [references/measurements.md](references/measurements.md).
+6. Before the walk's first step, run two checks. If `git check-ignore -q .tmp/demos/x` exits non-zero, append `/.tmp/demos/` to `.gitignore` and commit that line alone. If `git ls-files` lists a demo file or walk record outside that folder, move it in, `git rm --cached` it, and commit that alone.
+7. If anything has been committed since the captures were taken, go back to Section 3 and walk every step again; one fresh capture is not a walk. A session may finish an earlier session's walk only when the record names the current HEAD, nothing has touched the walk's data, and it opens every capture it posts with Read.
 8. If you hand off before this section's ask, write the next first step as "resume the walk at step N" where the record allows it, and as "go back to Section 3 and walk every step again" otherwise, never "resume at Section 4". If a walk used up data the demo needs, the next walk uses another record or puts new data in place, never skipping the walk.
 9. Open the ask with the phase line directly above the question, this stop's phase capitalized:
 
@@ -139,26 +139,26 @@ spec -> build -> DEMO
 ```
 
 10. Ask for one thing: that the operator work the demo themselves and say what is wrong with it. Give them what Section 3's record says they act on, the command or the thing to open, and ask them to close any link of the chain that went unproven.
-11. Before handing over a link, run any local tool that would check it, such as `pdftoppm` with a pixel diff; if you still hand it over, write "the walk did not check this" against it and give no reason it ought to pass. See [references/measurements.md](references/measurements.md).
+11. Before handing over a link, run any local tool that would check it, such as `pdftoppm` with a pixel diff; if you still hand it over, write "the walk did not check this" against it and give no reason it ought to pass.
 12. Name the two or three things worth looking at, never ask what they would like to do next, and put the ask last.
-13. Before asking the operator anything about how the product behaves, search the design documents for the answer, including questions from a handoff, your own, and ones raised while answering feedback; check each oddity they ask about the same way. Where the documents answer it, quote the line and drop the question. See [references/measurements.md](references/measurements.md).
+13. Before asking the operator anything about how the product behaves, search the design documents for the answer, including questions from a handoff, your own, and ones raised while answering feedback; check each oddity they ask about the same way. Where the documents answer it, quote the line and drop the question.
 14. Where the demo is something to read, such as a page, report, render, or PDF, send the file with `SendUserFile` and give its path. Never send a file of operate-it steps.
-15. Where the demo follows a background run the operator was not watching, such as `session-loop`, send one `PushNotification` per demo naming the slice. Write the demo message first, summary, steps, phase line, and ask, then call SendUserFile and PushNotification, and end with one line pointing back that repeats nothing, such as "The demo is above." See [references/measurements.md](references/measurements.md).
+15. Where the demo follows a background run the operator was not watching, such as `session-loop`, send one `PushNotification` per demo naming the slice. Write the demo message first, summary, steps, phase line, and ask, then call SendUserFile and PushNotification, and end with one line pointing back that repeats nothing, such as "The demo is above."
 16. Record what comes back verbatim, one record per point, and interpret only in Section 6:
 
 ```
 [F<n>] "<the operator's own words>"
 ```
 
-17. Try a fix the feedback asks for before reviewing it: edit the working tree, restart the app, and walk the named step until it matches. Then run `writing-code`'s reviews, commit once on the passing version, and walk every step again. See [references/measurements.md](references/measurements.md).
+17. Try a fix the feedback asks for before reviewing it: edit the working tree, restart the app, and walk the named step until it matches. Then run `writing-code`'s reviews, commit once on the passing version, and walk every step again.
 18. Inside a `session-loop` run, make this stop a line in a file:
     1. Commit what is done, never the walk's folder.
     2. Stop every server you started, and write its start command into the demo file's steps.
     3. Write the start command and the walk command each as a short numbered list of single commands runnable as printed, the app launch as one line setting every variable, never a script or env file.
-    4. After your last edit to the demo file, run both exactly as printed, and write `BLOCKED:` only once both work. See [references/measurements.md](references/measurements.md).
+    4. After your last edit to the demo file, run both exactly as printed, and write `BLOCKED:` only once both work.
     5. Write `HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one sentence naming the slice and the file holding its demo, and stop, however close the ceiling is.
     6. Write `BLOCKED:` only once Section 3's record and captures exist and the drive has reached everything the slice changed; before then, write an ordinary handoff naming the section or step still to drive.
-    7. Where the worker stopped partway through the walk, add a line `WALK: <path to the walk record>`, relative to the repository root or absolute. See [references/measurements.md](references/measurements.md).
+    7. Where the worker stopped partway through the walk, add a line `WALK: <path to the walk record>`, relative to the repository root or absolute.
     8. Move no requirement to `demoed`; they stay `built` until a person has looked.
 19. Never carry on into Section 5 after posting the demo.
 
@@ -173,16 +173,16 @@ spec -> build -> DEMO
 ```
 
 2. Close with `bd close --reason`, putting Section 2's measured output in the reason.
-3. Before staging the closes, run `bd export -o .beads/issues.jsonl` ([bd-behavior.md](../spec-task/references/bd-behavior.md)); in a git worktree, skip it, as that file's worktree section says.
+3. Before staging the closes, run `bd export -o .beads/issues.jsonl`; in a git worktree, skip it, and you are in one when `bd where` prints a directory outside the current checkout.
 4. Close the cards the operator's acceptance names, whether they worked the demo or judged the captures, and never on the absence of a complaint.
 5. Name any card still `open` or `in_progress` as not shipped in this slice, and leave it where it is.
 
 ## 6. What the feedback changed
 
 1. Work every Section 4 record to one of six outcomes:
-   - A request to do something before this phase ends, such as research, a second look, or a design conversation: do it now, and say what came of it. See [references/measurements.md](references/measurements.md).
+   - A request to do something before this phase ends, such as research, a second look, or a design conversation: do it now, and say what came of it.
    - Accepted as it stands: say so in one line.
-   - **A decision about how the product behaves: write it into the design document in this run**, in the document's voice with no mention of this demo, per `spec-task` "The design documents hold the product". See [references/measurements.md](references/measurements.md).
+   - **A decision about how the product behaves: write it into the design document in this run**, in the document's voice with no mention of this demo, per `spec-task` "The design documents hold the product".
    - A new requirement nobody has specified: one line in the look-ahead sketch, or a card where it is concrete enough to title, with no requirement text or proof command unless it lands in the next slice.
    - A dropped requirement: close its card as won't-do with the operator's words in the reason.
    - Rejected: one line saying why.
@@ -198,8 +198,8 @@ spec -> build -> DEMO
 
 2. If it reports you are past the ceiling, or says `finish the step you are on`, write the handoff through `clear-task` yourself and ask the operator to `/clear`, telling `clear-task` which section you stopped at and what it still owes.
 3. Otherwise, hand to `spec-task` now, in the same turn, however small the slice, and never ask whether to run it.
-4. If the operator said they would do something themselves, such as open the deployed page or complete a sign-in, and has not reported back, stop and say in one line what you are waiting on and that the spec follows it. See [references/measurements.md](references/measurements.md).
-5. If the operator's acceptance asks a question or asks for something next, answer in prose and do it, searching the design documents first as Section 4 says, and then hand to the spec; never answer with a question about which to do first. See [references/measurements.md](references/measurements.md).
+4. If the operator said they would do something themselves, such as open the deployed page or complete a sign-in, and has not reported back, stop and say in one line what you are waiting on and that the spec follows it.
+5. If the operator's acceptance asks a question or asks for something next, answer in prose and do it, searching the design documents first as Section 4 says, and then hand to the spec; never answer with a question about which to do first.
 
 ## What this template does NOT do
 

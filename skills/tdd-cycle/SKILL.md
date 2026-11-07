@@ -42,7 +42,7 @@ mix test path/to/test.exs
 
 1. Treat a card as screen-only when its change alters only what a screen shows: markup, styles, wording, or images.
 2. Treat a change that also reaches what the app stores, what it computes, or which route or permission serves a page as not screen-only.
-3. For a screen-only card, write no test: build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c. See [references/measurements.md](references/measurements.md).
+3. For a screen-only card, write no test: build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c.
 
 ### 0. Probe Boundaries (before writing the test)
 
@@ -61,8 +61,8 @@ mix test path/to/test.exs
 
 1. Ask what functionality needs to be implemented.
 2. **Test what the audience sees, at the level of the feature, never a single module.**
-3. **Write no test for behavior someone checked by hand when automating the check costs too much**, such as repeated calls to a paid API or a change that only moves a setting; say in one line who ran the hand check and what it found, then move on. See [references/measurements.md](references/measurements.md).
-4. **Write no test for a constant**, such as a label's text, a list's members, or a setting, and no test that asserts only that a thing exists; `spec-task` proves a constant by reading it. See [../spec-task/references/why.md](../spec-task/references/why.md).
+3. **Write no test for behavior someone checked by hand when automating the check costs too much**, such as repeated calls to a paid API or a change that only moves a setting; say in one line who ran the hand check and what it found, then move on.
+4. **Write no test for a constant**, such as a label's text, a list's members, or a setting, and no test that asserts only that a thing exists; `spec-task` proves a constant by reading it.
 5. **Give each behavior one test, at the lowest level that can observe it.** Before you write a test, find the one that already proves this behavior, and add your case there or write nothing.
 6. **Assert only what the test's title names**, and put an assertion about another step's output in that step's test.
 7. **Assert what a person reads or what the system stores, never the markup around it.** If a state shows only through styling, add a stable attribute to the markup (`data-state="done"`) and assert that.
@@ -71,7 +71,7 @@ mix test path/to/test.exs
 10. **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until it prints what the card expects, and commit, all in one pass, with no probe.
 11. Treat a sentence the app builds from data as behavior, which takes the full cycle.
 12. **When the bug is something you saw on screen, test what it stopped the person doing**: perform that action in the test and assert the values the person reads afterward.
-13. Run a layout test, such as whether a control fits its cell, only while working the design toward what the operator has in mind, delete it once the operator has looked at the result, and do not count the action test as covering the layout. See [references/measurements.md](references/measurements.md).
+13. Run a layout test, such as whether a control fits its cell, only while working the design toward what the operator has in mind, delete it once the operator has looked at the result, and do not count the action test as covering the layout.
 14. **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
 15. **Keep every test fast**, and never sleep in a test: wait on the condition itself, or control the clock.
 16. **Name the interface before the test file exists**: say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss.
@@ -109,7 +109,7 @@ mix test path/to/test.exs
    - **3 to 7.** Read the modified list, not just the count. If the same file shows up for the same reason on consecutive additions, that file is the dispatcher. Name it in the handoff even if you do not lift it now.
    - **8 or more.** Stop. Either name the extension point and lift, or write one line in the commit body saying why the lockstep edit is right this time.
 10. Exempt a fix; the count governs a change that *adds* a case, a feature, or a variant.
-11. Print the count when you report the change, the same way the test result gets printed. Rationale: [references/open-closed.md](references/open-closed.md).
+11. Print the count when you report the change, the same way the test result gets printed.
 12. **(d) Re-run tests** to ensure nothing broke.
 
 ### 4. Self-Review (mandatory before declaring done)
@@ -126,7 +126,7 @@ mix test path/to/test.exs
 4. Mark a partly met clause not met, keep a card with any clause not met `in_progress`, and name the clause in its note.
 5. Run this check even when the operator has turned tests off.
 6. **If the data as it stands cannot meet a clause, build the data**: add records to the project's fictional data, or put existing fictional records into the state the clause needs and restore them afterwards.
-7. Ask the operator only when no data you could make would meet the clause. See [references/measurements.md](references/measurements.md).
+7. Ask the operator only when no data you could make would meet the clause.
 8. **No conditional assertions, and no skipped tests.** When the test controls its data, assert on that data every time it runs, never inside `if result:` or `if rows:`.
 9. If the test does not control its data yet, give it a setup step that does.
 10. If a test is marked skip, delete it.
@@ -142,12 +142,12 @@ mix test path/to/test.exs
 1. Skip this when nothing tracks the work, and say in one line that you did.
 2. Commit first, with no card id anywhere in the message, as `git-commit` requires.
 3. **Stage by path, never `git add -u`**, because moving the card writes `.beads/interactions.jsonl`.
-4. In a git worktree, skip the next two rules, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says.
+4. In a git worktree, skip the next two rules; you are in one when `bd where` prints a directory outside the current checkout.
 5. Outside one, unstage bd's own `.beads/issues.jsonl` from a code commit with `git restore --staged .beads/issues.jsonl`.
 6. Run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes.
 7. Then move the card, with a note carrying three things: what the code now does, the clause list with its evidence, and the commit.
 8. Move nothing on a working tree that still holds the change.
-9. **The card moves only after step 10's reviews have run on its diff.** If you commit before them, leave the card `in_progress`, and if you hand off before they run, name in the handoff each card and the reviews it still owes. See [references/measurements.md](references/measurements.md). The order:
+9. **The card moves only after step 10's reviews have run on its diff.** If you commit before them, leave the card `in_progress`, and if you hand off before they run, name in the handoff each card and the reviews it still owes. The order:
 
 ```
 $ git commit -m "<what changed>"
@@ -164,11 +164,11 @@ $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
 
 10. **The card moves only after quick-review's full Output block has printed in this session's own output.** Make the note point to that printed report, with the time it printed and its count of fixes and flags; never let it stand in for the report.
 11. If no Output block printed, the review did not run: leave the card `in_progress` and write `quick-review owed` in the note and the handoff.
-12. Do not treat a budget line saying `finish the step you are on` as finishing a review that has not printed. Why: [quick-review's why-the-gates.md](../quick-review/details/why-the-gates.md), "Why the receipt is a checklist".
+12. Do not treat a budget line saying `finish the step you are on` as finishing a review that has not printed.
 13. **Built is not done, and this loop cannot say it is.** Move the card to `demoable`, never closed; `demo-task` closes it once the operator has watched it work.
 14. If `bd update --status demoable` is rejected, say in one line that the project has not registered the status, close the card with `bd close --reason` carrying the same three things, and carry on.
 15. Leave the registering command, `bd config set status.custom "demoable:wip"`, to the project.
-16. Never move a card with no commit behind it. See [references/measurements.md](references/measurements.md).
+16. Never move a card with no commit behind it.
 17. Leave everything else the finished diff owes to `quick-review`'s catalog, walked once by the review that follows this loop, and how the code and its logs are written to `writing-code`.
 
 **4d. The slice, when the card you just moved was its last.**
@@ -181,7 +181,7 @@ $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
 
 ### 5. Repeat
 
-1. **A turn that names its own next step takes it, in the same turn**, such as the next card, the probe before it, or the section still to write. See [references/measurements.md](references/measurements.md).
+1. **A turn that names its own next step takes it, in the same turn**, such as the next card, the probe before it, or the section still to write.
 2. If the next step needs the operator, such as an approval or a question only they can answer, put the ask last and say what to do.
 3. Work out whether there are more test cases to add.
 4. **Failure paths are the next tests, not a gate at the end.** Give every new error branch, every external call with a new error shape, and every new `else` arm its own test.
@@ -214,10 +214,10 @@ When activated:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. Run it each time a card or a handoff task passes its proof, and after every commit, before you start the next one. See [references/measurements.md](references/measurements.md).
-2. If the reading is past the ceiling, hand off rather than starting the next card: write the handoff through `clear-task` and say you have, in the same turn, without asking permission first. See [references/measurements.md](references/measurements.md).
+1. Run it each time a card or a handoff task passes its proof, and after every commit, before you start the next one.
+2. If the reading is past the ceiling, hand off rather than starting the next card: write the handoff through `clear-task` and say you have, in the same turn, without asking permission first.
 3. **On `finish the step you are on`, finish the card in hand, commit it, write the handoff through `clear-task` yourself, and stop.** Do not start the next card.
-4. **On `keep going`, keep going**, and do not price the next card at what this whole session has cost. See [references/measurements.md](references/measurements.md).
+4. **On `keep going`, keep going**, and do not price the next card at what this whole session has cost.
 
 ## What NOT to Do
 

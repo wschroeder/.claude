@@ -25,8 +25,6 @@ description: Makes a page work on a phone and a desktop without naming device wi
 2. Treat 320 as a 1280px desktop viewport at 400% zoom, not as a phone.
 3. Let content that genuinely needs two dimensions, such as data tables, maps, diagrams, video, games, and code blocks where indentation carries meaning, scroll inside its own container under the 1.4.10 exemption; the page around it still reflows.
 
-Why each number is what it is: [references/sources.md](references/sources.md).
-
 ## Units
 
 | Never | Instead | Because |
@@ -37,7 +35,7 @@ Why each number is what it is: [references/sources.md](references/sources.md).
 | `max-width: 640px` on prose | `max-width: 62ch` | measure is a count of characters, not a distance |
 | `height: 100vh` | `height: 100dvh` | `100vh` is the *largest* viewport, so mobile browser chrome clips it on load |
 
-1. Never cite WCAG 1.4.4 against a px font-size: page zoom scales px. Rest the rule on the reader's default font size, which px ignores; see [references/sources.md](references/sources.md#the-144-correction).
+1. Never cite WCAG 1.4.4 against a px font-size: page zoom scales px. Rest the rule on the reader's default font size, which px ignores.
 
 ### The fluid step
 
@@ -91,7 +89,7 @@ Worked, for body text 16px at a 320px viewport rising to 18px at 1240px:
 ```
 
 3. Write the reservation in `lh` so it tracks the reader's text-spacing override, and declare `line-height: 1.5` so the `em` fallback lands on two lines exactly.
-4. Before you add the reservation, measure the grid's column minimum against the longest string; if the minimum is wider, the value cannot wrap before the grid collapses to one column, so skip it. See [references/sources.md](references/sources.md), "The cost of holding a line".
+4. Before you add the reservation, measure the grid's column minimum against the longest string; if the minimum is wider, the value cannot wrap before the grid collapses to one column, so skip it.
 
 ### Check the narrow end with the text doubled, not only at the default size
 
@@ -104,7 +102,7 @@ Worked, for body text 16px at a 320px viewport rising to 18px at 1240px:
 
 3. Lower a `clamp()` floor in `rem` until the longest string fits at 320, because the floor does not fall with the `vw` term; the desktop size does not move.
 4. Give every heading and any unbroken value `overflow-wrap: break-word`.
-5. Run check 2 of the review checklist before trusting a page at 320; all three surface there. The measurements: [references/sources.md](references/sources.md), "Space that grows while the viewport does not".
+5. Run check 2 of the review checklist before trusting a page at 320; all three surface there.
 
 ### Which query
 
@@ -136,7 +134,7 @@ Worked, for body text 16px at a 320px viewport rising to 18px at 1240px:
 
 ## Disclosure — the decision fluid layout cannot make
 
-1. Collapse a filter set, a toolbar, or a nav with more than about four controls on a narrow screen. See [references/measurements.md](references/measurements.md).
+1. Collapse a filter set, a toolbar, or a nav with more than about four controls on a narrow screen.
 
 ```css
 /* Collapsed by default; the container decides when it may open flat. */
@@ -230,7 +228,7 @@ render: ok out=dom.html bytes=191568 width=1440 elapsed=1s fonts=8/57
 ```
 
 6. Compare two captures only when their receipts match. Treat `fonts=0/0` on a page that declares webfaces as a render that never reached the font host.
-7. Never use `document.fonts.status` or `document.fonts.check()` instead, because both report success with the font hosts blocked. See [references/sources.md](references/sources.md), "Renders are not reproducible".
+7. Never use `document.fonts.status` or `document.fonts.check()` instead, because both report success with the font hosts blocked.
 8. Give check 6 its own render at one width and the real device height, because the strip's fixed-height iframes have no fold.
 9. For the two injected renders, copy the built file, insert a `<style>` before `</head>`, and render the copy; never edit the original.
 

@@ -42,13 +42,13 @@ git diff origin/<base>..HEAD --stat          # surface area
 5. Resolve each conflict in the commit that replays it, so no commit in the stack carries another one's repair.
 6. If a resolution writes code that neither side held, such as a new member of a list the base added or a base call moved into the branch's code, then treat it as a code change.
 7. For such a resolution, search the project's specs and design documents for each sentence that names the list's other members, the check `quick-review` angle 6.8 makes, and fix any sentence that leaves the new member out in the same commit.
-8. Then remove the added line, run its tests, and put it back; if no test fails, say so in that commit's message. See [references/measurements.md](references/measurements.md).
+8. Then remove the added line, run its tests, and put it back; if no test fails, say so in that commit's message.
 9. If the rebase brought in commits, list the files the branch adds with `git diff --name-only --diff-filter=A origin/<base> HEAD`, and for each directory that holds numbered files, such as migrations, list the base's copy with `git ls-tree --name-only origin/<base> <dir>/`.
-10. If a branch file and a base file start with the same number, renumber the branch's file after the base's highest, in the commit that adds it, and run the migration tool the deploy uses over the directory, because git shows no conflict there but the tool refuses the directory. See [references/measurements.md](references/measurements.md).
+10. If a branch file and a base file start with the same number, renumber the branch's file after the base's highest, in the commit that adds it, and run the migration tool the deploy uses over the directory, because git shows no conflict there but the tool refuses the directory.
 11. If the rebase brought in no commits, run no tests: TDD already ran them against this base.
 12. If it brought some in, read the project's CI workflow for the runners it runs on a pull request and leave those to CI's check on the draft PR.
 13. Run every other runner against the rebased head, usually the browser tests, or at least every browser spec the branch adds or edits.
-14. If the project has no CI on pull requests, run every runner. See [references/measurements.md](references/measurements.md).
+14. If the project has no CI on pull requests, run every runner.
 15. **Fold the stack to one commit per claim before the push gate.** Group the commits by the claim each makes, under `git-commit`, "How many commits".
 16. Order the history feature by feature, not in the order the work happened: reorder freely, and let the migrations fix the order only where they must.
 17. Fold every fix commit into the commit it fixes, and fold each group into one commit with a message authored through `git-commit`.
@@ -56,13 +56,13 @@ git diff origin/<base>..HEAD --stat          # surface area
 19. Resolve a reordered commit's conflict in the commit that replays it, as in the rebase above.
 20. Never split a claim's group, or move a commit into another claim's group, to get past a conflict.
 21. If a migration only patches another migration on this branch and no shared database has run either one, fold it into the migration it patches and renumber the versions after it.
-22. If the fold ends with more commits than the plan had groups, name each extra commit at the push gate and say which claim it splits. See [references/measurements.md](references/measurements.md).
+22. If the fold ends with more commits than the plan had groups, name each extra commit at the push gate and say which claim it splits.
 23. Expect a branch built one card at a time to arrive as one commit per card.
 24. While `git branch -r --contains HEAD` prints nothing, fold without asking anyone.
 25. **Then review the whole branch.** Run `quick-review` and then `security-review` over `origin/<base>..HEAD`, and record the tip they read (`git rev-parse HEAD`).
 26. Fix nothing here: a finding of any size ends PR prep, so invoke `retro-task` in the same turn with every finding and the reviewed tip.
 27. Let the fixes come back through `retro-task`, `spec-task`, build, and demo like any other work, and run PR prep again only when the operator asks for it.
-28. On a later run, re-walk every pass on the code that changed since the tip the last run reviewed, `git diff <that tip> HEAD`, and reuse the earlier run's named artifacts only for code that has not changed. See [references/measurements.md](references/measurements.md).
+28. On a later run, re-walk every pass on the code that changed since the tip the last run reviewed, `git diff <that tip> HEAD`, and reuse the earlier run's named artifacts only for code that has not changed.
 
 **GO/NO-GO:**
 - **GO** if the working tree holds only intended changes, the branch sits
@@ -90,7 +90,7 @@ git diff origin/<base>...HEAD -- <each operational path>
 ```
 
 4. Work out which paths are tests from the project's test runner config first, such as vitest or jest `include`, playwright `testDir`, or pytest `testpaths`, and then from naming (`*.test.*`, `*.spec.*`, `test_*.py`, `tests/`, `__tests__/`).
-5. Never diff a test file for the body. See [references/measurements.md](references/measurements.md).
+5. Never diff a test file for the body.
 
 ## Body — content discipline
 
@@ -98,7 +98,7 @@ git diff origin/<base>...HEAD -- <each operational path>
    - **What is this change, and why?** Lead with the what in one tight paragraph, then the why: the problem it solves, the alternative rejected, the constraint that makes something mandatory. Give the why over the how, which the diff already shows.
    - **What must someone acting on this know that the diff can't tell them?** A manual step that must follow, a cross-system contract change, a data dependency, or a feature flag. This is the only operational content that belongs.
 2. Cut every sentence that would mean nothing to a reviewer two years from now with no knowledge of today's work.
-3. **Check every sentence that says what the change does against the code,** not only the Deploying bullets: before the push gate, quote the code or test line that makes each one true, and fix or cut a sentence with no line. See [references/measurements.md](references/measurements.md).
+3. **Check every sentence that says what the change does against the code,** not only the Deploying bullets: before the push gate, quote the code or test line that makes each one true, and fix or cut a sentence with no line.
 4. **Cut**, every time:
    - Test or CI status, such as a pass count; keep a test line only for a non-obvious coverage decision, naming what is covered.
    - "Not in this PR", roadmap, or future steps.

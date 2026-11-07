@@ -31,7 +31,7 @@ description: Everything that holds around a code change in any language — prob
 2. Read it too before you write or change any text a person reads on a screen, such as a label, help text, a definition, or a tooltip, even where that text sits in a design document or a card.
 3. In your report on a view edit, name the existing view whose pattern you copied and one thing you matched against it, such as the dialog structure, the button order, or the label pattern.
 4. Quote the line from that view and the matching line from your edit, with each file and line number.
-5. Do this whatever skill or handoff brought you to the file, and in rapid mode too. See [references/measurements.md](references/measurements.md).
+5. Do this whatever skill or handoff brought you to the file, and in rapid mode too.
 
 ## Probe before you build
 
@@ -54,12 +54,12 @@ description: Everything that holds around a code change in any language — prob
 4. Before you write `UNPROBED` for an outside service you may not call, run the client on your side of it: read what the installed CLI or SDK sends for that command, run its serializer or parser on a sample input, and name that check and what it showed in the `UNPROBED` line.
 5. If a probe is impractical, write `UNPROBED — <reason>`; if no boundary is crossed, write `EXEMPT — <reason>`.
 6. Never stage file reads, greps, or diffs under a "Probe" heading.
-7. Apply this rule to code no test drives too; `tdd-cycle` runs it as step 0 against the boundaries the test will touch. Detail, exemptions and rationale: `~/.claude/skills/tdd-cycle/references/probing.md`.
+7. Apply this rule to code no test drives too; `tdd-cycle` runs it as step 0 against the boundaries the test will touch. Detail and exemptions: `~/.claude/skills/tdd-cycle/references/probing.md`.
 
 ## Read a stored value instead of working it out again
 
 1. Before code works out a value by fetching or parsing something, such as a page count, a total, or a status, check whether the database already stores it.
-2. If it does, read the stored value, and work it out again only where the data it came from can have changed since it was stored. See [references/measurements.md](references/measurements.md).
+2. If it does, read the stored value, and work it out again only where the data it came from can have changed since it was stored.
 
 ## Before the edit: trace its reach
 
@@ -105,8 +105,6 @@ Before writing or dispatching any change, one-line or large, grep for each of th
 9. **Never leave commented-out code.** Delete it.
 10. Make a reference in a comment name a thing the reader can grep for, such as a heading, a symbol, or a quoted phrase, never a line number.
 11. **No dead code.** Delete branches the change made unreachable, helpers nothing calls, and temporary variables nothing reads, rather than commenting why they are kept.
-
-Evidence for this: [references/why-comment-discipline.md](references/why-comment-discipline.md).
 
 ## Naming
 
@@ -166,7 +164,7 @@ Any code change, however small, owes this review sequence before the commit deci
    reviews; fix what it finds first. If `project-drive`
    appears in the available skills, load it for how to send this product
    real input. If nothing is listed, work it out and say in one line what
-   you did. See [references/measurements.md](references/measurements.md).
+   you did.
 1. `quick-review` against the change.
 2. `security-review` against the change, when the diff touches any of these:
    input from outside the program (a request, a file, the clipboard, a message,
@@ -175,7 +173,7 @@ Any code change, however small, owes this review sequence before the commit deci
    a listening server, a shell or subprocess command, a SQL or other query
    string, a secret, token or credential, a file path built from input,
    deserialization, or an added or changed dependency. When it touches none of
-   them, say so in one line and skip it. See [references/measurements.md](references/measurements.md).
+   them, say so in one line and skip it.
 
 Then:
 

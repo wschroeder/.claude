@@ -44,5 +44,3 @@ Contents:
 28. Send a file beyond the operator only on their word, per CLAUDE.md "Local Files by Default".
 29. If a capture fails, exhaust the program's own capture before writing that no artifact exists, such as a framebuffer grab, a service's response, or a command-line tool's output written to a file, and say which call produced the file.
 30. Treat a Chrome tool that will not start under the Playwright rule, not as a failed capture.
-
-The reasons and the measured cases behind these rules are in [references/measurements.md](measurements.md).

@@ -18,7 +18,7 @@ description: Inspects the process after a review of the branch finds something â
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If the reading is past the ceiling it reports, hand off before starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and then ask the operator to `/clear`. See [references/measurements.md](references/measurements.md).
+1. If the reading is past the ceiling it reports, hand off before starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and then ask the operator to `/clear`.
 2. Treat this check as deciding whether this phase starts here; the check at the end of Section 8 governs the hand to the next phase.
 
 ## 1. Scope the round
@@ -65,7 +65,7 @@ description: Inspects the process after a review of the branch finds something â
 4. Say what Section 3 found in at most a screen.
 5. Ask only what is in neither: what they saw that their own turns and the transcripts do not show.
 6. Do not propose a change here, and do not ask them to choose between changes they have not heard argued.
-7. If they answer "I can't remember", record their account as the quoted turns and nothing more, and carry on to Section 5. See [references/measurements.md](references/measurements.md).
+7. If they answer "I can't remember", record their account as the quoted turns and nothing more, and carry on to Section 5.
 8. **Open the ask with the phase line**, directly above the question â€” the path a review's findings take, this stop's capitalized:
 
 ```
