@@ -1,12 +1,10 @@
 # Requirement check — does the diff do what was asked?
 
-Run this after you state the Mission and before the passes. The Mission
-comes from the diff and the PR text, so it says what the author believes the change
-does. This step checks the change against what someone asked for.
+1. Run this after you state the Mission and before the passes, to check the change against what someone asked for rather than what the author believes it does.
 
 ## Find the requirement
 
-Look in this order, and stop at the first source that carries acceptance criteria:
+1. Look in this order, and stop at the first source that carries acceptance criteria:
 
 1. The orchestrator's prompt, if it names an issue, a card, or a spec.
 2. The PR body: `gh pr view --json body,closingIssuesReferences`.
@@ -16,19 +14,13 @@ Look in this order, and stop at the first source that carries acceptance criteri
 5. A bd card, if the repository uses beads: `bd show <id>` for any id found above.
 6. A design document or spec the commits or the card name.
 
-For an issue number, read it with `gh issue view <n>`. For a card, read the
-acceptance criteria and any proof command the card carries.
-
-If none of these turns up a requirement, write `Requirement: none found` in the
-output and say where you looked. The Screen then drops nothing on intent grounds.
+2. Read an issue number with `gh issue view <n>`, and for a card read its acceptance criteria and any proof command it carries.
+3. If none of these turns up a requirement, write `Requirement: none found` in the output, say where you looked, and let the Screen drop nothing on intent grounds.
 
 ## Check each criterion
 
-Split the requirement into its separate criteria. A card written by `spec-task`
-already has them as EARS lines. For an issue in prose, write each promised behavior
-as one line before you check anything.
-
-Give each criterion one of three dispositions:
+1. Split the requirement into separate criteria, taking a `spec-task` card's EARS lines as they are and writing each promised behavior of a prose issue as one line before you check anything.
+2. Give each criterion one of three dispositions:
 
 - **met**: cite the line of code that delivers it and the test that asserts it. If
   the card carries a proof command, run it and quote the result.
@@ -37,34 +29,14 @@ Give each criterion one of three dispositions:
   says the criterion is deferred, in which case it is a Note naming where the
   deferral is recorded.
 
-The same demonstration discipline applies here as everywhere else: "the handler
-looks like it does this" is not a disposition for **met**.
-
-Where a design document you read for the requirement records the operator's
-answer on a criterion and that answer narrows it, check the diff against the narrowed line instead and
-write **met as narrowed**, citing its file and line. A handoff's Decision line
-does not count, because a later handoff can shorten or drop it.
+3. Never mark **met** because the handler looks like it does it.
+4. Where a design document records the operator's answer that narrows a criterion, check the diff against the narrowed line and write **met as narrowed**, citing its file and line; a handoff's Decision line does not count.
+5. Check each criterion on every failure path the diff adds, such as a catch, a fallback, or a retry that gives up, and require for **met** a test that reaches the criterion's outcome through it, or a line saying why the criterion does not apply there; angle 3.6 in [error-handling.md](error-handling.md) covers this.
 
 ## When the operator accepts a Flag
 
-When the operator answers a Flag with "accept as is" or its equivalent, write
-their answer, quoted and dated, into the design document beside the
-requirement it narrows, in the same turn. Say what the requirement now means
-in plain words. Measured on 2026-10-28: an operator accepted a Flag that a
-request might exceed a rate limit. The answer lived only in handoffs, one
-handoff written near the context limit shortened it to a bare label, the next
-dropped it, and two days later the whole-branch review raised the same Flag
-and stopped PR prep on a question the operator had already answered.
-
-Check each criterion on every failure path the diff adds, not only on the path that
-succeeds. A catch, a fallback, or a retry that gives up is a path, and **met** needs
-a test that reaches the criterion's outcome through it, or a line saying why the
-criterion does not apply there. Angle 3.6 in [error-handling.md](error-handling.md) carries the worked example: a
-criterion that held on success and broke inside a catch the branch added.
+1. When the operator answers a Flag with "accept as is" or its equivalent, write their answer, quoted and dated, into the design document beside the requirement it narrows, in the same turn, and say in plain words what the requirement now means.
 
 ## Effects the requirement does not ask for
 
-The diff may do things no criterion covers. The Screen does not drop them on intent
-grounds. Each one continues through the Screen and the gates like any other
-candidate, and most will drop there as harmless. The ones that survive are the
-behavior changes nobody asked for, which is the reason for this step.
+1. Never let the Screen drop an effect on intent grounds because no criterion covers it; send it through the Screen and the gates like any other candidate.
