@@ -1,12 +1,9 @@
 # Author-acknowledged deviation is not exempt
 
-When a moduledoc, comment, docstring, commit message, PR body, the review's own Notes, or the session's handoff acknowledges a deviation from spec / security / best practice — "we accept the LB-collapse here", "scope-down on refresh is not supported", "intentionally non-strict", "matches library posture", "known limitation upstream", "forward-flag for P6.5", "Q1=A pending column rekey", "silent zero-row until X lands" — the acknowledgment is the TRIGGER to flag, NOT a reason to skip.
-
-A later card is an acknowledgment too. "Until abc-0m9 lands" or "abc-0m9 is the card that fixes this" says the commit ships the failure, so the finding is a Fix or a Flag in this commit, not a Note. Measured (2026-10-13): a review put a sync rollback under its own "## Notes" as "Until abc-0m9 lands … abc-0m9 is the card that fixes this", and that card was queued behind another.
-
-The Yes-to-any gate has no "author already knew about it" exemption. Run the gate against the deviation itself; if it fires on any axis, the finding stands. Flag it, and let the developer escalate if the team's prior decision should hold.
-
-Acknowledgment language is a SEARCH TERM, not an absolution. Grep for these in the diff and verify each is gate-clean:
+1. When a moduledoc, comment, docstring, commit message, PR body, the review's own Notes, or the session's handoff acknowledges a deviation from spec, security, or best practice, such as "scope-down on refresh is not supported" or "known limitation upstream", flag it; the acknowledgment is the trigger, never a reason to skip.
+2. Treat a later card named as the fix, such as "until <card> lands", as an acknowledgment that this commit ships the failure, and class the finding a Fix or a Flag in this commit, never a Note.
+3. Run the Yes-to-any gate against the deviation itself, with no "author already knew" exemption, and let the developer escalate if the team's prior decision should hold.
+4. Grep the diff for these acknowledgment terms and check each hit against the gate:
 
 ```
 # acknowledged   # known            # intentionally    # tradeoff
@@ -17,5 +14,3 @@ documented placeholder              intentional placeholder
 transitional     pre-P\d            until P\d          for now
 until <card> lands                  the card that fixes this
 ```
-
-Such a comment is the signal to evaluate the gate, not a license to skip it.
