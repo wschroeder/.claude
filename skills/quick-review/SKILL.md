@@ -5,26 +5,29 @@ description: Fast single-agent code review in nine structured angle passes, each
 
 # Quick Review
 
-Structured 9-pass code review. Each pass has a named-angle CHECKLIST. The checklist is the forcing function — every named angle MUST receive an explicit disposition: `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove). See **Demonstration discipline** below — a bare "looks fine" is not a disposition. Stopping at the first N findings is one failure this skill prevents; "NONE FOUND because <plausible sentence>" is the other, and the demonstration discipline is what closes it.
+1. Run nine passes, each with a named-angle checklist, and give every live angle one disposition from **Demonstration discipline**: `DEMONSTRATED`, `N/A`, or `hypothesis:`. Never write "looks fine", never stop at the first few findings, and never write "NONE FOUND because <plausible sentence>".
+2. Find the reasons behind the gates in [details/why-the-gates.md](details/why-the-gates.md), the misses behind each angle in [references/worked-examples.md](references/worked-examples.md), and the measurements in [references/measurements.md](references/measurements.md); the review runs without them.
 
 ## Orchestrator guidance
 
-Run the review in the session that wrote the change, not in a subagent. That session holds the mission, the card, and the decisions behind the diff, and it needs them to tell a real finding from a false alarm. Do NOT pre-select which angles to check — the checklists below, and the files the trigger table in **Conditional angles** calls for, are the source of truth. If a concern recurs across sessions, fix the skill instead.
+1. Run the review in the session that wrote the change, never in a subagent, because that session holds the mission, the card, and the decisions behind the diff.
+2. Do not pre-select angles; the checklists below and the files the **Conditional angles** table calls for decide them. If a concern recurs across sessions, fix this skill.
 
 ## Workflow
 
-1. **Pass 0 — Determine diff scope.** Cumulative `<merge-base>..HEAD` against `origin/<default_branch>` (`git fetch` first), plus uncommitted working tree. Full read; no truncation, no `| head -N`. If the orchestrator passed a delta scope (e.g., `HEAD~1..HEAD` on an amended commit), STOP and request cumulative.
-   **Then size it.** Measure the diff and the room this session has left. If the diff takes more than a third of that room, plan the review as stages before reading any of it: [details/stages.md](details/stages.md).
-2. **Load skills.** The language skill, any project guideline skill that matches the diff, and every `CLAUDE.md` from repo root to the diff's directory. Each adds named angles to its pass. The list and the command that finds the CLAUDE.md files: [details/skills-to-load.md](details/skills-to-load.md).
-3. **State Mission** in one sentence. Security is `security-review`'s, except input validation (4.24, in [details/outside-formats.md](details/outside-formats.md)): `writing-code` says which diffs owe one.
-4. **Check the requirement.** Find the issue, card, or spec the diff serves and check the diff against each of its acceptance criteria. Method: [details/00-requirement.md](details/00-requirement.md).
-5. **Run the 9 passes.** For each pass: walk every named angle below that is live in this diff. For each, resolve to one of the three dispositions in **Demonstration discipline** below — `DEMONSTRATED` (artifact shown), `N/A` (one line why), or `hypothesis:` (suspected, couldn't prove, flagged anyway). There is no "read it and it's fine" disposition. Before Pass 1, read every file the table in **Conditional angles** calls for. Write each pass to the notes file as it finishes; see "Record each pass as it finishes".
-6. **Classify** each candidate through the gates (Screen → Yes-to-any → Destructive-recommendation → Author-acknowledged deviation).
-7. **Output** per template, printed in the session after any Evidence block CLAUDE.md asks for, never folded into it.
+1. **Pass 0 — Determine diff scope.** Take the cumulative `<merge-base>..HEAD` against `origin/<default_branch>` (`git fetch` first), plus the uncommitted working tree, and read it in full with no truncation and no `| head -N`. If the orchestrator passed a delta scope, such as `HEAD~1..HEAD` on an amended commit, then stop and request the cumulative one.
+   **Then size it.** Measure the diff and the room this session has left; if the diff takes more than a third of that room, then read [details/stages.md](details/stages.md) now and plan the review as stages before reading any of the diff.
+2. **Load skills.** Load the language skill, any project guideline skill matching the diff, and every `CLAUDE.md` from the repo root to the diff's directory, each adding named angles to its pass; read [details/skills-to-load.md](details/skills-to-load.md) now for the list and the command that finds the CLAUDE.md files.
+3. **State Mission** in one sentence. Leave security to `security-review`, except input validation (4.24, in [details/outside-formats.md](details/outside-formats.md)); `writing-code` says which diffs owe one.
+4. **Check the requirement.** Find the issue, card, or spec the diff serves and check the diff against each acceptance criterion, reading [details/00-requirement.md](details/00-requirement.md) now for the method.
+5. **Run the 9 passes.** Before Pass 1, read every file the **Conditional angles** table calls for. In each pass, walk every live named angle and resolve it to one of the three dispositions. Write each pass to the notes file as it finishes, per "Record each pass as it finishes".
+6. **Classify** each candidate through the gates in order: Screen, Yes-to-any, Destructive-recommendation, and Author-acknowledged deviation.
+7. **Output** per the template, printed in the session after any Evidence block CLAUDE.md asks for, never folded into it.
 
 ### Record each pass as it finishes
 
-At Pass 0, name a notes file after the tree you are about to review, read it if a session before you left one, and append each pass to it before you start the next. The commands and the rules: [details/notes-file.md](details/notes-file.md). When you hand off mid-review, name the file in the handoff.
+1. At Pass 0, name a notes file after the tree you are about to review, and read it if an earlier session left one, then append each pass to it before starting the next, following [details/notes-file.md](details/notes-file.md), which you read now.
+2. If you hand off mid-review, then name the file in the handoff.
 
 ## Diff scope
 
@@ -34,59 +37,45 @@ At Pass 0, name a notes file after the tree you are about to review, read it if 
 - `last`: `git show HEAD`
 - Specific SHA: `git show <ref>`
 
-Always use `origin/<default_branch>`, never the local branch ref: local refs lag and silently expand scope with already-merged work. Empty diff → stop.
+1. Always use `origin/<default_branch>`, never the local branch ref, because local refs lag and pull in already-merged work. If the diff is empty, then stop.
 
 ## Scope and context
 
-**No angle count.** Walk the named angles that are live in this diff and mark the rest `N/A`. There is no minimum number of attempts: the demonstration discipline below, not a count, is what stops a review at its first finding.
-
-**Scope rule.** Pre-existing code on the call path is in scope. "Not my diff" is not a dismissal. Question: does this diff INTERACT with a problem?
-
-- **When the diff changes or introduces a rule, every path that must obey it is in scope.** A rule is anything the code is held to: a spec line, a validation, a database check, a product decision. Grep code, docs, and user-facing pages for the old rule's shape — its comparison, its wording — and list every hit, edited by the diff or not. A hit that still enforces or states the old rule is a **Fix**, never a Note: it predates the branch, but the branch is what made it wrong. `pr-feedback-task` check 2 draws the same line for review comments.
-- **Otherwise, a problem that predates the branch and that the diff does not make worse is not the branch's to fix:** report it in one line and leave it.
-- **Code the branch adds is never out of scope.** A commit subject that names one kind does not narrow the review to that kind. Before the round ends, run a test against each hypothesis about the branch's own code, or raise it as a Flag. A hypothesis about the branch's own code never carries into a handoff. See [references/measurements.md](references/measurements.md).
-
-Why: [details/why-the-gates.md](details/why-the-gates.md), "Why a changed rule pulls in code the diff never touched".
-
-**Context.** Read surrounding code for each touched file, not just the diff. Identify callers, callees, sibling functions, related tests. A file that a handoff or a card calls out of scope is out of scope for changes, never for reading: the review still greps it.
-
----
+1. Walk the named angles live in this diff and mark the rest `N/A`, with no minimum count of attempts.
+2. Treat pre-existing code on the call path as in scope, and ask whether the diff interacts with a problem; "Not my diff" is not a dismissal.
+3. When the diff changes or introduces a rule, such as a spec line, a validation, a database check, or a product decision, grep code, docs, and user-facing pages for the old rule's comparison and wording, and list every hit, edited by the diff or not. Make a hit that still enforces or states the old rule a **Fix**, never a Note; `pr-feedback-task` check 2 draws the same line for review comments.
+4. If a problem predates the branch and the diff does not make it worse, then report it in one line and leave it.
+5. Never put code the branch adds out of scope, whatever kind a commit subject names. Before the round ends, run a test against each hypothesis about the branch's own code, or raise it as a Flag, and never carry such a hypothesis into a handoff.
+6. Read surrounding code for each touched file: callers, callees, sibling functions, and related tests. Read and grep a file that a handoff or card calls out of scope, because it is out of scope only for changes.
 
 ## Demonstration discipline (anti-satisficing v2)
 
-A disposition is an **observation, not a conclusion**. Why that is the rule, and what a
-narrated absence costs, is in [details/why-the-gates.md](details/why-the-gates.md).
-
-Every in-scope angle resolves to exactly one of three states. There is no fourth: "carried" from an earlier session is not a disposition, so a whole-branch review checks each angle again against HEAD and cites an earlier session's artifact only when it names that artifact and shows the code it covered has not changed since. The artifact covers only the functions it names: a file unchanged since an earlier round is not covered where that round's mutations never touched a function in it.
-
-- **DEMONSTRATED** — backed by something that RAN in this session and produced output in the chat: a mutation this review ran and a test caught, an adversarial input that got rejected, a grep that returned the neutralizing line. Cite the artifact. A mutation proves only the clause or constraint it broke, so the review runs one per criterion clause and one per constraint of each new or changed function, as [details/proof-shapes.md](details/proof-shapes.md) "Assertion strength" lists them.
-- **N/A** — the angle is not live in this diff. One line of why (`no SQL here`, `no auth surface touched`).
-- **`hypothesis:`** — you suspect a problem but could not produce the artifact. Flag it anyway, labeled. Honest, not hidden.
-
-"I read it and it looks fine" is not a disposition. It is the satisficing slot. Delete it.
+1. Write each disposition as an observation, not a conclusion.
+2. Resolve every in-scope angle to exactly one of three states:
+   - **DEMONSTRATED:** backed by something that ran in this session and printed output in the chat, such as a mutation a test caught, an adversarial input that was rejected, or a grep returning the neutralizing line; cite the artifact.
+   - **N/A:** the angle is not live in this diff, with one line of why.
+   - **`hypothesis:`:** a suspected problem you could not produce the artifact for, flagged and labeled.
+3. Never use "carried" from an earlier session as a disposition: a whole-branch review checks each angle again against HEAD. Cite an earlier session's artifact only when you name it and show the code it covered has not changed since, and only for the functions it names.
+4. Run one mutation per criterion clause and one per constraint of each new or changed function, as [details/proof-shapes.md](details/proof-shapes.md) "Assertion strength" lists them, because a mutation proves only what it broke.
 
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
-Demonstrating every angle bankrupts the review, so the burden is tiered by blast radius:
-
-- **Every Fix and every Flag always demonstrates.** Assert a bug → prove it runs or breaks. Findings are few; this is cheap.
-- **A clean bill demonstrates only for these three classes** when in scope. For them, `DEMONSTRATED` REQUIRES the artifact below; bare prose is an invalid disposition:
-  1. Assertion strength / test coverage
-  2. Atomicity / TOCTOU
-  3. Error-return shape (raise vs `{:error, _}`)
-- **All other angles** may use a prose disposition — but it must be an *observation that cites the line*, never a story. (This boundary is the tunable knob. The three above are the floor; injection and authorization proofs are `security-review`'s.)
+1. Demonstrate every Fix and every Flag.
+2. On a clean bill, demonstrate with the required artifact these three classes when in scope, and treat bare prose as invalid for them:
+   1. Assertion strength / test coverage
+   2. Atomicity / TOCTOU
+   3. Error-return shape (raise vs `{:error, _}`)
+3. Give every other angle a prose disposition that cites the line, never a story. Leave injection and authorization proofs to `security-review`.
 
 ### Proof-shape catalog
 
-Each of the three classes above has one artifact that licenses its clean bill, listed in [details/proof-shapes.md](details/proof-shapes.md). Read it before you mark any of the three `DEMONSTRATED`.
-
-The deliverable of the review IS these artifacts. The Fix/Flag/Note label is a summary *derived* from them, never a substitute for them.
-
----
+1. Read [details/proof-shapes.md](details/proof-shapes.md) now, before you mark any of the three classes `DEMONSTRATED`; it lists the artifact that licenses each one's clean bill.
+2. Derive the Fix, Flag, or Note label from those artifacts, and never let it stand in for them.
 
 ## Conditional angles
 
-The passes below hold the angles that apply to every diff. The rest live in files, one per kind of change. Before Pass 1, read the diff against each row and read every file whose condition it meets, now. Each angle in a file keeps its pass number: walk it in that pass and print its line there.
+1. Before Pass 1, read the diff against each row below and read every file whose condition it meets, now.
+2. Walk each angle from a file in the pass its number names, and print its line there.
 
 | If the diff ... | Read now, before Pass 1 |
 |-----------------|-------------------------|
@@ -102,7 +91,7 @@ The passes below hold the angles that apply to every diff. The rest live in file
 | touches a `.ts`, `.tsx`, `.js`, or `.jsx` file | [details/language-typescript.md](details/language-typescript.md) |
 | touches a `.ex` or `.exs` file | [details/language-elixir.md](details/language-elixir.md) |
 
-In the Checklist, give each file you did not read one line naming the condition and why the diff does not meet it.
+3. In the Checklist, give each file you did not read one line naming the condition and why the diff does not meet it.
 
 ## Pass 1 — Call-graph and seam analysis
 
@@ -151,7 +140,7 @@ In the Checklist, give each file you did not read one line naming the condition 
 
 ## Pass 2 — Adversarial
 
-Construct an input or a state that crashes the code: concurrent execution, partial failure, stale data, an unexpected NULL. For each new path, name the database or outside-API state that makes it crash instead of returning an error.
+1. For each new path, construct an input or state that crashes it, such as concurrent execution, partial failure, stale data, or an unexpected NULL, and name the database or outside-API state that makes it crash instead of returning an error.
 
 ```
   2.2   Semantic completeness            name promises X, body delivers part of X;
@@ -213,11 +202,11 @@ Construct an input or a state that crashes the code: concurrent execution, parti
 
 ## Pass 3 — Error handling
 
-Every Pass 3 angle is conditional: `error-handling.md`, and the language files for logging discipline. With neither read, print one line saying why.
+1. Take every Pass 3 angle from `error-handling.md` and the language files; if you read neither, then print one line saying why.
 
 ## Pass 4 — Data correctness
 
-For each field the new code reads, grep the file for every other read of the same field, and flag any read that guards against a missing value differently.
+1. For each field the new code reads, grep the file for every other read of it, and flag any read that guards against a missing value differently.
 
 ```
   4.1   Empty-value semantics            empty means "nothing requested",
@@ -291,7 +280,7 @@ For each field the new code reads, grep the file for every other read of the sam
 
 ## Pass 6 — Doc/code coherence
 
-For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touched in the diff: verify the code delivers on it.
+1. For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touched in the diff, verify the code delivers on it.
 
 ```
   6.1   Comment-vs-body check            statements following comment actually fire;
@@ -360,13 +349,17 @@ For every comment, docstring, `@moduledoc`, `@doc`, or prose claim added or touc
                                           paragraph does not count; no line → finding
 ```
 
-**Angle 6.8 owes one line per item.** List every condition the diff's code applies in a path a spec sentence governs: each filter, guard, early return, and exit, the fix this review just made included. Each one gets its own line quoting the code line and the spec words that state it, or "no words → finding". Then list every step, job, or function whose order or behavior the diff changes, grep the project's spec pages for its name and for what it does, and print each grep with its hit count. Every sentence the grep finds gets its own line quoting it and saying whether it still holds on every run that reaches the step, or "contradicted → finding"; a sentence stating the old order is the usual miss. One example standing in for the whole diff is not a disposition.
-
-For 6.6, run `python3 ~/.claude/skills/writing-code/scripts/comment_share.py` over Pass 0's scope; with no `--base` it already measures from the merge base, uncommitted and untracked work included. Paste its per-file lines. Give every block it lists "keep" with the non-obvious why it explains, or "delete", and read a file over 10% twice. The bill is not clean while any block lacks a disposition. `writing-code` "Measure before declaring done" owns the rule.
+2. For angle 6.8, list every condition the diff's code applies in a path a spec sentence governs, including a fix this review just made, and give each its own line quoting the code line and the spec words that state it, or "no words → finding".
+3. For 6.8, also list every step, job, or function whose order or behavior the diff changes, grep the spec pages for its name and what it does, print each grep with its hit count, and give every sentence found its own line saying whether it still holds on every run that reaches the step, or "contradicted → finding"; one example never stands in for the whole diff.
+4. For 6.6, run `python3 ~/.claude/skills/writing-code/scripts/comment_share.py` over Pass 0's scope (with no `--base` it measures from the merge base, uncommitted and untracked work included), paste its per-file lines, and read a file over 10% twice.
+5. Give every block it lists "keep" with the non-obvious why it explains, or "delete", and do not call the bill clean until each has one; `writing-code` "Measure before declaring done" owns the rule.
 
 ## Pass 7 — Test coverage
 
-Tests over eyeballing. The review's primary job is to identify behaviors lacking test coverage. **You MUST have read the FULL test diff before claiming a coverage gap.** Tests must assert outcomes, not implementation. A change to how a screen is put together is not a coverage gap: it gets a demo. An operator's request for few tests never turns a missing test of what a write path stores into a Note: file a Flag that quotes the operator's own words. If the test diff came back truncated, read the rest before this pass. For every finding in passes 1-5, ask whether a test would catch it: if none would, the missing test is the finding. An assertion on a mock's call history proves a path ran, not that it worked.
+1. Identify behaviors lacking test coverage, and read the full test diff before claiming a gap, finishing any truncated read first.
+2. Require tests to assert outcomes, not implementation; an assertion on a mock's call history proves only that a path ran. Give a change to how a screen is put together a demo, not a coverage finding.
+3. If the operator asked for few tests and a test of what a write path stores is missing, then file a Flag quoting the operator's words, never a Note.
+4. For every finding in passes 1-5, ask whether a test would catch it; if none would, then the missing test is the finding.
 
 ```
   7.2   Side-effect coverage             each side effect independently asserted
@@ -392,11 +385,11 @@ Tests over eyeballing. The review's primary job is to identify behaviors lacking
 
 ## Pass 8 — Second-order
 
-Every Pass 8 angle is conditional: `deploy.md` holds 8.1-8.3 and `concurrency.md` holds 8.4. With neither read, print one line saying why.
+1. Take 8.1-8.3 from `deploy.md` and 8.4 from `concurrency.md`; if you read neither, then print one line saying why.
 
 ## Pass 9 — Test-suite reach
 
-For every public function or module the diff adds, renames, deletes, or changes the behavior of, `grep -rn` its bare name across the test tree. A hit in a test file the diff did not modify is the likeliest finding.
+1. For every public function or module the diff adds, renames, deletes, or changes the behavior of, `grep -rn` its bare name across the test tree, and look hardest at hits in test files the diff did not modify.
 
 ```
   9.9   Whole-repo copies                every changed constant, list, enum, text
@@ -409,56 +402,62 @@ For every public function or module the diff adds, renames, deletes, or changes 
                                           diff that holds the old value → Fix
 ```
 
-Classify each hit as one of three. A **maintenance gap** is a test encoding behavior the diff changes on purpose: Flag it with its file, line, and assertion. A **hidden contract** is behavior the diff changed without meaning to: a Fix. A **stale reference** is text still naming the old name or behavior: a Fix when it still states a rule the diff changed, as the scope rule at the top of this skill says, such as a runbook step that still sets up credentials for a deployment the diff removed. If the greps return no hits, print the greps and "0 hits": the grep is the artifact. The Elixir mock and tracer greps (9.2-9.7) are in `language-elixir.md`.
-
-Why each body angle reads as it does, with the misses behind it: [references/worked-examples.md](references/worked-examples.md). Nobody needs to read it to run the review.
-
----
+2. Classify each hit:
+   - **Maintenance gap:** a test encoding behavior the diff changes on purpose; Flag it with its file, line, and assertion.
+   - **Hidden contract:** behavior the diff changed without meaning to; a Fix.
+   - **Stale reference:** text still naming the old name or behavior; a Fix when it still states a rule the diff changed, per the scope rule.
+3. If the greps return no hits, then print the greps and "0 hits".
+4. Take the Elixir mock and tracer greps (9.2-9.7) from `language-elixir.md`.
 
 ## Classify (internal — before any output)
 
-Enumerate every candidate finding internally. For each, walk these gates IN ORDER.
+1. Enumerate every candidate finding internally, and walk each through these gates in order.
 
 ### Screen (silent drops)
 
-1. Is this actually a problem, or did I realize mid-write it's fine? → **Drop silently.** A measured violation of a stated contract (34 rows where the spec keeps 30) is a **Fix** even while its cause is unproven; never drop it or relabel it a hypothesis.
-2. Is this an effect the requirement check confirmed the requirement asks for? → **Drop silently.** An effect that only the PR text or the Mission describes is not dropped on intent grounds; it continues through the Screen like any other candidate.
-3. Is this hypothetical ("if someone later adds X...")? → **Drop silently.** Review what exists, not what might.
-4. Positive observation ("good pattern", "properly handles X")? → **Drop silently.** The job is finding problems, not complimenting code.
+1. Is this actually a problem, or did I realize mid-write it's fine? → **Drop silently.** Keep a measured violation of a stated contract as a **Fix** even while its cause is unproven; never drop it or relabel it a hypothesis.
+2. Is this an effect the requirement check confirmed the requirement asks for? → **Drop silently.** Keep an effect that only the PR text or the Mission describes in the Screen like any other candidate.
+3. Is this hypothetical ("if someone later adds X...")? → **Drop silently.**
+4. Positive observation ("good pattern", "properly handles X")? → **Drop silently.**
 5. Does the developer need to act on or be aware of this for THIS change? → **Keep.**
 6. DESTRUCTIVE recommendation on user-authored data? → Apply Destructive gate (below) before keeping. Default action is DROP.
 
 ### Yes-to-any gate (recommendation bar for Fix/Flag)
 
-For each surviving candidate that would be Fix or Flag, ask whether applying the fix would improve ANY of:
+1. For each surviving candidate that would be Fix or Flag, ask whether applying the fix would improve ANY of:
 
 - **Security** — attack surface, authn/authz, data integrity, info leak, audit trail
 - **Performance** — hot-path latency, memory, allocation pressure, query plans
 - **Maintainability** — symmetry with siblings, reduced special-casing, clearer invariants, less hidden coupling
 - **Spec compliance** — RFC/standard alignment, cross-system contract adherence, accessibility standards (WAI-ARIA roles and the keyboard and focus contracts they imply)
 
-A missing test of any kind for a constant is never a finding, symmetry with siblings included, because a constant gets no test: `spec-task`, "If a requirement concerns a constant of any kind".
-
-If YES to at least one, recommend the fix. The bar is "positive signal on any axis," not "positive on all axes." This is the anti-waffling rule — it prevents the "technically correct but maybe not worth it" drift. A 5-line fix that measurably improves one axis beats a 0-line "ship as-is" that improves none. This section is the only place the axes are defined; `writing-code`, `pr-respond-task` and `pr-feedback-task` point here rather than restating them.
+2. Never make a missing test for a constant a finding, symmetry with siblings included: `spec-task`, "If a requirement concerns a constant of any kind".
+3. If the answer is yes on at least one axis, then recommend the fix. Define the axes here only; `writing-code`, `pr-respond-task`, and `pr-feedback-task` point here.
 
 ### Destructive-recommendation gate (irreversibility ratchet)
 
-A finding that proposes an irreversible operation on user-authored data (DELETE, UPDATE, DROP, TRUNCATE, a schema rewrite, a cleansing migration) must name the specific invariant the existing rows violate and cite rows that violate it. A new filter or authorization predicate is never such an invariant. If the finding cannot do both, drop the recommendation or downgrade it to a Flag. Read [details/destructive-gate.md](details/destructive-gate.md) whenever a finding proposes one.
+1. If a finding proposes an irreversible operation on user-authored data (DELETE, UPDATE, DROP, TRUNCATE, a schema rewrite, a cleansing migration), then read [details/destructive-gate.md](details/destructive-gate.md) now.
+2. Make such a finding name the specific invariant the existing rows violate and cite rows that violate it, or else drop the recommendation or downgrade it to a Flag; a new filter or authorization predicate is never such an invariant.
 
 ### Author-acknowledged deviation is not exempt
 
-An acknowledgment in a moduledoc, comment, commit message, PR body, this review's own Notes, or the session's handoff is the TRIGGER to run the Yes-to-any gate against the deviation, never a reason to skip it. A handoff's "Decision" line counts too, even one marked as not to relitigate: that tells the next session not to reopen the product choice, not this review to pass the code. When the decision is to copy a shared helper rather than call it, ask whether the helper could take a parameter that covers the difference, and name the helper either way. A finding that a later card will fix is still a Fix or a Flag in this commit, never a Note. The acknowledgment phrases to grep for, and why the gate has no "author already knew" exemption: [details/author-acknowledged.md](details/author-acknowledged.md).
+1. Treat an acknowledgment in a moduledoc, comment, commit message, PR body, this review's Notes, or the session's handoff as the trigger to run the Yes-to-any gate on the deviation, never a reason to skip it, including a handoff's "Decision" line marked not to relitigate, which closes the product choice but not the review of the code.
+2. If the decision copies a shared helper rather than calling it, then ask whether the helper could take a parameter covering the difference, and name the helper either way.
+3. Keep a finding that a later card will fix as a Fix or a Flag in this commit, never a Note.
+4. Read [details/author-acknowledged.md](details/author-acknowledged.md) now for the acknowledgment phrases to grep for.
 
 ### Classifications
 
-Surviving candidates get one of three:
-- **Fix** — bug. Include the fix.
-- **Flag** — needs human judgment. A suspected deadlock is never a "traced, not run" Flag: run the pair (2.18) first, then classify what it showed. When the operator accepts a Flag as it stands, write their answer, quoted and dated, into the project's design document beside the requirement it narrows, in the same turn: [details/00-requirement.md](details/00-requirement.md).
-- **Note** — must be aware to ship safely, but not a bug or judgment call. If you can't articulate what the developer should DO with the information, drop. A Note that says work or data can be lost is a Fix or a Flag.
+1. Give each surviving candidate one of three:
+   - **Fix:** a bug; include the fix.
+   - **Flag:** needs human judgment. Run a suspected deadlock's pair (2.18) before classifying it, never leaving it "traced, not run".
+   - **Note:** something to know to ship safely that is neither a bug nor a judgment call; drop it if you cannot say what the developer should do, and make a Note about lost work or data a Fix or a Flag.
+2. If the operator accepts a Flag as it stands, then write their answer, quoted and dated, into the project's design document beside the requirement it narrows, in the same turn, per [details/00-requirement.md](details/00-requirement.md).
 
 ## Output
 
-**Print this block in the session, after any Evidence block CLAUDE.md asks for.** The Checklist and Files sections are the receipt that the review ran: a count, or a line saying the review found nothing, is not. Why: [details/why-the-gates.md](details/why-the-gates.md), "Why the receipt is a checklist".
+1. Print this block in the session, after any Evidence block CLAUDE.md asks for.
+2. Fill the Checklist and Files sections in full; a count, or a line saying the review found nothing, does not replace them.
 
 ```
 # Quick Review
@@ -494,18 +493,16 @@ Surviving candidates get one of three:
   Every file in scope, marked read or skipped; a skip names its reason in a few words.
 ```
 
-Print this output in the session, and carry the Requirement line and the Checklist into the handoff. A card note or a handoff points to the printed block, by the time it printed; it never replaces it. They never go into a commit message, because `git-commit` keeps session measurements out of the body.
+3. Carry the Requirement line and the Checklist into the handoff, and point a card note or a handoff at the printed block by the time it printed, never replacing it.
+4. Keep the block out of commit messages, per `git-commit`.
 
 ## Re-review and the fix loop
 
-The caller runs this loop; the passes above are one iteration of it.
-
-**First, name what runs it.** For each finding, say what executes the code it is about and when that last happened — the caller, the recipe, the test, the request path. If nothing will reach it again — a one-shot tool whose job is finished, a branch no caller takes, a guarantee the surrounding system already makes — record it where the next reader will look (the handoff, the PR thread, the report to the user), say in one line why it is not being fixed, and move on. A correct finding about code that will not run again is the most expensive kind, because its correctness is what gets it fixed.
-
-**Then filter what is left through the Yes-to-any gate above.** If the fix improves any one axis, apply it without pausing for user confirmation, then re-run `quick-review` against the updated tree, and `security-review` too when `writing-code`'s list says the diff needs one. Repeat until a pass against the current working tree surfaces no findings that clear the gate. Only then does the commit decision arise. Do not pause to ask the user between iterations unless there is a genuine design question that cannot be resolved from existing context.
-
-Any fix made during review starts another full round of review: all nine passes over the whole diff, with targeted re-checks added for the fix. In a staged review, the round re-runs each stage whose files changed and the cross-group stage, as [details/stages.md](details/stages.md) "After a fix" says. A prior round's dismissals do not bind amended code.
-
-**A re-round line names the command that re-read the diff.** Where you report a later round, write the command you ran after the fix and the time it ran: "Re-round after the fix to the date parser: `git diff 9f8e7d6 -- .` at 14:09Z, nothing new." If no command re-read the diff after the fix, the re-round did not happen: run it, or report one round and name the fix as unreviewed.
-
-The rules that decide when the loop is finished, the targeted re-checks, and anti-anchoring: [details/review-fix-loop.md](details/review-fix-loop.md).
+1. Run this loop as the caller; the passes above are one iteration.
+2. For each finding, name what executes the code it is about and when that last happened, such as the caller, the recipe, the test, or the request path. If nothing will reach that code again, then record the finding where the next reader will look, say in one line why it is not being fixed, and move on.
+3. Filter what is left through the Yes-to-any gate, and apply each fix that improves any axis without asking.
+4. Re-run `quick-review` against the updated tree, and `security-review` when `writing-code`'s list says the diff needs one, until a pass against the current tree surfaces no finding that clears the gate; only then decide the commit. Do not ask the user between iterations unless a design question cannot be settled from existing context.
+5. After any fix, run another full round: all nine passes over the whole diff, plus targeted re-checks for the fix; a prior round's dismissals do not bind amended code.
+6. In a staged review, re-run each stage whose files changed and the cross-group stage, as [details/stages.md](details/stages.md) "After a fix" says.
+7. Write each re-round line with the command that re-read the diff after the fix and the time it ran: "Re-round after the fix to the date parser: `git diff 9f8e7d6 -- .` at 14:09Z, nothing new." If no command re-read the diff after the fix, then run it, or report one round and name the fix as unreviewed.
+8. Read [details/review-fix-loop.md](details/review-fix-loop.md) now, before deciding the loop is finished, for its stopping rules, targeted re-checks, and anti-anchoring.
