@@ -1,6 +1,7 @@
 # Auth-surface RFC compliance
 
-When the diff touches any module/file whose path contains `oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `ws_auth`, `signin`, `signout`, OR introduces routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`, `/.well-known/`, treat the diff as "auth surface" and consult the relevant RFCs by name before you walk the categories:
+1. Treat the diff as auth surface when it touches a module or file whose path contains `oauth`, `auth`, `token`, `session`, `saml`, `oidc`, `lti`, `ws_auth`, `signin`, or `signout`, or adds routes under `/oauth`, `/auth`, `/sso`, `/lti`, `/saml`, or `/.well-known/`.
+2. On auth surface, read the governing specs before you walk the categories:
 
 - **RFC 6749** (OAuth 2.0 core): §5.2 error responses, §6 refresh, §3.3 scope
 - **RFC 6750** (Bearer tokens)
@@ -15,35 +16,32 @@ When the diff touches any module/file whose path contains `oauth`, `auth`, `toke
 - **LTI 1.3**
 - **OpenID Connect Core**
 
-List the specific RFC sections that govern each touched endpoint in the scope line. Skipping this trigger means RFC compliance gets caught only when a reviewer happens to read the relevant spec. **Brush up on the spec first, THEN review** — review without spec context is creativity, review with spec context is verification.
+3. List in the scope line the RFC sections that govern each touched endpoint.
 
 ---
 
 ## RFC 6749 §5.2 status-code vocabulary
 
-`invalid_client` returns **401** ONLY when the client attempted authentication via the `Authorization` header (Basic or Bearer) — the 401 is paired with `WWW-Authenticate`.
-
-`invalid_client` from BODY-credential failure (client_id/client_secret in form params) returns **400**.
-
-All other token-endpoint errors (`invalid_request`, `invalid_grant`, `invalid_scope`, `unsupported_grant_type`, `unauthorized_client`) return **400** unconditionally.
-
-A handler that emits 401 for `invalid_client` on body-credential failure is over-eager and trips client retry/refresh stacks expecting `WWW-Authenticate`. Flag mismatches as Fix-class spec compliance, not style.
+1. Require **401** with `WWW-Authenticate` for `invalid_client` only when the client authenticated through the `Authorization` header (Basic or Bearer).
+2. Require **400** for `invalid_client` when body credentials (client_id/client_secret in form params) failed.
+3. Require **400** for every other token-endpoint error: `invalid_request`, `invalid_grant`, `invalid_scope`, `unsupported_grant_type`, and `unauthorized_client`.
+4. Flag a mismatch as Fix-class spec compliance, not style.
 
 ---
 
 ## RFC parameter completeness (per endpoint)
 
-For each RFC-bound endpoint, enumerate every spec-defined parameter and verify each is either honored or explicitly rejected. **Silent ignore is a spec violation, not a defensive default.**
+1. For each RFC-bound endpoint, list every spec-defined parameter and check that each is honored or explicitly rejected; flag a parameter silently ignored.
 
 ### Token endpoint, refresh grant (RFC 6749 §6)
 
 - **Required:** `grant_type`, `refresh_token`
-- **OPTIONAL:** `scope` — must be subset of original. Server MAY narrow but never widen. Silently ignoring `params["scope"]` means a client requesting narrower scope gets the broader original scope back — the client thinks it scoped down, but didn't.
+- **OPTIONAL:** `scope` — must be a subset of the original. The server MAY narrow but never widen.
 
 ### Revocation endpoint (RFC 7009 §2.1)
 
 - **Required:** `token`
-- **OPTIONAL:** `token_type_hint` (`access_token` | `refresh_token`). When omitted, server MUST search across all supported token types. Rejecting a request without `token_type_hint` is a spec violation.
+- **OPTIONAL:** `token_type_hint` (`access_token` | `refresh_token`). When omitted, the server MUST search across all supported token types.
 
 ### Token endpoint, authorization_code grant (RFC 6749 §4.1.3)
 
@@ -54,65 +52,66 @@ For each RFC-bound endpoint, enumerate every spec-defined parameter and verify e
 - **Required:** `response_type`, `client_id`
 - **OPTIONAL:** `redirect_uri`, `scope`, `state`
 
-**Method:** list the RFC parameters in a comment in the controller action, then grep the body to confirm each is read. A parameter that the body never references is silently dropped — pick honor (parse, validate, route through the chain) or reject (`invalid_request`/`invalid_scope` with a description). Document the choice.
+For every endpoint above:
+
+1. List the RFC parameters in a comment in the controller action.
+2. Grep the handler body to confirm it reads each listed parameter.
+3. For each parameter it never reads, require honoring it (parse, validate, and route it through the chain) or rejecting it (`invalid_request` or `invalid_scope` with a description), and record the choice.
 
 ---
 
 ## Spec-permitted value wrongly rejected
 
-Enumerate each RFC-defined parameter's ACCEPT-SET (values the spec MUST or MAY allow) AND REJECT-SET (values the spec REQUIRES rejection of) before classifying the implementation as compliant. A deviation in EITHER direction is Fix-class spec compliance, not style.
+1. For each RFC-defined parameter, write the values the spec must or may accept and the values it requires rejecting, then walk the validators against both sets.
+2. Flag a deviation in either direction as Fix-class spec compliance, not style.
+3. Never exempt a deviation because a comment names it, such as "supported posture", "deliberate narrower contract", or "library default"; the comment is the reason to check it.
 
 ### RFC 6749 §6 refresh scope (worked example)
 
-"The requested scope MUST NOT include any scope not originally granted... if omitted is treated as equal to the scope originally granted." Subset (narrowing) MUST be accepted — only widening is `invalid_scope`. A `validate_refresh_scope/2` that rejects any non-set-equal scope (including a proper subset) violates the spec.
-
-A moduledoc or inline comment saying "scope-down on refresh is not supported" is a documented deviation, not a license to deviate. The narrowed scope must persist on the new token, not the original — verify the rotation path threads the requested (narrowed) scope into the mint call, not the carry-forward original.
+1. Require a refresh to accept a requested scope that is a proper subset of the original, reject only widening with `invalid_scope`, and treat an omitted scope as the original.
+2. Check that the rotation path passes the narrowed scope into the mint call, not the original.
 
 ### RFC 6749 §3.3 scope syntax
 
-`scope` is a space-delimited set; order is not significant. Comparing as sorted sets, not ordered strings, is mandatory.
+1. Require scopes to be compared as space-delimited sets, never as ordered strings.
 
 ### RFC 7636 PKCE `code_challenge_method`
 
-Servers MUST accept `S256`; MAY accept `plain`. A server that accepts ONLY `S256` and rejects `plain` is fine; a server that rejects `S256` is a spec violation.
+1. Require the server to accept `S256`; accepting or rejecting `plain` are both compliant.
 
 ### RFC 7009 §2.1 token_type_hint
 
-When omitted, server MUST search across all supported token types. Rejecting a request without `token_type_hint` is a spec violation.
+1. Require the server to search every supported token type when `token_type_hint` is omitted, never to reject the request.
 
 ### RFC 6749 §4.1.3 redirect_uri exact-match
 
-Path comparison MUST be exact (including trailing slash, case, and query if registered). A normalization that lowercases the path, strips trailing slashes, or ignores query is a spec deviation in BOTH directions — it accepts URIs the RFC forbids AND rejects URIs the RFC requires.
+1. Require an exact comparison, including trailing slash, case, and a registered query, and flag any normalization of the path or query.
 
 ### OIDC scope `openid`
 
-When present in an OAuth2-with-OIDC flow, the response MUST include `id_token`. Treating `openid` as opaque scope without ID-token issuance is non-conformant.
-
-**Method:** for every RFC-bound endpoint touched by the diff, write the spec's accept-set and reject-set as a comment AT REVIEW TIME (in your reasoning, not necessarily in the code), then walk the implementation's validators against both sets. Author comments justifying the deviation ("supported posture", "deliberate narrower contract", "library default") are NOT exemptions: a comment that names the deviation is the reason to check it, never a reason to pass it.
+1. Require an `id_token` in the response when an OAuth2-with-OIDC flow requests `openid`.
 
 ---
 
 ## CORS preflight for browser-callable auth endpoints
 
-RFC 9700 (OAuth 2.0 for Browser-Based Apps) recommends CORS support on token endpoints for SPA clients using authorization-code + PKCE. `quick-review` 5.10 lists the three valid CORS-handling patterns.
+1. Check CORS support on token endpoints that SPA clients call with authorization code and PKCE, per RFC 9700, against the three patterns in `quick-review` 5.10.
 
 ---
 
 ## Bearer-token consumer correctness (RFC 6750)
 
-Three places to check:
-
-1. **Token presentation** — `Authorization: Bearer <token>` is the canonical form. Query parameter (`?access_token=...`) and form body (`access_token=...`) are also defined but discouraged. If the diff adds a non-header consumption path, ensure it's gated behind a deliberate use-case.
-2. **Audience** — the consumer must verify the token's audience matches its own resource server identifier. A token minted for resource server A accepted by resource server B is a confused-deputy hazard.
-3. **Scope** — verify the consumer enforces the scope. For example, a token has `scope:admin` but resolver only checks `current_user.is_admin` — scope is decorative, not load-bearing.
+1. **Token presentation** — if the diff accepts a token anywhere but `Authorization: Bearer <token>`, such as `?access_token=...` or a form body, require a deliberate use case to gate it.
+2. **Audience** — require the consumer to verify that the token's audience matches its own resource server identifier.
+3. **Scope** — require the consumer to enforce the token's scope, not only a user attribute such as an admin flag.
 
 ---
 
 ## JWT (RFC 7515-7519)
 
-If the diff mints or consumes JWTs:
+1. If the diff mints or consumes JWTs, check each of these:
 
-- **Algorithm** — verify `alg` is constrained. The `alg: none` attack is the canonical break.
-- **Key rotation** — if `kid` is present, the verifier must use the kid-indexed key, not a hard-coded one.
-- **Expiry** — `exp` claim must be checked and the clock skew tolerance documented.
-- **Audience** — same as Bearer token audience above.
+- **Algorithm** — `alg` is constrained, and `alg: none` is refused.
+- **Key rotation** — if `kid` is present, the verifier uses the kid-indexed key, not a hard-coded one.
+- **Expiry** — the `exp` claim is checked, and the clock skew tolerance is documented.
+- **Audience** — the same check as Bearer token audience above.
