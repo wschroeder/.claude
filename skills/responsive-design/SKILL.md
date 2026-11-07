@@ -5,21 +5,13 @@ description: Makes a page work on a phone and a desktop without naming device wi
 
 # responsive-design
 
-Be the browser's mentor, not its micromanager. You set constraints; the browser
-does layout. Every device width you name is a width you will be wrong about.
-
-Two failures follow from micromanaging, and they need different fixes:
-
-- **It does not fit.** Fixed units and hand-picked breakpoints. Fluid units and
-  content-driven wrapping fix this.
-- **It fits and should not be there.** Eight controls need the room eight
-  controls need, at any unit. Only disclosure fixes this.
-
-Do not reach for the first fix when the problem is the second one.
+1. Set constraints and let the browser do layout; never name a device width.
+2. If the page does not fit, fix it with fluid units and content-driven wrapping.
+3. If the page fits but holds too much, such as eight controls on a phone, fix it with disclosure, never with smaller units.
 
 ## The numbers you do not have to invent
 
-Never argue about a width. These are settled, and each is testable.
+1. Take every width and size from this table, never from argument; each is testable.
 
 | What | Number | Source |
 |------|--------|--------|
@@ -30,13 +22,8 @@ Never argue about a width. These are settled, and each is testable.
 | Pointer target | **24×24 CSS px** | WCAG 2.5.8 AA |
 | Pointer target, preferred | **44×44 CSS px** | WCAG 2.5.5 AAA |
 
-**320 is not a phone.** It is a 1280px desktop viewport at 400% zoom, which is
-what a low-vision reader actually does. That is why it is the floor and why no
-device name belongs in this table.
-
-1.4.10 exempts content that genuinely needs two dimensions: data tables, maps,
-diagrams, video, games, and code blocks where indentation carries meaning. Those
-scroll inside their own container. The page around them still reflows.
+2. Treat 320 as a 1280px desktop viewport at 400% zoom, not as a phone.
+3. Let content that genuinely needs two dimensions, such as data tables, maps, diagrams, video, games, and code blocks where indentation carries meaning, scroll inside its own container under the 1.4.10 exemption; the page around it still reflows.
 
 Why each number is what it is: [references/sources.md](references/sources.md).
 
@@ -50,14 +37,11 @@ Why each number is what it is: [references/sources.md](references/sources.md).
 | `max-width: 640px` on prose | `max-width: 62ch` | measure is a count of characters, not a distance |
 | `height: 100vh` | `height: 100dvh` | `100vh` is the *largest* viewport, so mobile browser chrome clips it on load |
 
-**A px font-size does not fail WCAG 1.4.4.** Page zoom scales px, and the criterion
-accepts any method that reaches 200%. The rule above stands on the reader's default
-font size, which px ignores and zoom does not fix. Do not cite 1.4.4 against a px
-size — see [references/sources.md](references/sources.md#the-144-correction).
+1. Never cite WCAG 1.4.4 against a px font-size: page zoom scales px. Rest the rule on the reader's default font size, which px ignores; see [references/sources.md](references/sources.md#the-144-correction).
 
 ### The fluid step
 
-To scale a value from `S1` at viewport `V1` to `S2` at viewport `V2`, all in px:
+1. To scale a value from `S1` at viewport `V1` to `S2` at viewport `V2`, all in px, use:
 
 ```
 slope     = (S2 - S1) / (V2 - V1)
@@ -72,15 +56,12 @@ Worked, for body text 16px at a 320px viewport rising to 18px at 1240px:
 --t-body: clamp(1rem, 0.957rem + 0.217vw, 1.125rem);
 ```
 
-The minimum and maximum are in `rem` so the reader's default font size still
-reaches them. A `clamp()` bounded in `px` ignores that setting exactly as a plain
-`px` size does.
-
-Generate a whole scale at utopia.fyi rather than doing this by hand per step.
+2. Write the minimum and maximum in `rem`, never `px`, so the reader's default font size still reaches them.
+3. Generate a whole scale at utopia.fyi rather than doing this by hand per step.
 
 ## Layout
 
-Let the content pick where it breaks.
+1. Let the content pick where it breaks.
 
 ```css
 /* A row that becomes a column when its items stop fitting. No breakpoint. */
@@ -91,23 +72,13 @@ Let the content pick where it breaks.
 }
 ```
 
-`min(28ch, 100%)` rather than a bare `28ch`: a bare minimum wider than the
-container overflows it, which is the single most common way an `auto-fit` grid
-breaks at 320px.
-
-Flex and grid children default to `min-width: auto`, so a long word or a wide
-table refuses to shrink and pushes the page sideways. Give any child that holds
-text or a scroller `min-width: 0`.
+2. Write the minimum as `min(28ch, 100%)`, never a bare `28ch`, because a bare minimum wider than the container overflows it.
+3. Give any flex or grid child that holds text or a scroller `min-width: 0`, because the default `min-width: auto` refuses to shrink and pushes the page sideways.
 
 ### A value that wraps keeps its label in line
 
-`white-space: nowrap` is not how you hold a value on one line. In a grid of
-repeated cells you will not catch it at any width you are likely to try: it
-gives way only at the narrow end, where the column finally measures thinner
-than the string and the body starts scrolling sideways.
-
-Let the value wrap, and reserve its height so a cell that takes two lines does
-not drop its label below the labels beside it:
+1. Never hold a value on one line with `white-space: nowrap`; it gives way only at the narrow end, where the body starts scrolling sideways.
+2. Let the value wrap, and reserve its height so a cell that takes two lines does not drop its label below the labels beside it:
 
 ```css
 .readout .n {
@@ -119,49 +90,21 @@ not drop its label below the labels beside it:
 }
 ```
 
-Write the reservation in `lh`, which is the element's own computed line height
-and so tracks the reader's text-spacing override. A height you sized against a
-line height of your own choosing comes up short the moment that override sets
-`line-height: 1.5`. Declare that same 1.5 here and the `em` fallback lands on
-two lines exactly, which is what makes it safe to ship beside the `lh`.
-
-Check whether you need the reservation at all before you add it. Where the
-grid's own column minimum is already wider than the longest string, the value
-cannot wrap until the grid has collapsed to one column, and a single cell per
-row has no neighbour to fall out of line with. Measure the two against each
-other rather than assuming either:
-[references/sources.md](references/sources.md), "The cost of holding a line".
+3. Write the reservation in `lh` so it tracks the reader's text-spacing override, and declare `line-height: 1.5` so the `em` fallback lands on two lines exactly.
+4. Before you add the reservation, measure the grid's column minimum against the longest string; if the minimum is wider, the value cannot wrap before the grid collapses to one column, so skip it. See [references/sources.md](references/sources.md), "The cost of holding a line".
 
 ### Check the narrow end with the text doubled, not only at the default size
 
-A reader who raises their browser's default font size doubles every `rem` on the
-page. The viewport does not move with them, so at 320 CSS pixels the space and
-the type go on growing into a column that can spare neither, and the body starts
-scrolling sideways. That is a 1.4.10 failure reached through 1.4.4, at a width
-nobody designed and a size nobody tested.
-
-Three things break this way, and each is a rule from further up this page.
-
-**Padding in `rem` eats the column it sits in.** Cap it against the viewport, so
-it stops growing where the viewport cannot spare it:
+1. Test 320 CSS pixels with the reader's default font size doubled, because every `rem` doubles while the viewport stays put.
+2. Cap `rem` padding against the viewport, so it stops growing where the viewport cannot spare it:
 
 ```css
 .hero { padding-inline: min(var(--s-10), 6vw); }
 ```
 
-**A `clamp()` floor in `rem` is a floor the viewport cannot honour.** The `vw`
-term falls as the viewport narrows and the floor does not, so the browser takes
-the floor and the longest string overruns its line. Lower the floor until that
-string fits. The desktop size does not move, because the preferred term already
-sits above the floor there.
-
-**A heading at a doubled size holds words wider than its column.** Give every
-heading and any unbroken value `overflow-wrap: break-word`.
-
-Check 2 of the review checklist is where all three surface, and it is the one to
-run before trusting a page at 320. The measurements:
-[references/sources.md](references/sources.md), "Space that grows while the
-viewport does not".
+3. Lower a `clamp()` floor in `rem` until the longest string fits at 320, because the floor does not fall with the `vw` term; the desktop size does not move.
+4. Give every heading and any unbroken value `overflow-wrap: break-word`.
+5. Run check 2 of the review checklist before trusting a page at 320; all three surface there. The measurements: [references/sources.md](references/sources.md), "Space that grows while the viewport does not".
 
 ### Which query
 
@@ -170,40 +113,30 @@ viewport does not".
 | one component, wherever it sits | `@container` | set `container-type: inline-size` on its wrapper |
 | the page's own skeleton | `@media` | the shell, not the pieces inside it |
 
-Container queries are baseline across Chrome, Firefox, Safari, and Edge. Prefer
-them: the same block appears in a wide slot and a narrow one, and a viewport
-query cannot tell those apart.
+1. Prefer container queries, because a viewport query cannot tell a wide slot from a narrow one; they are baseline across Chrome, Firefox, Safari, and Edge.
 
 ```css
 .card-wrap { container-type: inline-size; container-name: card; }
 @container card (min-width: 34rem) { .card { grid-template-columns: 1fr 2fr; } }
 ```
 
-Name your containers. An unnamed `@container` binds to the nearest container
-ancestor, which is not always the one you meant.
-
-Where a media query is genuinely right, write the breakpoint in `em` and put it
-where the content stops fitting, not at a device width. An `em` breakpoint scales
-with the reader's text size; a `px` one does not.
+2. Name your containers, because an unnamed `@container` binds to the nearest container ancestor.
+3. If a media query is genuinely right, write the breakpoint in `em` and put it where the content stops fitting, not at a device width.
 
 ### The body never scrolls sideways
 
-Wide content scrolls inside its own container, and that container is reachable by
-keyboard:
+1. Scroll wide content inside its own container, and make that container reachable by keyboard:
 
 ```css
 .tablewrap { overflow-x: auto; }
 .tablewrap:focus-visible { outline: 2px solid var(--accent); }
 ```
 
-Set `tabindex="0"` on a scrolling container so a keyboard reader can reach it.
+2. Set `tabindex="0"` on a scrolling container so a keyboard reader can reach it.
 
 ## Disclosure — the decision fluid layout cannot make
 
-Fluid layout decides how things fit. It never decides what belongs on screen.
-
-A filter set, a toolbar, or a nav with more than about four controls fills a
-narrow screen before the reader has seen anything you built. See [references/measurements.md](references/measurements.md).
+1. Collapse a filter set, a toolbar, or a nav with more than about four controls on a narrow screen. See [references/measurements.md](references/measurements.md).
 
 ```css
 /* Collapsed by default; the container decides when it may open flat. */
@@ -216,20 +149,16 @@ details.filters > summary { display: block; }
 
 Rules:
 
-- Default to collapsed. Expanded is what you earn with space, not what you start
-  from.
+- Default to collapsed, and expand only where space allows.
 - Use `<details>`/`<summary>`, which gives you keyboard operation and the
-  expanded state for free. A `<div>` with a click handler gives you neither.
-- The summary says what is inside and what is active — "Filters · 2 applied" —
-  so a reader knows whether opening it matters.
-- The trigger is at least 24×24, and 44×44 if it is a primary action.
+  expanded state; never a `<div>` with a click handler.
+- Make the summary say what is inside and what is active, such as "Filters · 2 applied".
+- Make the trigger at least 24×24, and 44×44 if it is a primary action.
 
 ## The review checklist
 
-Run against the built page. Every item resolves to **DEMONSTRATED** with the
-artifact named, **N/A** with one line of why, or **`hypothesis:`** when you
-suspect a problem and could not produce the artifact. There is no fourth state,
-and "it looks fine" is not one of them.
+1. Run the checklist against the built page.
+2. Resolve every item to **DEMONSTRATED** with the artifact named, **N/A** with one line of why, or **`hypothesis:`** when you suspect a problem and could not produce the artifact; "it looks fine" is not a state.
 
 ```
 1  REFLOW 320     At 320 CSS px wide, does the body scroll sideways?
@@ -270,12 +199,11 @@ and "it looks fine" is not one of them.
                   the list, with each element's right edge.
 ```
 
-Close with the count: `8 checks. DEMONSTRATED n  N/A n  hypothesis n. findings: n`.
+3. Close with the count: `8 checks. DEMONSTRATED n  N/A n  hypothesis n. findings: n`.
 
 ### Getting the artifacts
 
-Four artifacts cover the eight checks. Produce each once and read it against the
-checks named beside it.
+1. Produce each artifact once and read it against the checks named beside it.
 
 ```
 width strip            checks 1, 5, 8    many widths in one render
@@ -285,8 +213,7 @@ text-spacing render    check 3           the built file with the four overrides
 computed boxes         checks 4, 7       measured, not looked at
 ```
 
-**The width strip.** One render holds many widths at once — iframes each get their
-own viewport, so media and container queries evaluate correctly inside them:
+2. Build the width strip as one render of many iframes, each with its own viewport:
 
 ```bash
 # strip.html holds one <iframe src="page.html" width="320|390|600|900"> per width
@@ -294,39 +221,18 @@ own viewport, so media and container queries evaluate correctly inside them:
   --url strip.html --out strip.png --width 2280 --height 800
 ```
 
-Every render in this skill goes through that script. It kills Chrome once the
-output stops growing, because Chrome does not exit after writing the file, and a
-command that waits for it pays its whole timeout instead of the two seconds the
-render takes. Run its tests once before trusting it:
-`python3 ~/.claude/skills/responsive-design/scripts/test_render.py`.
-
-**One Chrome window per width cannot test the narrow end.** Chrome clamps
-`--window-size` to a 500-pixel minimum, so a window asked for 320, 390 or 480
-renders at 500 and reports a clean pass for a page nobody tested. The iframe strip
-is the only way to reach the two narrowest widths this skill requires. `render.sh`
-refuses a `--width` below 500 rather than let the clamp through quietly.
-
-**Fonts that arrive over the network change what you measured.** A page declaring
-webfaces lays out one way before its glyphs land and another way after, so a
-capture taken in between belongs to a page no reader will see. Add `--fonts` to a
-dom pass and read the receipt, which reports faces downloaded over faces declared:
+3. Send every render through `render.sh`, and run its tests once before trusting it: `python3 ~/.claude/skills/responsive-design/scripts/test_render.py`.
+4. Reach widths under 500 only through the iframe strip, because Chrome clamps `--window-size` to 500 and `render.sh` refuses a `--width` below it.
+5. Add `--fonts` to a dom pass for a page that declares webfaces, and read the receipt, which reports faces downloaded over faces declared:
 
 ```
 render: ok out=dom.html bytes=191568 width=1440 elapsed=1s fonts=8/57
 ```
 
-Two captures are comparable only when their receipts match. A page that declares
-webfaces and reports `fonts=0/0` never reached the font host at all. Do not reach
-for `document.fonts.status` or `document.fonts.check()` instead — both report
-success with the font hosts blocked. See
-[references/sources.md](references/sources.md), "Renders are not reproducible".
-
-**The strip cannot serve check 6.** Its iframes have a fixed height, so it has no
-fold — the same defect as a tall phone-width strip. Check 6 needs its own render at
-one width and the real device height.
-
-**The two injected renders.** Copy the built file, insert a `<style>` before
-`</head>`, and render the copy. Never edit the original.
+6. Compare two captures only when their receipts match. Treat `fonts=0/0` on a page that declares webfaces as a render that never reached the font host.
+7. Never use `document.fonts.status` or `document.fonts.check()` instead, because both report success with the font hosts blocked. See [references/sources.md](references/sources.md), "Renders are not reproducible".
+8. Give check 6 its own render at one width and the real device height, because the strip's fixed-height iframes have no fold.
+9. For the two injected renders, copy the built file, insert a `<style>` before `</head>`, and render the copy; never edit the original.
 
 ```html
 <!-- check 2, the root font size a reader may have raised -->
@@ -339,22 +245,15 @@ p{margin-bottom:2em!important}
 </style>
 ```
 
-Run check 3 a second time with every webface swapped for its fallback. The two
-conditions compound: each one on its own widens a string by a little, and a
-fallback face is wider per character than the one you chose, so the pair
-overruns a column that either alone still fits.
-
-**Read the numbers rather than judging by eye.** For checks 1, 4, 7 and 8, read them. Where a
-devtools MCP is available, read `documentElement.scrollWidth` against `innerWidth`
-and the computed boxes directly; otherwise count units in the source for check 4.
+10. Run check 3 a second time with every webface swapped for its fallback, because the wider fallback and the spacing overrides compound.
+11. Read the numbers for checks 1, 4, 7, and 8 rather than judging by eye. If a devtools MCP is available, read `documentElement.scrollWidth` against `innerWidth` and the computed boxes directly; otherwise count units in the source for check 4.
 
 ## What a headless render cannot show you
 
-Say these are untested rather than passing them.
+1. Report these as untested rather than passing them.
 
 - **`dvh` behaviour.** Desktop emulation has no address bar to collapse, so
-  `svh`, `lvh`, and `dvh` all report the same value. A `dvh` bug does not
-  reproduce anywhere but a real device.
+  `svh`, `lvh`, and `dvh` all report the same value.
 - **Touch.** Hit targets, hover states that have no touch equivalent, and
   scroll-versus-drag conflicts.
 - **The reader's own settings.** OS-level text size, reduced motion, and forced
