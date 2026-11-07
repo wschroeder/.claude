@@ -1,6 +1,6 @@
 # Staging a review too big for one session
 
-A whole-branch review reads every file group once per round. When the diff is bigger than the room a session has left, plan the review as stages at Pass 0, before you read any of the diff. Without a plan, a session reads until the handoff hook stops it partway through a group, and the next session starts over on whatever the handoff remembered.
+1. When the diff is bigger than the room a session has left, plan the review as stages at Pass 0, before you read any of the diff.
 
 ## Size it
 
@@ -13,30 +13,37 @@ A whole-branch review reads every file group once per round. When the diff is bi
 
 2. Read the context in use with `python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self`. The room left is 170,000 minus that figure.
 3. Convert characters to tokens at about 3.5 characters per token. After the first diff read, check that ratio against `--self` and use the measured one.
-4. If the whole diff takes more than a third of the room left, stage the review. The other two thirds go to surrounding code, greps, probes, and the passes' own writing. Otherwise, review in one go and skip the rest of this file.
+4. If the whole diff takes more than a third of the room left, stage the review. Otherwise, review in one go and skip the rest of this file.
 
 ## Cut the stages
 
-- Group files the way the code is layered, so that each stage reads a caller and its callee together where it can: for example, domain with application, then server routes with their views, then tests, then docs, specs, and data.
-- Each stage's diff must stay under a third of the room a fresh session has after loading this skill. Split a group that is too big by directory, never through the middle of a file.
-- Put a test file in the same stage as the code it tests when both fit. Otherwise give the tests a stage of their own, and have that stage name the production stage it checks.
-- The last stage is always **cross-group**: angles that follow a value, a state, or a rule across groups. These are 1.2, 1.4, 1.19, 2.18, 2.19, 5.7, 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. It works from the earlier stages' notes and from targeted greps, and it never re-reads a whole group's diff.
-- The cross-group stage's inputs, the earlier stages' notes and its greps, must stay under the same third, and the notes may take only half of it so that the greps keep the other half. Before it starts, measure the notes file with `wc -c` and convert at the ratio from "Size it". If the notes take more than half that cap, split the stage in two. The first walks 1.2, 1.4, 1.19, 2.18, 2.19, and 5.7. The second walks 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. Each part reads the stage plan and only the `cross-group` marks for its own angles, not every stage's passes. Before each part starts, measure its marks by listing its angles in one pattern:
+1. Group files the way the code is layered, so that each stage reads a caller and its callee together where it can, such as domain with application, then server routes with their views, then tests, then docs, specs, and data.
+2. Keep each stage's diff under a third of the room a fresh session has after loading this skill, and split a group that is too big by directory, never through the middle of a file.
+3. Put a test file in the same stage as the code it tests when both fit; otherwise give the tests a stage of their own that names the production stage it checks.
+4. Make the last stage **cross-group**: the angles that follow a value, a state, or a rule across groups, which are 1.2, 1.4, 1.19, 2.18, 2.19, 5.7, 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. It works from the earlier stages' notes and targeted greps, and never re-reads a whole group's diff.
+5. Keep the cross-group stage's inputs under the same third, with the notes taking at most half of it; before it starts, measure the notes file with `wc -c` and convert at the ratio from "Size it".
+6. If the notes take more than half that cap, split the stage in two: the first walks 1.2, 1.4, 1.19, 2.18, 2.19, and 5.7, and the second walks 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. Each part reads the stage plan and only the `cross-group` marks for its own angles.
+7. Before each part starts, measure its marks by listing its angles in one pattern:
 
   ```bash
   grep -E '^cross-group (1\.2|1\.3|1\.4|1\.19|2\.18|2\.19|5\.7):' <notes> | wc -c
   ```
 
-  If a part's marks still take more than half the cap, split its angles in two again, and keep splitting until every part's marks fit or a part holds one angle. A part holding one angle whose marks still do not fit walks them in batches of whole lines, each under half the cap, and writes what each batch found to the notes before the next batch starts. Whichever part walks 1.4 also reads the 1.3 marks, keeps 1.3 in its pattern, and runs the caller trace from "After a fix", which needs them. Wherever this file or `SKILL.md` names the cross-group stage, a split one means every part.
+8. If a part's marks still take more than half the cap, split its angles in two again until every part's marks fit or a part holds one angle.
+9. If a one-angle part's marks still do not fit, walk them in batches of whole lines, each under half the cap, and write what each batch found to the notes before the next batch starts.
+10. Have whichever part walks 1.4 also read the 1.3 marks, keep 1.3 in its pattern, and run the caller trace from "After a fix".
+11. Read every mention of the cross-group stage, here or in `SKILL.md`, as every part of a split one.
 
 ## Run the stages
 
-- Each stage walks every pass over its own files and marks each angle that only the cross-group stage can check. Write each mark on its own line in the notes, starting at the first column with no bullet, as `cross-group <angle>: <the symbol or rule to follow there>`. Give each changed function its own `cross-group 1.3` mark too, because the caller trace in "After a fix" reads its list from them.
-- After each stage, write it to the notes file and run `--self`. If the next stage fits in the room left, start it. If it does not, hand off naming the notes file and the next stage, and nothing else about the review.
-- Classify and Output run once, after the cross-group stage, over every stage's candidates.
+1. Have each stage walk every pass over its own files and mark each angle only the cross-group stage can check, on its own line in the notes, at the first column with no bullet, as `cross-group <angle>: <the symbol or rule to follow there>`.
+2. Give each changed function its own `cross-group 1.3` mark.
+3. After each stage, write it to the notes file and run `--self`; if the next stage fits in the room left, start it, and if not, hand off naming the notes file and the next stage, and nothing else about the review.
+4. Run Classify and Output once, after the cross-group stage, over every stage's candidates.
 
 ## After a fix
 
-Record each stage's fingerprint in the notes file: `git diff <merge-base> -- <its files> | shasum`. In the next round, re-run every stage whose fingerprint changed, and keep the result of every stage whose fingerprint still matches. Always re-run the cross-group stage. Add the targeted re-checks from [review-fix-loop.md](review-fix-loop.md) to the stage that holds the fix.
-
-A fix can change how code in an unchanged stage behaves, for example by handing a caller a new state. The cross-group stage catches that by tracing each changed function's callers (1.3) and each new state's readers (1.4) into every stage, changed or not. If either trace leads into a kept stage, re-run that stage too.
+1. Record each stage's fingerprint in the notes file: `git diff <merge-base> -- <its files> | shasum`.
+2. In the next round, re-run every stage whose fingerprint changed, keep the result of every stage whose fingerprint matches, and always re-run the cross-group stage.
+3. Add the targeted re-checks from [review-fix-loop.md](review-fix-loop.md) to the stage that holds the fix.
+4. If the cross-group stage's trace of each changed function's callers (1.3) or each new state's readers (1.4) leads into a kept stage, re-run that stage too.
