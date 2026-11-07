@@ -5,9 +5,7 @@ description: Whether to hand work to a subagent, and what its prompt must carry.
 
 # subagents — whether to hand it over, and what to say if you do
 
-Other skills cite this one rather than restating it: `session-loop` for the
-loop's own thresholds, `writing-code` for the review sequence, `quick-review`,
-`security-review` and `design-gap-task` for work they keep in-session.
+Other skills cite this one rather than restating it: `session-loop`, `writing-code`, `quick-review`, `security-review`, and `design-gap-task`.
 
 ## The one question
 
@@ -15,112 +13,57 @@ Before every subagent or workflow, ask:
 
 > After this agent returns, will I open the same material it opened?
 
-If yes, do not delegate. You pay the agent's climb from an empty context up to
-a full one, and then your own reading on top. The material gets read twice and
-you are charged for both.
-
-That is the whole test. Everything below is the cases it resolves to.
+1. If yes, do not delegate, because you would pay for the material twice.
 
 ## When delegating pays
 
-The agent's context genuinely replaces one you would otherwise have loaded:
-
-- research against sources you will never open yourself
-- wide or mechanical searches where only the answer comes back
-- independent checking of a list of claims, where you read a yes or no for
-  each claim and not the material behind them
+1. Delegate research against sources you will never open yourself.
+2. Delegate wide or mechanical searches where only the answer comes back.
+3. Delegate independent checking of a list of claims, where you read only a yes or no for each.
 
 ## When it does not
 
-**When you will review the result.** Building a change you then read line by
-line puts the diff in your context regardless, so the delegation saved nothing.
-If the working agreement says you review every change, handing that change to
-an agent cannot pay — the standard is right, and the delegation is what goes.
-
-**The reviews are the case this keeps catching.** A session that hands
-`quick-review` and `security-review` to subagents still reads every finding and
-applies it, so the diff lands in its context either way. See
-[references/measurements.md](references/measurements.md).
-
-**Investigation, always.** Tracing where a config value, an env var, a secret or
-a deployment behavior actually comes from means following the chain to its end.
-An agent that returns the first plausible match has spent the search without
-producing the answer, and you cannot tell which you got without redoing it.
+1. Do not delegate a change you will then review line by line.
+2. Do not hand `quick-review` or `security-review` to a subagent, because you read and apply every finding anyway.
+3. Never delegate investigation, such as tracing where a config value, an env var, a secret, or a deployment behavior comes from; follow the chain to its end yourself.
 
 ## A fork is a continuation, not a delegation
 
-`subagent_type: "fork"` hands the agent your entire conversation. That is the
-only thing separating it from a fresh agent, and it is the only reason to reach
-for one.
-
-**Fork when the agent needs the conversation rather than a specification.**
-Exploring a branch of work you are already inside, where writing the context
-down as a prompt would be long and lossy. A second opinion on a judgment made
-in context. Trying the other road at a decision point you would otherwise have
-to guess at. In each of those the shared history is the point.
-
-**Spawn a fresh agent the moment the job can be written down.** Research, a
-wide search, a migration, a review of a named diff — those are specifications,
-and "What the prompt must carry" below is what makes them work. A fresh agent
-carries no inherited role and nothing irrelevant, so its prompt is all it has.
-A fork's inherited conversation can outweigh its prompt.
-
-**Never fan out with forks, and never keep two forks alive at once.** A fork
-inherits the parent's role along with the parent's context, so each one acts
-as the orchestrator — and forks can list and message each other. Three forks
-is three agents each behaving as though it is running the session, messaging
-its siblings on false premises and doing their assignments instead of its own.
-Fresh agents are not forks and carry no such role: they may run in parallel,
-spawned in a single message.
-
-**A fork always runs on your model and ignores a model override.** It is the
-expensive choice as well as the confusable one: work a fresh Sonnet or Haiku
-agent would have done is billed at the driver's rate.
+1. Use `subagent_type: "fork"` only when the agent needs the conversation rather than a specification, such as exploring a branch of work you are inside, a second opinion on a judgment made in context, or trying the other road at a decision point.
+2. Spawn a fresh agent whenever the job can be written down, such as research, a wide search, a migration, or a review of a named diff.
+3. Never fan out with forks, and never keep two forks alive at once, because each fork acts as the orchestrator and messages its siblings.
+4. Run fresh agents in parallel by spawning them in a single message.
+5. Remember that a fork always runs on your model and ignores a model override.
 
 ## After you spawn, end the turn
 
-The launch result says it plainly: you are notified automatically when the
-agent completes. There is nothing to block on and nothing to poll.
-
-Say in one line what you are waiting for, and stop. Do not call `ListAgents`
-to check. Do not spawn an agent whose job is to come back and report that it
-is idle. Do not schedule a wakeup — `ScheduleWakeup` belongs to `/loop`.
-
-**Do not start work on the agent's topic while it runs.** The wait is not
-free time. Reading the same sources twice is the exact cost the delegation
-existed to avoid, and filling the gap is how it happens. See [references/measurements.md](references/measurements.md).
+1. Say in one line what you are waiting for, and stop; you are notified when the agent completes.
+2. Do not call `ListAgents`, spawn an agent to report another is idle, or schedule a wakeup.
+3. Do not start work on the agent's topic while it runs.
 
 ## Matching the model
 
-Haiku for wide or mechanical passes where only the answer matters. Sonnet for
-work needing judgment you will not re-read yourself. Keep the driver model for
-reasoning you are holding in this session. Where the choice is close, take the
-more capable model — a wrong result is redone at full price, so saving tokens on
-a close call buys nothing.
+1. Use Haiku for wide or mechanical passes where only the answer matters.
+2. Use Sonnet for work needing judgment you will not re-read yourself.
+3. Keep the driver model for reasoning you are holding in this session.
+4. When the choice is close, take the more capable model, because a wrong result is redone at full price.
 
 ## What the prompt must carry
 
-Every delegation prompt, without exception:
+Every delegation prompt carries these:
 
-1. **Specific file paths.** Not "the auth module" — the paths.
-2. **The expected output format.** What shape the answer comes back in, so you
-   are not parsing prose.
-3. **Scope boundaries.** What the agent is not to touch or decide.
-4. **Failure instructions**, in this form: "if X fails, stop and report — do not
-   retry with variations." Without it an agent burns its context rediscovering
-   that something is broken.
-5. **The footer**, verbatim:
+1. Specific file paths, never a description such as "the auth module".
+2. The expected output format.
+3. Scope boundaries: what the agent must not touch or decide.
+4. Failure instructions in this form: "if X fails, stop and report — do not retry with variations."
+5. The footer, verbatim:
 
    ```
    You are a subagent. Do all work directly — do NOT use the Task tool to delegate.
    ```
 
-Where the work follows a code change, hand over what the pre-edit scan in
-`writing-code` already turned up — the callers, comments, tests and outside
-references it found — so none of it is rediscovered mid-task.
+6. Where the work follows a code change, also hand over the callers, comments, tests, and outside references that the pre-edit scan in `writing-code` found.
 
 ## What this skill does not cover
 
-Where a session hands off and what its context ceiling is (`session-loop`).
-What the review passes look for (`quick-review`, `security-review`). Whether a
-repeated piece of work should become a script or a skill (`systematize`).
+Session handoffs and the context ceiling belong to `session-loop`, review passes to `quick-review` and `security-review`, and the choice between a script and a skill to `systematize`.
