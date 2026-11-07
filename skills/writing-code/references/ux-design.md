@@ -1,10 +1,6 @@
 # User interface design: match the app first
 
-Conventions for building or changing a control a person uses: a button, a form,
-a dialog, a list row's actions, an inline edit. Consistency is the first and main
-point here, and everything else is subordinate to it. Behaviour at different
-widths belongs to `responsive-design`, and this file does not restate it, apart
-from where a page's own contents list goes on a phone.
+Read this before building or changing a control a person uses, such as a button, a form, a dialog, a list row's actions, or an inline edit. Consistency with the app comes first, and every other rule here gives way to it. Behaviour at different widths belongs to `responsive-design`, apart from where a page's own contents list goes on a phone.
 
 ## Contents
 
@@ -23,187 +19,94 @@ from where a page's own contents list goes on a phone.
 
 ## Match how the app already does it
 
-Before you build a control, find every place the app already does the same
-action: edit, add, delete, merge, rename, confirm, cancel. Open those views and
-read how each one does it: which element triggers it, whether it opens inline or
-in a dialog, what the icon is, where the control sits in the row, what the
-wording says, and how a refusal shows.
-
-Copy the pattern you found, and cite the file you copied it from in your report
-to the operator, for example "the delete dialog copies
-`server/features/clients/views.tsx`'s confirm dialog". If you cannot cite a file,
-you have not looked.
-
-Driving the app to check that a control works does not answer this. A control
-can work and still look and behave unlike every other control of its kind.
-Measured: build sessions drove one list page and confirmed each control worked, and the
-operator then called the controls "extremely sloppy and inconsistent", which cost
-a redesign from 08:15 to 10:48.
+1. Before you build a control, find every place the app already does the same action, such as edit, add, delete, merge, rename, confirm, or cancel.
+2. Open those views and read which element triggers the action, whether it opens inline or in a dialog, its icon, where the control sits in the row, its wording, and how a refusal shows.
+3. Copy the pattern you found, and cite the file you copied it from in your report to the operator. If you cannot cite a file, then you have not looked.
+4. Never count driving the app to see a control work as this check, because a working control can still look and behave unlike every other control of its kind.
 
 ## Fall back to outside conventions only where the app has none
 
-If the app has no pattern for the action yet, follow the convention people know
-from other products. That fallback is second, never first: a familiar outside
-pattern that disagrees with the app's own still reads as inconsistent inside the
-app.
+1. If the app has no pattern for the action yet, then follow the convention people know from other products.
+2. Never let an outside convention win over a pattern the app already has.
 
 ## Say why when you depart
 
-If you build a control differently from the app's existing pattern, state the
-reason where the operator sees it: in the demo, the card note, or the report.
-"It looked better" is not a reason. A reason names what the existing pattern
-cannot do for this task.
+1. If you build a control differently from the app's existing pattern, then state the reason where the operator sees it: in the demo, the card note, or the report.
+2. Give a reason that names what the existing pattern cannot do for this task; "it looked better" is not one.
 
 ## Build from the app's own pieces
 
-Use the app's existing components, layout helpers, icon set, spacing, and
-utility classes. Do not write a new button, dialog, or icon when the app already
-has one. Where a project's CLAUDE.md names the widget library it prefers, that
-library is part of the app's own pieces.
+1. Use the app's existing components, layout helpers, icon set, spacing, and utility classes.
+2. Never write a new button, dialog, or icon when the app already has one.
+3. Count a widget library that the project's CLAUDE.md prefers as one of the app's own pieces.
 
 ## Put a control inside the component it acts on
 
-Where a control acts on one component, such as an × that clears a field,
-removes a tag, or dismisses a warning, draw it inside that component's visible
-border, at its trailing end. Never place it beside the component. People read
-whatever sits inside one border as one thing, and a border outweighs closeness,
-so an × outside the border reads as acting on whatever else sits near it.
-
-When you copy the app's pattern for an action, copy where its control sits as
-well as which control it is. A spec or a handoff that says "beside the warning"
-names the control's neighbour, not its layout, so draw the control inside.
-
-Measured: on 2026-10-20 an operator said of a date input's clear button "The x
-needs to be inside the input", and on 2026-10-27 of a warning label's clear
-button "Shouldn't the X be inside the label?" The second build had cited the
-app's tag pill as its pattern, and the tag pill draws its × inside the pill.
+1. Draw a control that acts on one component, such as an × that clears a field, removes a tag, or dismisses a warning, inside that component's visible border at its trailing end, never beside it.
+2. When you copy the app's pattern for an action, copy where its control sits as well as which control it is.
+3. Read "beside the warning" in a spec or a handoff as naming the control's neighbour, not its layout, and draw the control inside.
 
 ## Show an example in every input
 
-Give every text input in a form that adds a record a placeholder holding an
-example of what a person would actually type there: `XXXX1234` for a masked
-card number, `SKU-0042` for a product code, `25,000.00` for an amount. A
-person who sees an example knows the format the app expects before they type.
-The placeholder never repeats the field's label, and it never replaces the
-label, because it disappears the moment someone types. Measured: an operator
-saw example placeholders on an add panel and asked for them as the standard,
-"at least with regard to showing an example what kind of text someone would
-actually enter there."
+1. Give every text input in a form that adds a record a placeholder holding an example of what a person would actually type, such as `XXXX1234` for a masked card number or `25,000.00` for an amount.
+2. Never let the placeholder repeat the field's label or replace it, because it disappears the moment someone types.
 
 ## Multi-select with a bulk action
 
-Where a person picks several rows and acts on them at once, and the app has no
-pattern of its own for it yet:
+Where a person picks several rows and acts on them at once, and the app has no pattern of its own for it yet:
 
-- Put a checkbox on every row, and a header checkbox with three states (none,
-  some, and all) that selects the rows the current filter shows.
-- Show a bar directly above the table once anything is selected, naming the
-  count and the action: "2 files selected: [Download]". Reserve its
-  height, so the table does not jump when the bar appears.
-- Count what a row is. Where one row is one file, the bar counts files.
-- Give a selected row that the action cannot take its reason as visible text
-  beside it. Never put the reason in a tooltip, and never show it by colour
-  alone. The bar says how many are blocked: "1 of 2 selected can't be
-  downloaded".
-- Grey the action button with `aria-disabled="true"`, never `disabled`, so a
-  keyboard still reaches it.
-- Have the server refuse a request whose selection includes a blocked row. It
-  never drops that row silently.
-- Ask the operator whether a filter change clears the selection, because no
-  strong outside source settles it. Measured: on one app's files page the operator
-  chose "a filter change clears the selection".
+1. Put a checkbox on every row, and a header checkbox with three states (none, some, and all) that selects the rows the current filter shows.
+2. Once anything is selected, show a bar directly above the table naming the count and the action, such as "2 files selected: [Download]", and reserve its height so the table does not jump.
+3. Count what a row is: where one row is one file, the bar counts files.
+4. Give a selected row that the action cannot take its reason as visible text beside it, never in a tooltip and never by colour alone, and have the bar say how many are blocked, such as "1 of 2 selected can't be downloaded".
+5. Grey the action button with `aria-disabled="true"`, never `disabled`, so a keyboard still reaches it.
+6. Have the server refuse a request whose selection includes a blocked row, never dropping that row silently.
+7. Ask the operator whether a filter change clears the selection.
 
 ## Carry only the destination's own parameters
 
-Build every link, redirect, and form action from the parameters its destination
-route reads, named one by one. Never copy the incoming query string into a URL
-for another route, or into a sort or paging link on the same page, unless you
-can say why the destination needs each parameter it carries. A copied query
-string carries whatever the previous page sent: a client framework's state, a
-token, a filter, or a dialog's choice. The page it lands on may then act on that
-value or show it, though it never meant to accept it. Parse the parameters you
-keep where the request enters, and hand the view only those. Measured
-(2026-10-24): a list page copied every incoming parameter into its sort and
-paging links, so a previous page's dialog state rode along into every link, and
-the operator asked for the rule.
+1. Build every link, redirect, and form action from the parameters its destination route reads, named one by one.
+2. Never copy the incoming query string into a URL for another route, or into a sort or paging link on the same page, unless you can say why the destination needs each parameter it carries.
+3. Parse the parameters you keep where the request enters, and hand the view only those.
 
 ## Show a page's contents list above its text on a phone
 
-Where a long page carries links to its own sections, and the app has no pattern
-of its own for them yet, then at phone width:
+Where a long page carries links to its own sections, and the app has no pattern of its own for them yet, then at phone width:
 
-- Put the links in a plain list at the top of the page, one link per line, under
-  a short "On this page" heading. Keep the list visible: never fold it behind a
-  tap, never stick it to the top of the screen, and never replace it with
-  accordion sections.
-- Keep the page title's introduction to one short line, so the list starts on
-  the first screen.
-- Keep the list short enough that the first section starts on the first screen
-  too. If a page outgrows that, merge or cut sections before you fold the list.
-- On a wide screen, the same list can sit in a column beside the text.
-
-This overrides `responsive-design`'s default of collapsing a nav that holds more
-than about four controls. That default is meant for filters and toolbars.
-
-People use links they can see on a phone more often than links behind a tap,
-and they miss a folded contents bar stuck to the top of the screen. No
-peer-reviewed study compares these options at phone width, so the support comes
-from practitioner usability research and counts as moderate. Measured
-(2026-10-26): an operator looked at one real page at 390 pixels wide with its
-contents shown four ways (a plain list, wrapping chips, a folded bar, and
-accordion sections) and chose the plain list as the rule for the whole app.
+1. Put the links in a plain list at the top of the page, one link per line, under a short "On this page" heading.
+2. Keep the list visible: never fold it behind a tap, stick it to the top of the screen, or replace it with accordion sections.
+3. Keep the page title's introduction to one short line, so the list starts on the first screen.
+4. Keep the list short enough that the first section starts on the first screen too; if a page outgrows that, then merge or cut sections before you fold the list.
+5. On a wide screen, let the same list sit in a column beside the text.
+6. Follow this over `responsive-design`'s default of collapsing a nav that holds more than about four controls, which is meant for filters and toolbars.
 
 ## State facts only in help text
 
-A definition or help text states facts only: what the thing means and how the
-app sets or uses it. It makes no promise about what will happen later, gives no
-opinion, and tells the reader nothing about what to do. A word that names a band
-the app shows in color, such as "high", counts as a fact.
-
-When you reword one definition in a list, keep the form that the entries next to
-it use. A pill's definition reads as the other pills' definitions do.
-
-Keep help in a tooltip to meaning alone. Nielsen Norman Group's tooltip
-guidance, quoted under Sources, keeps instructions out of tooltips because a
-tooltip disappears. See [measurements.md](measurements.md).
-
-One exception: a pill or flag that marks something a person has to handle may
-end with one sentence that tells the reader something the screen does not show.
-That sentence says what an action does, such as "Resume picks up at the failed
-step and keeps the work done before it", or where the fix lives when it sits
-outside the app, such as "Correct the record in the source system". Never end
-with a sentence that only names a control the reader can already see, such as
-"Retry processing." beside a Retry button or "Choose its account." beside an
-account picker: it repeats the screen and tells them nothing. Read the code
-behind the action before you say what it does.
+1. Write a definition or help text as facts only: what the thing means and how the app sets or uses it, with no promise about later, no opinion, and no advice. A word that names a band the app shows in color, such as "high", counts as a fact.
+2. When you reword one definition in a list, keep the form that the entries next to it use.
+3. Keep help in a tooltip to meaning alone, because a tooltip disappears.
+4. Let a pill or flag that marks something a person has to handle end with one sentence the screen does not show: what an action does, such as "Resume picks up at the failed step and keeps the work done before it", or where a fix outside the app lives, such as "Correct the record in the source system".
+5. Never end with a sentence that only names a control the reader can already see, such as "Retry processing." beside a Retry button.
+6. Read the code behind the action before you say what it does.
 
 ## Review list
 
 Check each control against these before you call it done:
 
-- An icon-only button carries an `aria-label`.
-- A form control carries a `<label>` or an `aria-label`.
-- Each text input in an add form shows an example value as its placeholder.
-- A destructive action asks for confirmation or offers an undo window, and never
-  happens on the first click.
-- A pointer target meets `responsive-design`'s target size.
-- A blocked row's reason is visible text, not a tooltip or a colour alone.
-- A greyed button uses `aria-disabled="true"`, not `disabled`.
-- A disabled control says why it is disabled in a tooltip shown on hover, such
-  as the permission it needs or what has to happen first, and an enabled
-  icon-only control names its action in a tooltip. A blocked row in a selection
-  still shows its reason as visible text.
-- The control matches the app's existing control for the same action, where it
-  sits included, and you cited the file.
-- A control that acts on one component sits inside that component's border.
-- Every link, redirect, and form action names the parameters it carries, and
-  none copies the incoming query string.
-- At phone width, a page's contents list sits visible above its text, one link
-  per line, neither folded nor sticky.
-- Each definition and help passage carries no promise, opinion, or advice, apart
-  from the closing sentence a flag may carry.
-- A flag's closing sentence, where it has one, says what an action does or where
-  the fix lives, and never only names a control that is already on screen.
+1. An icon-only button carries an `aria-label`.
+2. A form control carries a `<label>` or an `aria-label`.
+3. Each text input in an add form shows an example value as its placeholder.
+4. A destructive action asks for confirmation or offers an undo window, and never happens on the first click.
+5. A pointer target meets `responsive-design`'s target size.
+6. A blocked row's reason is visible text, not a tooltip or a colour alone.
+7. A greyed button uses `aria-disabled="true"`, not `disabled`.
+8. A disabled control says why it is disabled in a tooltip shown on hover, such as the permission it needs or what has to happen first, and an enabled icon-only control names its action in a tooltip.
+9. The control matches the app's existing control for the same action, where it sits included, and you cited the file.
+10. A control that acts on one component sits inside that component's border.
+11. Every link, redirect, and form action names the parameters it carries, and none copies the incoming query string.
+12. At phone width, a page's contents list sits visible above its text, one link per line, neither folded nor sticky.
+13. Each definition and help passage carries no promise, opinion, or advice, apart from the closing sentence a flag may carry.
+14. A flag's closing sentence, where it has one, says what an action does or where the fix lives, and never only names a control that is already on screen.
 
 ## Sources
 
