@@ -5,27 +5,14 @@ description: Produces a verified plan for a new task-shaped skill — one whose 
 
 # create-task-skill — build a new task skill via the same discipline
 
-For the proposed task skill in $ARGUMENTS (or interactively gathered),
-respond with the following sections in order. Do NOT create the skill
-file — this template produces a verified plan and stops at the write
-step for explicit approval.
-
-The output discipline is recursive: this skill follows the pattern it
-teaches. Each section contains actual tool output, not paraphrased
-summaries. Order is enforced because each section's output anchors the
-next, AND each section's downstream requirement constrains the
-fidelity of the section above it.
+1. For the proposed task skill in $ARGUMENTS (or interactively gathered), respond with the following sections in order.
+2. Do NOT create the skill file; produce a verified plan and stop at the write step for explicit approval.
+3. Put actual tool output in each section, not paraphrased summaries, and keep the order, because each section's output anchors the next.
 
 ## The core insight (read once, then apply to the sections below)
 
-Task skills turn rule-following from a *side-promise* into an
-*output-shaped proof obligation*. The skill body forces a specific,
-ordered response. The response artifact can only be generated
-honestly if the rules were followed. Sections must contain real tool
-output because the section that comes next depends on it; and the
-upstream section must be honest because the downstream section will
-exhibit the fakery if it isn't. Both directions of the chain forcing
-matter.
+1. Design the skill body to force a specific, ordered response that can only be produced honestly if the rules were followed.
+2. Make each section depend on the real output of the one before it, so a faked upstream section shows in the section downstream.
 
 ## Inputs
 
@@ -46,35 +33,24 @@ CLAUDE.md sections
                           their content, reference them>
 ```
 
-If any input is unclear, ASK the operator before proceeding. Do not
-pattern-match a plausible value into one of these slots — wrong inputs
-here cascade into a misshapen skill body.
+1. If any input is unclear, ASK the operator before proceeding; never pattern-match a plausible value into one of these slots.
 
 ## Probe Phase
 
-Real output, not paraphrased.
+1. Paste real output, not paraphrase.
 
 ### Boundary probes
 
-For each command, API call, or shell pattern the new skill will
-reference, run a one-shot probe and paste its real output:
+1. For each command, API call, or shell pattern the new skill will reference, run a one-shot probe and paste its real output:
 
 ```
 $ <command>
 <actual output>
 ```
 
-Cautionary tale this catches: in an earlier session a skill was drafted
-citing `gh pr view --json reviewThreads` because the Linear workflow
-doc mentioned the GraphQL field `reviewThreads`. The command does not
-exist — `reviewThreads` is a GraphQL-only field, accessed via
-`gh api graphql`. The pattern-match cost a round-trip. The fix is the
-probe.
-
 ### Cited-skill availability probes
 
-For each skill the new skill cites by name, verify it is in a globally
-invokable location:
+1. For each skill the new skill cites by name, verify it is in a globally invokable location:
 
 ```
 $ find ~/.claude/skills ~/.claude/commands \
@@ -83,42 +59,19 @@ $ find ~/.claude/plugins -maxdepth 8 -ipath "*<skill>*" \
        -name SKILL.md 2>/dev/null
 ```
 
-Match the path, not the filename. A global skill is a *directory* named
-after the skill holding a `SKILL.md`, so `-iname "<skill>*" -type f`
-matches nothing and reports every installed skill as missing. The
-`-maxdepth 2` keeps the output to one line per skill by excluding
-`references/*.md`, and still catches a `~/.claude/commands/<skill>.md`.
-
-Both finds are required. A skill installed by a plugin at user scope
-resolves globally but sits seven levels under `~/.claude/plugins`, so the
-first find alone reports it missing — a false negative that sends the
-draft off to inline mechanics it should have cited. Cite a plugin skill
-as `plugin-name:skill-name`.
-
-A plugin skill is also effectively immutable: its directory is a
-version-pinned cache that the next plugin update overwrites. A global
-skill that adds to one wraps it — cites it for what it owns, adds only
-what it does not — and never edits it.
-
-If NEITHER find locates the skill, it is project-scoped and CANNOT be
-referenced as `/skill-name` from a global task skill. Three options:
+2. Match the path, not the filename, because a global skill is a *directory* named after the skill holding a `SKILL.md`; never use `-iname "<skill>*" -type f`.
+3. Run both finds, because a plugin skill at user scope sits seven levels under `~/.claude/plugins`; cite a plugin skill as `plugin-name:skill-name`.
+4. Never edit a plugin skill, because the next plugin update overwrites its directory; wrap it instead, citing it for what it owns and adding only what it does not.
+5. If NEITHER find locates the skill, treat it as project-scoped, never reference it as `/skill-name` from a global task skill, and take one of three options:
 
 - (a) Inline the relevant mechanics directly into the new skill so it
   is self-contained
 - (b) Move or copy the cited skill to a global location
 - (c) Replace the citation with a globally-available alternative
 
-Cautionary tale: an earlier draft of a task skill referenced
-`/respond-all` as a handoff, but `respond-all` lives under
-`~/dev/{ai*,legends-*}/.claude/skills/` only. The citation would have
-been a broken pointer from anywhere outside those project trees. The
-fix was to inline the verified reply syntax.
-
 ### CLAUDE.md probes
 
-For each CLAUDE.md rule the new skill relies on, show the line range
-and the exact rule name. The new skill REFERENCES — it does not
-duplicate. Example:
+1. For each CLAUDE.md rule the new skill relies on, show the line range and the exact rule name, in this shape:
 
 ```
 ~/.claude/CLAUDE.md  "Evidence Format (HARD CONSTRAINTS)"  → ref
@@ -127,22 +80,18 @@ skills/writing-code   "After the edit: the review sequence"  → ref
 ~/.claude/CLAUDE.md  rule 11 (design docs describe intent)  → ref
 ```
 
-CLAUDE.md is the dictionary; the task skill is the form. Duplicating
-the dictionary into the form creates drift the moment CLAUDE.md changes.
+2. Make the new skill reference those rules, never duplicate them.
 
 ## Draft Body
 
-Propose the full skill body in a fenced block, exactly as it will
-appear in the file. The body must include:
+Propose the full skill body in a fenced block, exactly as it will appear in the file, including:
 
 1. **frontmatter**: `name` and `description`. The description states
    what the skill produces and ends with a "Use when…" clause naming
    the words, file types and errors that mean this skill applies —
-   the trigger terms `systematize` step 2 requires. A description that
-   only says what the skill produces gives the model no way to reach
-   it, so the skill runs only when the operator types its name. While
-   a new template is still being iterated on, say so in the body; do
-   not withhold the triggers from the description to achieve it.
+   the trigger terms `systematize` step 2 requires. While a new
+   template is still being iterated on, say so in the body; never
+   withhold the triggers from the description.
 2. **Opening paragraph**: what the template produces, when it stops,
    and that section order is enforced.
 3. **Ordered sections** with structural headers. Each section
@@ -158,7 +107,7 @@ appear in the file. The body must include:
 
 ## Review against the meta-rules
 
-State Y/N with reasoning for each:
+1. State Y/N with reasoning for each:
 
 ```
 - Each section forces real tool output (verbatim, not paraphrase)?
@@ -184,8 +133,7 @@ State Y/N with reasoning for each:
   → <Y/N + justification per section>
 ```
 
-Any N → return to Draft Body, fix, re-review. Do not advance to Write
-Plan with open gates.
+2. On any N, return to Draft Body, fix, and re-review; never advance to Write Plan with open gates.
 
 ## Write Plan
 
@@ -198,20 +146,13 @@ Table:    <~/.claude/CLAUDE.md, or the private table when the row names
            mechanics only one machine carries>
 ```
 
-The row ships with the skill, in the same change. A skill nothing routes
-to is a skill nothing loads: leave the row out and the new template runs
-only when the operator types its name, which is the one condition under
-which it never gets the real-task exposure the discipline below asks for.
-
-Write the row's topic column in the words the operator would actually
-use, and check it against every row already in the table. The model
-picks the wrong skill when a topic restates its neighbour.
+1. Ship the routing row with the skill, in the same change.
+2. Write the row's topic column in the words the operator would actually use, and check it against every row already in the table so no topic restates its neighbour.
 
 ## Stop — awaiting approval before writing
 
-Do not call mkdir or Write yet. The operator approves the write as a
-separate action, and that write includes the routing row. Per the
-iteration discipline established when this pattern was built:
+1. Do not call mkdir or Write yet; the operator approves the write, routing row included, as a separate action.
+2. Follow this iteration discipline:
 
 - Build ONE new task skill and use it on real tasks for a week or two
   before starting another
