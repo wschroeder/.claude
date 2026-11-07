@@ -5,36 +5,21 @@ description: Creates and verifies the bd (beads) backlog for one slice spec-task
 
 # backlog-task — a cut slice in, a verified backlog out
 
-For the slice named in $ARGUMENTS, respond with the sections below in order.
-If $ARGUMENTS is empty, the slice is the one `spec-task` just cut — say which,
-and name the design documents its cards serve.
-
-`spec-task` produces the input and stops here. The first bd write happens
-after Section 2 is approved, and Section 2 is this template's only stop.
-
-Order is enforced: Section 1's command list is what Section 3 runs, and
-Section 3's real ids are what Section 4 reads back. A Section 3 that
-reported success while creating nothing surfaces in Section 4 as a
-`bd show` that fails on its own pasted id.
+1. For the slice named in $ARGUMENTS, respond with the sections below in order.
+2. If $ARGUMENTS is empty, take the slice `spec-task` just cut, say which, and name the design documents its cards serve.
+3. Make no bd write before Section 2 is approved; Section 2 is this template's only stop.
+4. Run Section 1's command list in Section 3, and read Section 3's real ids back in Section 4.
 
 ## 0. Before Section 1, read your own room
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-Past the ceiling it reports, hand off BEFORE starting this template rather
-than after finishing it: say so, say that no section has run, write the
-handoff through `clear-task` yourself, and then ask the operator to `/clear`.
-A template is a session's worth of work, so a session that begins one already
-over the line ends it far over, and every section it writes on the way is
-written in a session that should have stopped. See [references/measurements.md](references/measurements.md).
-
-The check below at the end of this template governs the hand to the next phase.
-This one governs whether this phase starts here at all, and they are not the
-same question.
+1. If you are past the ceiling it reports, hand off BEFORE starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`. See [references/measurements.md](references/measurements.md).
+2. Treat this check as deciding whether this phase starts here, separate from the check at the end, which governs the hand to the next phase.
 
 ## 1. Preconditions
 
-Real output, not paraphrase:
+1. Paste real output, not paraphrase:
 
 ```
 $ pwd && git rev-parse --show-toplevel
@@ -44,107 +29,45 @@ $ git status --short
 $ bd statuses
 ```
 
-State four things: the slice being created, the design documents its cards will
-name as their spec id, whether bd is initialized here, and whether the tree is
-clean. bd is initialized where `bd where` prints a database path, even when
-`ls` finds no `.beads/`: inside a git worktree bd uses the main checkout's
-`.beads/`, which the worktree does not contain.
-
-**Stop when the tree has uncommitted changes.** `spec-task` Section 8 commits
-the design document edits, and on a dirty tree a card's spec id would name a
-document whose content is absent from history. Say which file is dirty and
-wait.
-
-**Say whether `demoable` is among the statuses.** `tdd-cycle` moves a built card
-there and `demo-task` closes it from there, so a project without it has cards
-going straight from in progress to done with nobody having watched them work.
-Registering it is `bd config set status.custom "demoable:wip"`, one line, and
-it belongs in the same approval Section 2 asks for. See [references/measurements.md](references/measurements.md).
-
-**Do not put bd, or any other tool of your own, into a repository the operator
-did not start.** Compare `git log --reverse --format=%ae | head -1` with the
-operator's address. Where they differ and bd finds no database, create no
-cards: the tasks live in the handoff, and `tdd-cycle` step 4d reads them there.
-
-Where bd finds no database, the first line of Section 3's list is
-`bd init --skip-agents --skip-hooks -p <prefix>`.
-`spec-task/references/bd-commands.md` says why both flags are required.
-
-Then print the command list verbatim, as `spec-task` Section 7 generated
-it. A list rebuilt here would specify something the reviewed document does
-not.
+2. State four things: the slice being created, the design documents its cards will name as their spec id, whether bd is initialized here, and whether the tree is clean.
+3. Count bd as initialized if `bd where` prints a database path, even when `ls` finds no `.beads/`, because inside a git worktree bd uses the main checkout's `.beads/`.
+4. **Stop when the tree has uncommitted changes**, because a card's spec id would name a document whose content is absent from history. Say which file is dirty and wait.
+5. **Say whether `demoable` is among the statuses.** If it is missing, put registering it, `bd config set status.custom "demoable:wip"`, into the same approval Section 2 asks for. See [references/measurements.md](references/measurements.md).
+6. **Do not put bd, or any other tool of your own, into a repository the operator did not start.** Compare `git log --reverse --format=%ae | head -1` with the operator's address; if they differ and bd finds no database, create no cards, because `tdd-cycle` step 4d reads the tasks from the handoff.
+7. If bd finds no database, make the first line of Section 3's list `bd init --skip-agents --skip-hooks -p <prefix>`; `spec-task/references/bd-commands.md` says why both flags are required.
+8. Then print the command list verbatim, as `spec-task` Section 7 generated it, never rebuilt here.
 
 ## 2. Stop — approval before the first bd write
 
-The operator is approving a slice of behavior. Two things reach them, in
-this order.
-
-**Show the operator the stories and nothing below them**: who each one is
-for, what they will be able to do, and what they will look at to see it
-working. Leave out the tasks, requirement ids, blocking edges, and issue
-counts. The operator approves stories and has never reviewed a card, so
-the card detail only lengthens what they have to read before deciding.
-
-**A story the operator can decide on has no unknowns left inside it.** Each
-one names who it is for and what they will be able to do, carries the
-acceptance criteria its card will be created with, and leaves them nothing to
-look up. Where a story still holds an open question, that question is the ask
-instead, and the creation waits behind it.
-
-Where `bd init` has to run first, say so in one line.
-
-**Open the ask with the phase line**, directly above the question — the
-three phases in order, this stop's capitalized:
+1. **Show the operator the stories and nothing below them**: who each one is for, what they will be able to do, and what they will look at to see it working. Leave out the tasks, requirement ids, blocking edges, and issue counts.
+2. Leave no unknowns inside a story: each names who it is for and what they will be able to do, carries the acceptance criteria its card will be created with, and leaves them nothing to look up.
+3. If a story still holds an open question, make that question the ask instead, and hold the creation behind it.
+4. If `bd init` has to run first, say so in one line.
+5. **Open the ask with the phase line**, directly above the question: the three phases in order, this stop's capitalized:
 
 ```
 SPEC -> build -> demo
 ```
 
-Then ask, per CLAUDE.md "When you need an answer, the ask goes last and
-says what to do". One decision: build these stories, or change the slice.
-Recommend building them, and say the alternative is naming a story to hold
-back. The ask names the decision and ends the message.
-
-**Unattended, this stop is a line in a file.** Inside a `session-loop` run
-nobody reads a question in the transcript, so create nothing, then write
-`HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one
-sentence naming the slice awaiting approval, and stop. Write it through the
-skill rather than by hand, however close the ceiling is: the handoff point is a
-budget and not a limit. A section that prints the stories and then runs
-`bd create` in the same turn has not stopped.
-
-Approval here covers this creation. A later slice asks again, and pushing
-asks separately — `git-commit`, "Safety".
+6. Then end the message with one question on one decision: build these stories, or change the slice. Recommend building them, and say the alternative is naming a story to hold back.
+7. **Unattended, this stop is a line in a file.** Inside a `session-loop` run, create nothing, write `HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one sentence naming the slice awaiting approval, and stop. Write it through the skill rather than by hand, however close the ceiling is.
+8. Never print the stories and run `bd create` in the same turn.
+9. Treat approval here as covering this creation only; a later slice asks again, and pushing asks separately under `git-commit`, "Safety".
 
 ## 3. Creation
 
-Run the Section 1 list and paste the real ids as they come back.
-
-Two forms work. The per-issue form, one command per card. Or `bd create --file`
-with a markdown file whose cards are `##` headings and whose fields are `###`
-sections — Description, Design, Acceptance Criteria, Labels, Priority, Type.
-In that shape it stores all six fields.
-
-**What no batch form stores is a dependency or a spec id.** Both need their own
-command afterwards, `bd dep <blocker> --blocks <blocked>` and
-`bd update <id> --spec-id <document>`, and Section 4 is what catches you
-forgetting.
-
-Keep the cards flat, with no parent or epic cards. Link two cards that touch
-without one waiting on the other with `bd dep relate <id> <related-id>`, never
-with a blocking edge. Do not use `bd create --graph` at any size: it drops the acceptance
-criteria and warns rather than failing.
-
-The flat `Key: value` shape is the trap. bd does not parse it, reports success,
-and lands every field in the description as prose. bd's output for all three forms is in [../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
-Everything stays on this machine.
-
-Write the file outside the repository — a scratchpad, not a new markdown file in
-the project. The created ids live in bd alone.
+1. Run the Section 1 list and paste the real ids as they come back.
+2. Use the per-issue form, one command per card, or `bd create --file` with a markdown file whose cards are `##` headings and whose fields are `###` sections: Description, Design, Acceptance Criteria, Labels, Priority, Type.
+3. After any batch form, set each dependency with `bd dep <blocker> --blocks <blocked>` and each spec id with `bd update <id> --spec-id <document>`, because no batch form stores them.
+4. Keep the cards flat, with no parent or epic cards.
+5. Link two cards that touch without one waiting on the other with `bd dep relate <id> <related-id>`, never with a blocking edge.
+6. Never use `bd create --graph` at any size, because it drops the acceptance criteria and only warns.
+7. Never use the flat `Key: value` shape, because bd reports success and lands every field in the description as prose. bd's output for all three forms is in [../spec-task/references/bd-behavior.md](../spec-task/references/bd-behavior.md).
+8. Write the file outside the repository, in a scratchpad, never as a new markdown file in the project.
 
 ## 4. Verification, by reading bd back
 
-Real output, not a claim that it worked:
+1. Paste real output, not a claim that it worked:
 
 ```
 $ bd ready
@@ -153,56 +76,22 @@ $ bd show <an id you expect to be blocked>
 $ bd list --label slice:S<n> --status open
 ```
 
-Check four things against what Section 3 pasted: that `ACCEPTANCE CRITERIA` is
-present on the issue and matches the requirement text, that `Spec:` names the
-design document the card serves, that the ready list holds exactly the tasks
-with no blocker, and that the slice lane holds exactly the cards this run
-created.
-
-The dependency and the spec id are the two a batch create does not store, and
-this read-back is the only thing standing between a silent drop and a slice of
-cards carrying neither. Check them on a card you expect to be blocked as well as
-on the first one.
-
-Report a mismatch and leave it for `spec-task` to fix.
+2. Check four things against what Section 3 pasted: `ACCEPTANCE CRITERIA` is present on the issue and matches the requirement text, `Spec:` names the design document the card serves, the ready list holds exactly the tasks with no blocker, and the slice lane holds exactly the cards this run created.
+3. Check the dependency and the spec id on a card you expect to be blocked as well as on the first one.
+4. Report a mismatch and leave it for `spec-task` to fix.
 
 ## 5. Where the work goes next
 
-Name both handoffs, in one line each. `tdd-cycle` takes the cards, and
-each task's proof command is the test to drive to red first. When the
-slice's last card closes, `tdd-cycle` step 4d hands to `demo-task` for the
-demo; `demo-task` hands to `spec-task`, which decides the next slice and
-returns here.
-
-**The build runs as a `session-loop` run, not as a string of sessions the
-operator clears by hand.** The cards exist now and nothing between here and the
-demo needs the operator, so hand to `session-loop` rather than to a prompt for
-them to paste. It writes `HANDOFF.md`, stops once for a `/clear`, and then
-drives `tdd-cycle` card after card to the end of the slice, holding each session
-to the ceiling with a hook instead of a judgment call. See [references/measurements.md](references/measurements.md).
-
-Commit the new cards before invoking it, because the loop refuses a dirty tree.
-Run `bd export -o .beads/issues.jsonl` right before you stage that file: bd
-writes its own export up to a minute late
-([bd-behavior.md](../spec-task/references/bd-behavior.md)), and a commit staged
-before then holds only some of the cards. In a git worktree, skip it, as that
-file's worktree section says. See [references/measurements.md](references/measurements.md).
-
-Before invoking it, read your own room:
+1. Name both handoffs, in one line each: `tdd-cycle` takes the cards, with each task's proof command as the test to drive to red first; when the slice's last card closes, `tdd-cycle` step 4d hands to `demo-task`, which hands to `spec-task`, which decides the next slice and returns here.
+2. **The build runs as a `session-loop` run, not as a string of sessions the operator clears by hand.** Hand to `session-loop` rather than to a prompt for the operator to paste. See [references/measurements.md](references/measurements.md).
+3. Commit the new cards before invoking it, because the loop refuses a dirty tree.
+4. Run `bd export -o .beads/issues.jsonl` right before you stage that file, because bd writes its own export up to a minute late ([bd-behavior.md](../spec-task/references/bd-behavior.md)). In a git worktree, skip it, as that file's worktree section says. See [references/measurements.md](references/measurements.md).
+5. Before invoking it, read your own room:
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-**Then invoke `session-loop`, in this turn, whatever that number says.** Naming
-it in a handoff is not handing to it: the next session reads a prompt whose
-first step names `tdd-cycle`, loads that instead, and the build becomes the
-string of hand-cleared sessions this rule exists to prevent. See [references/measurements.md](references/measurements.md).
-
-Being past the ceiling changes nothing here. The loop's own step 2 writes the
-handoff through `clear-task`, which is the work handing off would have cost
-anyway, so say which section you stopped at and what it still owes — a record
-you have not worked, an answer the operator is waiting on — and let the loop
-carry it rather than the operator. Planning a slice and building it are two
-sessions' work, and this is the seam.
+6. **Then invoke `session-loop`, in this turn, whatever that number says**, never only name it in a handoff. See [references/measurements.md](references/measurements.md).
+7. If you are past the ceiling, invoke it anyway, because the loop's own step 2 writes the handoff through `clear-task`; say which section you stopped at and what it still owes, such as a record you have not worked or an answer the operator is waiting on.
 
 ## 6. Notes on what this template does NOT do
 
