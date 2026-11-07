@@ -1,10 +1,8 @@
 # Migrations, deploys, and scheduled readers
 
-Read this file now, before Pass 1, when the diff adds a migration, changes deploy or job configuration, or changes a value that a cache or a scheduled job reads.
-
-Each angle below belongs to the pass its number names. Walk it in that pass, give it a disposition, and print its line in the Checklist under that pass.
-
-**Pass 8 has a higher bar.** A second-order finding must be triggered by this deploy, not a hypothetical future change. "If you later move modules" is dropped. "This deploy changes a cached value a cron job reads at midnight" is kept.
+1. Read this file now, before Pass 1, when the diff adds a migration, changes deploy or job configuration, or changes a value that a cache or a scheduled job reads.
+2. Walk each angle below in the pass its number names, give it a disposition, and print its line in the Checklist under that pass.
+3. Keep a Pass 8 finding only when this deploy triggers it, such as a cached value a cron job reads at midnight, and drop a hypothetical future change.
 
 ## Checklist lines
 
@@ -26,17 +24,14 @@ Pass 8:
 
 ### 5.12 Config-block consistency
 
-When the diff introduces a NEW `config :app, Module, ...` (or any keyword-list config block) ADJACENT to an existing block of the same shape (same module key, sibling app keys, same role), diff the key sets:
-
-- For every key present in the sibling but absent in the new block, decide per-key: (a) flag for addition, OR (b) require an inline `# omitted because ...` comment explaining the omission.
-- For every key present in the new block but absent in the sibling, ask whether the sibling needs the same key (parallel evolution) — symmetric to 5.1 same-module sibling logic.
-- Pay attention to library-defined defaults: a missing key may not be inert. `ExOauth2Provider`, Guardian, Oban, Phoenix endpoint configs all have keys that change behavior silently when omitted (token TTLs, scopes, salts, secret material, default revocation policy). The sibling block is the ground truth for what the library expects in this codebase.
-
-The diff between sibling config blocks IS the finding — surface it explicitly.
+1. When the diff adds a keyword-list config block, such as `config :app, Module, ...`, beside an existing block of the same shape, diff the key sets and report the difference explicitly.
+2. For each key the sibling has and the new block lacks, flag it for addition or require an inline `# omitted because ...` comment.
+3. For each key the new block has and the sibling lacks, ask whether the sibling needs it too.
+4. Treat a missing key as possibly live, because libraries such as `ExOauth2Provider`, Guardian, Oban, and Phoenix endpoints change behavior silently when one is omitted; take the sibling block as the ground truth.
 
 ### 8.1 This-deploy triggers
 
-Enumerate concrete downstream surfaces this deploy actually touches:
+1. List the downstream surfaces this deploy actually touches:
 
 - **Caches** the deploy invalidates or refills (Redis keys, in-process ETS, CDN paths)
 - **Cron jobs / scheduled tasks** that read the changed value
@@ -44,34 +39,22 @@ Enumerate concrete downstream surfaces this deploy actually touches:
 - **Webhooks** the deploy registers or de-registers
 - **Database migrations** that change column types or constraints
 
-For each, ask: when does the next consumer encounter the change? If it's a midnight cron and the deploy ships at 3pm, the gap is 9 hours of mixed state. If it's an in-flight long poll, the gap is one poll cycle. If it's a CDN cache with 24h TTL, the gap is 24h of stale.
-
-These are real deploy-coordination findings. Hypothetical second-order findings ("if you later add caching") are not.
+2. For each, state when its next consumer meets the change and how long the mixed or stale state lasts.
 
 ### 8.2 Data precedes code (SCOPE GUARD — read FIRST)
 
-**Scope guard:** this angle applies ONLY when the diff introduces a NEW write-time invariant — a validator, schema constraint, NOT NULL, unique index, registration check, or other rule that NEW rows must satisfy.
-
-If the diff is a read-time visibility filter (a `where` clause scoping results to the current user/tenant/role/scope, an authorization predicate added to a query, a context-dependent SELECT narrowing, an ABAC subject-scope filter), this angle is N/A — STOP and skip it.
-
-Filtered rows are not invariant violations; they are legitimate user-authored data outside the caller's visibility scope. A filter changes WHO SEES data, not WHETHER data is valid. There is no "legacy data to cleanse" in response to a filter diff — recommending deletion, cleansing, or rewriting of rows because a filter was added is a category error. The shapes share syntactic surface (a new `where`, a new check) but have OPPOSITE data semantics: a filter says "subset X is what this caller sees"; a constraint says "subset X is what is valid." Conflating them produces irreversible data-loss recommendations from filter PRs.
-
-**When the angle IS in scope** (the diff introduces a write-time invariant): when the diff adds new validation at write-time (registration, insertion, schema constraint), ask: do pre-existing rows in the DB satisfy the new invariant? A hardening commit that tightens `register_client(valid_uri?)` does not retroactively validate rows inserted before the commit. Reads that TRUST the invariant (e.g., authorize-time exact-match against a stored URI) will accept legacy rows that the new write-path would reject.
-
-Either (a) add a read-time guard that re-validates each row's invariant before trusting it, or (b) plan a data migration to cleanse or reject legacy rows. This is the inverse of downstream — it's upstream data that precedes the current code. Grep for every stored field the new validation would have guarded and check whether the consumers re-validate or trust.
-
-The Destructive-recommendation gate in Classify applies to any data-cleanup recommendation produced by this angle.
-
-**A new column that new code reads is in scope too.** A nullable column with no backfill holds null on every row written before the migration. For each line the diff adds that reads the column, run it against a row the way the migration leaves an old one, and say what the user gets. "The new columns are nullable" is not a disposition: it says the migration succeeds, not what the reader does with the null.
-
-Measured (2026-10-22): a migration added `pdf_page_count` with no backfill, and the export bundle refused any file whose PDF ran past its page limit and had no count recorded. Our review wrote "8.2 Data before code: clear. The new columns are nullable." The outside reviewer found that every long file processed before the migration could no longer download. The fix backfilled the count from existing audit events, else from the pages read, and a migration test seeds rows at the version before and checks each one after.
+1. Apply this angle only when the diff adds a write-time invariant, such as a validator, schema constraint, NOT NULL, unique index, or registration check, or a new column that new code reads.
+2. Mark it N/A and stop when the diff adds a read-time visibility filter, such as a `where` scoping results to a user, tenant, role, or ABAC scope, or an authorization predicate on a query.
+3. Never recommend deleting, cleansing, or rewriting rows because a filter was added.
+4. For a write-time invariant, grep for every stored field the new validation guards and check whether its readers re-validate or trust it.
+5. Where readers trust it, require a read-time guard that re-validates each row, or a data migration that cleanses or rejects old rows.
+6. Put any data-cleanup recommendation from this angle through the Destructive-recommendation gate in Classify.
+7. For each line the diff adds that reads a new column, run it against a row as the migration leaves an old one, and say what the user gets; "the new columns are nullable" is not a disposition.
 
 ### 8.3 Rollback after user edits
 
-In scope whenever the diff adds a down migration, and especially a down migration that reverses a seed or a data change. A down migration finds its rows by some key. If users can change that key through the feature (rename, delete, merge, change which value is primary), then the rollback can miss the rows it was written to remove, and a later up can then collide with what it left behind.
-
-Method: on a scratch database, run the up migration and then each supported edit through the app's own functions or routes. Then run the down migration, and then the up migration again. Show what the down left behind and whether the up succeeded. Reading the down file is not a disposition for this angle: the miss happens only after the edits.
-
-A rollback also brings back the previous release's code, so run that code as well as the down migration. On a scratch database that holds what the feature left behind, run the previous release's writers, at least every import or sync that writes the tables the feature changed, and show what they write. Measured (2026-10-26): a feature let a person merge an imported record into one the nightly sync created, and the new importer skipped the merged record by reading a table the feature added. Our review ran the down and up migrations against the new code and wrote "Pass 8: 8.3 DEMONSTRATED above". It never ran the previous release's import, which does not know that table and creates the merged record again as a second record. The outside reviewer found it.
-
-A finding here is usually a Flag or a Note, not a Fix. Whether a rollback has to survive user edits is a decision for the person who owns the deploy, and the cure (an immutable seed marker, say) changes the schema. Say what the rollback leaves behind so the PR body or the runbook can record it.
+1. Walk this angle whenever the diff adds a down migration, especially one that reverses a seed or a data change.
+2. On a scratch database, run the up migration, then each supported edit of the key the down migration finds rows by, such as a rename, delete, merge, or change of primary value, through the app's own functions or routes.
+3. Run the down migration and then the up again, and show what the down left behind and whether the up succeeded; reading the down file is not a disposition.
+4. On a scratch database holding what the feature left behind, run the previous release's writers, at least every import or sync that writes the tables the feature changed, and show what they write.
+5. Report a finding here as a Flag or a Note, not a Fix, and say what the rollback leaves behind so the PR body or runbook can record it.
