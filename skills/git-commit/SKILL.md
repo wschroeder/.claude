@@ -5,77 +5,41 @@ description: Enforces git commit conventions and authors commit messages — sta
 
 ## When to invoke
 
-**This skill owns commit-message authoring.** The moment you start composing a commit subject or body — even a draft, even before the user has approved the commit — invoke this skill instead of writing the message in chat or a temp file.
-
-**For pull request descriptions, use the `pr-create-task` skill.** It carries these same body principles (WHY over HOW, no restated diffstat, no current-session framing) to PR bodies — where they were previously unwritten — and walks PR creation end to end with a stop for approval before the push. The moment you start composing a PR body or reach for `gh pr create`, route there.
+1. Invoke this skill the moment you start composing a commit subject or body, even a draft and even before the user has approved the commit, instead of writing the message in chat or a temp file.
+2. For a pull request description, use the `pr-create-task` skill, which carries these body principles to PR bodies and stops for approval before the push.
 
 ## Git Staging Rules
 
-**Never use `git add -A`** - it stages everything including untracked files you may not want.
-
-Instead use:
-- `git add -u` - stage only tracked files that have been modified/deleted
-- `git add <specific files>` - explicitly name the files to stage
-
-**Where a tool writes tracked files as a side effect of your work, stage by
-path.** `git add -u` takes every tracked modification, including an audit
-trail or export the tool rewrote while you were working, and those land in
-a commit that does not describe them.
+1. **Never use `git add -A`**, because it stages untracked files you may not want.
+2. Use `git add -u` to stage only tracked files that were modified or deleted, or `git add <specific files>` to name them.
+3. If a tool writes tracked files as a side effect of your work, such as an audit trail or an export, stage by path.
 
 ## Commit Messages
 
-**The subject follows the repository, not a house style.** Read enough of the
-log to see its established style, not only its latest run:
+1. Match the subject to the repository's established style, read from enough of the log:
 
 ```bash
 git log --no-merges --format='%s' -60
 ```
 
-Match what those subjects do: a `<type>(<scope>):` prefix if they carry one, a
-plain sentence if they do not, and their capitalization, tense and length either
-way. Where the log is empty or shows no pattern, write a plain sentence saying
-what the change does, and say in one line that there was nothing to match.
-
-**Where the recent subjects break from the older ones, match the older ones.** A
-run of recent commits can be one session's habit rather than the repository's
-style. A commit message the operator wrote or reworded themselves outranks the
-log: it sets the pattern for every commit after it, subject and body alike.
-
-Only the subject follows the repository. Everything under Body Content holds
-everywhere.
-
-**NEVER include AI attributions** - no "Co-Authored-By: Claude", no "Generated with Claude Code", no "via Happy", nothing. Clean commits only.
-
-**NEVER reference a bd (beads) card in a commit message** — not its id, not in the subject, not in the body, not in a trailer. Beads are for developers; the card's note names the commit instead. An external issue (a Jira key, a GitHub issue) is how the history talks to everyone else, so when one tracks the work, name it, placed the way the repository's log already does: a subject prefix such as `ABC-6:` or a closing `Jira: ABC-6` line. In `~/.claude` itself, name no issue at all: `systematize`, "Keep every client and project out of `~/.claude`", holds the rule for that repository.
+2. Match a `<type>(<scope>):` prefix if the subjects carry one, a plain sentence if they do not, and their capitalization, tense, and length either way.
+3. If the log is empty or shows no pattern, write a plain sentence saying what the change does, and say in one line that there was nothing to match.
+4. If the recent subjects break from the older ones, match the older ones.
+5. Treat a commit message the operator wrote or reworded themselves as the pattern for every commit after it, subject and body alike.
+6. Apply everything under Body Content in every repository; only the subject follows the repository.
+7. **NEVER include AI attributions**, such as "Co-Authored-By: Claude", "Generated with Claude Code", or "via Happy".
+8. **NEVER reference a bd (beads) card in a commit message**, not its id, in the subject, the body, or a trailer; the card's note names the commit instead.
+9. If an external issue, such as a Jira key or a GitHub issue, tracks the work, name it the way the repository's log already does: a subject prefix such as `ABC-6:` or a closing `Jira: ABC-6` line.
+10. In `~/.claude` itself, name no issue at all, under `systematize`, "Keep every client and project out of `~/.claude`".
 
 ## Body Content
 
-**The body records what the diff cannot show.** Most commits need only the
-subject. Write a body only when the change carries something neither the
-subject nor the diff can show.
-
-**On a small commit, the diff shows what changed, so the body is the why:** the
-reason for the change, a decision behind it, or a constraint that looks optional
-and is not. Where there is no reason beyond the subject, write no body.
-
-**On a large feature, the diff is too big to read the change from, so open with
-one or two sentences saying what it is and does.** Then give the major decisions
-and the reasons behind them.
-
-**When there is a body, make it as short as it can reasonably be.** Aim for
-about 100 words on a feature. Treat that as a target to check against, not a
-limit to fill: a body that runs past it is usually carrying something from the
-list below.
-
-**A why has to be a real reason.** "Nothing measured X" or "X had no rules
-written down" restates the feature as a gap and gives no reason for it. A fix
-names what was broken, because for a fix that is the reason.
-
-**Record the major decisions, and leave out the small ones.** A major decision
-is significant to the feature, and a later reader would want it called out:
-flipping a feature flag from false to true, or measuring against a hand-kept
-spreadsheet while a system of record exists that will replace it. A helper's
-name, the order of two steps, or where a file lives is not one.
+1. Write a body only when the change carries something neither the subject nor the diff can show; most commits need only the subject.
+2. On a small commit, make the body the why: the reason for the change, a decision behind it, or a constraint that looks optional and is not. If there is no reason beyond the subject, write no body.
+3. On a large feature, open with one or two sentences saying what it is and does, then give the major decisions and the reasons behind them.
+4. Make the body as short as it can reasonably be, checking against about 100 words on a feature.
+5. Give a real reason as the why; for a fix, name what was broken.
+6. Record the major decisions a later reader would want called out, such as flipping a feature flag, and leave out small ones, such as a helper's name, the order of two steps, or where a file lives.
 
 **What belongs in the body:**
 - The why behind the change, where a real one exists
@@ -92,50 +56,46 @@ name, the order of two steps, or where a file lives is not one.
 - Measurements from the session: run times, token counts, test counts
 - A pointer to a document the same commit adds
 - An opener saying nothing did this before
-- Current-session framing — the mission, investigation, or task you happen to be in the middle of. A trailing "this is part of fixing X" or "doesn't touch the Y we're chasing" sentence is the tell; delete it. Every sentence must stand on its own years later, with no knowledge of today's work.
+- Current-session framing — the mission, investigation, or task you happen to be in the middle of. Every sentence must stand on its own years later, with no knowledge of today's work.
 
 ## How many commits
 
-**A commit is one claim, not one file you finished editing.** One feature is one commit: its code, its tests, and its documents land together. Write the subject line before you stage anything. Where two files would take the same subject, they belong in one commit, however many sittings you spent on them and however far apart they sit in the tree.
-
-One change of mind usually reaches several files. A rule that changes what four skills do is one commit naming the rule, not four commits each naming a skill: the reader wants to know what changed about the work, and the file list is already in the diff.
-
-**While the branch is unpushed, growing a commit is an amend.** `git branch -r --contains HEAD` prints nothing, so put the next file of the same sweep into the commit already sitting there rather than beside it, under the section below. That amend needs nobody's words.
+1. Make each commit one claim: one feature is one commit, with its code, its tests, and its documents.
+2. Write the subject line before you stage anything, and put files that would take the same subject in one commit.
+3. Make one change of mind that reaches several files one commit naming the rule, not one commit per file.
+4. While the branch is unpushed (`git branch -r --contains HEAD` prints nothing), put the next file of the same sweep into the commit already there by amending, under the section below; that amend needs nobody's words.
 
 See [references/measurements.md](references/measurements.md).
 
 ## Fixing work you already committed
 
-When you fix something a commit on this branch already covers, fold the fix into that commit with `git commit --amend` rather than adding a separate `fix: address review feedback` commit. Each commit is a section of an essay written for the next reader. A standalone follow-up commit records the chronology of your mistakes — "I wrote a bug, then patched it" — and buries the structure the reader actually wants.
+1. Fold a fix into the commit on this branch that already covers it, rather than adding a separate `fix: address review feedback` commit.
+2. **Before any commit, list the commits no remote has yet** with `git log --oneline HEAD --not --remotes`, which needs no upstream.
+3. If one of those commits introduced the feature this change touches, fold the change into it, even when it is not `HEAD`, unless the operator asked for a separate commit.
+4. For `HEAD`, use `git commit --amend`. For an older one, commit with `git commit --fixup=<sha>`, then run `git rebase --autosquash <base>`, where `<base>` is the commit the branch started from; that rebase needs no editor and no `-i`.
+5. **Fold each fixup as soon as you commit it, and check the tree after.** Record `pre=$(git rev-parse HEAD)` before the rebase; after it, `git diff "$pre" HEAD` must print nothing, and if it prints anything, stop and report the diff.
+6. If the rebase stops on a conflict you cannot resolve within the one fixup you just made, run `git rebase --abort`, confirm `git rev-parse HEAD` equals `$pre`, and report which commit and which files conflicted. A fold that reorders the whole stack resolves its conflicts under `pr-create-task`. See [references/measurements.md](references/measurements.md).
+7. **At a rebase stop caused by a conflict, do not amend**, because `git commit --amend` there rewrites the commit before the one being replayed. Resolve the files, stage them by path, and run `GIT_EDITOR=true git rebase --continue`; amend only at an `edit` stop that reported no conflict.
+8. **Check whether the commit has reached a remote before you decide**, with `git branch -r --contains HEAD`, which prints nothing and exits 0 when no remote has it. Never use `git log @{u}..HEAD`, which aborts on a branch that was never pushed. Run `git fetch` first if the branch may have been pushed from somewhere else.
 
-**Before any commit, list the commits no remote has yet.** Run `git log --oneline HEAD --not --remotes`; it needs no upstream, so it works on a branch that was never pushed. If one of those commits introduced the feature this change touches, fold the change into that commit, even when it is not `HEAD`, unless the operator asked for a separate commit. For `HEAD`, use `git commit --amend`. For an older one, commit with `git commit --fixup=<sha>`, then run `git rebase --autosquash <base>`, where `<base>` is the commit the branch started from. That rebase needs no editor and no `-i`.
-
-**Fold each fixup as soon as you commit it, and check the tree after.** If you let fixups pile up, then one rebase replays all of them at once, and a conflict can span several files and several fixes. Before the rebase, record `pre=$(git rev-parse HEAD)`. A fold moves changes between commits and never changes the final tree, so after it `git diff "$pre" HEAD` prints nothing. If it prints anything, stop and report the diff. If the rebase stops on a conflict you cannot resolve within the one fixup you just made, run `git rebase --abort`. This covers folding one fixup. A fold that reorders the whole stack resolves its conflicts under `pr-create-task`. After the abort, confirm `git rev-parse HEAD` equals `$pre`, and report which commit and which files conflicted. See [references/measurements.md](references/measurements.md).
-
-**At a rebase stop caused by a conflict, do not amend.** Git has not yet committed the commit it is replaying, so `git commit --amend` rewrites the commit before it. Resolve the files, stage them by path, and run `GIT_EDITOR=true git rebase --continue`. Amend only at an `edit` stop that reported no conflict.
-
-**Check whether the commit has reached a remote before you decide.** Run `git branch -r --contains HEAD`. It lists the remote branches carrying that commit, and prints nothing while still exiting 0 when no remote has it. Do NOT reach for `git log @{u}..HEAD` — it aborts with `fatal: no upstream configured for branch '<name>'` on a branch that was never pushed, which is exactly the case you are trying to detect. (The check reads remote-tracking refs, so `git fetch` first if the branch may have been pushed from somewhere else.)
-
-- **No remote has it** — amend. Nobody else can hold the old commit, so rewriting it costs nothing and the eventual push is an ordinary push. This is the default; do not ask the user to choose between a follow-up commit and an amend when the commit is unpushed.
+- **No remote has it** — amend. This is the default; do not ask the user to choose between a follow-up commit and an amend when the commit is unpushed.
 - **A remote already has it** — amending rewrites published history, so the push becomes `git push --force-with-lease` (never a bare `--force`). On your own PR branch that is still the right call, and the `pr-respond-task` skill drives it. On a branch someone else may have pulled, add a new commit instead.
 
-**After a fold, rewrite every commit id the handoff records.** An amend gives the commit a new id, and an autosquash rebase gives a new id to every commit after the one it folded into, so the ids in `HANDOFF.md` now point at commits no branch holds. Run `git log --oneline HEAD --not --remotes` again and put each new id in place of its old one. Match them by position in that list, not by subject, and record ids rather than subjects, because a fold can change a subject. See [references/measurements.md](references/measurements.md).
-
-Stage explicitly, the same as any other commit — never `git add -A`. Keep the existing message unless the fix changes what that commit claims; when it does, re-author the message through this skill, otherwise use `git commit --amend --no-edit`.
-
-After an amend, run `git show --stat HEAD` and check that it lists the file you meant to fold in. An amend with nothing staged succeeds and changes only the message.
-
-**Amending an unpushed commit needs no approval. Amending a pushed one does.** The `git branch -r --contains HEAD` check above is what tells them apart. While it prints nothing, the amend is covered by the standing permission in Safety below — make it and move on. Once a remote carries the commit, the next push becomes `git push --force-with-lease`, and no standing permission reaches a push: stop, say what the amend would rewrite, and wait.
+9. **After a fold, rewrite every commit id the handoff records.** Run `git log --oneline HEAD --not --remotes` again and put each new id in place of its old one, matched by position in that list, not by subject, and record ids rather than subjects. See [references/measurements.md](references/measurements.md).
+10. Stage explicitly, never with `git add -A`.
+11. Keep the existing message unless the fix changes what that commit claims; if it does, re-author the message through this skill, and otherwise use `git commit --amend --no-edit`.
+12. After an amend, run `git show --stat HEAD` and check that it lists the file you meant to fold in, because an amend with nothing staged changes only the message.
+13. **Amending an unpushed commit needs no approval. Amending a pushed one does.** If a remote carries the commit, stop, say what the amend would rewrite, and wait, because the next push becomes `git push --force-with-lease`.
 
 ## Safety
 
-- **Committing and amending carry standing permission. Pushing and deploying never do.** Commit when a piece of work is finished, and amend an unpushed commit, without asking first. Push, force-push, `--force-with-lease` push, and deploy each need the user's words for that specific action, every time. Do not chain commit → push → deploy on momentum: the momentum stops at the push.
-- **A repository's own CLAUDE.md can grant standing permission for a deploy to a target it names.** Read the project instructions in front of you before you stop to ask: where they name the service and say a deploy to it carries standing permission, that grant holds, and asking again is the error. It reaches the target it names and nothing else — a push to a git remote still needs the user's words, and so does a deploy anywhere else. See [references/measurements.md](references/measurements.md).
-- **Approval from earlier in the session does not transfer to a push.** If the user said "Push" an hour ago, that authorized THAT push — not this one. Ask again.
-- **"Apply the fixes" is not "push".** Applying fixes means writing them to the working tree, and committing them is already covered. Putting them on a remote is a separate decision with its own authorization; do not batch the two into one proposal.
-- **"The commit is correct so the push is fine" is not a reason.** The question is never whether the code is right; it is whether the process was followed. A technically-correct push that skipped the review sequence in `writing-code` is a process violation, not a neutral outcome.
+- **Committing and amending carry standing permission. Pushing and deploying never do.** Commit when a piece of work is finished, and amend an unpushed commit, without asking first. Push, force-push, `--force-with-lease` push, and deploy each need the user's words for that specific action, every time. Never chain commit → push → deploy.
+- **A repository's own CLAUDE.md can grant standing permission for a deploy to a target it names.** Read the project instructions before you stop to ask: if they name the service and say a deploy to it carries standing permission, deploy there without asking. That grant reaches only the target it names. See [references/measurements.md](references/measurements.md).
+- **Approval from earlier in the session does not transfer to a push.** Ask again for each push.
+- **"Apply the fixes" is not "push".** Write the fixes to the working tree and commit them; ask separately before putting them on a remote.
+- **Judge a push by whether the process was followed, not by whether the code is right.** A push that skipped the review sequence in `writing-code` is a process violation.
 - Never run destructive commands (`push --force`, `reset --hard`) without explicit confirmation
 - Never skip hooks (`--no-verify`) unless explicitly requested
 - Verify with `git status` and `git diff` before committing
 
-If you find yourself writing "amended and pushed" in a summary without the user having explicitly said "push" AFTER the change was made AFTER the reviews completed, stop — you shortcut the user. Revert or surface what happened before any further work.
+If you find yourself writing "amended and pushed" in a summary without the user having explicitly said "push" AFTER the change was made AFTER the reviews completed, stop, then revert or surface what happened before any further work.
