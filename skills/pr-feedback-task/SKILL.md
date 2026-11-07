@@ -100,8 +100,8 @@ gh api repos/{owner}/{repo}/issues/<pr>/comments   # general PR conversation
 The five checks:
 
 1. **Read the current code at HEAD yourself.** Do not trust the bot's
-   quoted snippet; fix only still-valid issues, and skip the rest with a
-   brief reason.
+   quoted snippet; if the code at HEAD no longer has the issue, record the
+   finding as Outdated with the evidence.
 2. **Confirm the finding is in this PR's mission scope.** Run
    `git diff <base>..HEAD -- <file>` and verify whether the diff
    touches the cited code path. Expect three outcomes:
