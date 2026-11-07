@@ -1,6 +1,8 @@
 # Language — Elixir / Phoenix / Ecto / OTP
 
-Read this file now, before Pass 1, when the diff touches a `.ex` or `.exs` file. Each numbered angle belongs to the pass its number names: walk it there and print its line in the Checklist under that pass. The unnumbered shapes at the end go into whichever pass reviews the line they sit on.
+1. Read this file now, before Pass 1, when the diff touches a `.ex` or `.exs` file.
+2. Walk each numbered angle in the pass its number names, and print its line in the Checklist under that pass.
+3. Walk each unnumbered shape at the end in whichever pass reviews the line it sits on.
 
 ## Contents
 
@@ -54,156 +56,146 @@ Read this file now, before Pass 1, when the diff touches a `.ex` or `.exs` file.
 
 ### 2.12 Discarded error tuple pattern (Elixir)
 
-Search the diff for `_ =` on the LHS of any function call. If the function returns an `{:ok, _} | {:error, _}` shape — `Repo.*`, `Ecto.Multi.*`, `AccessTokens.revoke/*`, `send_*`, `broadcast_*`, `:telemetry.execute` (when the handler is fallible), `ExAws.request`, HTTP clients — that's a discarded-error site. Verify the caller's response/state does not hinge on success. RFC 7009 §2.2.1, for example, allows 503 on retryable revoke errors; silently swallowing the `{:error, _}` and returning 200 is a spec violation, not defensive coding.
-
-Side-effect-named verbs are the trap: `revoke`, `notify`, `flush`, `expire`, `invalidate` SOUND like fire-and-forget but the function still returns `{:ok | :error}`. Surface every `_ = fallible_call()` as a Fix unless the caller can prove the failure is genuinely uninteresting.
-
-The `_ = fallible_call()` shape is one syntactic form. The same bug class also hides in `case fallible_call() do {:ok, _} -> ...; {:error, _} -> <fall-through> end` patterns where the `{:error, _}` arm does NOT log, retry, or propagate the error. Audit every `{:error, _}` (or `{:error, _reason}`) arm in `case` / `with` blocks: if the arm produces no `Logger.*` call AND no retry AND no propagation upward (the function returns `:ok` / a default counter / a sentinel as if the call succeeded), flag as Fix-class.
-
-**Concrete failure shape:** `case AccessTokens.revoke(descendant) do {:ok, _} -> count + 1; {:error, _} -> count end` inside a chain-walk — the failure neither increments a counter nor logs, so a chain-walk that fails every revoke silently swallows the breach signal AND leaves descendants live. Both observability AND security degrade.
+1. Search the diff for `_ =` on the left of any function call that returns an `{:ok, _} | {:error, _}` shape, such as `Repo.*`, `Ecto.Multi.*`, `send_*`, `broadcast_*`, a fallible `:telemetry.execute`, `ExAws.request`, or an HTTP client.
+2. Treat side-effect verbs such as `revoke`, `notify`, `flush`, `expire`, and `invalidate` as fallible too, because they still return `{:ok | :error}`.
+3. Surface every `_ = fallible_call()` as a Fix unless the caller can prove the failure is genuinely uninteresting, and check that the caller's response or state does not hinge on success.
+4. Audit every `{:error, _}` arm in `case` and `with` blocks, and flag it as Fix-class when it neither logs, retries, nor propagates the error but returns `:ok`, a default counter, or a sentinel as if the call succeeded.
 
 ### 3.2a Logging discipline (Elixir — codebase convention)
 
-This codebase uses TWO log levels only — `Logger.info` and `Logger.error`. There is no "warning that's not an error" tier, and tracing belongs in telemetry / `:dbg` / `:recon` / dev-only `IO.inspect`, not in `Logger.debug`. For every `Logger.<level>` call introduced, modified, or relocated by the diff, classify the level:
-
-- `Logger.info` — operationally visible state change a human should see (acceptable).
-- `Logger.error` — problem requiring investigation (acceptable).
-- `Logger.warning` / `Logger.warn` — flag for replacement. Decide per-site: (a) if it should be visible and acted on, change to `Logger.error`; (b) if it shouldn't be visible to humans (it's a metric or a trace), delete the call and emit telemetry instead. "Warning" is not a tier here.
-- `Logger.debug` — flag for replacement. Either delete (the runtime cost of debug-level logs is real even when the level is filtered) or move to a dev-only `IO.inspect` / `:dbg.tp` / explicit telemetry counter. Production tracing uses Erlang's tracing primitives, not `Logger.debug`.
-- Bare `Logger.log(level, ...)` with a runtime level — flag for the same audit; the level may resolve to `:warning` or `:debug`.
-
-Apply the same audit to test files: `Logger.warning` / `Logger.error` calls intentionally emitted by code under test must be wrapped in `capture_log/1` (per `code-quality-checklist`), or the suite leaks new warnings/errors. A test that triggers an expected error path without `capture_log` violates the project guideline regardless of whether the assertions pass.
+1. Classify the level of every `Logger.<level>` call the diff introduces, modifies, or relocates, because this codebase uses only `Logger.info` and `Logger.error`.
+2. Accept `Logger.info` for an operationally visible state change a human should see, and `Logger.error` for a problem requiring investigation.
+3. Flag `Logger.warning` and `Logger.warn` for replacement: change it to `Logger.error` if it should be visible and acted on, or delete it and emit telemetry if it is a metric or a trace.
+4. Flag `Logger.debug` for replacement: delete it, or move it to a dev-only `IO.inspect`, `:dbg.tp`, or an explicit telemetry counter.
+5. Flag a bare `Logger.log(level, ...)` with a runtime level for the same audit.
+6. In test files, flag any `Logger.warning` or `Logger.error` that code under test emits on purpose without a `capture_log/1` wrapper (per `code-quality-checklist`), whether or not the assertions pass.
 
 ### 3.5 capture_log assertion shape — no-output paths
 
-When `capture_log` wraps a path that should emit NO logs (a happy-path that the diff just made silent, a refactor that moved a Logger call), the assertion must be `assert log == ""`, not `refute log =~ "specific phrase"`. The `refute log =~ ...` shape only catches one specific phrase — any OTHER unexpected log (a new `Logger.error` from a side path, a noisy library, a fresh telemetry warning) slips through and the test passes silently. That defeats the entire purpose of `capture_log` as a regression guard.
-
-The right shapes are:
-- **Path should emit nothing:** `assert log == ""` (catches anything).
-- **Path should emit a SPECIFIC line:** `assert log =~ "expected phrase"` (positive — fails if missing).
-- **Path should NOT emit a SPECIFIC line, but other logs are tolerated:** `refute log =~ "phrase"` (rare; document why).
-
-A `refute` over a path documented as "no output" is a test-quality gap, not a style choice. Flag every `refute log =~ ...` in the diff and ask whether the underlying intent is "no output" — if yes, change to `assert log == ""`.
+1. Assert `assert log == ""` when `capture_log` wraps a path that should emit no logs.
+2. Assert `assert log =~ "expected phrase"` when the path should emit a specific line.
+3. Accept `refute log =~ "phrase"` only when other logs are tolerated and the test says why.
+4. Flag every `refute log =~ ...` in the diff and ask whether the intent is "no output"; if yes, then change it to `assert log == ""`.
 
 ### 3.7 with-chain escape hatches
 
-In `with` blocks, check the `else` clause. If the else matches `_ ->` or `{:error, _} ->` without distinguishing which step failed, errors from different steps are conflated. Each fallible step in the `with` should either produce a distinguishable error or the else must handle the union of all possible failures explicitly.
+1. Check the `else` of every `with` block, and flag an `_ ->` or `{:error, _} ->` that does not say which step failed.
+2. Require each fallible step to produce a distinguishable error, or the `else` to handle the union of all possible failures explicitly.
 
 ### 3.8 with-chain over-gating
 
-When a non-critical step in a `with` chain (e.g., setting a customer default, sending a notification) gates a critical step (e.g., creating a subscription, completing a transaction), a failure in the optional step short-circuits the essential one. If a step is best-effort or self-healing, it should not be in the `with` chain — move it after the chain or wrap it in a separate error-handling block.
+1. Flag a non-critical step in a `with` chain, such as setting a default or sending a notification, that gates a critical step, such as creating a subscription or completing a transaction.
+2. Move a best-effort or self-healing step after the chain, or wrap it in a separate error-handling block.
 
 ### 5.9 Behaviour declaration consistency
 
-For modules implementing `init/1` and `call/2` (or other named behaviour callbacks), check whether sibling modules in the same package declare `@behaviour <Name>` and `@impl <Name>`. Asymmetric behaviour declarations (one plug declares, the next doesn't) prevent the compiler from catching callback drift on a future refactor — Fix-class maintainability, not Note-class.
+1. For a module implementing `init/1` and `call/2` or other named behaviour callbacks, check whether sibling modules in the same package declare `@behaviour <Name>` and `@impl <Name>`.
+2. Flag an asymmetric declaration as Fix-class maintainability, because it stops the compiler from catching callback drift.
 
 ### 5.11 Pipeline shared-assign precedence
 
-For any change to a Plug pipeline, enumerate every plug in the pipeline that writes a particular `conn.assigns[:key]` (commonly `:current_user`, `:current_account`, `:current_actor`, `:current_session`, `:tenant`, `:claims`). With N writers and no explicit precedence rules, the LAST plug that runs and matches its conditions wins.
-
-A request carrying multiple credentials (Bearer header + cookie session + network-proxy identity + app-issued token + LTI claims) executes all matching plugs in order — silent precedence inversion if a downstream plug overwrites an earlier valid identity. Concrete shape: `:graphql2` pipeline with order `ProxyIdentity → AppToken → OAuth2BearerAdapter → TokenAuth` lets `TokenAuth` overwrite a Bearer-derived `:current_user` if the request also carries a cookie session — the bearer caller silently impersonates the cookie session, or vice versa.
-
-For each plug that writes the shared assign, classify its behavior on dual-presence:
-- **Overwrite** — replaces whatever was there. Last-writer-wins. Must be intentional.
-- **No-op when already set** — checks `conn.assigns[:key]` and skips. Safe under multi-credential.
-- **Fail-closed on dual presence** — halts with 400 if the assign is already set AND a fresh credential is presented. Most defensible.
-
-Multiple "overwrite" writers without explicit precedence is a precedence-inversion risk — Fix-class. Document the intended winner inline (a comment naming the resolution rule), and add a fail-closed check or `no-op when set` guard at every writer not designated as the winner.
+1. For any change to a Plug pipeline, list every plug that writes the same `conn.assigns[:key]`, such as `:current_user`, `:current_account`, `:current_actor`, `:current_session`, `:tenant`, or `:claims`.
+2. Classify each writer's behaviour when a request carries several credentials:
+   - **Overwrite** — replaces whatever was there. Last-writer-wins. Must be intentional.
+   - **No-op when already set** — checks `conn.assigns[:key]` and skips. Safe under multi-credential.
+   - **Fail-closed on dual presence** — halts with 400 if the assign is already set AND a fresh credential is presented. Most defensible.
+3. Flag more than one overwrite writer without explicit precedence as Fix-class.
+4. Require a comment naming the intended winner, and a fail-closed check or a no-op-when-set guard at every other writer.
 
 ### 9.2 `:dbg.tp(<Module>, ...)` and `:dbg.p(...)`
 
-BEAM tracing on a touched module is almost always paired with a literal call-count assertion downstream. If a tracer attaches to a function the diff intentionally calls fewer/more times, the test will silently break in CI on an unrelated PR. Grep `:dbg.tp` and `:dbg.p` and check whether the target module is in the diff's call graph.
+1. Grep `:dbg.tp` and `:dbg.p`, and check whether the target module is in the diff's call graph, because a tracer usually pairs with a literal call-count assertion.
 
 ### 9.3 `:meck.new(<Module>, ...)` and `:meck.expect(<Module>, ...)`
 
-If a touched module is mocked anywhere, that test owns a contract on its surface. A signature change, a renamed function, or a removed clause breaks the mock — sometimes silently, when `:meck` happily stubs the new signature with the old return shape.
+1. If a touched module is mocked anywhere, check the mock against every signature change, renamed function, or removed clause, because `:meck` can stub the new signature with the old return shape.
 
 ### 9.4 `Mock.expect(...)`, `with_mock(<Module>, ...)`, `Mox.expect(<Mock>, ...)`
 
-Same concern across the other mock libraries the codebase uses. Each library has its own miss profile (Mox is contract-checked at compile, Mock/`:meck` are not).
+1. Apply 9.3 to the other mock libraries too, remembering that Mox is contract-checked at compile time and Mock and `:meck` are not.
 
 ### 9.6 `assert_called` / `assert_received` patterns
 
-Message-based assertions that reference the touched module by name in pattern syntax. Grep for `assert_received {:<atom>` where `<atom>` matches a touched module's emitted message tag.
+1. Grep for `assert_received {:<atom>` where `<atom>` matches a message tag a touched module emits.
 
 ### 9.7 Telemetry handlers
 
-`:telemetry.attach(...)` / `:telemetry.attach_many(...)` / `:telemetry.detach(...)` for events the touched module emits or consumes. A diff that adds, removes, or renames a telemetry event invalidates every handler that listened for the old name.
+1. Grep `:telemetry.attach(...)`, `:telemetry.attach_many(...)`, and `:telemetry.detach(...)` for events a touched module emits or consumes, and check every handler when the diff adds, removes, or renames an event.
 
 ## Unnumbered shapes
 
 ### `case` without catch-all
 
-`FunctionClauseError` at runtime. Always include a `_ -> ` or `:error -> ` final clause unless the inputs are statically constrained.
+1. Require a final `_ -> ` or `:error -> ` clause unless the inputs are statically constrained, because a missing one raises `FunctionClauseError`.
 
 ### `Ecto.Query` raw SQL interpolation
 
-Injection via `fragment("... #{user_input} ...")` or query-string concatenation. Use parameterized fragments: `fragment("upper(?)", ^user_input)`.
+1. Flag `fragment("... #{user_input} ...")` and query-string concatenation, and use a parameterized fragment such as `fragment("upper(?)", ^user_input)`.
 
 ### `with` else that loses error identity
 
-All failures collapse to one shape. Each fallible step should produce a distinguishable error, or the else clause must handle the union of all possible failures explicitly. See Pass 3.7.
+1. Apply Pass 3.7.
 
 ### `Mock` / `:meck` combined with `async: true`
 
-Process-global patch observable by concurrent tests in other files. Requires `async: false` on any module using Mock. See Pass 7.12.
+1. Require `async: false` on any test module using Mock, because the patch is process-global. See Pass 7.12.
 
 ### `Repo.all` without limit on user-controlled input
 
-Unbounded result set. Wrap with `limit/2` or paginate.
+1. Wrap it with `limit/2` or paginate.
 
 ### Changeset cast without `validate_required`
 
-Fields the downstream code requires need explicit validation.
+1. Require explicit validation for every field the downstream code requires.
 
 ### Timezone boundary bugs
 
-UTC vs local, `~U[...]` vs `DateTime`, `Date` arithmetic across DST.
+1. Check UTC against local time, `~U[...]` against `DateTime`, and `Date` arithmetic across DST.
 
 ### New `where` / `order_by` filter without covering migration index
 
-See Pass 1.1 Schema-query alignment. Hot-path lookups (auth, refresh tokens, sessions, billing, breach response) without index coverage are PERF + SEC findings, not stylistic ones.
+1. Apply Pass 1.1 Schema-query alignment, and rate a hot-path lookup without index coverage, such as auth, refresh tokens, sessions, billing, or breach response, as a PERF and SEC finding.
 
 ### `Logger.warning` / `Logger.warn` / `Logger.debug`
 
-Codebase uses two-tier logging only (`info` and `error`); see Pass 3.2a Logging discipline. Test files emitting `Logger.warning` / `Logger.error` without `capture_log/1` violate `code-quality-checklist`.
+1. Apply Pass 3.2a Logging discipline.
 
 ### `_ = fallible_call()` discarded error tuple
 
-If the function returns `{:ok, _} | {:error, _}`, this is a discarded-error site. See Pass 2.12 for the full shape and the `case ... {:error, _} -> :ok` twin.
+1. Apply Pass 2.12, including the `case ... {:error, _} -> :ok` twin.
 
 ### `Ecto.Multi` without explicit transaction error handling
 
-`Repo.transaction(multi)` returns `{:ok, results} | {:error, name, value, results_so_far}`. The `{:error, name, _, _}` shape is rarely handled with the same care as direct `{:error, reason}`.
+1. Check that `Repo.transaction(multi)`'s `{:error, name, value, results_so_far}` shape is handled with the same care as a direct `{:error, reason}`.
 
 ### `Ecto.Schema` `field :foo, T, default: X` vs migration default
 
-See Pass 4.2 Schema default ≠ DB default. The Ecto struct default is NOT a DB default — nil is reachable for rows inserted via raw SQL, admin scripts, or older migrations.
+1. Apply Pass 4.2 Schema default ≠ DB default, because nil stays reachable for rows inserted by raw SQL, admin scripts, or older migrations.
 
 ### `:meck.new(<Module>)` without `:meck.unload`
 
-Test-cleanup leak: the stub persists across tests in the same module unless explicitly unloaded.
+1. Require `:meck.unload`, or the stub persists across tests in the same module.
 
 ### `Ecto.Sandbox` ownership without `allow`
 
-`setup_all` opens a DB connection; async tests spawn tasks that see DB state from siblings unless `Ecto.Adapters.SQL.Sandbox.allow/3` is called per spawned process. See Pass 7.14.
+1. Require `Ecto.Adapters.SQL.Sandbox.allow/3` for each process an async test spawns. See Pass 7.14.
 
 ### `Phoenix.Token` vs DB-backed tokens
 
-In-memory signed tokens (no revocation) vs DB-backed tokens (revocable, replay-detectable). Reviews must distinguish when reasoning about auth flows. A `Phoenix.Token` revocation finding is incorrect at the level — revocation isn't a property of in-memory signed tokens.
+1. Distinguish in-memory signed tokens, which cannot be revoked, from DB-backed tokens, which can, and reject a revocation finding against a `Phoenix.Token`.
 
 ### `:dbg.p(:all, :c)` global tracer in tests
 
-Attaches the tracer to ALL processes in the BEAM, not just the test process. Concurrent tests can contaminate the receiver's count. Recommend `:dbg.p(specific_pid, :c)`. See Pass 7.17.
+1. Recommend `:dbg.p(specific_pid, :c)`, because `:all` traces every process and concurrent tests contaminate the count. See Pass 7.17.
 
 ### SSM string-coercion (project rule)
 
-SSM stores everything as strings; runtime config readers MUST coerce (`config[:enabled] == true || config[:enabled] == "true"`). A function like `refresh_token_ttl_seconds/0` that returns the raw config value without coercion fails open or closed depending on which type the surrounding code expects.
+1. Require every runtime config reader to coerce, as in `config[:enabled] == true || config[:enabled] == "true"`, because SSM stores everything as strings.
 
 ### SSM-secrets vs env-vars policy (project rule)
 
-New sensitive configs SHOULD be SSM-backed. A new `System.get_env(...)` reading a secret is a policy violation, not a style choice.
+1. Flag a new `System.get_env(...)` that reads a secret as a policy violation; back new sensitive config with SSM.
 
 ### Direnv-required mix invocation
 
-Running `mix` without `direnv` loaded picks up the wrong Elixir/OTP and silently misses compile-time checks. Tests authored without direnv may not have run at all.
+1. Run `mix` only with `direnv` loaded, and treat tests authored without it as possibly never run.
