@@ -1,27 +1,34 @@
 # Proof-shape catalog — the artifact that licenses each clean bill
 
 ```
-Assertion strength /   RECEIPT. Quote the tdd-cycle 4a mutation receipt for each
-test coverage          assertion the diff adds, from the card note, the handoff,
-                       or this session.
-                       Receipt present and "caught" → DEMONSTRATED clean for
-                       the mutations the receipt names, and only those. For
-                       each validation pattern and each guard or condition in
-                       a new or changed function, check the receipts against
-                       the list below; run each mutation they miss yourself,
-                       one at a time, and print each result. Each survivor is
-                       a FINDING.
-                       Receipt missing, or "survived" with no tightened
-                       assertion after it → FINDING, fixed by running 4a.
-                       Never judge an assertion "specific enough" by reading it.
-                       No receipt exists, as on a branch this session did
-                       not build: run these mutations yourself, one at a
-                       time, over each new or changed function, and print
-                       each result. Each survivor is a FINDING.
+Assertion strength /   MUTATIONS THIS REVIEW RAN. Never judge an assertion
+test coverage          "specific enough" by reading it, and never cite a
+                       mutation an earlier session says it ran.
+                       Run one mutation per item below, one at a time, re-run
+                       the tests that cover it, and print each result. A
+                       mutation a test catches → DEMONSTRATED clean for that
+                       item only. Each survivor is a FINDING.
+                       - each clause of each acceptance criterion: each
+                         bound, count, quantifier, and condition ("ten or
+                         fewer", "every", "none covering"), and each member
+                         of a list a condition names; a bound over a random
+                         or repeated process gets a mutation that breaks it
+                         on some runs, not all of them
+                       - each constraint of a validation pattern: its
+                         length, its character set, and each anchor
+                         (`/^[0-9a-f]{40}$/` gets `{7,40}`, `[0-9a-fA-F]`,
+                         and a dropped `$`)
+                       - each operand of a condition joined by && or ||,
+                         dropped alone, and the whole condition forced on
+                         and off (`set && !isHash(v)` gets `!isHash(v)`,
+                         `true`, and `false`)
+                       - each arm of a ladder of fallbacks (a SQL case, a
+                         coalesce chain, an if / else if run), and each
+                         condition inside an arm
+                       - a mutation the card names its test must catch
+                       Over each other new or changed function:
                        - put the base version back (git show <base>:<path>)
                        - delete each guard's call, one call site at a time
-                       - loosen a validation pattern one constraint at a
-                         time (length, character set, anchor)
                        - swap an argument for its sibling (otherField for
                          field), and give the test fixture two different
                          values so the swap shows
@@ -31,6 +38,15 @@ test coverage          assertion the diff adds, from the card note, the handoff,
                        - make a value built from several inputs take a
                          property (sureness, source, status) from the first
                        - drop the first or the last element of a span
+                       Copy each file aside before you mutate it and restore
+                       from that copy, never with git checkout or git
+                       restore: both restore from the index, which lacks
+                       whatever is not yet staged.
+                         cp <path> /tmp/<name>.keep   # before the first
+                         cp /tmp/<name>.keep <path>   # after the last
+                       Print each one as:
+                         clause "<clause>"  mutated <file>:<line>
+                           <original> -> <mutated>   <run result>  caught
 
 Injection / untrusted  Feed the adversarial input through the REAL entry point and
 input                  show it rejected/escaped, OR quote the exact line that

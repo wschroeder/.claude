@@ -1,6 +1,6 @@
 ---
 name: tdd-cycle
-description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, the mutation receipt and the commit id — closing it belongs to demo-task, once somebody has watched it work.
+description: Drives the probe → test → green → refactor TDD cycle — probing unfamiliar boundaries before writing the test, naming the public interface the test will assert against, writing one test that fails (red) against the observed shape, making it pass minimally, and refactoring structure only (rule-of-three, Open-Closed for additions across files; collapsing duplication and polishing names belong to the review that follows). Use when implementing new features test-first, when asked to use TDD, write tests first, follow red-green-refactor, or probe before building, and when told to continue implementing or build the next card. Reads `bd ready` to name the card each cycle builds, and after the commit moves it to demoable with a note carrying what the code does, each criterion clause marked met or not met, and the commit id — closing it belongs to demo-task, once somebody has watched it work.
 ---
 
 ## Purpose
@@ -33,7 +33,7 @@ If `bd ready` returns nothing while open cards exist, name the blocker holding t
 
 ### A screen-only card skips the test
 
-A card is screen-only when its change alters only what a screen shows: markup, styles, wording, or images. A change that also reaches what the app stores, what it computes, or which route or permission serves a page is not screen-only. For a screen-only card, write no test and run no mutation. Build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c. See [references/measurements.md](references/measurements.md).
+A card is screen-only when its change alters only what a screen shows: markup, styles, wording, or images. A change that also reaches what the app stores, what it computes, or which route or permission serves a page is not screen-only. For a screen-only card, write no test. Build the change, open the screen and look at it after every edit (`writing-code` step 0), then run step 4's clause check and 4c. See [references/measurements.md](references/measurements.md).
 
 ### 0. Probe Boundaries (before writing the test)
 
@@ -60,11 +60,11 @@ Without this step, the test in step 1 encodes an assumption rather than an obser
 - **Assert what a person reads or what the system stores, never the markup around it.** Match the message text, not its CSS classes. When a state shows only through styling, such as a done step against a pending one, add a stable attribute to the markup (`data-state="done"`) and assert that.
 - **Pin no output the code derives from another source.** A test that pins a literal generated from a schema, a validator, or a table only proves the generator ran. Test the conversion once, for every caller.
 - **Vary one thing per test.** A new input variant gets its own case. Never fold it into a test about something else, such as a concurrency test.
-- **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until the check prints what the card expects, and commit, all in one pass, with no probe and no mutation run. A sentence the app builds from data is behavior, not fixed text, and takes the full cycle.
+- **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until the check prints what the card expects, and commit, all in one pass, with no probe. A sentence the app builds from data is behavior, not fixed text, and takes the full cycle.
 - **When the bug is something you saw on screen, test what it stopped the person doing.** Ask what the person could not do because of it. Write the test so it performs that action and asserts the values the person reads afterward. A test of layout, such as whether a control fits its cell, helps only while you work the design toward what the operator has in mind: run it during that work, and delete it once the operator has looked at the result, because layout changes for reasons nobody calls a bug. Do not count the action test as covering the layout either. See [references/measurements.md](references/measurements.md).
 - **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
 - **Nobody runs a slow suite, so keep every test fast.** Never sleep in a test: wait on the condition itself, or control the clock.
-- **Name the interface before the test file exists.** Say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss. Leave it unnamed and the assertion lands wherever it is cheapest to write, which is usually an internal — and step 4a cannot catch that, because mutating an internal the test calls directly always fails the test.
+- **Name the interface before the test file exists.** Say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss. Leave it unnamed and the assertion lands wherever it is cheapest to write, which is usually an internal.
 - Anchor the test against the probe output from step 0 — the test asserts behavior you've observed at the boundary, not behavior you've imagined
 - Write a single, focused test for that functionality. At this point the test exists but hasn't run yet — that's Gray.
 - Run the test; it should fail (Red) because the implementation doesn't exist yet
@@ -118,40 +118,11 @@ missing validation, an unguarded write, or a robustness fix is a gate to close, 
 a question to ask — the tell that you are rationalizing a deferral is catching
 yourself writing "this is the user's call" or "doesn't block."
 
-**4a. Assertion strength — prove it by mutation, not by reading.** Mutate the production code to a wrong-but-plausible value and re-run that one test. If it STILL PASSES, the assertion doesn't pin the behavior — that gap is real, and the green-on-broken-code output is your proof of it. Tighten the assertion (pin to the exact value: `== 502` not `in [400, 502]`; the exact message not `=~ "error"`; `== expected` not `refute is_nil`) and re-run until the same mutation makes it FAIL. A range assertion that survives mutation requires explicit justification — it is not default good practice. Judging an assertion "specific enough" by reading it is the satisficing this gate exists to kill; the mutation is the disposition, the sentence is not.
-
-**Which assertions.** Every assertion named by a requirement's proof command, plus every assertion the diff adds on a behavior a caller depends on. "A behavior that matters" is not the scope, because the judgement of what matters is made by the same reasoning that is about to skip the check. See [references/measurements.md](references/measurements.md).
-
-**One mutation per constraint.** A validation pattern gets one mutation for each constraint it holds: its length, its character set, and each anchor. A condition joined by `&&` or `||` gets one mutation per operand, dropping that operand alone, and one that turns the whole condition on as well as off. Example: `set && !isHash(v)` gets `!isHash(v)`, `true`, and `false`; `/^[0-9a-f]{40}$/` gets `{7,40}`, `[0-9a-fA-F]`, and a dropped `$`. A ladder of fallbacks, such as a SQL `case`, a `coalesce` chain, or an `if`/`else if` run, gets one mutation per arm and one per condition inside an arm. A card that names the mutation its test must catch adds one item to this list. Run the rest of the list as well.
-
-**Every clause of every criterion.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "at least six", "every", "none covering"), and each member of a list a condition names ("a draft or an archived record" is two clauses). For each clause, make one mutation that breaks that clause alone, and confirm a test fails. A bound over a random or repeated process gets a mutation that breaks it on some runs, not all of them. When a clause survives, tighten the test until that mutation fails it. See [references/measurements.md](references/measurements.md).
-
-**Check every clause against what you built, with or without tests.** Before the card moves, list each clause of each acceptance criterion, mark it met or not met, and put its evidence beside it: the mutation a test caught, or, on a screen-only card, the screenshot that shows it. A clause that is partly met is not met. A card with any clause not met stays `in_progress`, and its note names the clause. This check runs even when the operator has turned tests off.
+**4a. Check every clause against what you built, with or without tests.** Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "every"), and each member of a list a condition names ("a draft or an archived record" is two clauses). Before the card moves, mark each clause met or not met, and put its evidence beside it: the test that proves it and the run that printed its result, or, on a screen-only card, the screenshot that shows it. How strongly a test pins its clause is `quick-review`'s to check, by mutation. A clause that is partly met is not met. A card with any clause not met stays `in_progress`, and its note names the clause. This check runs even when the operator has turned tests off.
 
 **If the data as it stands cannot meet a clause, build the data.** That is part of the card, not a decision for the operator: add records to the project's fictional data, or put existing fictional records into the state the clause needs and restore them afterwards. Ask the operator only when no data you could make would meet the clause. See [references/measurements.md](references/measurements.md).
 
 **No conditional assertions, and no skipped tests.** When the test controls its data, it asserts on that data every time it runs. An assertion wrapped in `if result:` or `if rows:` passes by asserting nothing whenever the condition is false. If the test does not control its data yet, give it a setup step that does. If a test is marked skip, delete it: a skipped test reports nothing and still reads like coverage.
-
-**Putting it back.** Copy the file aside before you mutate it and restore from
-that copy, not from git. `git checkout <path>` and `git restore <path>` both
-restore from the index, which holds nothing you have written since the last
-`git add` — and at this point in the cycle that is the whole change you just
-made green. See [references/measurements.md](references/measurements.md).
-
-```bash
-cp <path> /tmp/<name>.keep     # before the first mutation
-...                            # mutate, run the test, read the result
-cp /tmp/<name>.keep <path>     # after the last one, then delete the copy
-```
-
-**The receipt.** Name each mutation, with the clause it broke, and paste the line the run printed:
-
-```
-clause "<clause>"  mutated <file>:<line>  <original expression> -> <mutated expression>
-  15 successes / 2 failures        caught
-```
-
-"Assertions mutation-verified" is a summary, and a summary cannot be checked without redoing the work. Five beads in that same run closed carrying exactly that phrase; three of them do not survive checking. The receipt goes in the note on the card or the handoff, and never in the commit message: `git-commit` keeps session measurements out of the body, and it wins here.
 
 **4b. Scope.** You implemented exactly the ask — no drive-by refactors, no
 speculative abstractions, no unrelated cleanup. Every file in `git diff --stat` is
@@ -160,7 +131,7 @@ the ask: a one-line bug does not carry a 200-line diff.
 
 **4c. The hand-off, when the work came from a tracked issue.** Skip this when nothing tracks the work, and say in one line that you did.
 
-Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying four things: what the code now does, the 4a receipt where the card has tests, the clause list, and the commit. Nothing moves on a working tree that still holds the change.
+Commit first, with no card id anywhere in the message: `git-commit` rules them out. **Stage by path, never `git add -u`** — moving the card writes `.beads/interactions.jsonl`, so the move you are about to make dirties a tracked file that the next card would otherwise sweep into its commit. In a git worktree, skip the next two steps, as the worktree section of [bd-behavior.md](../spec-task/references/bd-behavior.md) says. Outside one, bd stages its own `.beads/issues.jsonl` on a one-minute timer, so unstage it from a code commit with `git restore --staged .beads/issues.jsonl`, and run `bd export -o .beads/issues.jsonl` right before you stage it for a commit that carries card changes. Then move the card, with a note carrying three things: what the code now does, the clause list with its evidence, and the commit. Nothing moves on a working tree that still holds the change.
 
 **The card moves only after step 10's reviews have run on its diff.** Where you
 commit before them, leave the card `in_progress`, and if you hand off before
@@ -174,7 +145,7 @@ $ git commit -m "<what changed>"
   and commit the fixes
 $ bd update <id> --status demoable
 $ bd note <id> "Board.can_move_down checks is_free(col, row+1) for every cell.
-  Mutated cell.row + 1 -> cell.row: 15 successes / 2 failures, caught.
+  Clause "every cell": board_test.exs:41 passed, 17 tests, 0 failures.
   Commit a1b2c3d. quick-review's full report printed in this session at
   14:02Z: 1 fix, 0 flags. Re-round after the fix to can_move_down re-read
   the diff with `git diff 9f8e7d6 -- .` at 14:09Z: nothing new."
@@ -265,7 +236,7 @@ When activated:
 5. **Implement minimum code**: Write just enough to pass
 6. **Run it (should pass)**: Verify it works. Where the change reaches something a person sees or plays — a web page, a game scene, a desktop window, a terminal screen — run that thing too and use it by hand, then look at what changed before the next test. Keep that loop tight: every green, not once at the end. `writing-code` step 0 says how
 7. **Refactor structure if needed**: dead code the change orphaned, rule-of-three, the Open-Closed count — while tests pass. Duplication and name polish are review's, not this loop's
-8. **Self-Review**: Close the Step 4 gates — a mutation for each clause of each criterion, every clause marked met or not met with its evidence, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
+8. **Self-Review**: Close the Step 4 gates — every clause of each criterion marked met or not met with its evidence, scope, and the commit-and-hand-off receipt when an issue tracks the work — against your own diff. If one fails, return to step 3 or step 7 before moving on.
 9. **Ask about next test**: "Should we add another test case, or move to different functionality?"
 10. **Run the review sequence**: once the feature is done, use the running thing by hand one last time (`writing-code` step 0), then run `quick-review`, then `security-review` when `writing-code`'s list says the diff needs one, and work the fix loop — see `writing-code`, "After the edit: the review sequence is owed". The Step 4 gates close your own loop; they do not stand in for the review.
 
