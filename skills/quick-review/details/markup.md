@@ -42,12 +42,13 @@ Pass 5:
 
 ### 1.11 Documented-placeholder behavior is itself a finding
 
-1. When a comment in the diff describes behavior left broken until later work, such as "silent zero-row" or "no-op until X lands", report the placeholder itself as a Fix-class finding, however well the source documents it.
-2. Require one of three paths:
+1. When a comment in the diff describes behavior left broken until later work, such as "silent zero-row" or "no-op until X lands", report the placeholder's existence in production code as a finding.
+2. Make it Fix-class when the placeholder is silent and shows the user misleading output, however well the source documents it.
+3. Require one of three paths:
 - **(a) Hide behind a feature flag** so the placeholder cannot fire for real users.
 - **(b) Replace with an actionable error** that tells the user what is happening.
 - **(c) Document the visible impact** in the user-facing empty state, with a link.
-3. Leave the in-source comment to the "Author-acknowledged deviation is not exempt" rule; this angle covers what the user sees.
+4. Leave the in-source comment to the "Author-acknowledged deviation is not exempt" rule; this angle covers what the user sees.
 
 ### 2.23 Cancelled browser default
 

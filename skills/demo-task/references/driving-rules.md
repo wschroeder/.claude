@@ -28,8 +28,8 @@ Contents:
 12. Drive the thing the definition of released names, whether a local script, a local server, a remote service, or an operator in a cluster, never a stand-in for it.
 13. Record which thing the definition names and which thing you drove, and if they differ, say so on its own line.
 14. If the slice changes something met only later in play, such as under fire or after losses, drive the product until that moment arrives and capture it.
-15. If the change shows only when certain data exists, such as an old run or a failed row, put that data in place yourself and capture before and after.
-16. Never post a demo that says nothing changed on screen, and never hand the operator a check you could drive yourself.
+15. If the change shows only when certain data exists, such as an old run or a failed row, put that data in place yourself, capture before and after, and never post that demo saying nothing changed on screen.
+16. Never hand the operator a check you could drive yourself.
 17. If you cannot reach the released thing, such as a sign-in a person completes, a cluster only they reach, or hardware on their desk, name each link from what you drove to what the definition names, say which you proved, and make the unproven one the thing you ask the operator to do at Section 4.
 18. Run both commands in Section 3's record, because the reproduction command is part of the demo.
 19. If the definition of released says you operate the thing too, capture it, send it an input such as a key, a request, or a typed command, capture it again, and name the input between the two captures.
