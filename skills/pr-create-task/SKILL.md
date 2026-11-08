@@ -1,6 +1,6 @@
 ---
 name: pr-create-task
-description: Opens a draft pull request end to end — readiness gate that rebases the branch on the latest default branch, folds the stack to one commit per feature, and runs quick-review and security-review over the whole branch, where any finding stops PR prep and goes to `retro-task` and then `spec-task`; a body drawn from the commit messages and authored to content discipline (what IS, the why, and the operational facts read from the non-test diff; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when preparing a branch for a pull request, creating or opening one, writing a PR body or description, or running `gh pr create` — "PR prep", "get this ready for a PR", "make the PR", "open a PR", "create the PR".
+description: Opens a draft pull request end to end — readiness gate that folds the stack to one commit per feature, rebases the folded stack on the latest default branch, and runs quick-review and security-review over the whole branch, where any finding stops PR prep and goes to `retro-task` and then `spec-task`; a body drawn from the commit messages and authored to content discipline (what IS, the why, and the operational facts read from the non-test diff; cuts test/CI status, roadmaps, and diffstat narration), then a stop for explicit approval before the push. Use when preparing a branch for a pull request, creating or opening one, writing a PR body or description, or running `gh pr create` — "PR prep", "get this ready for a PR", "make the PR", "open a PR", "create the PR".
 ---
 
 # pr-create-task — author and open a draft pull request
@@ -38,27 +38,27 @@ git diff origin/<base>..HEAD --stat          # surface area
 - Base branch:    <origin/master (or origin/main) — never the local ref>
 ```
 
-4. **Rebase on the latest base first.** Run `git fetch origin <base>`, record `git rev-list --count HEAD..origin/<base>`, the number of commits the rebase will bring in, then run `git rebase origin/<base>`.
-5. Resolve each conflict in the commit that replays it, so no commit in the stack carries another one's repair.
-6. If a resolution writes code that neither side held, such as a new member of a list the base added or a base call moved into the branch's code, then treat it as a code change.
-7. For such a resolution, search the project's specs and design documents for each sentence that names the list's other members, the check `quick-review` angle 6.8 makes, and fix any sentence that leaves the new member out in the same commit.
-8. Then remove the added line, run its tests, and put it back; if no test fails, say so in that commit's message.
-9. If the rebase brought in commits, list the files the branch adds with `git diff --name-only --diff-filter=A origin/<base> HEAD`, and for each directory that holds numbered files, such as migrations, list the base's copy with `git ls-tree --name-only origin/<base> <dir>/`.
-10. If a branch file and a base file start with the same number, renumber the branch's file after the base's highest, in the commit that adds it, and run the migration tool the deploy uses over the directory, because git shows no conflict there but the tool refuses the directory.
-11. If the rebase brought in no commits, run no tests: TDD already ran them against this base.
-12. If it brought some in, read the project's CI workflow for the runners it runs on a pull request and leave those to CI's check on the draft PR.
-13. Run every other runner against the rebased head, usually the browser tests, or at least every browser spec the branch adds or edits.
-14. If the project has no CI on pull requests, run every runner.
-15. **Fold the stack to one commit per claim before the push gate.** Group the commits by the claim each makes, under `git-commit`, "How many commits".
-16. Order the history feature by feature, not in the order the work happened: reorder freely, and let the migrations fix the order only where they must.
-17. Fold every fix commit into the commit it fixes, and fold each group into one commit with a message authored through `git-commit`.
-18. If a folded commit's message says that no test failed when you removed a line a rebase resolution added, then carry that sentence into the new message.
-19. Resolve a reordered commit's conflict in the commit that replays it, as in the rebase above.
-20. Never split a claim's group, or move a commit into another claim's group, to get past a conflict.
-21. If a migration only patches another migration on this branch and no shared database has run either one, fold it into the migration it patches and renumber the versions after it.
-22. If the fold ends with more commits than the plan had groups, name each extra commit at the push gate and say which claim it splits.
-23. Expect a branch built one card at a time to arrive as one commit per card.
-24. While `git branch -r --contains HEAD` prints nothing, fold without asking anyone.
+4. **Fold the stack to one commit per claim first.** Group the commits by the claim each makes, under `git-commit`, "How many commits".
+5. Fold on the branch's current base, `git merge-base HEAD origin/<base>`, so the fold replays only the branch's own commits.
+6. Order the history feature by feature, not in the order the work happened: reorder freely, and let the migrations fix the order only where they must.
+7. Fold every fix commit into the commit it fixes, and fold each group into one commit with a message authored through `git-commit`.
+8. Resolve a reordered commit's conflict in the commit that replays it, so no commit in the stack carries another one's repair.
+9. Never split a claim's group, or move a commit into another claim's group, to get past a conflict.
+10. If a migration only patches another migration on this branch and no shared database has run either one, fold it into the migration it patches and renumber the versions after it.
+11. If the fold ends with more commits than the plan had groups, name each extra commit at the push gate and say which claim it splits.
+12. Expect a branch built one card at a time to arrive as one commit per card.
+13. While `git branch -r --contains HEAD` prints nothing, fold without asking anyone.
+14. **Then rebase the folded stack on the latest base.** Run `git fetch origin <base>`, record `git rev-list --count HEAD..origin/<base>`, the number of commits the rebase will bring in, then run `git rebase origin/<base>`.
+15. Resolve each conflict in the folded commit that replays it, as in the fold above.
+16. If a resolution writes code that neither side held, such as a new member of a list the base added or a base call moved into the branch's code, then treat it as a code change.
+17. For such a resolution, search the project's specs and design documents for each sentence that names the list's other members, the check `quick-review` angle 6.8 makes, and fix any sentence that leaves the new member out in the same commit.
+18. Then remove the added line, run its tests, and put it back; if no test fails, say so in that commit's message.
+19. If the rebase brought in commits, list the files the branch adds with `git diff --name-only --diff-filter=A origin/<base> HEAD`, and for each directory that holds numbered files, such as migrations, list the base's copy with `git ls-tree --name-only origin/<base> <dir>/`.
+20. If a branch file and a base file start with the same number, renumber the branch's file after the base's highest, in the commit that adds it, and run the migration tool the deploy uses over the directory, because git shows no conflict there but the tool refuses the directory.
+21. If the rebase brought in no commits, run no tests: TDD already ran them against this base.
+22. If it brought some in, read the project's CI workflow for the runners it runs on a pull request and leave those to CI's check on the draft PR.
+23. Run every other runner against the rebased head, usually the browser tests, or at least every browser spec the branch adds or edits.
+24. If the project has no CI on pull requests, run every runner.
 25. **Then review the whole branch.** Run `quick-review` and then `security-review` over `origin/<base>..HEAD`, and record the tip they read (`git rev-parse HEAD`).
 26. Fix nothing here: a finding of any size ends PR prep, so invoke `retro-task` in the same turn with every finding and the reviewed tip.
 27. Let the fixes come back through `retro-task`, `spec-task`, build, and demo like any other work, and run PR prep again only when the operator asks for it.
