@@ -106,6 +106,8 @@ For each cycle commit, name the commit it folds into and the files it carries:
   the operator accepted.
 - The fold left the tree unchanged: `git diff "$pre" HEAD` printed nothing.
 - Every sentence in the refreshed body has its code or test line.
+- You listed each section above, from Preconditions through Fold plan, as
+  done or not done, and every one reads done.
 
 3. If ANY is false, STOP and present the three actions for explicit authorization instead, each a separate decision, and do NOT chain them:
 

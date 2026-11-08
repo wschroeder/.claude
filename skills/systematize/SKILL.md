@@ -122,6 +122,7 @@ description: [third person, trigger terms, under 1024 chars]
 3. Ask first before restructuring, removing a section, changing what the skill is for, or anything that conflicts with another skill.
 4. When the body passes 500 lines, move heavy content into `references/` rather than trimming the substance.
 5. Commit every edit to a skill or to `~/.claude/CLAUDE.md` in the turn that makes it, through `git-commit`, staging by path.
+6. If you told the operator you would show an edit first, show its diff and wait for their answer before you commit it.
 
 ## Keep every client and project out of `~/.claude`
 

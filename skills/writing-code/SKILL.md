@@ -81,7 +81,8 @@ Before writing or dispatching any change, one-line or large, grep for each of th
 
 1. Read `git log -L` or `git blame` for the lines, the commit messages, the issue they name, and wherever else the team records its decisions.
 2. If `~/.claude/CLAUDE-private.md` fills the decision-records slot for this skill, look in the places it names too.
-3. If the change is going to a subagent, put all four findings in its prompt up front; `subagents` holds the rest of what that prompt owes, and whether to send one at all.
+3. If the history shows a timeout, cap, retry limit, or guard was added on purpose, ask the operator before you remove or loosen it, even when a fix seems to need it gone.
+4. If the change is going to a subagent, put all four findings in its prompt up front; `subagents` holds the rest of what that prompt owes, and whether to send one at all.
 
 ## Comments
 
