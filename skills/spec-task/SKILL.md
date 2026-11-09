@@ -50,7 +50,7 @@ description: Turns a design conversation into updated design documents and a sli
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If it reports you are past the ceiling, hand off before Section 1: say so, say no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`.
+1. If it reports you are past the ceiling, hand off before Section 1: say so, say no section has run, write the handoff through `clear-task` yourself and end the turn, so the auto-clear mod clears the session.
 2. Run no other budget check in this template.
 3. If you stop partway because the next section will not fit, stop at a section boundary and write the handoff through `clear-task` yourself in that turn, never recommending that the operator run it.
 

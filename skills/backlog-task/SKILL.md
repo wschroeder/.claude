@@ -14,7 +14,7 @@ description: Creates and verifies the bd (beads) backlog for one slice spec-task
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If you are past the ceiling it reports, hand off BEFORE starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`.
+1. If you are past the ceiling it reports, hand off BEFORE starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself and end the turn, so the auto-clear mod clears the session.
 2. Treat this check as deciding whether this phase starts here, separate from the check at the end, which governs the hand to the next phase.
 
 ## 1. Preconditions

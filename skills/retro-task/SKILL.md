@@ -18,7 +18,7 @@ description: Inspects the process after a review of the branch finds something â
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If the reading is past the ceiling it reports, hand off before starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself, and then ask the operator to `/clear`.
+1. If the reading is past the ceiling it reports, hand off before starting this template: say so, say that no section has run, write the handoff through `clear-task` yourself and end the turn, so the auto-clear mod clears the session.
 2. Treat this check as deciding whether this phase starts here; the check at the end of Section 8 governs the hand to the next phase.
 
 ## 1. Scope the round
@@ -131,7 +131,7 @@ review -> RETRO -> spec
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-7. If the reading is past the ceiling, or says `finish the step you are on`, hand off instead of continuing: say so, write the handoff through `clear-task` yourself, and then ask the operator to `/clear`.
+7. If the reading is past the ceiling, or says `finish the step you are on`, hand off instead of continuing: say so, write the handoff through `clear-task` yourself and end the turn, so the auto-clear mod clears the session.
 8. Tell `clear-task` which section you stopped at and what that section still owes, such as a record not yet worked or an answer the operator owes.
 9. Otherwise, hand to `spec-task` in the same turn, and let it decide and specify the next slice.
 10. Pass every one of the review's findings to `spec-task` with its evidence.

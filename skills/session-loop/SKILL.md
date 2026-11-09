@@ -97,7 +97,7 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py <repo> --since <
 3. If the driver's last line says the reviewer found something, read the file and fix each finding through `tdd-cycle` before you write any demo ask, because nothing in the loop reads the final iteration's findings. Put a finding you judge not worth fixing in the report with the reason.
 4. Say what landed, where each session handed off (the `ctx_end` column), and why the loop stopped.
 5. If it stopped on `DONE`, say the work is complete.
-6. If it stopped on `BLOCKED:`, read the first line of `HANDOFF.md` against step 4 before you pass it on, and answer a question about what to do next yourself. If it really is the operator's, put it to them and offer to resume.
+6. If it stopped on `BLOCKED:` or on one of the driver's own rules, such as sessions that commit nothing or the same finding three times, read the first line of `HANDOFF.md` against step 4, pick the next step yourself, and hand off through `clear-task` without asking. Put only a demo approval or a question about the product to the operator, and offer to resume.
 7. Read the handoff's "Open questions for you". Settle each question that is yours, and carry each one that is the operator's into the ask, the demo ask included.
 8. If that question asks for a demo, load `demo-task` and enter it at Section 3, not Section 4. Start the demo server first with the command the demo file's steps name.
 9. If the worker's walk record names the commit at HEAD, open its captures with Read and check each after-capture against its step; walk every step yourself, capturing as you go, only when HEAD has moved since that walk. Do either before Section 4 composes the ask.
@@ -118,7 +118,7 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 
 2. On `keep going`, report, and start the next run if there is one.
 3. On `finish the step you are on`, finish what is in hand, then hand off as below, and start no other run.
-4. On `hand off`, stop, and launch no iteration and no piece of work. Run `clear-task` for the block to paste, not for `HANDOFF.md`, because the driver rewrites that file every iteration for the workers. Tell the operator it is ready to clear and paste.
+4. On `hand off`, stop, and launch no iteration and no piece of work. Write the handoff through `clear-task` and end the turn, so the auto-clear mod clears this session and submits it.
 
 ### Never
 

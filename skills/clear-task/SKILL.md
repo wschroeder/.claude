@@ -18,7 +18,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 2. Read the prompt this session opened with, and take the first case that applies:
    - If it carries the unattended-loop protocol, the words "You are one iteration of an unattended loop" and an instruction to write `HANDOFF.md` through this skill, a worker reads next.
    - If `session-loop` step 2 is seeding a repository with no handoff yet, or the operator asked for the file in their own words, a worker reads next.
-   - If the next steps need no answer from the operator, ask with AskUserQuestion whether to hand to `session-loop`, recommending it; on yes, a worker reads next.
+   - If the next steps need no answer from the operator, a worker reads next, and Stop writes the line that launches `session-loop`.
    - Otherwise, the operator reads next.
 3. Write one line naming the reader and what settled it:
 
@@ -218,23 +218,27 @@ Open questions for you:
 1. Produce the one file §0 settled on, and never run /clear or begin the next steps yourself.
 2. Where §0 settled on the operator, write the prompt to `pending-handoff.md` in the scratchpad directory your system prompt names, then end the turn with one line that repeats nothing, such as "Handoff written." Print no sections, block, path, or summary.
 3. Print the block only when the operator says the auto-clear mod is not running.
-4. Where §0 settled on a worker, never write `pending-handoff.md`; the handoff is `HANDOFF.md` alone. `session-loop` step 2 alone writes its own launch prompt to `pending-handoff.md` after this skill writes `HANDOFF.md`.
-5. If the operator asks a session that has written its handoff and is under the ceiling to keep working, keep working, and rewrite the prompt when it stops.
-6. Where §0 settled on a worker, write §1–§11 as always, write the assembled prompt to `HANDOFF.md`, print no block, and report the path and its line count.
-7. Where §0 settled on a worker, write only what the next card needs: name each open card by id and leave its criteria and notes in bd, and leave out every path, link, environment, and identifier no open card uses. The rules carrying decisions, directives, and the operator's last words forward still hold.
-8. Replace the whole `HANDOFF.md` when writing it, never append. Once the operator has accepted a slice, carry its working rules and their standing decisions, and leave out that slice's status lines, tasks, and requirements.
-9. Make the one turn that writing the file costs the whole report: the path and line count, nothing else. Take no further turn of your own; anything the operator types after it is a new instruction.
-10. Delete a stale `HANDOFF.md` left in the repository rather than writing over it; §0 says whether anyone is coming for it.
+4. Where §0 settled on a worker because the next steps need no answer from the operator, also write this one line, with the real repository path, to `pending-handoff.md` in the scratchpad, so the auto-clear mod clears this session and the fresh session launches the loop:
+
+    Load the session-loop skill for <repository path> and launch the loop.
+
+5. Where any other case of §0 settled on a worker, never write `pending-handoff.md`; the handoff is `HANDOFF.md` alone. `session-loop` step 2 writes its own launch prompt to `pending-handoff.md` after this skill writes `HANDOFF.md`.
+6. If the operator asks a session that has written its handoff and is under the ceiling to keep working, keep working, and rewrite the prompt when it stops.
+7. Where §0 settled on a worker, write §1–§11 as always, write the assembled prompt to `HANDOFF.md`, print no block, and report the path and its line count.
+8. Where §0 settled on a worker, write only what the next card needs: name each open card by id and leave its criteria and notes in bd, and leave out every path, link, environment, and identifier no open card uses. The rules carrying decisions, directives, and the operator's last words forward still hold.
+9. Replace the whole `HANDOFF.md` when writing it, never append. Once the operator has accepted a slice, carry its working rules and their standing decisions, and leave out that slice's status lines, tasks, and requirements.
+10. Make the one turn that writing the file costs the whole report: the path and line count, nothing else. Take no further turn of your own; anything the operator types after it is a new instruction.
+11. Delete a stale `HANDOFF.md` left in the repository rather than writing over it; §0 says whether anyone is coming for it.
 
 ## Notes on what this template does NOT do
 
 1. It runs no /clear and starts no session; the auto-clear mod does that from `pending-handoff.md`, or the operator does it by hand.
 2. It begins none of the next steps.
-3. It writes, commits, pushes, and posts nothing except the one file §0 calls for and the backlog card §8 requires for a finished phase's owed work, and takes no destructive action.
+3. It writes, commits, pushes, and posts nothing except the file §0 calls for, the launch line Stop adds beside it, and the backlog card §8 requires for a finished phase's owed work, and takes no destructive action.
 4. It prints neither the sections nor the block for the operator; a late consideration is fixed by rewriting the file, never by a postscript.
 5. It takes no second turn after writing `HANDOFF.md`.
 6. It labels a claim with no backing §2 line `unverified`.
 7. It hands an unmeasured explanation across as `hypothesis:`, separate from the reading it explains, in §4 and §6 alike.
 8. It never merges or skips sections, §0 and §12 included.
 9. It prints no empty section; a `None` in §7 drops the credentials heading.
-10. It chains to no other skill, `session-loop` included.
+10. It chains to no other skill, except the `session-loop` launch line that Stop writes when the next steps need no answer from the operator.

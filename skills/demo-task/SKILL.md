@@ -17,7 +17,7 @@ description: Closes a finished slice — runs every proof command to find where 
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-1. If it reports you are past the ceiling, hand off before Section 1: say so, say no section has run, write the handoff through `clear-task` yourself, and ask the operator to `/clear`.
+1. If it reports you are past the ceiling, hand off before Section 1: say so, say no section has run, write the handoff through `clear-task` yourself and end the turn, so the auto-clear mod clears the session.
 2. Treat this check as separate from Section 7's, which governs the hand to the next phase.
 
 ## Rapid mode — when the operator pauses the formality
@@ -196,7 +196,7 @@ spec -> build -> DEMO
 
     $ python3 ~/.claude/skills/session-loop/scripts/session_budget.py --self
 
-2. If it reports you are past the ceiling, or says `finish the step you are on`, write the handoff through `clear-task` yourself and ask the operator to `/clear`, telling `clear-task` which section you stopped at and what it still owes.
+2. If it reports you are past the ceiling, or says `finish the step you are on`, write the handoff through `clear-task` yourself, telling it which section you stopped at and what it still owes, and end the turn, so the auto-clear mod clears the session.
 3. Otherwise, hand to `spec-task` now, in the same turn, however small the slice, and never ask whether to run it.
 4. If the operator said they would do something themselves, such as open the deployed page or complete a sign-in, and has not reported back, stop and say in one line what you are waiting on and that the spec follows it.
 5. If the operator's acceptance asks a question or asks for something next, answer in prose and do it, searching the design documents first as Section 4 says, and then hand to the spec; never answer with a question about which to do first.
