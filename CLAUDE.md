@@ -141,6 +141,7 @@ Write for a smart, tired engineer who has not been following the work. Give them
 | Writing or restructuring prose a person reads — an email, a README, a report, a memo, a PR body; organizing a brain dump, choosing section order, headings, or titles; prose that reads as AI-written; a PR review comment or reply, and anything else posted or sent in my name | `writing-prose` |
 | Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |
 | Building or editing a status or health page | `status-page` |
+| An interactive, zoomable, or clickable map of a system's architecture; an explainer of how environments, deploys, and permissions fit together | `system-map` |
 | Writing a spec or a design document, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
 | Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |
 | Demoing a finished slice, showing what was built, taking feedback on it, closing out an iteration | `demo-task` |

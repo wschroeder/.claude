@@ -48,6 +48,7 @@
 !/skills/spec-task/**
 !/skills/status-page/**
 !/skills/subagents/**
+!/skills/system-map/**
 !/skills/systematize/**
 !/skills/tdd-cycle/**
 !/skills/writing-code/**

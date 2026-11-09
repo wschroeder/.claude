@@ -1,0 +1,1123 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order Tracker System Map</title>
+<style>
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --ink: #1b2430;
+  --ink-soft: #4a5666;
+  --ink-faint: #7b8696;
+  --line: #d5dbe3;
+  --frame: #e9edf2;
+  --accent: #2563eb;
+  --accent-soft: #dbe7ff;
+  --dev: #0f766e;     --dev-bg: #e3f4f1;
+  --gh: #6d28d9;      --gh-bg: #efe8fc;
+  --idp: #b45309;     --idp-bg: #fdf0dc;
+  --people: #475569;  --people-bg: #eceff3;
+  --ext: #9d174d;     --ext-bg: #fbe7ef;
+  --uat: #1d4ed8;     --uat-bg: #e3ebfc;
+  --prod: #b91c1c;    --prod-bg: #fbe5e5;
+  --open: #9f1239;    --fw: #be8800;    --priv: #0f766e;
+  --t-small: clamp(0.8rem, 0.78rem + 0.1vw, 0.875rem);
+  --t-body: clamp(0.95rem, 0.93rem + 0.12vw, 1.0625rem);
+  --t-h2: clamp(1.1rem, 1.05rem + 0.3vw, 1.3rem);
+  --t-h1: clamp(1.3rem, 1.15rem + 0.8vw, 1.9rem);
+  --s-1: 0.25rem; --s-2: 0.5rem; --s-3: 0.75rem; --s-4: 1rem; --s-6: 1.5rem;
+  --radius: 0.5rem;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #11151b; --surface: #1a2029; --ink: #e6ebf2; --ink-soft: #b3bdca; --ink-faint: #8591a2;
+    --line: #333d4b; --frame: #222a35; --accent: #7aa7ff; --accent-soft: #23345a;
+    --dev: #5eead4; --dev-bg: #12302c; --gh: #c4b5fd; --gh-bg: #2a2142; --idp: #fbbf24; --idp-bg: #382a12;
+    --people: #cbd5e1; --people-bg: #262d38; --ext: #f9a8d4; --ext-bg: #3a1a2a;
+    --uat: #93b4ff; --uat-bg: #1a2747; --prod: #fca5a5; --prod-bg: #3d1c1c;
+    --open: #fb7185; --fw: #fde047; --priv: #5eead4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #11151b; --surface: #1a2029; --ink: #e6ebf2; --ink-soft: #b3bdca; --ink-faint: #8591a2;
+  --line: #333d4b; --frame: #222a35; --accent: #7aa7ff; --accent-soft: #23345a;
+  --dev: #5eead4; --dev-bg: #12302c; --gh: #c4b5fd; --gh-bg: #2a2142; --idp: #fbbf24; --idp-bg: #382a12;
+  --people: #cbd5e1; --people-bg: #262d38; --ext: #f9a8d4; --ext-bg: #3a1a2a;
+  --uat: #93b4ff; --uat-bg: #1a2747; --prod: #fca5a5; --prod-bg: #3d1c1c;
+  --open: #fb7185; --fw: #fde047; --priv: #5eead4;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0; background: var(--bg); color: var(--ink);
+  font: var(--t-body)/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+header { padding: var(--s-4) var(--s-4) var(--s-2); max-width: 90rem; margin: 0 auto; }
+.titlerow { display: flex; flex-wrap: wrap; align-items: flex-start; column-gap: var(--s-3); }
+h1 { font-size: var(--t-h1); margin: 0 0 var(--s-1); line-height: 1.2; overflow-wrap: break-word; flex: 1 1 12ch; min-width: 0; }
+header p { margin: 0; color: var(--ink-soft); max-width: 70ch; }
+.lenses { max-width: 90rem; margin: 0 auto; padding: var(--s-2) var(--s-4); display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; }
+.lenses .label { font-size: var(--t-small); color: var(--ink-faint); margin-right: var(--s-1); }
+button { font: inherit; color: inherit; }
+.chip {
+  border: 1px solid var(--line); background: var(--surface); border-radius: 999px;
+  padding: 0.35rem 0.85rem; min-height: 2.25rem; cursor: pointer; font-size: var(--t-small);
+}
+.chip[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--surface); }
+.chip:focus-visible, .linkbtn:focus-visible, .steplink:focus-visible, .term:focus-visible, .stagewrap:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+main {
+  max-width: 90rem; margin: 0 auto; padding: var(--s-2) var(--s-4) var(--s-6);
+  display: grid; gap: var(--s-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(24rem, 100%), 1fr));
+}
+.mapcol { min-width: 0; grid-column: span 2; }
+@media (max-width: 60em) { .mapcol { grid-column: auto; } }
+.crumbs { display: flex; flex-wrap: wrap; gap: var(--s-2); align-items: center; min-height: 2.25rem; margin-bottom: var(--s-2); font-size: var(--t-small); }
+.crumbs .sep { color: var(--ink-faint); }
+.linkbtn { background: none; border: 0; padding: 0.25rem 0; color: var(--accent); cursor: pointer; text-decoration: underline; min-height: 1.5rem; }
+.stagewrap { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); }
+.stage { display: block; width: 100%; min-width: 46rem; height: auto; }
+.hint { font-size: var(--t-small); color: var(--ink-faint); margin: var(--s-2) 0 0; }
+aside {
+  min-width: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s-4); align-self: start; position: sticky; top: var(--s-2); max-height: calc(100dvh - 1rem); overflow: auto;
+}
+aside h2 { font-size: var(--t-h2); margin: 0 0 var(--s-1); line-height: 1.25; overflow-wrap: break-word; }
+aside h3 { font-size: var(--t-body); margin: var(--s-4) 0 var(--s-1); }
+aside p, aside li { color: var(--ink-soft); }
+aside p { margin: 0 0 var(--s-3); }
+aside ul, aside ol { padding-left: 1.2rem; margin: 0 0 var(--s-3); }
+.kicker { font-size: var(--t-small); text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-faint); margin: 0 0 var(--s-1); }
+.term {
+  background: none; border: 0; padding: 0; cursor: help; color: var(--ink);
+  border-bottom: 1px dotted var(--accent); font-weight: 500;
+}
+.steps li { margin-bottom: var(--s-2); border-radius: 0.3rem; padding: 0.15rem 0.35rem; }
+.steps li.on { background: var(--accent-soft); color: var(--ink); }
+.steplink { display: block; background: none; border: 0; padding: 0; width: 100%; text-align: left; cursor: pointer; }
+.stepnav { display: flex; gap: var(--s-2); flex-wrap: wrap; margin-bottom: var(--s-3); }
+.conn li { margin-bottom: var(--s-1); }
+.pop {
+  position: fixed; z-index: 10; max-width: min(22rem, calc(100vw - 2rem));
+  background: var(--surface); color: var(--ink); border: 1px solid var(--line); border-radius: var(--radius);
+  padding: var(--s-3) var(--s-4); box-shadow: 0 8px 24px rgb(0 0 0 / 0.18); font-size: var(--t-small);
+}
+.pop strong { display: block; margin-bottom: var(--s-1); font-size: var(--t-body); }
+.pop p { margin: 0; color: var(--ink-soft); }
+.legend { display: flex; flex-wrap: wrap; gap: var(--s-3); font-size: var(--t-small); color: var(--ink-soft); margin-top: var(--s-2); }
+.legend[hidden] { display: none; }
+.legend span::before { content: ""; display: inline-block; width: 0.8rem; height: 0.8rem; border-radius: 0.2rem; margin-right: 0.35rem; vertical-align: -0.1rem; background: var(--c); }
+details.gloss summary { cursor: pointer; font-weight: 600; min-height: 1.5rem; }
+details.gloss dl { margin: var(--s-2) 0 0; }
+.glossfind { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-2); }
+.glossfind input { flex: 1 1 12ch; min-width: 0; min-height: 2.75rem; font: inherit; padding: 0 var(--s-2); color: var(--ink); background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
+details.gloss dt { font-weight: 600; margin-top: var(--s-2); }
+details.gloss dd { margin: 0; color: var(--ink-soft); }
+.themebtn { order: 1; margin-left: auto; }
+
+/* SVG */
+svg text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; fill: var(--ink); }
+.region-box { stroke-width: 1.5; }
+.region-title { font-weight: 700; }
+.region-blurb { fill: var(--ink-soft); }
+.region.zoomable { cursor: zoom-in; }
+.region.zoomable:hover .region-box, .region.zoomable:focus .region-box { stroke-width: 3; }
+.node { cursor: pointer; }
+.node rect.box { fill: var(--surface); stroke-width: 1.5; }
+.node:hover rect.box, .node:focus rect.box, .node.sel rect.box { stroke-width: 3; }
+.node .sub { fill: var(--ink-faint); }
+.node.stub rect.box { stroke-dasharray: 5 4; fill: var(--frame); }
+.frame rect { fill: none; stroke: var(--ink-faint); stroke-dasharray: 6 5; stroke-width: 1.2; }
+.frame text { fill: var(--ink-faint); font-weight: 600; }
+.edge path { fill: none; stroke: var(--ink-faint); stroke-width: 1.4; }
+.edge.identity path { stroke-dasharray: 3 4; }
+.edge.quiet { opacity: 0.3; }
+.lit .edge.quiet, .lit .edge.dim { opacity: 0.1; }
+.lit .edge:not(.quiet):not(.dim):not(.hot) path { stroke: var(--ink); stroke-width: 2.2; }
+.lit .edge:not(.quiet):not(.dim) .elabel { fill: var(--ink); font-weight: 600; }
+.edge .elabel { fill: var(--ink-soft); }
+.edge .ebg { fill: var(--surface); opacity: 0.76; }
+.edge.hot path { stroke: var(--accent); stroke-width: 3.2; }
+.edge.hot .elabel { fill: var(--ink); font-weight: 600; }
+.badge circle { fill: var(--accent); }
+.badge text { fill: var(--surface); font-weight: 700; }
+.lock circle { fill: var(--surface); stroke: var(--priv); stroke-width: 1.5; }
+.lock text { fill: var(--priv); font-weight: 700; }
+.dim { opacity: 0.22; transition: opacity 0.2s; }
+.netdot { stroke: var(--surface); stroke-width: 1.5; }
+@media (prefers-reduced-motion: reduce) { .dim { transition: none; } }
+</style>
+</head>
+<body>
+<header>
+  <div class="titlerow">
+    <button class="chip themebtn" id="themeBtn" type="button" aria-label="Switch light or dark colors">Light / dark</button>
+    <h1>How the order tracker gets from a laptop to its users</h1>
+  </div>
+  <p>Start with the whole map. Click a large box to zoom into it, click any smaller box to read about it, or pick a story below to follow one path across every part at once.</p>
+</header>
+
+<nav class="lenses" aria-label="Stories that cross the whole system">
+  <span class="label">Follow a story:</span>
+  <div id="lensChips" style="display:contents"></div>
+</nav>
+
+<main>
+  <div class="mapcol">
+    <div class="crumbs" id="crumbs"></div>
+    <div class="stagewrap" role="region" tabindex="0" aria-label="System diagram; scrolls sideways on narrow screens">
+      <svg class="stage" id="stage" role="group" aria-labelledby="stageTitle" viewBox="0 0 1210 730">
+        <title id="stageTitle">Diagram of the order tracker system</title>
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L10,5 L0,10 z" fill="context-stroke"></path>
+          </marker>
+        </defs>
+        <g id="scene"></g>
+      </svg>
+    </div>
+    <p class="hint" id="hint"></p>
+    <div class="legend" id="legend" hidden>
+      <span style="--c: var(--open)">Reachable from the internet (sign-in still required)</span>
+      <span style="--c: var(--fw)">Behind a firewall, reached through private endpoints</span>
+      <span style="--c: var(--priv)">Private network only</span>
+    </div>
+  </div>
+  <aside id="panel" aria-live="polite"></aside>
+</main>
+
+<div class="pop" id="pop" hidden></div>
+
+<script>
+/* ---------- Glossary ---------- */
+// Every acronym is spelled out in its definition, and the panel lists these alphabetically.
+const GLOSSARY = {
+  git: ['Git', 'A tool that records every change to a set of files as a "commit", so you can see who changed what and undo mistakes.'],
+  commit: ['Commit', 'One saved snapshot of changes, with a message saying why.'],
+  pr: ['Pull request', 'A request on GitHub to merge one branch into another. Teammates review it and automatic checks run on it.'],
+  docker: ['Docker', 'A tool that packages a program with everything it needs to run, so it behaves the same on every machine.'],
+  image: ['Container image', 'A sealed package built by Docker: the app plus its operating-system files and libraries.'],
+  actions: ['GitHub Actions', "GitHub's built-in automation. A workflow is a list of steps that runs on a rented machine whenever something happens, such as a merge."],
+  oidc: ['Federated credential (OIDC)', 'A trust rule that lets a GitHub job prove where it came from and get a short-lived cloud sign-in, so no password is stored. OIDC stands for OpenID Connect.'],
+  idp: ['Identity provider', 'The service that checks who a person is and tells the app which roles they hold.'],
+  mi: ['Managed identity', 'An identity the cloud creates for a program rather than a person. Role assignments decide what it may touch.'],
+  rbac: ['Role assignment (RBAC)', 'A rule that says "this identity may do this kind of thing on this resource". RBAC stands for role-based access control.'],
+  registry: ['Container registry', 'A private shelf where container images wait until something runs them.'],
+  vnet: ['Virtual network', 'A private network in the cloud. The internet cannot reach in unless someone opens a door.'],
+  pe: ['Private endpoint', 'A private doorway that gives a cloud service an address inside the virtual network.'],
+  kv: ['Key vault', 'A locked box for secrets. Programs read a secret only if a role assignment allows it.'],
+  uat: ['UAT', 'User acceptance testing: the copy of the system where people try every change before it reaches prod.'],
+  prod: ['Prod', 'Production: the copy of the system people rely on for real work.'],
+};
+const T = (key, text) => `<button type="button" class="term" data-term="${key}" aria-controls="pop" aria-expanded="false">${text || GLOSSARY[key][0]}</button>`;
+
+/* ---------- Regions ---------- */
+// The overview's line lanes (`LANE`) are tuned to these coordinates; move a region and retune them.
+const REGIONS = {
+  dev:    { label: 'Your laptop', color: 'dev', x: 30, y: 70, w: 290, h: 230, zoom: true,
+            blurb: ['Code is written and tried here.', 'Git tracks changes; Docker runs a', 'private copy of the system.'] },
+  github: { label: 'GitHub', color: 'gh', x: 350, y: 70, w: 290, h: 230, zoom: true,
+            blurb: ['Holds the shared code.', 'Checks every proposed change,', 'then deploys to the cloud.'] },
+  people: { label: 'People', color: 'people', x: 30, y: 330, w: 290, h: 190 },
+  idp:    { label: 'Identity provider', color: 'idp', x: 350, y: 330, w: 290, h: 190 },
+  ext:    { label: 'Services outside the cloud', color: 'ext', x: 30, y: 550, w: 610, h: 160 },
+  uat:    { label: 'UAT environment', color: 'uat', x: 700, y: 90, w: 470, h: 280, zoom: true,
+            blurb: ['Every change is tried here first.', 'Web app, database, registry, vault.', 'Deploys itself on every merge.'] },
+  prod:   { label: 'Prod environment', color: 'prod', x: 700, y: 410, w: 470, h: 290, zoom: true,
+            blurb: ['What people use for real work.', 'The same parts as UAT.', 'Runs only images UAT already ran.', 'A person chooses when it deploys.'] },
+};
+const OVERVIEW_FRAMES = [{ x: 680, y: 40, w: 510, h: 675, label: 'The cloud subscription' }];
+
+/* ---------- Nodes ---------- */
+const NODES = {};
+function node(id, region, label, sub, box, info) { NODES[id] = { id, region, label, sub, box, ...info }; }
+
+// Flat nodes: always drawn on the overview at these coordinates.
+node('people.users', 'people', 'App users', 'shop staff', [45, 370, 260, 60], {
+  kicker: 'People', body: [`They open the order tracker in a browser and sign in through the ${T('idp')}.`] });
+node('people.ops', 'people', 'Developers', 'build and run it', [45, 445, 260, 60], {
+  kicker: 'People', body: [`They write code on laptops, review each other's ${T('pr', 'pull requests')}, and decide when prod deploys.`] });
+node('idp.signin', 'idp', 'Sign-in service', 'checks people, issues tokens', [498, 368, 130, 64], {
+  kicker: 'Identity provider', body: [`It checks a person's password and hands back a signed token naming their roles. It also trades GitHub's proof for a cloud sign-in through a ${T('oidc', 'federated credential')}.`] });
+node('idp.groups', 'idp', 'Groups and roles', 'who may use the app', [362, 368, 130, 64], {
+  kicker: 'Identity provider', body: ['An administrator adds people to a group, and the group carries the roles the app understands.'] });
+node('ext.mail', 'ext', 'Email inboxes', 'order alerts', [45, 590, 180, 100], {
+  kicker: 'Outside service', body: ['Alert emails about late orders arrive here.'] });
+node('ext.api', 'ext', 'Supplier price feed', 'public prices', [240, 590, 180, 100], {
+  kicker: 'Outside service', body: ['The app reads supplier prices from this feed. Only public prices travel.'] });
+
+// Laptop scene
+node('dev.editor', 'dev', 'Code editor and files', 'where changes are typed', [60, 90, 250, 70], {
+  kicker: 'Your laptop', body: ['The project files hold the app, its tests, and the database change scripts.'] });
+node('dev.git', 'dev', 'Local Git repository', 'commits and branches', [60, 210, 250, 70], {
+  kicker: 'Your laptop · Git', body: [`${T('git')} keeps the full history. You make ${T('commit', 'commits')} on a branch and push them to GitHub.`] });
+node('dev.app', 'dev', 'The app', 'reloads on save', [400, 110, 240, 80], {
+  kicker: 'Your laptop · Docker', body: ['The same program that runs in the cloud, signing people in with a demo password.'] });
+node('dev.db', 'dev', 'Database', 'local container', [400, 240, 240, 64], {
+  kicker: 'Your laptop · Docker', body: ['A throwaway copy of the database with made-up orders.'] });
+
+// GitHub scene
+node('gh.pr', 'github', 'Pull request', 'a proposed change', [70, 110, 250, 80], {
+  kicker: 'GitHub', body: [`A ${T('pr')} shows what a branch changes. The ci workflow must pass before it merges.`] });
+node('gh.ci', 'github', 'ci workflow', 'lint, build, tests', [70, 300, 250, 80], {
+  kicker: 'GitHub Actions', body: ['The ci (continuous integration) workflow builds the app and runs the tests on every pull request.'] });
+node('gh.main', 'github', 'main branch', 'the reviewed code', [380, 110, 250, 80], {
+  kicker: 'GitHub', body: ['Every merge into main deploys to UAT.'] });
+node('gh.deploy', 'github', 'deploy-uat workflow', 'runs on every merge', [380, 250, 250, 90], {
+  kicker: 'GitHub Actions', body: [`It builds the ${T('image')}, pushes it to UAT's registry, runs the migrate job, and switches the web app.`] });
+node('gh.promote', 'github', 'promote-prod workflow', 'a person starts it', [380, 420, 250, 90], {
+  kicker: 'GitHub Actions', body: ["It copies UAT's tested image into prod's registry and switches prod's web app. It builds nothing."] });
+node('gh.oidc', 'github', "GitHub's token service", 'proves which job is asking', [690, 250, 240, 90], {
+  kicker: 'GitHub', body: [`Each run gets a signed note naming its repository and environment, which the ${T('idp')} trades for a short-lived cloud sign-in.`] });
+
+// Environment scenes: the same parts in UAT and prod.
+const ENV_INFO = {
+  uat: { name: 'UAT', size: 'one small container' },
+  prod: { name: 'Prod', size: 'one larger container' },
+};
+for (const env of ['uat', 'prod']) {
+  const E = ENV_INFO[env];
+  const k = (s) => `${E.name} · ${s}`;
+  node(`${env}.ingress`, env, 'Public web address', 'HTTPS front door', [280, 155, 190, 60], {
+    kicker: k('Ingress'), net: 'open', body: ['The one part a browser can reach. Every page demands a signed-in session.'] });
+  node(`${env}.app`, env, 'Order tracker web app', 'web server', [280, 245, 190, 105], {
+    kicker: k('Web app'), net: 'open', body: [`It runs ${E.size} and acts as a ${T('mi', 'managed identity')}.`] });
+  node(`${env}.migrate`, env, 'migrate job', 'changes database tables', [510, 150, 190, 52], {
+    kicker: k('Job'), net: 'private', body: ['It applies new database change scripts before the app moves to new code.'] });
+  node(`${env}.db`, env, 'Database', 'private subnet', [280, 420, 190, 95], {
+    kicker: k('Database'), net: 'private', body: [`It has no public address, so only things inside the ${T('vnet', 'virtual network')} reach it.`] });
+  node(`${env}.pe`, env, 'Private endpoints', 'private doorways', [510, 420, 190, 95], {
+    kicker: k('Private endpoints'), net: 'private', body: [`Each ${T('pe')} gives the vault or storage an address inside the network. Lines through this box carry a circled "P".`] });
+  node(`${env}.registry`, env, 'Container registry', 'stores app images', [40, 100, 170, 62], {
+    kicker: k('Container registry'), net: 'open', body: [`The ${T('registry')} holds every image this environment runs.`] });
+  node(`${env}.ids`, env, 'Managed identities', 'app, deploy', [40, 185, 170, 75], {
+    kicker: k('Managed identities'), body: [`Each identity holds only the ${T('rbac', 'role assignments')} it needs. The deploy identity cannot read the database.`] });
+  node(`${env}.logs`, env, 'Monitoring', 'logs and traces', [40, 365, 170, 62], {
+    kicker: k('Monitoring'), body: ["It collects the app's logs, request timings, and errors."] });
+  node(`${env}.kv`, env, 'Key vault', 'secrets', [790, 100, 170, 62], {
+    kicker: k('Key vault'), net: 'fw', body: [`The ${T('kv')} hands secrets to the app when it starts.`] });
+  node(`${env}.storage`, env, 'File storage', 'order attachments', [790, 185, 170, 75], {
+    kicker: k('Storage'), net: 'fw', body: ['It holds every file attached to an order.'] });
+}
+
+/* ---------- Edges ---------- */
+const EDGES = [];
+function edge(id, from, to, label, opts = {}) { EDGES.push({ id, from, to, label, ...opts }); }
+
+edge('commit', 'dev.editor', 'dev.git', 'commit');
+edge('push', 'dev.git', 'gh.pr', 'push a branch');
+edge('hotreload', 'dev.editor', 'dev.app', 'reloads on save');
+edge('dev-db', 'dev.app', 'dev.db', 'reads and writes');
+edge('ci', 'gh.pr', 'gh.ci', 'checks');
+edge('merge', 'gh.pr', 'gh.main', 'merge');
+edge('trigger', 'gh.main', 'gh.deploy', 'starts');
+edge('oidc-uat', 'gh.deploy', 'gh.oidc', 'asks for proof');
+edge('oidc-prod', 'gh.promote', 'gh.oidc', 'asks for proof');
+edge('oidc-idp', 'gh.oidc', 'idp.signin', 'trade for cloud token');
+edge('start-promote', 'people.ops', 'gh.promote', 'enters a commit');
+edge('groups', 'idp.groups', 'idp.signin', 'roles go in token');
+edge('copy', 'uat.registry', 'prod.registry', 'tested image copied');
+
+for (const env of ['uat', 'prod']) {
+  const wf = env === 'uat' ? 'gh.deploy' : 'gh.promote';
+  const e = (id, f, t, l, o) => edge(`${env}-${id}`, f, t, l, o);
+  e('visit', 'people.users', `${env}.ingress`, 'opens the site');
+  e('in', `${env}.ingress`, `${env}.app`, 'passes requests');
+  e('signin', `${env}.app`, 'idp.signin', 'sends people to sign in');
+  e('db', `${env}.app`, `${env}.db`, 'reads and writes');
+  e('kv', `${env}.app`, `${env}.kv`, 'secrets at start', { via: `${env}.pe` });
+  e('files', `${env}.app`, `${env}.storage`, 'stores files', { via: `${env}.pe` });
+  e('mail', `${env}.app`, 'ext.mail', 'sends alerts');
+  e('prices', `${env}.app`, 'ext.api', 'reads prices');
+  e('logs', `${env}.app`, `${env}.logs`, 'logs and traces');
+  e('pull', `${env}.registry`, `${env}.app`, 'image pulled');
+  e('mig', `${env}.migrate`, `${env}.db`, 'changes tables');
+  e('id-app', `${env}.ids`, `${env}.app`, 'app identity', { identity: true });
+  e('gh-id', wf, `${env}.ids`, 'acts as the deploy identity', { identity: true });
+  e('gh-reg', wf, `${env}.registry`, env === 'uat' ? 'pushes new images' : 'pushes the copy');
+  e('gh-mig', wf, `${env}.migrate`, 'starts');
+  e('gh-app', wf, `${env}.app`, 'switches image');
+}
+
+/* ---------- Scenes: where each region's own parts are drawn ---------- */
+// A stub is a dashed box standing for a part outside the scene; a scene draws only the stubs its lines reach.
+const SCENES = {
+  dev: { title: 'Your laptop', w: 1000, h: 640, frames: [{ x: 370, y: 70, w: 300, h: 260, label: 'Docker Compose' }],
+         stubs: { github: [40, 560], uat: [430, 560], prod: [640, 560] } },
+  github: { title: 'GitHub', w: 1000, h: 640, frames: [{ x: 360, y: 70, w: 290, h: 470, label: 'GitHub Actions workflows' }],
+            stubs: { dev: [40, 560], 'people.ops': [40, 440], 'idp.signin': [770, 560], uat: [700, 10], prod: [850, 10] } },
+};
+for (const env of ['uat', 'prod']) {
+  const other = env === 'uat' ? 'prod' : 'uat';
+  SCENES[env] = {
+    title: REGIONS[env].label, w: 1000, h: 650,
+    frames: [
+      { x: 20, y: 70, w: 960, h: 500, label: `${ENV_INFO[env].name} environment`, region: env },
+      { x: 240, y: 95, w: 500, h: 455, label: 'Virtual network (private)' },
+      { x: 258, y: 122, w: 464, h: 245, label: 'Container runtime' },
+    ],
+    stubs: {
+      dev: [40, 10], 'people.users': [240, 10], github: [430, 10], 'idp.signin': [620, 10],
+      [other]: [40, 592], 'ext.mail': [240, 592], 'ext.api': [520, 592],
+    },
+  };
+}
+
+/* ---------- Stories that cross the whole system ---------- */
+const LENSES = [
+  { id: 'touat', label: 'A change reaches UAT', intro: 'This story follows a change from a laptop to the UAT web app.', steps: [
+    { text: 'You commit the change on your own branch.', edges: ['commit'] },
+    { text: 'You push the branch to GitHub and open a pull request.', edges: ['push'] },
+    { text: 'The ci workflow runs every test, and a teammate reviews the change.', edges: ['ci'] },
+    { text: 'Someone merges it into main.', edges: ['merge'] },
+    { text: "The merge starts deploy-uat, which signs in as UAT's deploy identity with no stored password.", edges: ['trigger', 'oidc-uat', 'oidc-idp', 'uat-gh-id'] },
+    { text: "It pushes the new image to UAT's registry and runs the migrate job.", edges: ['uat-gh-reg', 'uat-gh-mig', 'uat-mig'] },
+    { text: 'Last, the web app switches to the new image.', edges: ['uat-gh-app', 'uat-pull'] },
+  ] },
+  { id: 'toprod', label: 'UAT is promoted to prod', intro: 'Prod runs the exact image UAT already ran.', steps: [
+    { text: 'A developer starts promote-prod and enters a commit UAT has run.', edges: ['start-promote'] },
+    { text: "The workflow signs in as prod's deploy identity.", edges: ['oidc-prod', 'oidc-idp', 'prod-gh-id'] },
+    { text: "It copies the image from UAT's registry into prod's.", edges: ['copy', 'prod-gh-reg'] },
+    { text: "The migrate job updates prod's database, and the web app switches image.", edges: ['prod-gh-mig', 'prod-mig', 'prod-gh-app', 'prod-pull'] },
+  ] },
+  { id: 'signin', label: 'A person signs in', intro: 'The app never sees a password.', steps: [
+    { text: 'A user opens the site.', edges: ['uat-visit', 'prod-visit', 'uat-in', 'prod-in'] },
+    { text: 'The app finds no session and sends the browser to the sign-in service.', edges: ['uat-signin', 'prod-signin'] },
+    { text: "The sign-in service checks the person and puts their group's roles in the token.", edges: ['groups'] },
+  ] },
+  { id: 'network', label: 'What the internet can reach', intro: 'Colored dots on each part in UAT and prod show how exposed it is. Zoom into UAT or prod to see them.', net: true, steps: [
+    { text: 'Open to the internet, behind sign-in: the web address, the app, and the registry.', nodes: ['uat.ingress', 'prod.ingress', 'uat.app', 'prod.app', 'uat.registry', 'prod.registry'] },
+    { text: 'Behind a firewall, reached through private endpoints: the key vault and file storage.', nodes: ['uat.kv', 'prod.kv', 'uat.storage', 'prod.storage'] },
+    { text: 'Private network only: the database and the migrate job.', nodes: ['uat.db', 'prod.db', 'uat.migrate', 'prod.migrate', 'uat.pe', 'prod.pe'] },
+  ] },
+];
+
+/* ---------- Rendering ---------- */
+const SVGNS = 'http://www.w3.org/2000/svg';
+const stage = document.getElementById('stage');
+const sceneEl = document.getElementById('scene');
+const panel = document.getElementById('panel');
+const state = { scene: 'overview', lens: null, step: null, selected: null };
+
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(SVGNS, tag);
+  for (const [a, v] of Object.entries(attrs)) n.setAttribute(a, v);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function wrap(text, maxChars) {
+  const words = text.split(' '); const lines = []; let cur = '';
+  for (const w of words) {
+    if ((cur + ' ' + w).trim().length > maxChars && cur) { lines.push(cur); cur = w; } else cur = (cur + ' ' + w).trim();
+  }
+  if (cur) lines.push(cur);
+  return lines;
+}
+function textBlock(parent, x, y, lines, size, cls, anchor = 'start') {
+  const t = el('text', { x, y, 'font-size': size, class: cls || '', 'text-anchor': anchor }, parent);
+  lines.forEach((line, i) => { const s = el('tspan', { x, dy: i === 0 ? 0 : size * 1.2 }, t); s.textContent = line; });
+  return t;
+}
+// A reader's own letter or word spacing can push a line past its box, so measured text shrinks to fit.
+function fitWidth(t, width) {
+  const widest = Math.max(...[...t.children].map((s) => s.getComputedTextLength()));
+  if (widest > width) t.setAttribute('font-size', +t.getAttribute('font-size') * width / widest);
+  return t;
+}
+function textWidth(text, size, cls, weight = 400) {
+  const t = textBlock(sceneEl, 0, 0, [text], size, cls);
+  t.setAttribute('font-weight', weight);
+  const w = t.getComputedTextLength();
+  t.remove();
+  return w;
+}
+const colorOf = (region) => `var(--${REGIONS[region].color})`;
+const bgOf = (region) => `var(--${REGIONS[region].color}-bg)`;
+
+// Where an endpoint is drawn in a scene: the node itself, a stub, or (overview) its region box.
+function endpointBox(id, scene) {
+  const n = NODES[id];
+  if (scene === 'overview') {
+    if (!REGIONS[n.region].zoom) return { key: id, box: n.box };
+    const r = REGIONS[n.region]; return { key: n.region, box: [r.x, r.y, r.w, r.h] };
+  }
+  if (n.region === scene) return { key: id, box: n.box };
+  const key = REGIONS[n.region].zoom ? n.region : id;
+  const slot = SCENES[scene].stubs[key];
+  if (!slot) return null;
+  return { key, box: [slot[0], slot[1], 150, 48], stub: true };
+}
+function center(b) { return [b[0] + b[2] / 2, b[1] + b[3] / 2]; }
+function clipToBox(from, to, b) {
+  const [cx, cy] = center(b); const dx = to[0] - cx, dy = to[1] - cy;
+  if (dx === 0 && dy === 0) return [cx, cy];
+  const sx = (b[2] / 2 + 4) / Math.abs(dx || 1e-9), sy = (b[3] / 2 + 4) / Math.abs(dy || 1e-9);
+  const s = Math.min(sx, sy);
+  return [cx + dx * s, cy + dy * s];
+}
+
+// The overview runs long lines through the empty lanes between regions, so they
+// never cross a region's title or the boxes inside it.
+const LANE = { gutterX: 670, leftGapX: 335, rowGapY: 315, bottomY: 722, cloudX: 680, extRowY: 550, eastX: 600 };
+const right = (b) => b[0] + b[2], bottom = (b) => b[1] + b[3];
+function overviewRoute(a, b) {
+  const inCloud = (box) => box[0] >= LANE.cloudX;
+  if (inCloud(a.box) !== inCloud(b.box)) {
+    const [l, az] = inCloud(a.box) ? [b.box, a.box] : [a.box, b.box];
+    const [cx, cy] = center(l);
+    let pts;
+    if (l[1] >= LANE.extRowY) pts = [[cx, bottom(l) + 4], [cx, LANE.bottomY], [LANE.gutterX, LANE.bottomY]];
+    else if (right(l) >= LANE.eastX) pts = [[right(l) + 4, cy], [LANE.gutterX, cy]];
+    else {
+      const above = l[1] > LANE.rowGapY;
+      const x = above ? cx : right(l) - 30;
+      pts = [[x, above ? l[1] - 4 : bottom(l) + 4], [x, LANE.rowGapY], [LANE.gutterX, LANE.rowGapY]];
+    }
+    const y = Math.min(Math.max(pts[pts.length - 1][1], az[1] + 20), bottom(az) - 20);
+    pts.push([LANE.gutterX, y], [az[0] - 4, y]);
+    return inCloud(a.box) ? pts.reverse() : pts;
+  }
+  const lo = Math.max(a.box[0], b.box[0]), hi = Math.min(right(a.box), right(b.box));
+  if (hi - lo > 40 && (bottom(a.box) < b.box[1] || bottom(b.box) < a.box[1])) {
+    const x = hi - 20, down = bottom(a.box) < b.box[1];
+    return [[x, down ? bottom(a.box) + 4 : a.box[1] - 4], [x, down ? b.box[1] - 4 : bottom(b.box) + 4]];
+  }
+  if (right(a.box) < LANE.leftGapX && b.box[0] > LANE.leftGapX && bottom(b.box) < a.box[1]) {
+    const ay = center(a.box)[1], by = bottom(b.box) - 20;
+    return [[right(a.box) + 4, ay], [LANE.leftGapX, ay], [LANE.leftGapX, by], [b.box[0] - 4, by]];
+  }
+  return null;
+}
+function longestSegmentMid(pts) {
+  let best = 0, mid = pts[0];
+  for (let i = 1; i < pts.length; i++) {
+    const [x0, y0] = pts[i - 1], [x1, y1] = pts[i], len = Math.hypot(x1 - x0, y1 - y0);
+    if (len > best) { best = len; mid = [(x0 + x1) / 2, (y0 + y1) / 2]; }
+  }
+  return mid;
+}
+const segLength = ([p, q]) => Math.abs(q[0] - p[0]) + Math.abs(q[1] - p[1]);
+function claim(r, taken, bounds) {
+  if (r[0] < 0 || r[1] < 0 || r[0] + r[2] > bounds[0] || r[1] + r[3] > bounds[1]) return false;
+  if (taken.some((o) => r[0] < o[0] + o[2] && o[0] < r[0] + r[2] && r[1] < o[1] + o[3] && o[1] < r[1] + r[3])) return false;
+  taken.push(r);
+  return true;
+}
+// Takes the first spot along the line where the label, and the step badge on its
+// line side, stay inside the scene, and cover no box and no label placed before it.
+// A line with no such spot gets null, because a label set apart from its line cannot
+// be matched to it.
+function placeLabel(segs, w, lead, taken, bounds) {
+  const h = lead || 16, off = lead ? lead - 2 : 6, flat = ([p, q]) => p[1] === q[1];
+  const ordered = segs.filter((s) => segLength(s) >= 20).sort((s, t) => Number(flat(t)) - Number(flat(s)) || segLength(t) - segLength(s));
+  const tryAt = ([x, y, side]) => claim(side < 0 ? [x - w / 2, y - h / 2, w + lead, h] : [x - w / 2 - lead, y - h / 2, w + lead, h], taken, bounds);
+  for (const [p, q] of ordered) {
+    for (const f of [0.5, 0.3, 0.7, 0.15, 0.85]) {
+      const [cx, cy] = [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f];
+      const spots = flat([p, q]) ? [cy, cy - 12, cy + 12].flatMap((y) => [[cx, y, 1], [cx, y, -1]]) : [...(lead ? [] : [[cx, cy, 1]]), [cx + w / 2 + off, cy, 1], [cx - w / 2 - off, cy, -1]];
+      const badgeOnLine = ([x, , side]) => !lead || !flat([p, q]) || Math.abs(2 * (x - side * (w + lead) / 2) - p[0] - q[0]) <= Math.abs(q[0] - p[0]);
+      const at = spots.find((s) => badgeOnLine(s) && tryAt(s));
+      if (at) return { at: [at[0], at[1]], badge: [at[0] - at[2] * (w + lead) / 2, at[1]] };
+    }
+  }
+  return null;
+}
+function badgeText(nums) {
+  const n = [...new Set(nums)].sort((x, y) => x - y);
+  return n.length > 2 ? `${n[0]}–${n[n.length - 1]}` : n.join(',');
+}
+const badgeRadius = (txt) => (txt.length > 2 ? 15 : 11);
+// A line too short or too crowded to carry a step badge, such as one between two
+// boxes that almost touch, gets its badge at the clear spot nearest any point on it,
+// or on the line itself when no clear spot lies within 80 units.
+function placeBadge(segs, r, taken, bounds) {
+  const spot = placeLabel(segs, 0, 2 * r, taken, bounds);
+  if (spot) return spot.badge;
+  const points = segs.flatMap(([p, q]) => [0.5, 0.3, 0.7, 0.15, 0.85, 0, 1].map((f) => [p[0] + (q[0] - p[0]) * f, p[1] + (q[1] - p[1]) * f]));
+  for (let d = 0; d <= 80; d += 4) {
+    for (const [cx, cy] of points) {
+      for (let k = 0; k < (d ? 16 : 1); k++) {
+        const x = cx + d * Math.cos((k * Math.PI) / 8), y = cy + d * Math.sin((k * Math.PI) / 8);
+        if (claim([x - r, y - r, 2 * r, 2 * r], taken, bounds)) return [x, y];
+      }
+    }
+  }
+  return points[0];
+}
+
+// A zoomed-in scene routes each line along the gaps between boxes, because a line
+// drawn through a box reads as traffic passing through that part.
+function sceneObstacles(sid) {
+  const boxes = new Map();
+  for (const id of Object.keys(NODES)) { const p = endpointBox(id, sid); if (p) boxes.set(p.key, p.box); }
+  const titles = SCENES[sid].frames.map((f) => [null, [f.x + 8, f.y + 4, textWidth(f.label, 13, '', 600) + 8, 20]]);
+  return [...boxes.entries(), ...titles];
+}
+function sceneRoute(a, b, obstacles, used) {
+  const gap = 14, pad = 8, bend = 40;
+  const xs = new Set(), ys = new Set();
+  for (const [, o] of obstacles) {
+    [o[0] - gap, o[0] + o[2] / 4, o[0] + o[2] / 2, o[0] + (3 * o[2]) / 4, right(o) + gap].forEach((v) => xs.add(Math.round(v)));
+    [o[1] - gap, o[1] + o[3] / 4, o[1] + o[3] / 2, o[1] + (3 * o[3]) / 4, bottom(o) + gap].forEach((v) => ys.add(Math.round(v)));
+  }
+  const X = [...xs].sort((p, q) => p - q), Y = [...ys].sort((p, q) => p - q), NY = Y.length;
+  const blocks = obstacles.filter(([k]) => k !== a.key && k !== b.key).map(([, o]) => o);
+  const blocked = (x0, y0, x1, y1) => blocks.some((o) => Math.max(x0, x1) > o[0] - pad && Math.min(x0, x1) < right(o) + pad
+    && Math.max(y0, y1) > o[1] - pad && Math.min(y0, y1) < bottom(o) + pad);
+  const within = (box, x, y) => x >= box[0] && x <= right(box) && y >= box[1] && y <= bottom(box);
+  const STEPS = [[1, 0], [-1, 0], [0, 1], [0, -1]];
+  const dist = new Float64Array(X.length * NY * 4).fill(Infinity), prev = new Int32Array(dist.length).fill(-1);
+  const heap = [];
+  const push = (d, s) => {
+    heap.push([d, s]);
+    for (let i = heap.length - 1; i > 0;) { const p = (i - 1) >> 1; if (heap[p][0] <= heap[i][0]) break; [heap[p], heap[i]] = [heap[i], heap[p]]; i = p; }
+  };
+  const pop = () => {
+    const top = heap[0], last = heap.pop();
+    if (heap.length) {
+      heap[0] = last;
+      for (let i = 0; ;) {
+        const l = 2 * i + 1, r = l + 1; let m = i;
+        if (l < heap.length && heap[l][0] < heap[m][0]) m = l;
+        if (r < heap.length && heap[r][0] < heap[m][0]) m = r;
+        if (m === i) break; [heap[m], heap[i]] = [heap[i], heap[m]]; i = m;
+      }
+    }
+    return top;
+  };
+  X.forEach((x, i) => Y.forEach((y, j) => { if (within(a.box, x, y)) for (let d = 0; d < 4; d++) { dist[(i * NY + j) * 4 + d] = 0; push(0, (i * NY + j) * 4 + d); } }));
+  let goal = -1;
+  while (heap.length) {
+    const [d0, s] = pop();
+    if (d0 > dist[s]) continue;
+    const cell = s >> 2, dir = s & 3, i = Math.floor(cell / NY), j = cell % NY;
+    if (within(b.box, X[i], Y[j]) && !within(a.box, X[i], Y[j])) { goal = s; break; }
+    STEPS.forEach(([di, dj], nd) => {
+      const ni = i + di, nj = j + dj;
+      if (ni < 0 || nj < 0 || ni >= X.length || nj >= NY) return;
+      const x0 = X[i], y0 = Y[j], x1 = X[ni], y1 = Y[nj];
+      const inEnd = (box) => within(box, x0, y0) && within(box, x1, y1);
+      if (!inEnd(a.box) && !inEnd(b.box) && blocked(x0, y0, x1, y1)) return;
+      const len = Math.abs(x1 - x0) + Math.abs(y1 - y0), seg = `${Math.min(i, ni)},${Math.min(j, nj)},${di ? 'h' : 'v'}`;
+      const cost = inEnd(a.box) || inEnd(b.box) ? len * 0.01 : len + (nd !== dir ? bend : 0) + (used.has(seg) ? len * 2 : 0);
+      const ns = (ni * NY + nj) * 4 + nd;
+      if (d0 + cost < dist[ns]) { dist[ns] = d0 + cost; prev[ns] = s; push(dist[ns], ns); }
+    });
+  }
+  if (goal < 0) return null;
+  const cells = [];
+  for (let s = goal; s >= 0; s = prev[s]) cells.unshift(s >> 2);
+  for (let k = 1; k < cells.length; k++) {
+    const [c0, c1] = [cells[k - 1], cells[k]];
+    used.add(`${Math.floor(Math.min(c0, c1) / NY)},${Math.min(c0 % NY, c1 % NY)},${Math.floor(c0 / NY) !== Math.floor(c1 / NY) ? 'h' : 'v'}`);
+  }
+  let pts = cells.map((c) => [X[Math.floor(c / NY)], Y[c % NY]]).filter((p, k, all) => k === 0 || p[0] !== all[k - 1][0] || p[1] !== all[k - 1][1]);
+  pts = pts.filter((p, k) => k === 0 || k === pts.length - 1 || !((pts[k - 1][0] === p[0] && p[0] === pts[k + 1][0]) || (pts[k - 1][1] === p[1] && p[1] === pts[k + 1][1])));
+  const border = (p, q, box) => (p[0] === q[0]
+    ? [p[0], q[1] > p[1] ? bottom(box) + 4 : box[1] - 4]
+    : [q[0] > p[0] ? right(box) + 4 : box[0] - 4, p[1]]);
+  let s = 0; while (s < pts.length - 1 && within(a.box, ...pts[s + 1])) s++;
+  let t = pts.length - 1; while (t > 0 && within(b.box, ...pts[t - 1])) t--;
+  return [border(pts[s], pts[s + 1], a.box), ...pts.slice(s + 1, t), border(pts[t], pts[t - 1], b.box)];
+}
+
+function lensSets() {
+  const edges = new Set(), nodes = new Set();
+  if (!state.lens) return null;
+  const lens = LENSES.find((l) => l.id === state.lens);
+  const steps = state.step == null ? lens.steps : [lens.steps[state.step]];
+  steps.forEach((s) => { (s.edges || []).forEach((e) => edges.add(e)); (s.nodes || []).forEach((n) => nodes.add(n)); });
+  return { edges, nodes, lens };
+}
+function stepNumbers(edgeId) {
+  if (!state.lens) return [];
+  const lens = LENSES.find((l) => l.id === state.lens);
+  const nums = [];
+  lens.steps.forEach((s, i) => { if ((s.edges || []).includes(edgeId) && (state.step == null || state.step === i)) nums.push(i + 1); });
+  return nums;
+}
+
+function render() {
+  const was = document.activeElement;
+  sceneEl.replaceChildren();
+  const hot = lensSets();
+  const hotNodes = new Set();
+  if (hot) {
+    hot.nodes.forEach((n) => hotNodes.add(n));
+    EDGES.filter((e) => hot.edges.has(e.id)).forEach((e) => { hotNodes.add(e.from); hotNodes.add(e.to); if (e.via) hotNodes.add(e.via); });
+  }
+  const showNet = hot && hot.lens.net;
+  document.getElementById('legend').hidden = !showNet;
+  if (state.scene === 'overview') renderOverview(hot, hotNodes); else renderScene(state.scene, hot, hotNodes, showNet);
+  const tagLayer = el('g', { class: sceneEl.querySelector('.lit') ? 'lit' : '' }, sceneEl);
+  sceneEl.querySelectorAll('.tag').forEach((t) => el('g', { class: t.parentNode.getAttribute('class') }, tagLayer).appendChild(t));
+  renderCrumbs();
+  if (!was.isConnected) {
+    const same = [...sceneEl.querySelectorAll('[role="button"]')].find((g) => g.getAttribute('aria-label') === was.getAttribute('aria-label'));
+    (same || stage.parentNode).focus();
+  }
+  writeUrl();
+}
+
+// Two "P" marks closer than twice this radius overlap, so only one is drawn.
+const LOCK_R = 7;
+
+function drawEdges(layer, scene, hot) {
+  const drawn = new Map();
+  for (const e of EDGES) {
+    const a = endpointBox(e.from, scene), b = endpointBox(e.to, scene);
+    if (!a || !b || a.key === b.key) continue;
+    if (scene !== 'overview' && NODES[e.from].region !== scene && NODES[e.to].region !== scene) continue;
+    const pairKey = `${a.key}>${b.key}`;
+    const isHot = hot && hot.edges.has(e.id);
+    const nums = stepNumbers(e.id);
+    const existing = drawn.get(pairKey);
+    if (existing) {
+      if (isHot) { existing.hot = true; existing.nums.push(...nums); existing.labels.add(e.label); }
+      else existing.labels.add(e.label);
+      continue;
+    }
+    const via = scene !== 'overview' && e.via && NODES[e.via].region === scene ? NODES[e.via].box : null;
+    drawn.set(pairKey, { e, a, b, via, hot: isHot, nums: [...nums], labels: new Set([e.label]) });
+  }
+  const items = [...drawn.values()];
+  items.forEach((d) => { d.picked = !hot && scene !== 'overview' && state.selected !== null && [d.a.key, d.b.key, d.via && d.e.via].includes(state.selected); });
+  items.sort((x, y) => Number(x.hot || x.picked) - Number(y.hot || y.picked));
+  layer.classList.toggle('lit', items.some((d) => d.hot || d.picked));
+  if (scene !== 'overview') {
+    const obstacles = sceneObstacles(scene), used = new Set(), taken = obstacles.map(([, o]) => o);
+    for (const d of [...items].reverse()) {
+      const legs = d.via ? [[d.a, { key: d.e.via, box: d.via }], [{ key: d.e.via, box: d.via }, d.b]] : [[d.a, d.b]];
+      const routes = legs.map(([p, q]) => sceneRoute(p, q, obstacles, used));
+      if (routes.every(Boolean)) d.legs = routes;
+      if (d.legs && d.via) { const lp = d.legs[0][d.legs[0].length - 1]; taken.push([lp[0] - 8, lp[1] - 8, 16, 16]); }
+    }
+    // The shortest lines have the fewest spots for a label and its step badge, so
+    // they choose first.
+    const segsOf = (d) => d.legs.flatMap((leg) => leg.slice(1).map((p, k) => [leg[k], p]));
+    const routeLength = (d) => segsOf(d).reduce((sum, s) => sum + segLength(s), 0);
+    const bounds = [SCENES[scene].w, SCENES[scene].h];
+    for (const d of items.filter((x) => x.legs && (x.hot || x.picked)).sort((x, y) => routeLength(x) - routeLength(y))) {
+      const labels = [...d.labels], full = labels.join(' · ');
+      const text = labels.length > 1 && full.length > 38 ? `${labels[0]} +${labels.length - 1}` : full;
+      d.tag = { text, full, w: textWidth(text, 11.5, 'elabel', d.hot ? 600 : 400) + 8 };
+      const spot = placeLabel(segsOf(d), d.tag.w, d.hot && d.nums.length ? 30 : 0, taken, bounds);
+      if (spot) { d.tag.at = spot.at; d.badgeAt = spot.badge; }
+      else {
+        if (d.hot && d.nums.length) d.badgeAt = placeBadge(segsOf(d), badgeRadius(badgeText(d.nums)), taken, bounds);
+        const apart = d.badgeAt && placeLabel(segsOf(d), d.tag.w, 0, taken, bounds);
+        if (apart) d.tag.at = apart.at;
+        else delete d.tag;
+      }
+    }
+  } else {
+    const titles = [...Object.values(REGIONS), ...OVERVIEW_FRAMES].map((r) => [r.x + 8, r.y + 8, textWidth(r.label, 17, 'region-title', 700) + 12, 24]);
+    const taken = [...Object.values(NODES).filter((n) => !REGIONS[n.region].zoom).map((n) => n.box), ...titles];
+    for (const d of [...items].reverse()) {
+      if (!d.hot || !d.nums.length) continue;
+      const pts = overviewRoute(d.a, d.b) || [clipToBox(center(d.a.box), center(d.b.box), d.a.box), clipToBox(center(d.b.box), center(d.a.box), d.b.box)];
+      d.badgeAt = placeBadge(pts.slice(1).map((p, k) => [pts[k], p]), badgeRadius(badgeText(d.nums)), taken, [1210, 730]);
+    }
+  }
+  const lockMarks = [];
+  for (const d of items) {
+    const picked = d.picked;
+    const g = el('g', { class: `edge${d.e.identity ? ' identity' : ''}${d.hot ? ' hot' : ''}${hot && !d.hot ? ' dim' : ''}${!hot && !picked ? ' quiet' : ''}` }, layer);
+    const ca = center(d.a.box), cb = center(d.b.box);
+    let path, mid;
+    const route = scene === 'overview' ? overviewRoute(d.a, d.b) : null;
+    if (route) {
+      path = 'M' + route.map((p) => p.join(',')).join(' L');
+      mid = longestSegmentMid(route);
+    } else if (d.legs) {
+      path = d.legs.map((leg) => 'M' + leg.map((p) => p.join(',')).join(' L')).join(' ');
+      mid = d.tag ? d.tag.at : d.legs[0][0];
+    } else if (d.via) {
+      const cv = center(d.via);
+      const p1 = clipToBox(ca, cv, d.a.box), p2 = clipToBox(cb, cv, d.b.box);
+      path = `M${p1[0]},${p1[1]} Q${cv[0]},${cv[1]} ${p2[0]},${p2[1]}`;
+      mid = [(p1[0] + 2 * cv[0] + p2[0]) / 4, (p1[1] + 2 * cv[1] + p2[1]) / 4];
+    } else {
+      const p1 = clipToBox(ca, cb, d.a.box), p2 = clipToBox(cb, ca, d.b.box);
+      path = `M${p1[0]},${p1[1]} L${p2[0]},${p2[1]}`;
+      mid = [(p1[0] + p2[0]) / 2, (p1[1] + p2[1]) / 2];
+    }
+    el('path', { d: path, 'marker-end': 'url(#arrow)' }, g);
+    const showLabel = scene !== 'overview' && (picked || d.hot);
+    const badgeAt = d.badgeAt || mid;
+    if (showLabel && d.tag) {
+      const tag = el('g', { class: 'tag' }, g);
+      if (d.tag.text !== d.tag.full) el('title', {}, tag).textContent = d.tag.full;
+      el('rect', { class: 'ebg', x: mid[0] - d.tag.w / 2, y: mid[1] - 7.75, width: d.tag.w, height: 15.5, rx: 3 }, tag);
+      textBlock(tag, mid[0], mid[1] + 4, [d.tag.text], 11.5, 'elabel', 'middle');
+    }
+    if (d.via) {
+      const lp = d.legs ? d.legs[0][d.legs[0].length - 1] : [center(d.via)[0], center(d.via)[1] - 18];
+      const near = lockMarks.find((m) => Math.hypot(m.at[0] - lp[0], m.at[1] - lp[1]) < 2 * LOCK_R);
+      if (!near || (d.hot && !near.hot)) {
+        const lk = el('g', { class: 'lock tag' }, g);
+        el('circle', { cx: lp[0], cy: lp[1], r: LOCK_R }, lk);
+        textBlock(lk, lp[0], lp[1] + 3.5, ['P'], 9, '', 'middle');
+        if (near) { near.el.remove(); Object.assign(near, { at: lp, hot: d.hot, el: lk }); }
+        else lockMarks.push({ at: lp, hot: d.hot, el: lk });
+      }
+    }
+    if (d.hot && d.nums.length) {
+      const txt = badgeText(d.nums);
+      const bg = el('g', { class: 'badge tag' }, g);
+      el('circle', { cx: badgeAt[0], cy: badgeAt[1], r: badgeRadius(txt) }, bg);
+      textBlock(bg, badgeAt[0], badgeAt[1] + 4.5, [txt], 12.5, '', 'middle');
+    }
+  }
+}
+
+function drawNode(layer, n, box, opts) {
+  const { stub, hotNodes, hot, showNet } = opts;
+  let size = opts.size || 14;
+  const dimmed = hot && !(hotNodes.has(n.id) || (stub && [...hotNodes].some((h) => NODES[h].region === n.regionKey)));
+  const g = el('g', { class: `node${stub ? ' stub' : ''}${state.selected === n.id ? ' sel' : ''}${dimmed ? ' dim' : ''}`, tabindex: 0, role: 'button', 'aria-label': `${n.label}: ${n.sub || ''}` }, layer);
+  el('rect', { class: 'box', x: box[0], y: box[1], width: box[2], height: box[3], rx: 7, stroke: colorOf(n.color || n.region) }, g);
+  const maxChars = Math.floor(box[2] / (size * 0.56));
+  const lines = wrap(n.label, maxChars);
+  const subLines = n.sub ? wrap(n.sub, Math.floor(box[2] / (size * 0.82 * 0.55))) : [];
+  let total = lines.length * size * 1.2 + subLines.length * size * 0.82 * 1.2;
+  if (total > box[3] - 10) { size *= (box[3] - 10) / total; total = box[3] - 10; }
+  let y = box[1] + box[3] / 2 - total / 2 + size * 0.9;
+  const title = textBlock(g, box[0] + box[2] / 2, y, lines, size, '', 'middle');
+  title.setAttribute('font-weight', 600);
+  fitWidth(title, box[2] - 8);
+  y += lines.length * size * 1.2;
+  if (subLines.length) fitWidth(textBlock(g, box[0] + box[2] / 2, y, subLines, size * 0.82, 'sub', 'middle'), box[2] - 8);
+  if (showNet && n.net) el('circle', { class: 'netdot', cx: box[0] + box[2] - 9, cy: box[1] + 9, r: 7, fill: `var(--${{ open: 'open', fw: 'fw', private: 'priv' }[n.net]})` }, g);
+  g.addEventListener('click', (ev) => { ev.stopPropagation(); opts.onClick(); });
+  g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); opts.onClick(); } });
+  return g;
+}
+
+function renderOverview(hot, hotNodes) {
+  stage.setAttribute('viewBox', '0 0 1210 730');
+  const frames = el('g', {}, sceneEl);
+  for (const f of OVERVIEW_FRAMES) {
+    const g = el('g', { class: 'frame' }, frames);
+    el('rect', { x: f.x, y: f.y, width: f.w, height: f.h, rx: 12 }, g);
+    textBlock(g, f.x + 14, f.y + 26, [f.label], 15);
+  }
+  const regionLayer = el('g', {}, sceneEl);
+  const hotRegions = new Set([...hotNodes].map((id) => NODES[id].region));
+  for (const [rid, r] of Object.entries(REGIONS)) {
+    const dimmed = hot && !hotRegions.has(rid);
+    const g = el('g', { class: `region${r.zoom ? ' zoomable' : ''}${dimmed ? ' dim' : ''}` }, regionLayer);
+    el('rect', { class: 'region-box', x: r.x, y: r.y, width: r.w, height: r.h, rx: 10, fill: bgOf(rid), stroke: colorOf(rid) }, g);
+    fitWidth(textBlock(g, r.x + 14, r.y + 26, [r.label], 17, 'region-title'), r.w - 28);
+    if (r.zoom) {
+      g.setAttribute('tabindex', 0); g.setAttribute('role', 'button'); g.setAttribute('aria-label', `Zoom into ${r.label}`);
+      fitWidth(textBlock(g, r.x + 14, r.y + 58, r.blurb, 14, 'region-blurb'), r.w - 28);
+      const cta = textBlock(g, r.x + 14, r.y + r.h - 18, ['Click to zoom in ⤢'], 13, 'region-blurb');
+      cta.setAttribute('font-weight', 600); cta.style.fill = colorOf(rid);
+      const go = () => zoomTo(rid);
+      g.addEventListener('click', go);
+      g.addEventListener('keydown', (ev) => { if (ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); go(); } });
+    }
+  }
+  const edgeLayer = el('g', {}, sceneEl);
+  drawEdges(edgeLayer, 'overview', hot);
+  const nodeLayer = el('g', {}, sceneEl);
+  for (const n of Object.values(NODES)) {
+    if (REGIONS[n.region].zoom) continue;
+    drawNode(nodeLayer, n, n.box, { hot, hotNodes, size: 12.5, onClick: () => select(n.id) });
+  }
+}
+
+function stubKeys(sid) {
+  const keys = new Set();
+  for (const e of EDGES) {
+    for (const [mine, theirs] of [[e.from, e.to], [e.to, e.from]]) {
+      if (NODES[mine].region === sid && NODES[theirs].region !== sid) keys.add(REGIONS[NODES[theirs].region].zoom ? NODES[theirs].region : theirs);
+    }
+  }
+  return keys;
+}
+function renderScene(sid, hot, hotNodes, showNet) {
+  const sc = SCENES[sid];
+  stage.setAttribute('viewBox', `0 0 ${sc.w} ${sc.h}`);
+  const frames = el('g', {}, sceneEl);
+  for (const f of sc.frames) {
+    const g = el('g', { class: 'frame' }, frames);
+    const r = el('rect', { x: f.x, y: f.y, width: f.w, height: f.h, rx: 10 }, g);
+    if (f.region) { r.style.fill = bgOf(f.region); r.style.stroke = colorOf(f.region); }
+    textBlock(g, f.x + 12, f.y + 18, [f.label], 13);
+  }
+  const edgeLayer = el('g', {}, sceneEl);
+  drawEdges(edgeLayer, sid, hot);
+  const nodeLayer = el('g', {}, sceneEl);
+  for (const n of Object.values(NODES)) {
+    if (n.region === sid) drawNode(nodeLayer, n, n.box, { hot, hotNodes, showNet, onClick: () => select(n.id) });
+  }
+  for (const key of stubKeys(sid)) {
+    const slot = sc.stubs[key];
+    if (!slot) continue;
+    const isRegion = !!REGIONS[key];
+    const stubNode = isRegion
+      ? { id: `stub:${key}`, label: `${REGIONS[key].label} ⤢`, sub: 'click to go there', region: key, color: key, regionKey: key }
+      : { ...NODES[key], regionKey: null };
+    drawNode(nodeLayer, stubNode, [slot[0], slot[1], 150, 48], {
+      stub: true, hot, hotNodes, size: 12,
+      onClick: () => (isRegion ? zoomTo(key) : select(key)),
+    });
+  }
+}
+
+function renderCrumbs() {
+  const c = document.getElementById('crumbs');
+  c.replaceChildren();
+  const hint = document.getElementById('hint');
+  if (state.scene === 'overview') {
+    const s = document.createElement('strong'); s.textContent = 'Whole system'; c.append(s);
+    hint.textContent = 'Large colored boxes zoom in. Smaller white boxes open a description on the right.';
+  } else {
+    const b = document.createElement('button'); b.className = 'linkbtn'; b.type = 'button'; b.textContent = '← Whole system';
+    b.addEventListener('click', zoomOut); c.append(b);
+    const sep = document.createElement('span'); sep.className = 'sep'; sep.textContent = '›'; c.append(sep);
+    const s = document.createElement('strong'); s.textContent = SCENES[state.scene].title; c.append(s);
+    hint.textContent = 'Dashed boxes along the edges stand for other parts of the system; click one to jump there. A small "P" marks traffic through a private endpoint.';
+  }
+}
+
+/* ---------- Zoom animation ---------- */
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+// Back, a box click, or a second zoom during a zoom starts a new view, so the older animation
+// must stop before it redraws the frame or switches the scene behind the reader.
+let animation = 0;
+function stopAnimation() {
+  animation++;
+  sceneEl.style.transition = ''; sceneEl.style.opacity = '1';
+}
+function animateViewBox(from, to, ms, done) {
+  const mine = ++animation;
+  if (reduceMotion) { done(); return; }
+  const t0 = performance.now();
+  const ease = (t) => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+  function frame(now) {
+    if (mine !== animation) return;
+    const t = Math.min(1, (now - t0) / ms), k = ease(t);
+    stage.setAttribute('viewBox', from.map((v, i) => v + (to[i] - v) * k).join(' '));
+    if (t < 1) requestAnimationFrame(frame); else done();
+  }
+  requestAnimationFrame(frame);
+}
+function fit(r, w, h) {
+  const ratio = w / h; let bw = r.w + 40, bh = r.h + 40;
+  if (bw / bh > ratio) bh = bw / ratio; else bw = bh * ratio;
+  return [r.x + r.w / 2 - bw / 2, r.y + r.h / 2 - bh / 2, bw, bh];
+}
+function zoomTo(rid) {
+  if (state.scene !== 'overview') { state.scene = rid; state.selected = null; render(); showRegion(rid); return; }
+  const target = fit(REGIONS[rid], 1210, 730);
+  sceneEl.style.transition = reduceMotion ? '' : 'opacity 0.45s'; sceneEl.style.opacity = '0.35';
+  animateViewBox([0, 0, 1210, 730], target, 450, () => {
+    state.scene = rid; state.selected = null; render(); showRegion(rid);
+    sceneEl.style.transition = ''; sceneEl.style.opacity = '0';
+    requestAnimationFrame(() => { sceneEl.style.transition = reduceMotion ? '' : 'opacity 0.3s'; sceneEl.style.opacity = '1'; });
+  });
+}
+function zoomOut() {
+  const from = state.scene;
+  state.scene = 'overview'; state.selected = null; render();
+  if (state.lens) showLens(); else showIntro();
+  const start = fit(REGIONS[from], 1210, 730);
+  stage.setAttribute('viewBox', start.join(' '));
+  animateViewBox(start, [0, 0, 1210, 730], 450, () => stage.setAttribute('viewBox', '0 0 1210 730'));
+}
+
+/* ---------- Side panel ---------- */
+function setPanel(html) {
+  closePop();
+  const was = document.activeElement, inPanel = panel.contains(was);
+  panel.innerHTML = html; wireTerms(panel); wireGlossary(panel);
+  const heading = panel.querySelector('h2'); heading.tabIndex = -1;
+  if (!inPanel) return;
+  const same = was.id ? document.getElementById(was.id) : was.dataset.step != null ? panel.querySelector(`[data-step="${was.dataset.step}"]`) : null;
+  (same || heading).focus();
+}
+function connectionsHtml(id) {
+  const link = (n) => `<button type="button" class="linkbtn" data-goto="${n}">${NODES[n].label}</button>`;
+  const rows = EDGES.filter((e) => e.from === id || e.to === id).map((e) => {
+    const other = e.from === id ? e.to : e.from;
+    const dir = e.from === id ? '→' : '←';
+    return `<li>${dir} ${link(other)}: ${e.label}</li>`;
+  });
+  const through = EDGES.filter((e) => e.via === id).map((e) => `<li>${link(e.from)} → ${link(e.to)}: ${e.label}</li>`);
+  return (rows.length ? `<h3>Connects to</h3><ul class="conn">${rows.join('')}</ul>` : '')
+    + (through.length ? `<h3>Traffic through it</h3><ul class="conn">${through.join('')}</ul>` : '');
+}
+function select(id) {
+  stopAnimation();
+  state.selected = id;
+  const n = NODES[id];
+  render();
+  setPanel(`<p class="kicker">${n.kicker || ''}</p><h2>${n.label}</h2>${n.body.map((p) => `<p>${p}</p>`).join('')}${connectionsHtml(id)}
+    ${state.lens ? '<p><button type="button" class="linkbtn" id="backLens">Back to the story</button></p>' : ''}`);
+  panel.querySelectorAll('[data-goto]').forEach((b) => b.addEventListener('click', () => {
+    const target = b.dataset.goto, r = NODES[target].region;
+    if (REGIONS[r].zoom) state.scene = r;
+    else if (state.scene !== 'overview' && !(stubKeys(state.scene).has(target) && SCENES[state.scene].stubs[target])) state.scene = 'overview';
+    select(target);
+  }));
+  const back = document.getElementById('backLens'); if (back) back.addEventListener('click', () => { state.selected = null; render(); showLens(); });
+}
+const REGION_TEXT = {
+  dev: [`Each developer has a full copy of the code under ${T('git')} and runs the system with ${T('docker')}. All the data is made up.`],
+  github: [`GitHub holds the shared code. Changes arrive as pull requests, and two ${T('actions')} workflows deploy them.`],
+  uat: [`${T('uat')} is where every change is tried first. Most parts sit inside a private ${T('vnet', 'virtual network')}.`],
+  prod: [`${T('prod')} has the same layout as UAT and runs only images UAT has already run.`],
+};
+function showRegion(rid) {
+  setPanel(`<p class="kicker">Zoomed in</p><h2>${SCENES[rid].title}</h2>${REGION_TEXT[rid].map((p) => `<p>${p}</p>`).join('')}
+    <p>Click any box to read about it and light up its lines, or pick a story above to see its path here.</p>${glossaryHtml()}`);
+  if (state.lens) showLens();
+}
+function showIntro() {
+  setPanel(`<p class="kicker">Start here</p><h2>Four places, one path</h2>
+    <p>Code starts on a developer's <b>laptop</b>, moves to <b>GitHub</b> for review and tests, and lands in the <b>cloud</b>: first in ${T('uat')}, then, when a person chooses, in ${T('prod')}.</p>
+    <p>The <b>${T('idp')}</b> sits beside everything and decides who may do what.</p>
+    <p>Pick a story above to see one path across all of them, or click a large box to zoom in.</p>${glossaryHtml()}`);
+}
+function showLens() {
+  const lens = LENSES.find((l) => l.id === state.lens);
+  const items = lens.steps.map((s, i) => `<li class="${state.step === i ? 'on' : ''}"><button type="button" class="steplink" data-step="${i}"${state.step === i ? ' aria-current="step"' : ''}>${s.text}</button></li>`).join('');
+  setPanel(`<p class="kicker">Story</p><h2>${lens.label}</h2><p>${lens.intro}</p>
+    <div class="stepnav"><button type="button" class="chip" id="prevStep">← Previous</button><button type="button" class="chip" id="nextStep">Next step →</button><button type="button" class="chip" id="allSteps">All steps</button></div>
+    <ol class="steps">${items}</ol>
+    <p class="hint">${state.scene === 'overview' ? 'Zoom into a large box to see each step on the parts it touches.' : 'Numbers on the lines match the steps.'}</p>`);
+  panel.querySelectorAll('[data-step]').forEach((b) => b.addEventListener('click', () => { state.step = Number(b.dataset.step); render(); showLens(); }));
+  document.getElementById('prevStep').addEventListener('click', () => { state.step = state.step == null ? lens.steps.length - 1 : Math.max(0, state.step - 1); render(); showLens(); });
+  document.getElementById('nextStep').addEventListener('click', () => { state.step = state.step == null ? 0 : Math.min(lens.steps.length - 1, state.step + 1); render(); showLens(); });
+  document.getElementById('allSteps').addEventListener('click', () => { state.step = null; render(); showLens(); });
+}
+function glossaryHtml() {
+  const words = Object.values(GLOSSARY).sort(([a], [b]) => a.localeCompare(b));
+  return `<details class="gloss"><summary>Words used on this page</summary>
+    <label class="glossfind">Find a word <input type="search" id="glossFind" autocomplete="off"></label>
+    <p class="hint" id="glossNone" role="status"></p>
+    <dl>${words.map(([word, def]) => `<div data-word="${word.toLowerCase()}"><dt>${word}</dt><dd>${def}</dd></div>`).join('')}</dl></details>`;
+}
+function wireGlossary(root) {
+  const find = root.querySelector('#glossFind');
+  if (!find) return;
+  find.addEventListener('input', () => {
+    const q = find.value.trim().toLowerCase();
+    const rows = [...root.querySelectorAll('.gloss [data-word]')];
+    rows.forEach((r) => { r.hidden = !r.dataset.word.includes(q); });
+    root.querySelector('#glossNone').textContent = rows.some((r) => !r.hidden) ? '' : 'This page has no word that matches.';
+  });
+}
+
+/* ---------- Glossary popover ---------- */
+const pop = document.getElementById('pop');
+function closePop() {
+  pop.hidden = true;
+  document.querySelectorAll('.term[aria-expanded="true"]').forEach((b) => b.setAttribute('aria-expanded', 'false'));
+}
+function wireTerms(root) {
+  root.querySelectorAll('.term').forEach((b) => b.addEventListener('click', (ev) => {
+    ev.stopPropagation();
+    const wasOpen = b.getAttribute('aria-expanded') === 'true';
+    closePop();
+    if (wasOpen) return;
+    b.setAttribute('aria-expanded', 'true');
+    const [title, def] = GLOSSARY[b.dataset.term];
+    pop.innerHTML = `<strong>${title}</strong><p>${def}</p>`;
+    pop.hidden = false;
+    const r = b.getBoundingClientRect();
+    const left = Math.max(8, Math.min(r.left, window.innerWidth - pop.offsetWidth - 8));
+    const top = r.bottom + 8 + pop.offsetHeight > window.innerHeight ? r.top - pop.offsetHeight - 8 : r.bottom + 8;
+    pop.style.left = `${left}px`; pop.style.top = `${Math.max(8, top)}px`;
+  }));
+}
+document.addEventListener('click', closePop);
+function unselect() {
+  if (!state.selected) return;
+  state.selected = null; render();
+  if (state.lens) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+}
+stage.addEventListener('click', (ev) => { if (!ev.target.closest('[role="button"]')) unselect(); });
+document.addEventListener('keydown', (ev) => {
+  if (ev.key !== 'Escape') return;
+  if (!pop.hidden) closePop(); else unselect();
+});
+
+/* ---------- Lens chips ---------- */
+const chips = document.getElementById('lensChips');
+for (const lens of LENSES) {
+  const b = document.createElement('button');
+  b.type = 'button'; b.className = 'chip'; b.textContent = lens.label; b.setAttribute('aria-pressed', 'false');
+  b.addEventListener('click', () => {
+    const on = state.lens !== lens.id;
+    state.lens = on ? lens.id : null; state.step = null; state.selected = null;
+    chips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b && on)));
+    render();
+    if (on) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+  });
+  chips.append(b);
+}
+
+/* ---------- Theme ---------- */
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const root = document.documentElement;
+  const dark = root.dataset.theme ? root.dataset.theme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  root.dataset.theme = dark ? 'light' : 'dark';
+  try { localStorage.setItem('system-map-theme', root.dataset.theme); } catch (e) { /* storage blocked */ }
+});
+try { const saved = localStorage.getItem('system-map-theme'); if (saved) document.documentElement.dataset.theme = saved; } catch (e) { /* storage blocked */ }
+
+/* ---------- Shareable address ---------- */
+function viewHash() {
+  const p = new URLSearchParams();
+  if (state.scene !== 'overview') p.set('zoom', state.scene);
+  if (state.lens) p.set('story', state.lens);
+  if (state.lens && state.step != null) p.set('step', String(state.step + 1));
+  if (state.selected) p.set('box', state.selected);
+  const s = p.toString();
+  return s ? `#${s}` : '';
+}
+// The first write after opening an address replaces it, so tidying a hand-typed link adds
+// no Back step. A push there would trap Back, because Back to the typed address tidies
+// it and pushes again.
+let urlWritten = false;
+function writeUrl() {
+  const hash = viewHash();
+  if (hash !== location.hash) {
+    const url = `${location.pathname}${location.search}${hash}`;
+    if (urlWritten) history.pushState(null, '', url); else history.replaceState(null, '', url);
+  }
+  urlWritten = true;
+}
+function readUrl() {
+  const p = new URLSearchParams(location.hash.slice(1));
+  const zoom = p.get('zoom'), box = p.get('box'), step = Number(p.get('step'));
+  const lens = LENSES.find((l) => l.id === p.get('story'));
+  return {
+    scene: Object.hasOwn(SCENES, zoom) ? zoom : 'overview',
+    lens: lens ? lens.id : null,
+    step: lens && Number.isInteger(step) && step >= 1 && step <= lens.steps.length ? step - 1 : null,
+    selected: Object.hasOwn(NODES, box) ? box : null,
+  };
+}
+function showUrlView() {
+  stopAnimation();
+  Object.assign(state, readUrl());
+  urlWritten = false;
+  chips.querySelectorAll('.chip').forEach((c, i) => c.setAttribute('aria-pressed', String(LENSES[i].id === state.lens)));
+  if (state.selected) { select(state.selected); return; }
+  render();
+  if (state.lens) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+}
+window.addEventListener('popstate', showUrlView);
+showUrlView();
+</script>
+</body>
+</html>
