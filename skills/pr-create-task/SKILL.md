@@ -60,7 +60,7 @@ git diff origin/<base>..HEAD --stat          # surface area
 23. Run every other runner against the rebased head, usually the browser tests, or at least every browser spec the branch adds or edits.
 24. If the project has no CI on pull requests, run every runner.
 25. **Then review the whole branch.** Run `quick-review` and then `security-review` over `origin/<base>..HEAD`, and record the tip they read (`git rev-parse HEAD`).
-26. Fix nothing here: a finding of any size ends PR prep, so invoke `retro-task` in the same turn with every finding and the reviewed tip.
+26. Fix nothing here: a finding of any size ends PR prep. Finish every pass of `quick-review` and all of `security-review` first, even after the first finding, then invoke `retro-task` in the same turn with every finding and the reviewed tip.
 27. Let the fixes come back through `retro-task`, `spec-task`, build, and demo like any other work, and run PR prep again only when the operator asks for it.
 28. On a later run, re-walk every pass on the code that changed since the tip the last run reviewed, `git diff <that tip> HEAD`, and reuse the earlier run's named artifacts only for code that has not changed.
 
