@@ -44,7 +44,7 @@ git diff origin/<base>..HEAD --stat          # surface area
 7. Fold every fix commit into the commit it fixes, and fold each group into one commit with a message authored through `git-commit`.
 8. Resolve a reordered commit's conflict in the commit that replays it, so no commit in the stack carries another one's repair.
 9. Never split a claim's group, or move a commit into another claim's group, to get past a conflict.
-10. If a migration only patches another migration on this branch and no shared database has run either one, fold it into the migration it patches and renumber the versions after it.
+10. If a migration only patches another migration on this branch and no shared database has run either one, fold it into the migration it patches and renumber the versions after it. Once the folded tree is final, run `git grep` over the whole repository for the name of each file the fold removed or renamed, and fix every reference left behind in the commit that removed it.
 11. If the fold ends with more commits than the plan had groups, name each extra commit at the push gate and say which claim it splits.
 12. Expect a branch built one card at a time to arrive as one commit per card.
 13. While `git branch -r --contains HEAD` prints nothing, fold without asking anyone.
