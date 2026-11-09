@@ -31,7 +31,6 @@
 /skills/auto-clear/.claude-plugin/types/
 !/skills/backlog-task/**
 !/skills/clear-task/**
-!/skills/create-task-skill/**
 !/skills/dashboard-task/**
 !/skills/demo-task/**
 !/skills/design-gap-task/**
@@ -46,7 +45,6 @@
 !/skills/security-review/**
 !/skills/session-loop/**
 !/skills/spec-task/**
-!/skills/status-page/**
 !/skills/subagents/**
 !/skills/system-map/**
 !/skills/systematize/**

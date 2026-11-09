@@ -1,6 +1,6 @@
 ---
 name: systematize
-description: Turns work you have repeated into machinery, and keeps the skill library from growing past the point where the model stops finding things. Covers the whole lifecycle — deciding between a script and a skill, where a script lives and when to extend an existing one rather than write another, creating a skill, extending one, merging two, and retiring one — plus the slot pattern that lets a global skill reach project-specific mechanics without naming them. Use when a workflow keeps recurring, when something done by hand three times should become a script, when asked to capture or save something as a skill, when a skill is outdated or wrong, when two skills overlap, or when the library needs pruning.
+description: Turns work you have repeated into machinery, and keeps the skill library from growing past the point where the model stops finding things. Covers the whole lifecycle — deciding between a script and a skill, where a script lives and when to extend an existing one rather than write another, creating a skill (including a task-shaped one that forces an ordered response as proof the rules were followed), extending one, merging two, and retiring one — plus the slot pattern that lets a global skill reach project-specific mechanics without naming them. Use when a workflow keeps recurring, when something done by hand three times should become a script, when asked to capture or save something as a skill, when a skill is outdated or wrong, when two skills overlap, or when the library needs pruning.
 ---
 
 ## When this fires
@@ -59,7 +59,7 @@ This holds for `~/.claude/CLAUDE.md` and for every skill body and reference.
 ## Creating a skill
 
 1. Try adding a section to an existing skill first, and create a new one only when you can name the skills you considered and why each is a poor home.
-2. For a task-shaped skill, one that forces a specific ordered response as proof the rules were followed, use `create-task-skill` instead.
+2. For a task-shaped skill, one that forces a specific ordered response as proof the rules were followed, also follow "Creating a task-shaped skill" below.
 
 ### 1. Name what recurred
 
@@ -104,6 +104,32 @@ description: [third person, trigger terms, under 1024 chars]
 ### 5. Add the routing row in the same edit
 
 1. Add the skill's routing row in the edit that creates it.
+
+## Creating a task-shaped skill
+
+1. Build the body as a chain of ordered sections, each needing the real output of the one before it, so a faked section shows in the next.
+2. Run once every command, API call, or shell pattern the body will name, and paste its real output into the proposal.
+3. Confirm each skill the body cites is globally invokable, matching the path because a skill is a directory:
+
+```
+find ~/.claude/skills ~/.claude/commands -maxdepth 2 -ipath "*<skill>*" -name "*.md" 2>/dev/null
+find ~/.claude/plugins -maxdepth 8 -ipath "*<skill>*" -name SKILL.md 2>/dev/null
+```
+
+4. Cite a plugin skill as `plugin-name:skill-name`, and never edit one, because the next plugin update overwrites it; wrap it instead.
+5. If neither `find` locates a cited skill, then inline its mechanics, move it to a global location, or cite a global alternative.
+6. Point at each CLAUDE.md rule the body relies on by its heading, and never copy it.
+7. Give every section a statement of what counts as valid output, such as real shell output, not a paraphrase.
+8. Put a stop before every write, post, commit, or push, and say that approval earlier in the session does not carry forward.
+9. Close the body with "Notes on what this template does NOT do", listing what is out of scope.
+10. Before proposing, answer Y or N with a reason for each, and fix every N first:
+    - Does each section force real tool output?
+    - Does each section's output anchor the next?
+    - Is there a stop before every destructive action?
+    - Is every cited skill verified globally invokable?
+    - Is CLAUDE.md referenced, not duplicated?
+    - Does every section earn its place on a real task?
+11. Build one task skill and use it on real work for a week or two before starting another.
 
 ## Slots: reaching project mechanics from a global skill
 

@@ -1,6 +1,6 @@
 ---
 name: dashboard-task
-description: Builds a dashboard or a data report that argues a point the operator chose — opens the data, declares what it can and cannot support, then proposes three to five candidate stories with the numbers behind each and stops for the operator to pick one or write their own. Never chooses the story itself. From that sentence it drives `writing-prose` to derive the block order, writes every word the reader will read before any visual exists, ranks every block so no two carry the same weight, fixes one type scale, one spacing scale, and one corner radius before anything is placed, gives each figure exactly one owner, gates the built file for repeated numbers and for how many distinct sizes it contains, renders it, and reviews it against an eight-check grid before stopping for approval. Hands every chart to `dataviz` and behaviour at any width to `responsive-design`, restating neither. Use when the ask names a dashboard, a data report, an analysis write-up, or a page of charts for a client or a team.
+description: Builds a dashboard or a data report that argues a point the operator chose — opens the data, declares what it can and cannot support, then proposes three to five candidate stories with the numbers behind each and stops for the operator to pick one. Never chooses the story itself. Drives `writing-prose` to derive the block order, writes every word before any visual exists, ranks every block, fixes one type scale, one spacing scale, and one corner radius first, gives each figure one owner, gates the built file, renders it, and reviews it against an eight-check grid before stopping for approval. Hands charts to `dataviz` and widths to `responsive-design`. Also holds the fixed layout for a status or health page, which has no story to pick. Use when the ask names a dashboard, a data report, an analysis write-up, or a page of charts, and before building or editing a status page, health page, system-status or uptime view, or an ops "is it working" screen.
 ---
 
 # dashboard-task — build a surface that makes a point
@@ -28,11 +28,51 @@ description: Builds a dashboard or a data report that argues a point the operato
     python3 scripts/test_block_contrast.py
     python3 scripts/test_chartkit.py
 
+## A status or health page
+
+1. A status page answers only "is everything running?", so it has no story to pick: build it to the layout below without asking, skip Sections 2 to 5, and take behaviour at any width from `responsive-design`.
+2. Read this section before any edit to such a page's markup or styles, too.
+
+### The layout
+
+1. **One summary line, first.** A green check with "Everything is running", or a
+   red cross with "N problems". Put no subtitle and no explanation of the page
+   above it.
+2. **One row per check.** Each row holds an icon, the check's name, a detail
+   line underneath the name, and a status word on the right.
+3. **In a row, colour goes on the icon and the status word only.** Show green
+   when a check is healthy too. Do not tint the row, a card, or a tile. Give a
+   notice that explains why a check reads red or stale the status colour as a
+   light tint behind its icon and its words, never grey.
+4. **Pair every colour with a shape and a word.** The icon is a check or a
+   cross with an `aria-label` such as "OK" or "Problem", and the status word
+   says the same thing in text (WCAG 1.4.1).
+5. **The detail lives on its own page.** Where a check counts failures, the
+   count itself is the link, underlined, with an `aria-label` that says where it
+   goes, such as "2 failed, view failures" (WCAG 2.4.4).
+6. **No tooltips.** Put anything a reader needs into the detail line or onto
+   the linked page.
+7. **Copy the app's own table and notice markup.** Build each table from the
+   markup the app's other tables already use, header row included, and each
+   notice from the app's own notice of the same status. Name the view you
+   copied.
+
+### What to avoid
+
+- A grid of green and red tiles, one per area.
+- Choosing a story, a chart, or a hero number. The summary line is the only
+  headline the page has.
+- Hiding a failure's detail inside a hover state or an expander on the same row.
+
+### When to stop
+
+1. Stop and ask only when the operator wants something the layout rules out, such as tiles or a tooltip, and say which rule above it breaks.
+
 ---
 
 ## Section 1 — Inputs
 
-1. If the surface is a status or health page, then load `status-page`, build to its layout, and skip Section 3's stop.
+1. If the surface is a status or health page, then build it by "A status or health page" above instead.
 2. Ask the operator for anything not supplied, and do not infer a value:
 
 ```

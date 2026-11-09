@@ -122,7 +122,7 @@ review -> RETRO -> spec
 
 ## 8. Record and commit
 
-1. Route each accepted change through the skill that owns it: `systematize` for an edit to an existing skill or a new ordinary one, `create-task-skill` for a new task-shaped one.
+1. Route each accepted change through the skill that owns it: `systematize` for an edit to an existing skill or a new one.
 2. Make a CLAUDE.md change directly, and land a new skill's routing row in the same edit as the skill.
 3. Follow `systematize`, "Keep every client and project out of `~/.claude`", for every word this step writes into `~/.claude`, the commit message included.
 4. If a CLAUDE.md names a process log, append what was measured, what changed, and what is still unmeasured; otherwise say that the commit message is the record.

@@ -139,8 +139,7 @@ Write for a smart, tired engineer who has not been following the work. Give them
 | Writing, changing, or deleting code in any language; code comments, docstrings, doc-comments; any change to what a person sees or reads on an app's screens, including labels, help, and tooltip text, even where that text sits in a design document | `writing-code` |
 | Making a page work on both a phone and a desktop; CSS breakpoints, fluid type, viewport units, media or container queries, mobile layout | `responsive-design` |
 | Writing or restructuring prose a person reads — an email, a README, a report, a memo, a PR body; organizing a brain dump, choosing section order, headings, or titles; prose that reads as AI-written; a PR review comment or reply, and anything else posted or sent in my name | `writing-prose` |
-| Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of | `dashboard-task` |
-| Building or editing a status or health page | `status-page` |
+| Building a dashboard, a data report, or an analysis write-up; laying out a page of charts a reader has to make sense of; building or editing a status or health page | `dashboard-task` |
 | An interactive, zoomable, or clickable map of a system's architecture; an explainer of how environments, deploys, and permissions fit together | `system-map` |
 | Writing a spec or a design document, defining acceptance criteria, turning a design or discussion into requirements, deciding or sizing the next slice | `spec-task` |
 | Creating the cards or tickets for a slice that is already specced, verifying a bd batch | `backlog-task` |

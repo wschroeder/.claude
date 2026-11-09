@@ -8,7 +8,7 @@ While it is on:
 
 1. Suspend Section 2's proof commands and Section 3's capture machinery: run no suite, build no capture record, and write no reproduction command.
 2. Suspend CLAUDE.md's "Always use TDD principles for code additions, changes, and deletions.", as CLAUDE.md says at that line, and write the change now.
-3. Keep design guidance: before your first edit to a page's layout, read the pattern its design skill holds for that kind of page, such as `status-page` for a status page, and build to it.
+3. Keep design guidance: before your first edit to a page's layout, read the pattern its design skill holds for that kind of page, such as `dashboard-task` "A status or health page" for a status page, and build to it.
 4. Tell the operator in a sentence or two what you changed and what to look at, with no record and no evidence table.
 5. Before you say a change is ready, drive it once in the browser tool the way you will ask the operator to, and say in one line what you saw.
 6. Never say a tool will not load unless it returned an error in this turn.
