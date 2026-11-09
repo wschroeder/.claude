@@ -1410,6 +1410,8 @@ case "$EVAL_PROMPT" in *"nothing this review does not need"*) ok=0 ;; *) ok=1 ;;
 check "the evaluator is told to run nothing the review does not need" 0 "$ok"
 case "$EVAL_PROMPT" in *"Leave the repository exactly as you found it"*) ok=0 ;; *) ok=1 ;; esac
 check "the evaluator is told to leave the repository alone" 0 "$ok"
+case "$EVAL_PROMPT" in *"copy the working tree into a temporary directory"*) ok=0 ;; *) ok=1 ;; esac
+check "the evaluator is told to mutate a copy of the working tree" 0 "$ok"
 drop_fixture
 
 # --- what the evaluator found reaches the session that can act on it ---

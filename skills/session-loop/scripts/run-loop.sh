@@ -362,8 +362,10 @@ shortest way to settle a question about this diff — run the project's own test
 command, check what a value actually holds, count what a string actually
 contains. Run nothing this review does not need, and nothing that installs,
 fetches, deploys, or reaches the network. Leave the repository exactly as you
-found it: no commits, no edits, no files added or removed. Put scratch files in
-a temporary directory.
+found it: no commits, no edits, no files added or removed. To try a change,
+such as a mutation that shows whether a test catches a bug, copy the working
+tree into a temporary directory and change the copy. Put scratch files in a
+temporary directory.
 
 Report only what you can point at a file and line for:
 - the code does not do what its own name, docstring or comment says it does
