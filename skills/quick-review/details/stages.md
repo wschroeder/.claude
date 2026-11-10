@@ -19,20 +19,21 @@
 
 1. Group files the way the code is layered, so that each stage reads a caller and its callee together where it can, such as domain with application, then server routes with their views, then tests, then docs, specs, and data.
 2. Keep each stage's diff under a third of the room a fresh session has after loading this skill, and split a group that is too big by directory, never through the middle of a file.
-3. Put a test file in the same stage as the code it tests when both fit; otherwise give the tests a stage of their own that names the production stage it checks.
-4. Make the last stage **cross-group**: the angles that follow a value, a state, or a rule across groups, which are 1.2, 1.4, 1.19, 2.18, 2.19, 5.7, 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. It works from the earlier stages' notes and targeted greps, and never re-reads a whole group's diff.
-5. Keep the cross-group stage's inputs under the same third, with the notes taking at most half of it; before it starts, measure the notes file with `wc -c` and convert at the ratio from "Size it".
-6. If the notes take more than half that cap, split the stage in two: the first walks 1.2, 1.4, 1.19, 2.18, 2.19, and 5.7, and the second walks 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. Each part reads the stage plan and only the `cross-group` marks for its own angles.
-7. Before each part starts, measure its marks by listing its angles in one pattern:
+3. If one file alone is larger than a stage, split it at its own section boundaries, such as a section-marker comment, a top-level class, or a top-level function, and never inside one. Name each part by the boundary text it starts at, never by line numbers, and fingerprint it as the text between its two boundaries piped through `shasum`.
+4. Put a test file in the same stage as the code it tests when both fit; otherwise give the tests a stage of their own that names the production stage it checks.
+5. Make the last stage **cross-group**: the angles that follow a value, a state, or a rule across groups, which are 1.2, 1.4, 1.19, 2.18, 2.19, 5.7, 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. It works from the earlier stages' notes and targeted greps, and never re-reads a whole group's diff.
+6. Keep the cross-group stage's inputs under the same third, with the notes taking at most half of it; before it starts, measure the notes file with `wc -c` and convert at the ratio from "Size it".
+7. If the notes take more than half that cap, split the stage in two: the first walks 1.2, 1.4, 1.19, 2.18, 2.19, and 5.7, and the second walks 6.7, 6.8, 6.9, 7.4, 7.7, and 9.9. Each part reads the stage plan and only the `cross-group` marks for its own angles.
+8. Before each part starts, measure its marks by listing its angles in one pattern:
 
   ```bash
   grep -E '^cross-group (1\.2|1\.3|1\.4|1\.19|2\.18|2\.19|5\.7):' <notes> | wc -c
   ```
 
-8. If a part's marks still take more than half the cap, split its angles in two again until every part's marks fit or a part holds one angle.
-9. If a one-angle part's marks still do not fit, walk them in batches of whole lines, each under half the cap, and write what each batch found to the notes before the next batch starts.
-10. Have whichever part walks 1.4 also read the 1.3 marks, keep 1.3 in its pattern, and run the caller trace from "After a fix".
-11. Read every mention of the cross-group stage, here or in `SKILL.md`, as every part of a split one.
+9. If a part's marks still take more than half the cap, split its angles in two again until every part's marks fit or a part holds one angle.
+10. If a one-angle part's marks still do not fit, walk them in batches of whole lines, each under half the cap, and write what each batch found to the notes before the next batch starts.
+11. Have whichever part walks 1.4 also read the 1.3 marks, keep 1.3 in its pattern, and run the caller trace from "After a fix".
+12. Read every mention of the cross-group stage, here or in `SKILL.md`, as every part of a split one.
 
 ## Run the stages
 
