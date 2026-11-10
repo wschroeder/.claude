@@ -155,7 +155,7 @@ svg text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
 <body>
 <header>
   <div class="titlerow">
-    <button class="chip themebtn" id="themeBtn" type="button" aria-label="Switch light or dark colors">Light / dark</button>
+    <button class="chip themebtn" id="themeBtn" type="button">Light / dark</button>
     <h1>How the order tracker gets from a laptop to its users</h1>
   </div>
   <p>Start with the whole map. Click a large box to zoom into it, click any smaller box to read about it, or pick a story below to follow one path across every part at once.</p>
@@ -194,7 +194,7 @@ svg text { font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif
 
 <script>
 /* ---------- Glossary ---------- */
-// Every acronym is spelled out in its definition, and the panel lists these alphabetically.
+// Each definition spells out the acronym in its own entry's name, and the panel lists these alphabetically.
 const GLOSSARY = {
   git: ['Git', 'A tool that records every change to a set of files as a "commit", so you can see who changed what and undo mistakes.'],
   commit: ['Commit', 'One saved snapshot of changes, with a message saying why.'],
@@ -877,7 +877,7 @@ function renderCrumbs() {
   const hint = document.getElementById('hint');
   if (state.scene === 'overview') {
     const s = document.createElement('strong'); s.textContent = 'Whole system'; c.append(s);
-    hint.textContent = 'Large colored boxes zoom in. Smaller white boxes open a description on the right.';
+    hint.textContent = 'Large colored boxes zoom in. Smaller boxes open a description in the panel.';
   } else {
     const b = document.createElement('button'); b.className = 'linkbtn'; b.type = 'button'; b.textContent = '← Whole system';
     b.addEventListener('click', zoomOut); c.append(b);
@@ -927,7 +927,7 @@ function zoomTo(rid) {
 function zoomOut() {
   const from = state.scene;
   state.scene = 'overview'; state.selected = null; render();
-  if (state.lens) showLens(); else showIntro();
+  showPanel();
   const start = fit(REGIONS[from], 1210, 730);
   stage.setAttribute('viewBox', start.join(' '));
   animateViewBox(start, [0, 0, 1210, 730], 450, () => stage.setAttribute('viewBox', '0 0 1210 730'));
@@ -998,6 +998,9 @@ function showLens() {
   document.getElementById('nextStep').addEventListener('click', () => { state.step = state.step == null ? 0 : Math.min(lens.steps.length - 1, state.step + 1); render(); showLens(); });
   document.getElementById('allSteps').addEventListener('click', () => { state.step = null; render(); showLens(); });
 }
+function showPanel() {
+  if (state.lens) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+}
 function glossaryHtml() {
   const words = Object.values(GLOSSARY).sort(([a], [b]) => a.localeCompare(b));
   return `<details class="gloss"><summary>Words used on this page</summary>
@@ -1042,7 +1045,7 @@ document.addEventListener('click', closePop);
 function unselect() {
   if (!state.selected) return;
   state.selected = null; render();
-  if (state.lens) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+  showPanel();
 }
 stage.addEventListener('click', (ev) => { if (!ev.target.closest('[role="button"]')) unselect(); });
 document.addEventListener('keydown', (ev) => {
@@ -1060,7 +1063,7 @@ for (const lens of LENSES) {
     state.lens = on ? lens.id : null; state.step = null; state.selected = null;
     chips.querySelectorAll('.chip').forEach((c) => c.setAttribute('aria-pressed', String(c === b && on)));
     render();
-    if (on) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+    showPanel();
   });
   chips.append(b);
 }
@@ -1114,7 +1117,7 @@ function showUrlView() {
   chips.querySelectorAll('.chip').forEach((c, i) => c.setAttribute('aria-pressed', String(LENSES[i].id === state.lens)));
   if (state.selected) { select(state.selected); return; }
   render();
-  if (state.lens) showLens(); else if (state.scene === 'overview') showIntro(); else showRegion(state.scene);
+  showPanel();
 }
 window.addEventListener('popstate', showUrlView);
 showUrlView();
