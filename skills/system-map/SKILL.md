@@ -91,7 +91,6 @@ async () => {
 ### 6. Hand it over
 
 1. Commit the page as one commit through `git-commit`.
-2. Ask before publishing it anywhere, under `~/.claude/CLAUDE.md`'s publishing rule.
 
 ## Rules
 
