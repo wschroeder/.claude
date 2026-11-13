@@ -12,6 +12,7 @@ Read this before building or changing a control a person uses, such as a button,
 - Show an example in every input
 - Multi-select with a bulk action
 - Carry only the destination's own parameters
+- Answer a refusal or another person's change on the page
 - Show a page's contents list above its text on a phone
 - State facts only in help text
 - Review list
@@ -69,6 +70,16 @@ Where a person picks several rows and acts on them at once, and the app has no p
 2. Never copy the incoming query string into a URL for another route, or into a sort or paging link on the same page, unless you can say why the destination needs each parameter it carries.
 3. Parse the parameters you keep where the request enters, and hand the view only those.
 
+## Answer a refusal or another person's change on the page
+
+1. Show a refusal beside the item it refuses, inside the page, and never answer with a bare text response or a page of its own.
+2. Word a refusal in the person's terms and say what to fix, never in the code's terms, such as "form", "payload", or "malformed".
+3. Bring a refused form back holding everything the person typed.
+4. Redraw only the item a change touched, so every other item a person has open keeps what they typed.
+5. If another person deleted the item, say beside it that it no longer exists, and save nothing.
+6. If the app cannot read a line a person typed, refuse it and name the line, and never skip it silently.
+7. Give each action its own path segment that no name a person chooses can match, and never reserve a name a person might pick.
+
 ## Show a page's contents list above its text on a phone
 
 Where a long page carries links to its own sections, and the app has no pattern of its own for them yet, then at phone width:
@@ -104,9 +115,11 @@ Check each control against these before you call it done:
 9. The control matches the app's existing control for the same action, where it sits included, and you cited the file.
 10. A control that acts on one component sits inside that component's border.
 11. Every link, redirect, and form action names the parameters it carries, and none copies the incoming query string.
-12. At phone width, a page's contents list sits visible above its text, one link per line, neither folded nor sticky.
-13. Each definition and help passage carries no promise, opinion, or advice, apart from the closing sentence a flag may carry.
-14. A flag's closing sentence, where it has one, says what an action does or where the fix lives, and never only names a control that is already on screen.
+12. Every refusal shows beside its item in the person's terms, a refused form keeps what was typed, and a change redraws only its own item.
+13. A deleted item, an unreadable line, and a name a person chooses each get the answer "Answer a refusal or another person's change on the page" gives them.
+14. At phone width, a page's contents list sits visible above its text, one link per line, neither folded nor sticky.
+15. Each definition and help passage carries no promise, opinion, or advice, apart from the closing sentence a flag may carry.
+16. A flag's closing sentence, where it has one, says what an action does or where the fix lives, and never only names a control that is already on screen.
 
 ## Sources
 

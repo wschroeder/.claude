@@ -1,6 +1,6 @@
 ---
 name: demo-task
-description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas and switches off by approving, shows a slice of only prose or infrastructure as code as its full diff for the operator to review, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `spec-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration". Does not decide or size what comes next; that is `spec-task`, which it hands to.
+description: Closes a finished slice — runs every proof command to find where it actually stands, assembles a demo the operator can reproduce and operate themselves, takes their feedback verbatim, carries a rapid mode the operator switches on to pause the proof commands and captures while they try ideas or sculpt a new screen on made-up data, and switches off by approving, shows a slice of only prose or infrastructure as code as its full diff for the operator to review, closes the cards they accepted and leaves the rest demoable, then writes whatever their feedback decided about the product into the design documents before handing to `spec-task`. Use when a slice is finished, when asked to demo what was built, or to review how a slice landed — "demo this slice", "show me S2", "close out this iteration", "let's sculpt this", "quick tweak". Does not decide or size what comes next; that is `spec-task`, which it hands to.
 ---
 
 # demo-task — the slice is shown, the feedback is recorded
@@ -22,7 +22,7 @@ description: Closes a finished slice — runs every proof command to find where 
 
 ## Rapid mode — when the operator pauses the formality
 
-1. When the operator asks in their own words for speed over rigor, at any point in the demo phase, say in one line that rapid mode is on, and read [references/rapid-mode.md](references/rapid-mode.md) before your next edit.
+1. When the operator asks in their own words for speed over rigor, at any point in the demo phase or before any slice exists, say in one line that rapid mode is on, and read [references/rapid-mode.md](references/rapid-mode.md) before your next edit.
 
 ## Diff route — when the slice has nothing to run
 
