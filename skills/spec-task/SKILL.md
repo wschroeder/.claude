@@ -118,12 +118,13 @@ Proceed with the slice above, or name a different one?
 ## 3. Open questions — what the design does not settle
 
 1. List what the source lines leave undetermined, sweeping at least: invalid input; something the system depends on being unavailable; the limits (empty, one, very many, concurrent); who is allowed to do it; and what is deliberately not being built.
-2. Give each question one of four outcomes, checking the first two before the others:
+2. Give each question one of five outcomes, checking the first three before the others:
    - If the slice's approved scope, or a Section 2 source line, settles it, answer it from that line, quoted, and do not ask the operator.
    - If it is a question of fact the recorded data, the code, or the work so far can answer, research it and answer from what you found, quoted. Send only questions about how the product should behave to the operator.
+   - If `writing-code`'s `references/ux-design.md`, the app's existing pattern for the same action, or a design principle in the project's CLAUDE.md settles it, decide it, quote the rule or cite the file, write the answer into the design document, and do not ask the operator.
    - Otherwise the operator answers it, and the answer becomes a new Section 2 source line. Quote every fact you found that bears on it in the question, word each option as what the person will see and do in the product's terms, and describe anything kept from today by how it looks on screen rather than its name.
    - If nobody answers it, put it verbatim in Section 5's out-of-scope list.
-3. Never answer a question yourself; quoting the approved scope or a source line is reading an answer already given.
+3. Answer a question yourself only through the first three outcomes; quoting the approved scope, a source line, or a rule is reading an answer already given.
 4. If an unanswered question would change what the requirements say, stop and ask.
 5. If two design rules disagree about an item in this slice, ask the operator which wins before cutting cards, never carrying it to the demo.
 6. Never recommend leaving an item out, narrowing a rule's reach, or deferring an item because of the work it takes.

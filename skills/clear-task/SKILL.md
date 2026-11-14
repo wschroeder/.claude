@@ -117,9 +117,10 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 1. List everything unresolved that needs an operator decision, or write `None`; invent no decisions, and bury no blocker in §8.
 2. For every question inherited in the opening prompt and about to go on unanswered, do one of three things: file it as a card; write its answer into the design document that should have held it; or strike it. Carrying it a third time is none of the three.
 3. List every operator approval in §4 that no project design document holds yet: what was approved, when, and that the design documents, by the project's own name for them, do not hold it. The three outcomes above then apply.
-4. List in one line every `Decision (Claude)` in §4 that defers a fix, a gap, or a behavior change to the operator, or sets behavior the card's acceptance criteria do not cover, naming what they must decide. §10 is never `None` while §4 holds one.
-5. Keep here every question this session raised or announced for the operator that they have not seen, never as a card or under "Mentioned, not ours"; filing a card becomes an outcome only once the operator has seen it.
-6. If the operator says they do not care about an item, that it does not matter now, or that it waits for a later phase with nowhere named to track it, strike it: quote their words once with the time and drop it from every section. Never treat a "no" to one way of keeping it as a request to offer the next way.
+4. List in one line every `Decision (Claude)` in §4 that defers a fix, a gap, or a behavior change to the operator, or sets behavior that neither the card's acceptance criteria nor a source the next rule names settles, naming what they must decide. §10 is never `None` while §4 holds one.
+5. Keep out of §10 a `Decision (Claude)` that `writing-code`'s `references/ux-design.md`, the app's existing pattern for the same action, or a design principle in the project's CLAUDE.md settles. In §4, cite the rule or the file that settles it, and point to the design document that records it.
+6. Keep here every question this session raised or announced for the operator that they have not seen, never as a card or under "Mentioned, not ours"; filing a card becomes an outcome only once the operator has seen it.
+7. If the operator says they do not care about an item, that it does not matter now, or that it waits for a later phase with nowhere named to track it, strike it: quote their words once with the time and drop it from every section. Never treat a "no" to one way of keeping it as a request to offer the next way.
 
 ## 11. The operator's last words, verbatim
 
@@ -149,7 +150,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
    - Did the invoking line carry words after `/clear-task`, does §11 quote them, and does the block carry them under its own heading?
    - Is §8's first step what §11 asks for? Move anything ahead of it behind it or into the list of what is left.
    - If §11 is a question this response answers, does §8's first step put that answer in front of the operator and wait?
-   - Does §10 list each `Decision (Claude)` in §4 that leaves something for the operator or sets behavior the acceptance criteria do not cover?
+   - Does §10 list each `Decision (Claude)` in §4 that leaves something for the operator, or that sets behavior neither the acceptance criteria nor the interface rules, the app's existing pattern, or the CLAUDE.md design principles settle, and leave out each one those settle?
    - Is each question the operator never saw in §10, and none in a card or under "Mentioned, not ours"?
    - Is each item the operator said they do not care about struck in their words, rather than turned into a new open question?
    - Does §1 name exactly one task with its issue id, and does every other issue id in §1–§11 appear under "Mentioned, not ours"?

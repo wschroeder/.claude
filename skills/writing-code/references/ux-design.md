@@ -24,6 +24,7 @@ Read this before building or changing a control a person uses, such as a button,
 2. Open those views and read which element triggers the action, whether it opens inline or in a dialog, its icon, where the control sits in the row, its wording, and how a refusal shows.
 3. Copy the pattern you found, and cite the file you copied it from in your report to the operator. If you cannot cite a file, then you have not looked.
 4. Never count driving the app to see a control work as this check, because a working control can still look and behave unlike every other control of its kind.
+5. After you copy a pattern, read the destination page's own scripts for handlers on the same events, and drive the copied control inside its new container in the browser.
 
 ## Fall back to outside conventions only where the app has none
 

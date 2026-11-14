@@ -8,6 +8,8 @@
   - 2.23 Cancelled browser default
   - 5.13 ARIA role/contract correctness
   - 5.14 Button hygiene (`type` attribute + icon-only accessible name)
+  - 5.15 The interface rules' review list
+  - 5.16 The same action across the whole app
 - ARIA contracts in full (5.13)
   - Direction A — declared role without keyboard/focus contract
   - Direction B — component IS a role but does not declare it
@@ -21,6 +23,8 @@ Pass 5:
                                           focus contract; a widget shaped like a role
                                           declares it (both directions below)
   5.14  Button hygiene                   type attribute; icon-only accessible name
+  5.15  Interface review list            each item of ux-design.md's Review list
+  5.16  Same action app-wide             every page doing the action, compared
 ```
 
 ## Checklist lines
@@ -67,6 +71,17 @@ Pass 5:
 3. Flag every icon-only button without an accessible name, and accept any one of `aria-label`, `aria-labelledby`, a `sr-only` span inside the button, or a `<title>` inside the SVG.
 4. Count a `title` attribute as no accessible name.
 5. Treat each as Fix-class under the "yes to any" gate.
+
+### 5.15 The interface rules' review list
+
+1. Read the "Review list" in `writing-code`'s `references/ux-design.md` now, and walk each item against every control the diff adds or changes.
+2. Give each item its own disposition, and treat each break as Fix-class under the "yes to any" gate, on spec compliance.
+
+### 5.16 The same action across the whole app
+
+1. For each action a control in the diff performs, such as cancel, save, delete, or confirm, grep every view in the repository for that action, never only the diff's own module.
+2. Compare the new control with each one: the element, where it sits, its wording, what happens to the page, and how a refusal shows.
+3. Report each difference as Fix-class unless the diff states a reason where the operator sees it, as `ux-design.md` "Say why when you depart" requires.
 
 ## ARIA contracts in full (5.13)
 
