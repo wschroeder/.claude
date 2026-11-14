@@ -56,7 +56,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 ## 4. Decisions, constraints, and dead-ends
 
 1. Record the decisions made this session with their reasons, the constraints discovered, and the dead-ends tried with why they failed.
-2. Tag each item `verified`, naming the probe, command, or query and quoting enough output that the claim stands alone, or `hypothesis:` for everything else, however obvious it feels.
+2. Tag each item `verified`, naming the probe, command, or query, the directory it ran from, and enough of its output that the claim stands alone, or `hypothesis:` for everything else, however obvious it feels.
 3. Split an observation from the explanation drawn from it before tagging, and give each its own line and tag.
 4. Write a known failure in the current Jira issue's own work as needing a card cut by `spec-task`, placed in §8 ahead of new work, never as an inherited `hypothesis:`.
 5. Record a dead-end against the tool, call, or path that failed, never as a ban on the class of evidence it served, and name any other route to the same evidence.
@@ -65,6 +65,7 @@ description: Produces a copy-paste continuation prompt for resuming work in a fr
 8. Label a decision "operator" only beside their own words, as `Decision (operator, <timestamp>, "<their words>")`. Label a choice the agent reached, even one they let stand, `Decision (Claude, <session>)` with its reason.
 9. For a carried-forward operator decision with no quote, search their turns for one, and relabel it as Claude's where none turns up.
 10. For every decision in the opening prompt, do one of three things and say which in one line: carry it forward word for word (after the search above for an unquoted `operator` label); record it in the project's design documents and point to the file; or strike it, naming what replaced it or who withdrew it. A shorter restatement is none of the three.
+11. When an operator decision applied only to one mode or phase, such as rapid mode or one slice, write that scope beside its quote, and strike the decision once that mode or phase has ended.
 
 ## 5. Principles the operator highlighted
 
