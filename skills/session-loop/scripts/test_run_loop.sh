@@ -283,7 +283,26 @@ case "${STUB_MODE:-commit}" in
     if [ "$n" -ge 4 ]; then
       printf 'BLOCKED: the driver never noticed.\nrest of handoff\n' > HANDOFF.md
     else
-      GIT_COMMITTER_DATE="2026-08-16T12:0$n:00" git commit -q --amend --no-edit
+      GIT_COMMITTER_DATE="2026-08-16T12:0$n:00" \
+        git -C "${STUB_AMEND_REPO:-.}" commit -q --amend --no-edit
+    fi
+    ;;
+  otherrepo)
+    # Commits only in a second repository, the shape of a session building a
+    # library the app installs, and leaves this one and its handoff untouched.
+    # On the next call it raises a question, so a driver that counts the other
+    # repository's commit as progress stops there, blocked.
+    n=$(( $(cat "$STUB_COUNT_FILE" 2>/dev/null || echo 0) + 1 ))
+    echo "$n" > "$STUB_COUNT_FILE"
+    if [ "$n" -eq 1 ]; then
+      echo "$RANDOM" >> "$STUB_OTHER_REPO/lib.txt"
+      git -C "$STUB_OTHER_REPO" add -A
+      git -C "$STUB_OTHER_REPO" commit -qm "stub: library work"
+      if [ -n "${STUB_OTHER_DIRT:-}" ]; then
+        echo "half-written" > "$STUB_OTHER_REPO/half.txt"
+      fi
+    else
+      printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
     fi
     ;;
   blockednocommit)
@@ -310,7 +329,7 @@ case "${STUB_MODE:-commit}" in
     # what a session does if it takes "stop where you are" to mean stopping
     # without a commit. The question goes in the handoff, the work stays in the
     # tree.
-    echo "half-written" >> file.txt
+    echo "half-written" >> "${STUB_DIRT_REPO:-.}/file.txt"
     printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
     ;;
   blockedcommitdirty)
@@ -319,10 +338,10 @@ case "${STUB_MODE:-commit}" in
     # tree is dirty.
     echo "$RANDOM" >> file.txt
     git add -A && git commit -qm "stub: committed some of it"
-    echo "half-written" >> file.txt
+    echo "half-written" >> "${STUB_DIRT_REPO:-.}/file.txt"
     printf 'BLOCKED: the operator has to pick a colour.\nrest of handoff\n' > HANDOFF.md
     ;;
-  dirty)   echo "half-applied" >> file.txt ;;
+  dirty)   echo "half-applied" >> "${STUB_DIRT_REPO:-.}/file.txt" ;;
   crash)   exit 3 ;;
   denied)
     echo "$RANDOM" >> file.txt
@@ -427,6 +446,18 @@ print(t.strftime("%I:%M%p").lstrip("0").lower())
 }
 
 drop_fixture() { rm -rf "$ROOT"; }
+
+# The space in its name is there so the reviewer's prompt has to quote the path.
+new_other_repo() {
+  export STUB_OTHER_REPO="$ROOT/other repo"
+  mkdir -p "$STUB_OTHER_REPO"
+  git -C "$STUB_OTHER_REPO" init -q
+  git -C "$STUB_OTHER_REPO" config user.email test@example.com
+  git -C "$STUB_OTHER_REPO" config user.name Test
+  echo "start" > "$STUB_OTHER_REPO/lib.txt"
+  git -C "$STUB_OTHER_REPO" add -A
+  git -C "$STUB_OTHER_REPO" commit -qm "initial"
+}
 
 run_loop() { ( cd "$REPO" && "$LOOP" "$REPO" "$@" ) > "$ROOT/out.txt" 2>&1; echo $?; }
 
@@ -642,6 +673,84 @@ case "$(cat "$ROOT/out.txt")" in *"iteration 2"*) ok=1 ;; *) ok=0 ;; esac
 check "the rewrite is caught on the first iteration, not the second" 0 "$ok"
 drop_fixture
 
+# --- a session whose work lands in a second repository is progress when that
+#     repository is watched. A session building a library the app installs
+#     commits there and leaves the app's tree alone; read from the app alone,
+#     that looks like a session that changed nothing.
+new_fixture
+new_other_repo
+mkdir "$ROOT/idle"
+git -C "$ROOT/idle" init -q
+git -C "$ROOT/idle" -c user.email=test@example.com -c user.name=Test \
+  commit -q --allow-empty -m "initial"
+export STUB_MODE=otherrepo
+status="$(run_loop --logs "$ROOT/logs" --also-watch "$STUB_OTHER_REPO" --also-watch "$ROOT/idle")"
+check "a commit only in a watched repository is progress" 0 "$status"
+check "the session after it runs" 2 "$(cat "$STUB_COUNT_FILE")"
+OTHER_BEFORE="$(git -C "$STUB_OTHER_REPO" rev-parse HEAD~1)"
+case "$(cat "$STUB_EVAL_PROMPT_FILE")" in
+  *"git -C $(printf %q "$STUB_OTHER_REPO") diff $OTHER_BEFORE..HEAD"*) ok=0 ;; *) ok=1 ;;
+esac
+check "the reviewer is told how to reach the watched repository's diff" 0 "$ok"
+case "$(cat "$STUB_EVAL_PROMPT_FILE")" in *"$ROOT/idle"*) ok=1 ;; *) ok=0 ;; esac
+check "a watched repository the session left alone is not put to the reviewer" 0 "$ok"
+check "the watched repository's commit counts in the iteration record" 1 \
+  "$(python3 -c 'import json, sys; print(json.load(open(sys.argv[1]))["commits"])' \
+    "$(find "$ROOT/logs" -name 'iter-*-1.json' | head -1)")"
+drop_fixture
+
+# --- work left uncommitted in a watched repository stops the loop the way it
+#     does in the main one, and the stop names the repository it is in ---
+new_fixture
+new_other_repo
+export STUB_MODE=otherrepo STUB_OTHER_DIRT=1
+check "uncommitted work in a watched repository exits 1" 1 \
+  "$(run_loop --also-watch "$STUB_OTHER_REPO")"
+check "no session runs after it" 1 "$(cat "$STUB_COUNT_FILE")"
+case "$(cat "$ROOT/out.txt")" in *"$STUB_OTHER_REPO:"$'\n'"?? half.txt"*) ok=0 ;; *) ok=1 ;; esac
+check "the stop names the watched repository and its uncommitted file" 0 "$ok"
+unset STUB_OTHER_DIRT
+drop_fixture
+
+# --- an amend in a watched repository that changes no file is no progress, for
+#     the same reason as the amend above: its commit id moves, its tree does not.
+new_fixture
+new_other_repo
+export STUB_MODE=amendonly STUB_AMEND_REPO="$STUB_OTHER_REPO"
+check "a session that only amended a watched repository exits 1" 1 \
+  "$(run_loop --also-watch "$STUB_OTHER_REPO")"
+case "$(cat "$ROOT/out.txt")" in *"iteration 2"*) ok=1 ;; *) ok=0 ;; esac
+check "the watched rewrite is caught on the first iteration" 0 "$ok"
+unset STUB_AMEND_REPO
+drop_fixture
+
+# --- a watched directory that is not a repository is refused before any
+#     session runs, because its tree could never be read to count progress ---
+new_fixture
+mkdir "$ROOT/plain"
+check "watching a directory outside git exits 1" 1 "$(run_loop --also-watch "$ROOT/plain")"
+check "no session ran against an unwatchable directory" no \
+  "$([ -e "$STUB_PROMPT_FILE" ] && echo yes || echo no)"
+grep -q "not a git repository: $ROOT/plain" "$ROOT/out.txt"
+check "the directory that is not a repository is named" 0 $?
+check "watching a missing directory exits 1" 1 "$(run_loop --also-watch "$ROOT/gone")"
+grep -q "no such directory: $ROOT/gone" "$ROOT/out.txt"
+check "the missing directory is named" 0 $?
+# A repository with no commit has no tree to compare, so git would stop the
+# run partway through its first iteration with a message of its own.
+git -C "$ROOT/plain" init -q
+check "watching a repository with no commit exits 1" 1 "$(run_loop --also-watch "$ROOT/plain")"
+grep -q "no commit yet in $ROOT/plain" "$ROOT/out.txt"
+check "the repository with no commit is named" 0 $?
+check "no session ran against a repository with no commit" no \
+  "$([ -e "$STUB_PROMPT_FILE" ] && echo yes || echo no)"
+echo "Continue the work." > "$ROOT/plain/HANDOFF.md"
+check "a main repository with no commit exits 1" 1 \
+  "$( ( cd "$ROOT/plain" && "$LOOP" "$ROOT/plain" ) > "$ROOT/out.txt" 2>&1; echo $?)"
+grep -q "no commit yet in $ROOT/plain" "$ROOT/out.txt"
+check "the main repository with no commit is named" 0 $?
+drop_fixture
+
 # --- a session that raises a question with nothing to commit is blocked, not
 #     stalled. The handoff is gitignored, so writing BLOCKED moves no tree, and a
 #     driver that compares trees before it reads the handoff calls the question
@@ -666,6 +775,16 @@ grep -q "pick a colour" "$ROOT/out.txt"
 check "the operator's question is printed" 0 $?
 grep -q "left work uncommitted" "$ROOT/out.txt"
 check "the uncommitted work is reported beside the question" 0 $?
+drop_fixture
+
+new_fixture
+new_other_repo
+export STUB_MODE=blockeddirty STUB_DIRT_REPO="$STUB_OTHER_REPO"
+check "blocking with work left uncommitted in a watched repository exits 1" 1 \
+  "$(run_loop --also-watch "$STUB_OTHER_REPO")"
+case "$(cat "$ROOT/out.txt")" in *"left work uncommitted"*"$STUB_OTHER_REPO"*) ok=0 ;; *) ok=1 ;; esac
+check "the watched repository's uncommitted work is named beside the question" 0 "$ok"
+unset STUB_DIRT_REPO
 drop_fixture
 
 # --- a blocked stop names the findings nobody has acted on yet ---
@@ -786,6 +905,18 @@ check "the uncommitted work is named beside the question" 0 $?
 unset STUB_VERDICT
 drop_fixture
 
+new_fixture
+new_other_repo
+export STUB_MODE=blockedcommitdirty STUB_DIRT_REPO="$STUB_OTHER_REPO"
+export STUB_VERDICT="FAIL
+- file.txt:1 — the widget count is off by one"
+mkdir -p "$ROOT/logs"
+run_loop --logs "$ROOT/logs" --also-watch "$STUB_OTHER_REPO" >/dev/null
+grep -q "Sending it back" "$ROOT/out.txt"
+check "a blocked handoff over a dirty watched repository is not sent back" 1 $?
+unset STUB_VERDICT STUB_DIRT_REPO
+drop_fixture
+
 # --- work left half-applied stops the loop before it starts another session ---
 new_fixture
 export STUB_MODE=dirty
@@ -793,6 +924,15 @@ status="$(run_loop)"
 check "dirty tree exits 1" 1 "$status"
 grep -q "left work uncommitted" "$ROOT/out.txt"
 check "dirty tree reason is reported" 0 $?
+drop_fixture
+
+new_fixture
+new_other_repo
+export STUB_MODE=dirty STUB_DIRT_REPO="$STUB_OTHER_REPO"
+run_loop --also-watch "$STUB_OTHER_REPO" >/dev/null
+case "$(cat "$ROOT/out.txt")" in *"left work uncommitted"*"$STUB_OTHER_REPO"*) ok=0 ;; *) ok=1 ;; esac
+check "work left half-applied in a watched repository is reported" 0 "$ok"
+unset STUB_DIRT_REPO
 drop_fixture
 
 # --- denied tools are surfaced; a session that could not run its build still

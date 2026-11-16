@@ -23,10 +23,13 @@ Contents:
    instead, twice at most; a blocked handoff is also not sent back over a dirty
    tree or once the same-file bound is reached. A blocked stop prints the path
    of any reviewer findings no session has been handed yet.
-3. Stop if the working tree is dirty — that means the previous session did
-   not finish, and a fresh one would build on half-applied work.
-4. Note the current tree hash, and each bd card's status where the
-   repository has a bd board.
+3. Stop if the working tree is dirty, in the repository or in any repository
+   named with `--also-watch` — that means the previous session did not
+   finish, and a fresh one would build on half-applied work. The stop prints
+   each watched repository's uncommitted files under its path.
+4. Note the current tree hash, the tree hash of each repository named with
+   `--also-watch`, and each bd card's status where the repository has a bd
+   board.
 5. Run `claude -p` with the handoff file as its entire prompt, plus a short
    protocol block appended, and wait. The session runs without the Artifact
    tool and without the claude.ai connectors, whose definitions cost about
@@ -43,6 +46,13 @@ Contents:
    position, and the loop would spin. The tree rather than the commit id, because a session may amend the unfinished
    commit it was handed, and an amend that touches no file still produces a new
    commit id as soon as it lands a second later than the commit it replaces.
+   A session that changed the tree of a repository named with
+   `--also-watch` made progress too, and the reviewer reads that
+   repository's diff beside this one's: a session building a library the
+   project installs commits there and leaves this tree alone. Its commits
+   count in the iteration record beside this repository's, and the driver
+   refuses a watched repository with no commit yet, because it has no tree to
+   compare.
    A session that moved a card's status but no tree made progress all the
    same, because bd keeps its board outside the git tree: the next session
    runs with no review in between, since there is no new commit to read.

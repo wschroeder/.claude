@@ -25,8 +25,9 @@ ls -l HANDOFF.md 2>/dev/null && git check-ignore -v HANDOFF.md
 git check-ignore -v .tmp/demos/x
 ```
 
-1. If git ignores `/HANDOFF.md` but not `.tmp/demos/x`, append `/.tmp/demos/` to the file the first `-v` line names, because `demo-task` keeps the walk's folder there.
-2. If that file is `.gitignore`, commit the line on its own.
+1. If the run will pass `--also-watch`, run `git -C <dir> status --porcelain` in each such repository too, and take step 3 if any of them returns anything, because the loop stops on uncommitted work there as well.
+2. If git ignores `/HANDOFF.md` but not `.tmp/demos/x`, append `/.tmp/demos/` to the file the first `-v` line names, because `demo-task` keeps the walk's folder there.
+3. If that file is `.gitignore`, commit the line on its own.
 
 ### 2. No HANDOFF.md, or it is not gitignored
 
@@ -83,6 +84,7 @@ bash ~/.claude/skills/session-loop/scripts/run-loop.sh <repo>
 
 4. Pass `--handoff-at` only to move the 170,000 line.
 5. Move the between-iteration reviewer with `--eval-model`, or turn it off with `--no-eval`. It runs on `claude-opus-5-5` at medium effort over the diff each session committed, answers PASS or findings, puts its findings in front of the next session's handoff, and stops the run after three rounds running on the same file.
+6. If the sessions also commit in another repository, such as a library the project installs, pass `--also-watch <dir>` once for each such repository, so a changed tree there counts as progress and the reviewer reads that repository's diff too.
 
 ### 7. When it stops, report what happened
 
@@ -131,9 +133,9 @@ python3 ~/.claude/skills/session-loop/scripts/session_budget.py . --self
 2. Know that a PostToolUse hook in the operator's `~/.claude/settings.json` runs `session_budget.py --hook` on every tool call and exits 2 once a session passes the ceiling; the driver registers no hook of its own.
 3. Expect the driver to stop when the handoff says `DONE` and the reviewer holds nothing against the last commit. A `DONE` with findings outstanding goes back for another session, twice at most before the run stops for a person.
 4. Expect a `BLOCKED:` handoff with findings outstanding to go back with the session told to fix them and keep the question, twice at most, and not once the reviewer has found something in one file three reviews running; then the run stops on the question.
-5. Expect it to stop also on `BLOCKED:` with nothing outstanding, a dirty tree, a non-zero `claude` exit, a session that ended other than by finishing, a reported error, or unchanged code with no bd card changing status, and never on a count.
+5. Expect it to stop also on `BLOCKED:` with nothing outstanding, a dirty tree in the repository or in any `--also-watch` repository, a non-zero `claude` exit, a session that ended other than by finishing, a reported error, or unchanged code with no bd card changing status, and never on a count.
 6. Expect a usage limit to make it sleep until the reset the run summary names and retry the same iteration once, for the session and the reviewer alike. It stops on a limit only when it cannot read the reset time or the limit persists after the wait.
-7. Know that it reads the summary rather than the exit code, because `claude -p` exits 0 even when cut off, and compares tree hashes rather than commit ids, because an amend that changes no file still makes a new id.
+7. Know that it reads the summary rather than the exit code, because `claude -p` exits 0 even when cut off, and compares tree hashes, in the repository and in each `--also-watch` repository, rather than commit ids, because an amend that changes no file still makes a new id.
 8. Run the loop only where write access to the repository already means trust, because the handoff file is executed as the next session's instructions with nobody reading it first.
 
 Details, flags, and the permissions warning:

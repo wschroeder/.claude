@@ -26,6 +26,10 @@
 #   --eval-model NAME     model for the reviewer that reads each session's diff
 #                         (default: claude-opus-5-5, at medium effort)
 #   --no-eval             do not run the reviewer between sessions
+#   --also-watch DIR      another repository the sessions work in; a changed
+#                         tree there counts as progress, the reviewer reads
+#                         its diff too, and uncommitted work there stops the
+#                         run. Repeat it for each repository
 #   --permission-mode M   bypassPermissions (default), acceptEdits, dontAsk, ...
 #   --logs DIR            where to keep each run's JSON summary
 #                         (default: ~/.claude/session-loop/REPO_NAME)
@@ -78,6 +82,7 @@ EVAL_EFFORT="medium"
 # launched without.
 export CLAUDE_CODE_PROMPT_CACHE_TTL="5m"
 EVAL=1
+WATCHED=()
 LOGS=""
 DRY_RUN=0
 
@@ -103,6 +108,7 @@ while [ $# -gt 0 ]; do
     --model)            need_value "$@"; MODEL="$2"; shift 2 ;;
     --eval-model)       need_value "$@"; EVAL_MODEL="$2"; shift 2 ;;
     --no-eval)          EVAL=0; shift ;;
+    --also-watch)       need_value "$@"; WATCHED+=("$2"); shift 2 ;;
     --permission-mode)  need_value "$@"; PERMISSION_MODE="$2"; shift 2 ;;
     --logs)             need_value "$@"; LOGS="$2"; shift 2 ;;
     --dry-run)          DRY_RUN=1; shift ;;
@@ -136,6 +142,15 @@ python3 -c '' </dev/null >/dev/null 2>&1 \
 [ -d "$REPO" ] || die "no such directory: $REPO"
 REPO="$(cd "$REPO" && pwd)"
 git -C "$REPO" rev-parse --git-dir >/dev/null 2>&1 || die "not a git repository: $REPO"
+git -C "$REPO" rev-parse -q --verify HEAD >/dev/null || die "no commit yet in $REPO"
+for n in ${WATCHED[@]+"${!WATCHED[@]}"}; do
+  [ -d "${WATCHED[$n]}" ] || die "no such directory: ${WATCHED[$n]}"
+  WATCHED[$n]="$(cd "${WATCHED[$n]}" && pwd)"
+  git -C "${WATCHED[$n]}" rev-parse --git-dir >/dev/null 2>&1 \
+    || die "not a git repository: ${WATCHED[$n]}"
+  git -C "${WATCHED[$n]}" rev-parse -q --verify HEAD >/dev/null \
+    || die "no commit yet in ${WATCHED[$n]}"
+done
 
 HANDOFF_PATH="$REPO/$HANDOFF"
 [ -s "$HANDOFF_PATH" ] || die "handoff file is missing or empty: $HANDOFF_PATH"
@@ -351,12 +366,14 @@ PROTOCOL
 # reporting keeps it off style and off work the commit already says is
 # unfinished on purpose, which is most of what an unaimed reviewer returns.
 eval_prompt() {
+  local range="$1"
+  shift
   cat <<EVALPROMPT
-You are reading the commits in the range $1 of the repository you are standing
+You are reading the commits in the range $range of the repository you are standing
 in. You did not write them. Investigate only: report what you find, do not fix
 it.
 
-Start with \`git diff $1\` and read whatever surrounding code you need to judge
+Start with \`git diff $range\` and read whatever surrounding code you need to judge
 what you see there. You have a shell, and running something is often the
 shortest way to settle a question about this diff — run the project's own test
 command, check what a value actually holds, count what a string actually
@@ -366,6 +383,16 @@ found it: no commits, no edits, no files added or removed. To try a change,
 such as a mutation that shows whether a test catches a bug, copy the working
 tree into a temporary directory and change the copy. Put scratch files in a
 temporary directory.
+EVALPROMPT
+  if [ "$#" -gt 0 ]; then
+    printf '\nThe same session also committed in these repositories. Read each diff\n'
+    printf 'the same way, and leave these repositories exactly as you found them too:\n'
+    while [ "$#" -gt 1 ]; do
+      printf -- '- `git -C %q diff %s..HEAD`\n' "$1" "$2"
+      shift 2
+    done
+  fi
+  cat <<EVALPROMPT
 
 Report only what you can point at a file and line for:
 - the code does not do what its own name, docstring or comment says it does
@@ -435,7 +462,7 @@ stop_if_blocked() {
     printf 'the reviewer found something in the last commit that no session has acted on:\n  %s\n' \
       "$FINDINGS_IN"
   fi
-  LEFTOVER="$(git -C "$REPO" status --porcelain)"
+  LEFTOVER="$(uncommitted_work)"
   if [ -n "$LEFTOVER" ]; then
     printf 'it also left work uncommitted, which needs a person before anything else runs:\n%s\n' "$LEFTOVER"
     exit 1
@@ -499,6 +526,24 @@ print(max(0, int(wait)) + 60)
 RESET
 }
 
+watched_trees() {
+  local dir
+  for dir in ${WATCHED[@]+"${WATCHED[@]}"}; do
+    git -C "$dir" rev-parse 'HEAD^{tree}'
+  done
+}
+
+uncommitted_work() {
+  local dir status
+  git -C "$REPO" status --porcelain
+  for dir in ${WATCHED[@]+"${WATCHED[@]}"}; do
+    status="$(git -C "$dir" status --porcelain)"
+    if [ -n "$status" ]; then
+      printf '%s:\n%s\n' "$dir" "$status"
+    fi
+  done
+}
+
 # bd keeps the board outside the git tree, so a session whose only work is
 # moving a card leaves the tree exactly as it found it.
 board_state() {
@@ -556,7 +601,7 @@ while :; do
      && [ -n "$PENDING_FINDINGS" ] \
      && [ "$BLOCKED_OVERRIDES" -lt "$MAX_BLOCKED_OVERRIDES" ] \
      && [ "$LATCH_COUNT" -lt "$MAX_SAME_FILE_FINDINGS" ] \
-     && [ -z "$(git -C "$REPO" status --porcelain)" ]; then
+     && [ -z "$(uncommitted_work)" ]; then
     BLOCKED_OVERRIDES=$((BLOCKED_OVERRIDES + 1))
     printf '  the handoff is blocked, but the reviewer found something in the last commit.\n'
     printf '  Sending it back rather than stopping (%s of %s).\n' \
@@ -623,7 +668,7 @@ $PENDING_FINDINGS"
     exit 1
   fi
 
-  DIRTY="$(git -C "$REPO" status --porcelain)"
+  DIRTY="$(uncommitted_work)"
   if [ -n "$DIRTY" ]; then
     printf 'stopping: the working tree is dirty, so the last session did not finish cleanly.\n'
     printf '%s\n' "$DIRTY"
@@ -637,6 +682,11 @@ $PENDING_FINDINGS"
   # later than the commit it replaces — measured. Comparing ids would read that
   # rewrite as progress and start another session on the same code, forever.
   TREE_BEFORE="$(git -C "$REPO" rev-parse 'HEAD^{tree}')"
+  WATCHED_TREES_BEFORE="$(watched_trees)"
+  WATCHED_HEADS_BEFORE=()
+  for dir in ${WATCHED[@]+"${WATCHED[@]}"}; do
+    WATCHED_HEADS_BEFORE+=("$(git -C "$dir" rev-parse HEAD)")
+  done
   BOARD_BEFORE="$(board_state)"
   # The record the handoff named going in, so that a session cannot count as
   # progress by naming a fresh record of its own.
@@ -742,7 +792,8 @@ SUMMARY
   esac
 
   TREE_AFTER="$(git -C "$REPO" rev-parse 'HEAD^{tree}')"
-  if [ "$TREE_BEFORE" = "$TREE_AFTER" ]; then
+  if [ "$TREE_BEFORE" = "$TREE_AFTER" ] \
+     && [ "$WATCHED_TREES_BEFORE" = "$(watched_trees)" ]; then
     stop_if_blocked
     # Moving a card is progress: it is how a session sends a card back to build.
     # There is no new commit for the reviewer to read, so the next session runs
@@ -760,7 +811,7 @@ SUMMARY
     # A finding written into the handoff is progress too: a session out of room
     # records it for the next one to fix. Two such sessions in a row are not,
     # and neither is one that left work uncommitted.
-    LEFTOVER="$(git -C "$REPO" status --porcelain)"
+    LEFTOVER="$(uncommitted_work)"
     if [ "$HANDOFF_BEFORE" = "$(cksum < "$HANDOFF_PATH")" ]; then
       printf 'stopping: the session changed nothing, so the next one would start from the same place.\n'
     elif [ -n "$LEFTOVER" ]; then
@@ -785,6 +836,17 @@ SUMMARY
   COMMITS="$(git -C "$REPO" rev-list --count "$HEAD_BEFORE".."$HEAD_AFTER")"
   printf '  now at %s (%s new since the session started)\n' \
     "$(git -C "$REPO" log --oneline -1)" "$COMMITS commit(s)"
+  # A watched repository's commits count in the iteration record too, because
+  # session_budget.py divides a day's cost by the commits these records hold.
+  MOVED=()
+  for n in ${WATCHED[@]+"${!WATCHED[@]}"}; do
+    [ "${WATCHED_HEADS_BEFORE[$n]}" = "$(git -C "${WATCHED[$n]}" rev-parse HEAD)" ] && continue
+    MOVED+=("${WATCHED[$n]}" "${WATCHED_HEADS_BEFORE[$n]}")
+    MOVED_COMMITS="$(git -C "${WATCHED[$n]}" rev-list --count "${WATCHED_HEADS_BEFORE[$n]}"..HEAD)"
+    printf '  %s now at %s (%s new)\n' "${WATCHED[$n]}" \
+      "$(git -C "${WATCHED[$n]}" log --oneline -1)" "$MOVED_COMMITS commit(s)"
+    COMMITS=$(( COMMITS + MOVED_COMMITS ))
+  done
 
   # The ids rather than the clock: an amend leaves the commit it replaced
   # unreachable, so reading `git log` by time credits the work to whichever
@@ -842,7 +904,7 @@ RECORD
       EVAL_STATUS=0
       (
         cd "$REPO" && ENABLE_CLAUDEAI_MCP_SERVERS=false claude \
-          -p "$(eval_prompt "$HEAD_BEFORE..HEAD")" \
+          -p "$(eval_prompt "$HEAD_BEFORE..HEAD" ${MOVED[@]+"${MOVED[@]}"})" \
           --output-format json \
           --permission-mode dontAsk \
           --allowed-tools Bash Read Grep Glob \
