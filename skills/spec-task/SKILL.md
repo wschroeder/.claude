@@ -9,7 +9,7 @@ description: Turns a design conversation into updated design documents and a sli
 2. If $ARGUMENTS is empty, take this session's own history as the design conversation, say so, and name where it starts.
 3. Produce the two deliverables in Section 5: the design document edits, which Section 8 writes and commits without asking, and the cards, which `backlog-task` creates. Section 9 reviews both.
 4. Where the repository keeps its cards in bd, only read bd here; Section 10 hands the creating to `backlog-task`.
-5. Stop for approval of the slice in Section 1 on a returning initiative; `backlog-task` holds the other stop, approval of the cards.
+5. Stop for approval once, after Section 9, showing the slice block beside its stories: `backlog-task` Section 2 holds that stop where the repository keeps its cards in bd, and Section 10 holds it otherwise.
 
 ## The design documents hold the product, and the cards hold the work
 
@@ -93,15 +93,7 @@ $ ls -d docs design specs 2>/dev/null
 
 14. Cut a path through the system, not a layer of it, and resize or split the sketch's slice if it no longer fits what exists. Decide only the next slice.
 15. Make one slice one feature: write the `a person can` line as one sentence naming one capability. If it needs an "and" to join two capabilities a user would think of separately, cut there and specify the first half. Let the sentence decide the cut, never the task count.
-16. On a returning initiative, stop here before Section 2's research, asking only the question below; keep Section 3's questions for Section 3.
-17. Inside a `session-loop` run, make this stop a `HANDOFF.md` written through `clear-task`, whose first line reads `BLOCKED:` with one sentence naming the slice awaiting confirmation, and stop. Write it through the skill, never by hand, however close the ceiling is.
-18. Open the ask with the phase line directly above the question, this stop's phase capitalized:
-
-```
-SPEC -> build -> demo
-```
-
-Proceed with the slice above, or name a different one?
+16. Do not stop here: print the slice block and go on to Section 2. The operator approves it together with its stories at the one approval stop.
 
 ## 2. Source lines from the design conversation
 
@@ -119,12 +111,12 @@ Proceed with the slice above, or name a different one?
 
 1. List what the source lines leave undetermined, sweeping at least: invalid input; something the system depends on being unavailable; the limits (empty, one, very many, concurrent); who is allowed to do it; and what is deliberately not being built.
 2. Give each question one of five outcomes, checking the first three before the others:
-   - If the slice's approved scope, or a Section 2 source line, settles it, answer it from that line, quoted, and do not ask the operator.
+   - If Section 1's slice block, or a Section 2 source line, settles it, answer it from that line, quoted, and do not ask the operator.
    - If it is a question of fact the recorded data, the code, or the work so far can answer, research it and answer from what you found, quoted. Send only questions about how the product should behave to the operator.
    - If `writing-code`'s `references/ux-design.md`, the app's existing pattern for the same action, or a design principle in the project's CLAUDE.md settles it, decide it, quote the rule or cite the file, write the answer into the design document, and do not ask the operator.
    - Otherwise the operator answers it, and the answer becomes a new Section 2 source line. Quote every fact you found that bears on it in the question, word each option as what the person will see and do in the product's terms, and describe anything kept from today by how it looks on screen rather than its name.
    - If nobody answers it, put it verbatim in Section 5's out-of-scope list.
-3. Answer a question yourself only through the first three outcomes; quoting the approved scope, a source line, or a rule is reading an answer already given.
+3. Answer a question yourself only through the first three outcomes; quoting the slice block, a source line, or a rule is reading an answer already given.
 4. If an unanswered question would change what the requirements say, stop and ask.
 5. If two design rules disagree about an item in this slice, ask the operator which wins before cutting cards, never carrying it to the demo.
 6. Never recommend leaving an item out, narrowing a rule's reach, or deferring an item because of the work it takes.
@@ -282,5 +274,5 @@ Story: As a <person who uses the product>, I can <what they can do>.
 
 ## 10. Hand the backlog on
 
-1. Where the repository does not keep its cards in bd, write Section 6's stories and task records into the handoff through `clear-task`, where `tdd-cycle` reads its task list, and stop.
+1. Where the repository does not keep its cards in bd, first stop for approval as `backlog-task` Section 2 describes, leaving out its bd lines. Once the operator approves, write Section 6's stories and task records into the handoff through `clear-task`, where `tdd-cycle` reads its task list, and stop.
 2. Where it does, load `backlog-task`, naming three things only: the design documents this slice serves, the slice being cut, and the Section 7 list it is to run. Load nothing else.

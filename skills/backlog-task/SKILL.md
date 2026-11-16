@@ -1,13 +1,13 @@
 ---
 name: backlog-task
-description: Creates and verifies the bd (beads) backlog for one slice spec-task has already cut — checks preconditions against the design documents the cards will serve, reprints the slice's stories for a single approval, runs the create, dependency, label and spec-id commands, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has cut and reviewed a slice, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
+description: Creates and verifies the bd (beads) backlog for one slice spec-task has already cut — checks preconditions against the design documents the cards will serve, shows the slice and its stories for the one approval of the slice, runs the create, dependency, label and spec-id commands, then reads bd back to prove the acceptance criteria and blocking edges actually stored. Use after spec-task has cut and reviewed a slice, when asked to create the cards or tickets for a specced slice, to put an approved slice into the backlog, or when a bd create batch needs verifying — "make the cards", "create the backlog", "file the tickets for S2".
 ---
 
 # backlog-task — a cut slice in, a verified backlog out
 
 1. For the slice named in $ARGUMENTS, respond with the sections below in order.
 2. If $ARGUMENTS is empty, take the slice `spec-task` just cut, say which, and name the design documents its cards serve.
-3. Make no bd write before Section 2 is approved; Section 2 is this template's only stop.
+3. Make no bd write before Section 2 is approved; Section 2 is this template's only stop, and the only approval of the slice.
 4. Run Section 1's command list in Section 3, and read Section 3's real ids back in Section 4.
 
 ## 0. Before Section 1, read your own room
@@ -37,22 +37,23 @@ $ bd statuses
 7. If bd finds no database, make the first line of Section 3's list `bd init --skip-agents --skip-hooks -p <prefix>`; `spec-task/references/bd-commands.md` says why both flags are required.
 8. Then print the command list verbatim, as `spec-task` Section 7 generated it, never rebuilt here.
 
-## 2. Stop — approval before the first bd write
+## 2. Stop — approval of the slice and its stories, before the first bd write
 
-1. **Show the operator the stories and nothing below them**: who each one is for, what they will be able to do, and what they will look at to see it working. Leave out the tasks, requirement ids, blocking edges, and issue counts.
-2. Leave no unknowns inside a story: each names who it is for and what they will be able to do, carries the acceptance criteria its card will be created with, and leaves them nothing to look up.
-3. If a story still holds an open question, make that question the ask instead, and hold the creation behind it.
-4. If `bd init` has to run first, say so in one line.
-5. **Open the ask with the phase line**, directly above the question: the three phases in order, this stop's capitalized:
+1. **Show the operator `spec-task` Section 1's slice block, then the stories, and nothing below them**: who each story is for, what they will be able to do, and what they will look at to see it working. Leave out the tasks, requirement ids, blocking edges, and issue counts.
+2. If the stories cover less or more than the slice block's `a person can` line, say where, in one line each.
+3. Leave no unknowns inside a story: each names who it is for and what they will be able to do, carries the acceptance criteria its card will be created with, and leaves them nothing to look up.
+4. If a story still holds an open question, make that question the ask instead, and hold the creation behind it.
+5. If `bd init` has to run first, say so in one line.
+6. **Open the ask with the phase line**, directly above the question: the three phases in order, this stop's capitalized:
 
 ```
 SPEC -> build -> demo
 ```
 
-6. Then end the message with one question on one decision: build these stories, or change the slice. Recommend building them, and say the alternative is naming a story to hold back.
-7. **Unattended, this stop is a line in a file.** Inside a `session-loop` run, create nothing, write `HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one sentence naming the slice awaiting approval, and stop. Write it through the skill rather than by hand, however close the ceiling is.
-8. Never print the stories and run `bd create` in the same turn.
-9. Treat approval here as covering this creation only; a later slice asks again, and pushing asks separately under `git-commit`, "Safety".
+7. Then end the message with one question on one decision: build these stories, or change the slice. Recommend building them, and say the alternative is naming a story to hold back.
+8. **Unattended, this stop is a line in a file.** Inside a `session-loop` run, create nothing, write `HANDOFF.md` through `clear-task` with a first line reading `BLOCKED:` and one sentence naming the slice awaiting approval, and stop. Write it through the skill rather than by hand, however close the ceiling is.
+9. Never print the stories and run `bd create` in the same turn.
+10. Treat approval here as covering this creation only; a later slice asks again, and pushing asks separately under `git-commit`, "Safety".
 
 ## 3. Creation
 
