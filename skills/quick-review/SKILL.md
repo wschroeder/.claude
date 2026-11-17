@@ -260,7 +260,12 @@ description: Fast single-agent code review in nine structured angle passes, each
                                           that use different bounds or clauses
                                           stay a candidate until you quote the
                                           spec line or test saying which is
-                                          right, and "behaves correctly" cites it
+                                          right, and "behaves correctly" cites it;
+                                          a new state that hides a row (deleted,
+                                          hidden, archived): list every path that
+                                          reads that row, the ones that open one
+                                          row by id as well as the lists, and show
+                                          each honors the state or is meant not to
   5.16  Leftover code                    grep added lines for debug output, code
                                           in comments, focused tests (.only, fit,
                                           @tag :focus), and TODO/FIXME/XXX/HACK
