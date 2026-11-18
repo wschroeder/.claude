@@ -64,6 +64,12 @@ Tier two and tier three run this after the voice check.
 4. Under the colon rule, list every sentence that has no main verb, including headings' captions and bullets, and mark each fixed or kept with the reason.
 5. Treat an entry that says only "checked", "no issues", or "passes", and an entry with no answer, as an open item, and do not hand the text over while one is open.
 
+## Order the reply that hands the text over
+
+1. Print the voice check report and the "Sentence rules" entries first, after any block that `~/.claude/CLAUDE.md` requires at the top of a reply, such as the Evidence block.
+2. Print last, together, what the operator has to read: the text or the path to its file, any finding about it, and the one question or choice it needs from them.
+3. Never put a check, a report, or a note after that closing group.
+
 ---
 
 ## Tier one — one point, no sections
