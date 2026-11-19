@@ -81,15 +81,15 @@ USER_HOST="$(whoami)@$(hostname -s)"
 # --- everything available ---------------------------------------------------
 full_path=$(sandbox_path full jq bc)
 out=$(PATH="$full_path" "$BASH_BIN" "$SCRIPT" < "$FIXTURE")
-assert_output "full deps: renders cwd, model and context detail" \
-  "$USER_HOST /tmp/not-a-repo | Opus 5 (1M context) ctx:14% (140K/1000K)" "$out"
+assert_output "full deps: renders cwd, model and token counts" \
+  "$USER_HOST /tmp/not-a-repo | Opus 5 (1M context) (140K/1000K)" "$out"
 
 # --- bc absent -------------------------------------------------------------
-# The percentage comes straight from jq, so it survives; only the K/K
-# breakdown needs arithmetic. Losing it should be announced, not silent.
+# The K/K breakdown needs arithmetic. Losing it should be announced, not
+# silent.
 nobc_path=$(sandbox_path nobc jq)
 out=$(PATH="$nobc_path" "$BASH_BIN" "$SCRIPT" < "$FIXTURE")
-assert_contains "bc absent: keeps the percentage"        "ctx:14%"     "$out"
+assert_absent   "bc absent: shows no percentage"         "14%"         "$out"
 assert_contains "bc absent: names the missing tool"      "bc missing"  "$out"
 assert_absent   "bc absent: drops the token breakdown"   "140K"        "$out"
 assert_contains "bc absent: still renders the model"     "Opus 5"      "$out"
@@ -187,7 +187,6 @@ cat > "$TMP/input-fractional.json" <<'JSON'
   "context_window": { "used_percentage": 14.7, "context_window_size": 1000000 } }
 JSON
 out=$(PATH="$full_path" "$BASH_BIN" "$SCRIPT" < "$TMP/input-fractional.json")
-assert_contains "fractional percentage: renders it" "ctx:14.7%" "$out"
 assert_contains "fractional percentage: rounds the breakdown" "(147K/1000K)" "$out"
 
 # --- subscription usage sampling -------------------------------------------

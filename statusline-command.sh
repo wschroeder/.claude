@@ -77,7 +77,6 @@ if [ -n "$model" ]; then
 fi
 
 if is_number "$used" && is_integer "$context_size"; then
-  parts="${parts} ctx:${used}%"
   # bc carries the multiply because bash integer arithmetic rejects a
   # fractional percentage.
   if have bc; then

@@ -140,7 +140,7 @@ something has to happen before the first tool call.
 Renders a line like:
 
 ```
-user@host ~/src/project (main) | Opus 5 ctx:14% (140K/1000K)
+user@host ~/src/project (main) | Opus 5 (140K/1000K)
 ```
 
 Point `settings.json` at it:
