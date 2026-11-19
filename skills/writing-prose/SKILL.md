@@ -66,8 +66,8 @@ Tier two and tier three run this after the voice check.
 
 ## Order the reply that hands the text over
 
-1. Print the voice check report and the "Sentence rules" entries first, after any block that `~/.claude/CLAUDE.md` requires at the top of a reply, such as the Evidence block.
-2. Print last, together, what the operator has to read: the text or the path to its file, any finding about it, and the one question or choice it needs from them.
+1. Print the voice check report and the "Sentence rules" entries first, right after any block that `~/.claude/CLAUDE.md` requires at the top of a reply, such as the Evidence block, and put nothing else before them.
+2. Print last, together, everything else the operator has to read: what you did this turn, including work unrelated to the text, the text or the path to its file, any finding about it, and the one question or choice it needs from them.
 3. Never put a check, a report, or a note after that closing group.
 
 ---
