@@ -1,0 +1,16 @@
+{
+  "name": "cache-timer",
+  "version": "0.1.0",
+  "description": "After a turn, count down at the end of the prompt's hint line to the moment the prompt cache expires.",
+  "types": "./types/index.d.ts",
+  "author": { "name": "schroederw" },
+  "userConfig": {
+    "ttl": {
+      "type": "string",
+      "title": "Prompt cache lifetime",
+      "description": "The lifetime Claude Code asks for: 1h on a subscription within plan usage, 5m on an API key, or whatever promptCacheTtl sets.",
+      "options": ["1h", "5m"],
+      "default": "1h"
+    }
+  }
+}
