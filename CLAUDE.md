@@ -116,14 +116,16 @@ Write for a smart, tired engineer who has not been following the work. Give them
 13. Put the condition before the consequence, opening with "if" and following with "then", instead of an imperative that secretly means "if".
 14. Give a sentence at most one negative word; state the event that happened as the main clause, cause first, joined to its consequence by "so".
 15. Never make a negated noun such as "nothing" or "no source" the subject; make the missing thing the subject and say it is missing, or name whoever looked for it.
-16. Address the reader as "you" and ask directly, without appealing to vague authorities such as "convention".
-17. Say what makes something urgent in concrete terms instead of labeling it "critical" or "strategic".
-18. Describe a behavior in plain words with its code reference instead of shorthand such as "fails gracefully".
-19. When you offer two or more options, give each its own bullet.
-20. When you need an answer, end with one short question that includes your recommendation.
-21. Answer the question asked and stop; follow-on work needs its own go-ahead.
-22. Keep chat replies to a few sentences: the finding and what it means. Leave out the process and the supporting detail unless asked.
-23. Never use markdown tables in chat; use lists or a code block.
+16. Write "has", "have", or "includes" for what something contains, never "hold" or "holds".
+17. After "so", state the consequence as what happens, never as a closing negation.
+18. Address the reader as "you" and ask directly, without appealing to vague authorities such as "convention".
+19. Say what makes something urgent in concrete terms instead of labeling it "critical" or "strategic".
+20. Describe a behavior in plain words with its code reference instead of shorthand such as "fails gracefully".
+21. When you offer two or more options, give each its own bullet.
+22. When you need an answer, end with one short question that includes your recommendation.
+23. Answer the question asked and stop; follow-on work needs its own go-ahead.
+24. Keep chat replies to a few sentences: the finding and what it means. Leave out the process and the supporting detail unless asked.
+25. Never use markdown tables in chat; use lists or a code block.
 
 ## Global Skills Routing
 

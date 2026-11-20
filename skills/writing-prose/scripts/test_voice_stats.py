@@ -90,6 +90,34 @@ def main():
                  "The run finished, and the notes say why."):
         assert vs.measure(text)["punchlines"] == [], text
 
+    # a consequence after ", so" that closes on what is missing, in place of what happens
+    for text in ("The batch used both slots, so every item left is one the queue does not include.",
+                 "The cache expired, so nothing is reused.",
+                 "The run stopped, so it cannot finish.",
+                 "The cache expired, so it isn't reused."):
+        assert vs.measure(text)["so_negations"] == [text], text
+    for text in ("The batch used both slots, so any more items wait in the queue.",
+                 "It ran, so it passed.",
+                 "Nothing ran, and so on.",
+                 "Lock the row so no other writer changes it.",
+                 "The job ran, sometimes with no output.",
+                 "The hall opened, so the piano plays.",
+                 "It ran, so we shipped; nothing broke."):
+        assert vs.measure(text)["so_negations"] == [], text
+
+    # "hold" where a person writes "has" or "includes"; only a reader can tell
+    # the sense, so every form is listed
+    for text in ("The table holds every total.",
+                 "Each tool held one secret.",
+                 "A folder holding the logs.",
+                 "The queues hold two items."):
+        assert vs.measure(text)["hold_candidates"] == [text], text
+    for text in ("The table has every total.",
+                 "The household pays.",
+                 "A threshold applies.",
+                 "The holder pays."):
+        assert vs.measure(text)["hold_candidates"] == [], text
+
     # every comma before a coordinating conjunction or a trailing reason is
     # listed, because only a reader can tell whether a second subject follows
     for text in ("This column shows the number, or how many records it has.",
@@ -128,14 +156,18 @@ def main():
         fh.write("A sentence about nothing.")
     fd2, listed = tempfile.mkstemp(suffix=".txt")
     with os.fdopen(fd2, "w") as fh:
-        fh.write("It shows the number, or how many records it has. It stopped but it left a note.")
+        fh.write("It shows the number, or how many records it has. It stopped but it left a note. "
+                 "The cache expired, so nothing is reused. A row holds the total.")
     try:
         proc = subprocess.run([sys.executable, os.path.join(HERE, "voice_stats.py"), listed],
                               capture_output=True, text=True)
-        assert "comma candidates (1)" in proc.stdout, proc
+        assert "\ncomma candidates (2)" in proc.stdout, proc
         assert "  It shows the number, or how many records it has." in proc.stdout, proc
         assert "missing comma candidates (1)" in proc.stdout, proc
         assert "  It stopped but it left a note." in proc.stdout, proc
+        listing = lambda header: proc.stdout.split(header)[1].split("\n\n")[0]
+        assert "\n  The cache expired, so nothing is reused." in listing("so negations (1)"), proc
+        assert "\n  A row holds the total." in listing("hold candidates (1)"), proc
         proc = subprocess.run([sys.executable, os.path.join(HERE, "voice_stats.py"),
                                path, "--band", "bogus=1:2"],
                               capture_output=True, text=True)

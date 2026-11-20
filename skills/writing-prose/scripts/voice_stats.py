@@ -37,6 +37,9 @@ CLOSING_VERB = re.compile(r"\b(?:settl|resolv)(?:e|es|ed|ing)\b", re.I)
 # A clause tacked on with ", and" that lands on an absence reads as a punchline
 # and tells the reader to be alarmed before the body has shown anything.
 PUNCHLINE = re.compile(r",\s*and\b[^.;:]{0,60}?\b(?:no|none|nothing|never|nobody|no one|not one)\b", re.I)
+# The same zinger after ", so": the consequence names what is missing instead of
+# what happens, as in "so the next run does not reuse it".
+SO_NEGATION = re.compile(r",\s*so\b[^.;:]{0,80}?(?:\b(?:no|none|nothing|never|nobody|no one|not|cannot)\b|n't\b)", re.I)
 # A comma before a coordinating conjunction or a trailing reason is right only
 # when a second subject follows, or the main clause is negative, and only a
 # reader can tell which.
@@ -45,6 +48,7 @@ COMMA_CANDIDATE = re.compile(r",\s+(?:for|and|nor|but|or|yet|so|because|since)\b
 # second clause, which needs the comma. "For" is left out because it is nearly
 # always a preposition, and "nor" because the verb comes before its subject.
 MISSING_COMMA = re.compile(r"(?<!,)\s(?:and|but|or|so|yet)\s+(?:a|an|the|this|that|these|those|each|every|its|his|her|their|our|my|your|i|you|he|she|it|we|they)\b", re.I)
+HOLD = re.compile(r"\b(?:hold|holds|holding|held)\b", re.I)
 MAXIM = re.compile(r"^(?:A|An|The|One)\s+\S+(?:\s+\S+){0,8}\s+is\s+(?:\S+\s*){1,6}\.$")
 BULLET = re.compile(r"\n[ \t]*(?:[*•-]|\d+[.)])[ \t]+")
 
@@ -90,6 +94,8 @@ def measure(text):
         "missing_comma_candidates": [s for s in sents if MISSING_COMMA.search(s)],
         "closing_verbs": [s for s in sents if CLOSING_VERB.search(s)],
         "punchlines": [s for s in sents if PUNCHLINE.search(s)],
+        "so_negations": [s for s in sents if SO_NEGATION.search(s)],
+        "hold_candidates": [s for s in sents if HOLD.search(s)],
     }
 
 
@@ -140,6 +146,14 @@ def main():
     print("\npunchlines (%d) -- in a title, headline, or opening sentence, cut;"
           " elsewhere mark keep or cut:" % len(m["punchlines"]))
     for s in m["punchlines"]:
+        print("  " + s)
+    print("\nso negations (%d) -- rewrite the consequence after \"so\" as what"
+          " happens:" % len(m["so_negations"]))
+    for s in m["so_negations"]:
+        print("  " + s)
+    print("\nhold candidates (%d) -- write has or includes where the sense is"
+          " contains:" % len(m["hold_candidates"]))
+    for s in m["hold_candidates"]:
         print("  " + s)
     print("\ncomma candidates (%d) -- mark each keep or cut with the CLAUDE.md"
           " comma rule that allows it:" % len(m["comma_candidates"]))

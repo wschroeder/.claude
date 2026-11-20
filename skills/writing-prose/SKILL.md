@@ -46,13 +46,14 @@ Every tier runs this on its finished text.
 
 1. Save the text to a file in the scratchpad and run `python3 scripts/voice_stats.py <file>`.
 2. Mark each maxim candidate, silent tail, closing verb, punchline, and comma candidate keep or cut, and fix every one you cut.
-3. Cut a maxim candidate, a sentence that closes a block by generalising into a saying, by default.
-4. Rewrite a silent tail, a sentence that ends on what nobody did, to name the actor that stayed silent.
-5. Replace a closing verb such as "settled" or "resolved" with the act, such as "nobody has checked".
-6. Cut a punchline, a clause tacked on with ", and" that ends on a negative count or an absence, from a title, a headline, or an opening sentence.
-7. Mark a comma candidate keep only by naming the CLAUDE.md comma rule that allows it.
-8. Mark each missing comma candidate add when the words after the conjunction carry a subject of their own, and leave otherwise.
-9. Report a band the script says you missed in one line with the reason you kept the text, or rewrite until it lands; on short text, ignore the bands.
+3. Rewrite every so negation and every hold candidate whose sense is "contains" yourself, as part of the revision, without listing them for the reader.
+4. Cut a maxim candidate, a sentence that closes a block by generalising into a saying, by default.
+5. Rewrite a silent tail, a sentence that ends on what nobody did, to name the actor that stayed silent.
+6. Replace a closing verb such as "settled" or "resolved" with the act, such as "nobody has checked".
+7. Cut a punchline, a clause tacked on with ", and" that ends on a negative count or an absence, from a title, a headline, or an opening sentence.
+8. Mark a comma candidate keep only by naming the CLAUDE.md comma rule that allows it.
+9. Mark each missing comma candidate add when the words after the conjunction carry a subject of their own, and leave otherwise.
+10. Report a band the script says you missed in one line with the reason you kept the text, or rewrite until it lands; on short text, ignore the bands.
 
 ## Answer each sentence rule in writing
 
