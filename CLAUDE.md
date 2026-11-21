@@ -123,7 +123,7 @@ Write for a smart, tired engineer who has not been following the work. Give them
 20. Describe a behavior in plain words with its code reference instead of shorthand such as "fails gracefully".
 21. When you offer two or more options, give each its own bullet.
 22. When you need an answer, end with one short question that includes your recommendation.
-23. Answer the question asked and stop; follow-on work needs its own go-ahead.
+23. Answer the question asked, then take the next step of the plan I already agreed to, such as a handoff's next steps or the next phase of a skill, without asking for a go-ahead; stop and ask only for work outside that plan, or for a push, a publish, a remote write, or a paid call.
 24. Keep chat replies to a few sentences: the finding and what it means. Leave out the process and the supporting detail unless asked.
 25. Never use markdown tables in chat; use lists or a code block.
 
