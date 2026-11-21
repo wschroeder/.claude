@@ -122,7 +122,7 @@ mix test path/to/test.exs
 
 1. Split each acceptance criterion into its clauses: each bound, count, quantifier, and condition ("ten or fewer", "every"), and each member of a list a condition names ("a draft or an archived record" is two clauses).
 2. Before the card moves, mark each clause met or not met, with its evidence beside it: the test that proves it and the run that printed its result, or, on a screen-only card, the screenshot that shows it.
-3. Leave how strongly a test pins its clause to `quick-review`'s mutation check.
+3. Leave how strongly a test pins its clause to `quick-review`'s assertion-strength check.
 4. Mark a partly met clause not met, keep a card with any clause not met `in_progress`, and name the clause in its note.
 5. Run this check even when the operator has turned tests off.
 6. **If the data as it stands cannot meet a clause, build the data**: add records to the project's fictional data, or put existing fictional records into the state the clause needs and restore them afterwards.

@@ -55,7 +55,7 @@ description: Fast single-agent code review in nine structured angle passes, each
    - **N/A:** the angle is not live in this diff, with one line of why.
    - **`hypothesis:`:** a suspected problem you could not produce the artifact for, flagged and labeled.
 3. Never use "carried" from an earlier session as a disposition: a whole-branch review checks each angle again against HEAD. Cite an earlier session's artifact only when you name it and show the code it covered has not changed since, and only for the functions it names.
-4. Run one mutation per criterion clause and one per constraint of each new or changed function, as [details/proof-shapes.md](details/proof-shapes.md) "Assertion strength" lists them, because a mutation proves only what it broke.
+4. Check assertion strength as [details/proof-shapes.md](details/proof-shapes.md) "Assertion strength" says: by reading each clause against its assertion in the review after a card, and with at most ten mutations sampled at random from the changed lines in the whole-branch review before a pull request.
 
 ### The demonstrate-line — what owes an artifact even on a CLEAN bill
 
