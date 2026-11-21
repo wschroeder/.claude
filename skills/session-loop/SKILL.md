@@ -151,7 +151,7 @@ Details, flags, and the permissions warning:
 3. Delegate when the agent's context replaces one you would otherwise have paid: research against sources you will never open, wide searches where only the answer matters, and independent checking of a list of claims.
 4. Match the model to the task: Haiku for wide or mechanical passes where only the answer matters, Sonnet for judgment you will not re-read yourself, and the driver model for the reasoning you hold in this session. If the choice is close, take the more capable model.
 5. Do not delegate work you will review, such as a change you then read line by line.
-6. Run `quick-review` and `security-review` yourself, never in subagents; the loop contract names them outright because a worker never sees this file.
+6. Run `quick-review` and `security-review` yourself, never in subagents, except the stages of a staged `quick-review` that its `details/stages.md` lets run in parallel; the loop contract names them outright because a worker never sees this file.
 7. Below about 100,000 context, delegate nothing; the band where delegating wins opens around 130,000, and that is never a reason to hand off early.
 8. Take the standing exception for investigation, and what a delegation prompt must carry, from `subagents`; the context bands here hold only at the loop's 170,000 ceiling.
 

@@ -9,7 +9,7 @@ description: Fast single-agent code review in nine structured angle passes, each
 
 ## Orchestrator guidance
 
-1. Run the review in the session that wrote the change, never in a subagent, because that session holds the mission, the card, and the decisions behind the diff.
+1. Run the review in the session that wrote the change, never in a subagent, because that session holds the mission, the card, and the decisions behind the diff. The one exception is the stages before the cross-group stage of a staged review, which may run as parallel fresh agents under [details/stages.md](details/stages.md) "Run the stages in parallel".
 2. Do not pre-select angles; the checklists below and the files the **Conditional angles** table calls for decide them. If a concern recurs across sessions, fix this skill.
 
 ## Workflow

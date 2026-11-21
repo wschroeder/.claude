@@ -178,7 +178,7 @@ Any code change, however small, owes this review sequence before the commit deci
 
 Then:
 
-1. Run the reviews inline in this session, never in subagents; `subagents` carries the measurement.
+1. Run the reviews inline in this session, never in subagents, except the stages of a staged `quick-review` that its `details/stages.md` lets run in parallel; `subagents` carries the measurement.
 2. Present the findings to the user and wait for explicit per-action authorization before any commit, amend, or push, under `git-commit`'s rules.
 3. Handle the findings by `quick-review`'s "Re-review and the fix loop".
 4. **Prose-only diffs are exempt.** If no hunk anywhere in the diff is an executable change, only prose files (`*.md`, `*.txt`, `*.rst`) or comment-only hunks, skip the sequence; otherwise the whole diff is in scope.

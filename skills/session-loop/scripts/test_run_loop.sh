@@ -1121,7 +1121,8 @@ done
 # softening it to "prefer to run the reviews yourself" breaks this rather than
 # sliding through on the tail of the sentence still matching.
 for phrase in "Run the reviews a piece of work owes yourself rather than handing them to a subagent" \
-              "read every finding" "keep the work here"; do
+              "read every finding" "keep the work here" \
+              "the stages of a staged quick-review before its cross-group stage"; do
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the contract tells the session: $phrase" 0 "$ok"
 done

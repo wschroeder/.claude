@@ -279,7 +279,10 @@ subagent. You will read every finding one returns and act on it, so the diff
 arrives in this context anyway and the subagent's reading of it is paid for
 twice. In the run that prompted this line, eight review subagents read more than
 the session that spawned them, and the session hit the usage limit before it
-could commit.
+could commit. The one exception is the stages of a staged quick-review before its
+cross-group stage: they may run as parallel fresh agents that write their notes
+to disk, as quick-review's details/stages.md says, because you read their notes
+and never their diff.
 
 The same test settles anything else you might delegate: if you will open what the
 subagent opened, keep the work here. Below about a hundred thousand context, keep

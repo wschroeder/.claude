@@ -24,7 +24,7 @@ Before every subagent or workflow, ask:
 ## When it does not
 
 1. Do not delegate a change you will then review line by line.
-2. Do not hand `quick-review` or `security-review` to a subagent, because you read and apply every finding anyway.
+2. Do not hand `quick-review` or `security-review` as a whole to a subagent, because you read and apply every finding anyway. The stages before the cross-group stage of a staged `quick-review` are the exception: you read their notes and never their diff, so they may run as parallel fresh agents under `quick-review`'s `details/stages.md`.
 3. Never delegate investigation, such as tracing where a config value, an env var, a secret, or a deployment behavior comes from; follow the chain to its end yourself.
 
 ## A fork is a continuation, not a delegation

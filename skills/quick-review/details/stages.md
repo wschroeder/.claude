@@ -41,6 +41,22 @@
 2. Give each changed function its own `cross-group 1.3` mark.
 3. After each stage, write it to the notes file and run `--self`; if the next stage fits in the room left, start it, and if not, hand off naming the notes file and the next stage, and nothing else about the review.
 4. Run Classify and Output once, after the cross-group stage, over every stage's candidates.
+5. Write a handoff between stage sessions as a staged review alone: name `quick-review`, the notes file, and the next stage, and leave out the skill that called the review, so the next session loads only `quick-review` and its stage's details files.
+6. Record the calling skill and the step it resumes at in the notes file's header, and return to it after Output.
+
+## Run the stages in parallel
+
+1. If the plan has two or more stages before the cross-group stage, you may run them as fresh agents spawned in one message; keep the cross-group stage, Classify, Output, and every fix in this session.
+2. Write the stage plan, with each stage's files and fingerprint, to the notes file before you spawn.
+3. Size each stage under a third of the room a fresh agent has after reading `quick-review`'s SKILL.md, this file, and its stage's details files.
+4. Give each agent its own notes file beside the main one, `<notes without .md>.stage-<name>.md`, and append them to the main notes file in plan order once every agent returns; never let two agents write one file.
+5. Tell each agent to edit no file and to run no test, mutation, server, or container; it writes each run an angle owes as its own line, `owed-run <stage> <angle>: <command, and what its output must show>`.
+6. After the batch, run the `owed-run` lines one at a time in this session, and write each result under its stage before the cross-group stage starts.
+7. Ask each agent to return one line naming its notes file and its candidate count, and leave its notes unread until the cross-group stage.
+8. Run each agent on the driver model.
+9. Write each prompt to `subagents` "What the prompt must carry", naming the repository path, the merge base, the stage's files, the details files the stage calls for, the notes file to write, and the limits in this section.
+10. If an agent fails or returns without its notes file, run that stage in this session; do not respawn it with variations.
+11. After a fix, re-run the changed stages the same way, as "After a fix" says.
 
 ## After a fix
 
