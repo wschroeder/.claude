@@ -67,18 +67,20 @@ mix test path/to/test.exs
 6. **Assert only what the test's title names**, and put an assertion about another step's output in that step's test.
 7. **Assert what a person reads or what the system stores, never the markup around it.** If a state shows only through styling, add a stable attribute to the markup (`data-state="done"`) and assert that.
 8. **Pin no output the code derives from another source**, such as a literal generated from a schema, a validator, or a table; test the conversion once, for every caller.
-9. **Vary one thing per test**, and give a new input variant its own case.
-10. **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until it prints what the card expects, and commit, all in one pass, with no probe.
-11. Treat a sentence the app builds from data as behavior, which takes the full cycle.
-12. **When the bug is something you saw on screen, test what it stopped the person doing**: perform that action in the test and assert the values the person reads afterward.
-13. Run a layout test, such as whether a control fits its cell, only while working the design toward what the operator has in mind, delete it once the operator has looked at the result, and do not count the action test as covering the layout.
-14. **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
-15. **Keep every test fast**, and never sleep in a test: wait on the condition itself, or control the clock.
-16. **Name the interface before the test file exists**: say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss.
-17. Anchor the test against the probe output from step 0.
-18. Write a single, focused test for that functionality (Gray).
-19. Run the test and see it fail (Red) because the implementation doesn't exist yet.
-20. Verify the test is testing what you think it is; a test that passes too easily, or fails for the wrong reason, doesn't count.
+9. **Work out every expected value without the code under test**: by hand, from a simpler model written in the test, or from a law the result must obey. Never call the module, or anything it exports, to produce the expected side of an assertion.
+10. **For code that computes a value from comparisons, guards, or constants, list each one** and write an example at its boundary and one step either side.
+11. **Vary one thing per test**, and give a new input variant its own case.
+12. **A card that only changes fixed text a person reads has no red step.** Apply the card's wording, run its read check until it prints what the card expects, and commit, all in one pass, with no probe.
+13. Treat a sentence the app builds from data as behavior, which takes the full cycle.
+14. **When the bug is something you saw on screen, test what it stopped the person doing**: perform that action in the test and assert the values the person reads afterward.
+15. Run a layout test, such as whether a control fits its cell, only while working the design toward what the operator has in mind, delete it once the operator has looked at the result, and do not count the action test as covering the layout.
+16. **A UI end-to-end test is temporary.** Use it while you build, keep it out of the feature's commit, and delete it once the operator has seen the result.
+17. **Keep every test fast**, and never sleep in a test: wait on the condition itself, or control the clock.
+18. **Name the interface before the test file exists**: say which public function or module the assertion will be written against, and in one line what a test there catches that a test one level up would miss.
+19. Anchor the test against the probe output from step 0.
+20. Write a single, focused test for that functionality (Gray).
+21. Run the test and see it fail (Red) because the implementation doesn't exist yet.
+22. Verify the test is testing what you think it is; a test that passes too easily, or fails for the wrong reason, doesn't count.
 
 ### 2. Implement Minimum Code (Green)
 
