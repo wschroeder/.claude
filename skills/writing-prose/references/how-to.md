@@ -43,3 +43,44 @@
 - David Novick and Karen Ward, "Why don't people read the manual?", SIGDOC
   2006: the 25 users interviewed had trouble navigating help, especially
   finding search terms, which argues for headings phrased as problems.
+
+## Runbooks
+
+### Who each runbook is for
+
+1. Write a short overview that says which support tier does what. Give each tier one runbook that has everything its people need, even where that repeats the overview or another tier's runbook.
+2. Write for the team that runs the system, and leave out the procedures of the vendor that built it.
+3. Name a team by its department or role, never by a person's name.
+4. Give each tier its own section of scheduled duties, such as a yearly key rotation, that links to each duty's steps and leaves out every reaction to an incident; offer the schedule as a proposal.
+5. End a tier's troubleshooting at the point where it escalates: say when to hand off and to whom, leave out guesses at the cause, and say whom to tell and what to tell them only at that hand-off.
+6. Leave out security reminders for messages that already travel over the reader's own secure network.
+
+### Steps
+
+1. Give exact click paths in the screens the reader actually uses.
+2. Repeat a short step inside each procedure that needs it, so each procedure runs top to bottom in one place.
+3. In HTML, make every mention of another section or page a link.
+4. Call a section a section, and call it a page only when it is one.
+5. Cut every paragraph about the runbook itself, such as what a part includes.
+6. Give every sentence a source in the system or from the operator, and delete a sentence whose source is missing.
+7. Mark a step that nobody has run UNTESTED, and say what running it would take.
+8. In a release procedure, have the reader check the test environment before production.
+9. Send a draft or outline for review only after every open question in it is answered.
+
+### Screenshots
+
+1. Take each shot from the real system by reading only; if a shot needs access, take temporary access and remove it afterward.
+2. If the reader would have to break something to see a failure, then show the healthy screen at the place they would look.
+3. If you cannot reach a screen, then use the vendor's published screenshot, with names redrawn to match; if the vendor has none, then describe the screen in words.
+4. Leave out screenshots of a tool that the reader's team already runs every day.
+5. Before saving a shot, paint over every secret, account id, and tenant id; replace each person's name with "Person N", and dim their avatar.
+6. Where a real value cannot appear, paint in realistic made-up numbers.
+7. Size every shot to fill the text column, link it to its full-size file, and name the file after its caption.
+8. Write each caption to describe exactly what the shot shows.
+
+### Building it
+
+1. Build the HTML pages from Markdown with one stylesheet that copies the colors and feel of the organization's existing documents.
+2. Serve the pages over local HTTP to review them because `file://` pages block scripts.
+3. Scan every built page for duplicate ids, missing images, broken links, and Markdown left unconverted.
+4. Make PDFs only after the operator is confident in the HTML.

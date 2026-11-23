@@ -1,6 +1,6 @@
 ---
 name: writing-prose
-description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, a proposal, or a how-to or help guide; when organizing a brain dump; when choosing section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
+description: Composes prose a person reads for its argument — dumping every point before any order, heading, or count exists, then deriving the grouping and the sequence from what those points require of each other, then writing the headings and titles last, from the finished body. Scales to the output: one point needs no machinery, several parts need a traced list, and a document a reader navigates needs an idea graph with a derived order. Use when writing or restructuring an email, a design document, a README, a findings report, a memo, a proposal, a how-to or help guide, or a support runbook; when organizing a brain dump; when choosing section order, headings, or titles; or when prose reads as AI-written. Cites `~/.claude/CLAUDE.md` "Communication Style" for every sentence-level rule and never restates it.
 ---
 
 ## Purpose
@@ -82,7 +82,7 @@ A code comment, a commit message, a Slack reply, a short email, or a one-paragra
 3. Check the text against the CLAUDE.md rules in three separate passes: one for commas, one for where each subject ends and its main verb begins, and one for sentences a reader could take two ways.
 4. Run the voice check.
 5. If you are writing as the operator to someone they have written to before, read [references/register.md](references/register.md) now.
-6. If you are planning a how-to or help guide, read [references/how-to.md](references/how-to.md) now, before planning, because it changes the order of work when a set holds more than one guide.
+6. If you are planning a how-to or help guide or a support runbook, read [references/how-to.md](references/how-to.md) now, before planning, because it changes the order of work when a set holds more than one guide.
 
 ---
 
