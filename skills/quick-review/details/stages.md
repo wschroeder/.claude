@@ -52,11 +52,13 @@
 4. Give each agent its own notes file beside the main one, `<notes without .md>.stage-<name>.md`, and append them to the main notes file in plan order once every agent returns; never let two agents write one file.
 5. Tell each agent to edit no file and to run no test, mutation, server, or container; it writes each run an angle owes as its own line, `owed-run <stage> <angle>: <command, and what its output must show>`.
 6. After the batch, run the `owed-run` lines one at a time in this session, and write each result under its stage before the cross-group stage starts.
-7. Ask each agent to return one line naming its notes file and its candidate count, and leave its notes unread until the cross-group stage.
-8. Run each agent on the driver model.
-9. Write each prompt to `subagents` "What the prompt must carry", naming the repository path, the merge base, the stage's files, the details files the stage calls for, the notes file to write, and the limits in this section.
-10. If an agent fails or returns without its notes file, run that stage in this session; do not respawn it with variations.
-11. After a fix, re-run the changed stages the same way, as "After a fix" says.
+7. If this session cannot run an `owed-run` line, such as one that needs access it lacks, then stop and raise it to the operator as a blocker at once, naming the command and what stops it; never mark it "operator-run" or "not run" and go on.
+8. Count a round clean only when every `owed-run` line has a result written under its stage.
+9. Ask each agent to return one line naming its notes file and its candidate count, and leave its notes unread until the cross-group stage.
+10. Run each agent on the driver model.
+11. Write each prompt to `subagents` "What the prompt must carry", naming the repository path, the merge base, the stage's files, the details files the stage calls for, the notes file to write, and the limits in this section.
+12. If an agent fails or returns without its notes file, run that stage in this session; do not respawn it with variations.
+13. After a fix, re-run the changed stages the same way, as "After a fix" says.
 
 ## After a fix
 

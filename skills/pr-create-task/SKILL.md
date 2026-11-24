@@ -35,6 +35,8 @@ git diff origin/<base>..HEAD --stat          # surface area
                    a PRECONDITION recorded here, NOT a PR-body section>
 - Reviews:        <the last round of quick-review and security-review
                    found nothing — a PRECONDITION, NOT a PR-body section>
+- Checks owed:    <each check a review, handoff, or spec named, with its
+                   result at the tip — a PRECONDITION, NOT a PR-body section>
 - Base branch:    <origin/master (or origin/main) — never the local ref>
 ```
 
@@ -59,19 +61,23 @@ git diff origin/<base>..HEAD --stat          # surface area
 22. If it brought some in, read the project's CI workflow for the runners it runs on a pull request and leave those to CI's check on the draft PR.
 23. Run every other runner against the rebased head, usually the browser tests, or at least every browser spec the branch adds or edits.
 24. If the project has no CI on pull requests, run every runner.
-25. **Then review the whole branch.** Run `quick-review` and then `security-review` over `origin/<base>..HEAD`, and record the tip they read (`git rev-parse HEAD`).
-26. Fix nothing here: a finding of any size ends PR prep. Finish every pass of `quick-review` and all of `security-review` first, even after the first finding, then invoke `retro-task` in the same turn with every finding and the reviewed tip.
-27. Let the fixes come back through `retro-task`, `spec-task`, build, and demo like any other work, and run PR prep again only when the operator asks for it.
-28. On a later run, re-walk every pass on the code that changed since the tip the last run reviewed, `git diff <that tip> HEAD`, and reuse the earlier run's named artifacts only for code that has not changed.
+25. **Then collect every check owed.** List each check that a review's notes, the handoff, or the spec named, and find its result at the branch tip. Run each one that lacks a result. If this session cannot run one, then stop PR prep and raise it to the operator as a blocker, naming the command and what stops it.
+26. **Then review the whole branch.** Run `quick-review` and then `security-review` over `origin/<base>..HEAD`, and record the tip they read (`git rev-parse HEAD`).
+27. Fix nothing here: a finding of any size ends PR prep. Finish every pass of `quick-review` and all of `security-review` first, even after the first finding, then invoke `retro-task` in the same turn with every finding and the reviewed tip.
+28. Let the fixes come back through `retro-task`, `spec-task`, build, and demo like any other work, and run PR prep again only when the operator asks for it.
+29. On a later run, re-walk every pass on the code that changed since the tip the last run reviewed, `git diff <that tip> HEAD`, and reuse the earlier run's named artifacts only for code that has not changed.
 
 **GO/NO-GO:**
 - **GO** if the working tree holds only intended changes, the branch sits
   on the latest base, every runner the rebase calls for above is green at
-  the rebased head, the stack is one commit per claim,
+  the rebased head, every check owed has a result at the tip, the stack
+  is one commit per claim,
   and the last review round found nothing.
 - **NO-GO** if junk is staged or the stack isn't the shape you mean to
   ship — fix that first, here. A review finding is not a NO-GO to fix here:
   it ends PR prep, as above.
+- **NO-GO** if any check owed lacks a result or any question is open:
+  the branch is not ready, and nothing about it goes in the body.
 
 ## Commit and Operational Scan
 
@@ -102,6 +108,7 @@ git diff origin/<base>...HEAD -- <each operational path>
 4. **Cut**, every time:
    - Test or CI status, such as a pass count; keep a test line only for a non-obvious coverage decision, naming what is covered.
    - "Not in this PR", roadmap, or future steps.
+   - Checks not run, open questions, or known problems; any of them means the branch is not ready.
    - Restated diffstat, file lists, or action narration ("adds X, wires Y, implements Z").
    - Current-session or mission framing ("this is part of fixing X", "as discussed").
    - How-mechanics the code already shows: exact formulas, private function names, config-block names that will rot.
