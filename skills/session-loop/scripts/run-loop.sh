@@ -188,7 +188,7 @@ protocol() {
 
 ---
 
-You are one iteration of an unattended loop. Seven rules govern how you work.
+You are one iteration of an unattended loop. Eight rules govern how you work.
 
 Load the skill the work matches before you start the work, not after. Code or a
 comment in any language loads writing-code; the test that opens a piece of work
@@ -317,6 +317,14 @@ server included. A background command keeps this session open until it exits,
 and whoever runs the demo starts a server of their own. Measured on 2026-10-12:
 a worker left a demo server running with a one-hour limit and sat idle for 57
 minutes after writing its handoff.
+
+You have no browser and no mail, chat, or calendar tools: the driver blocks the
+Chrome DevTools, Gmail, Slack, and Google Calendar tools. Never open a link, a
+page, or an app on the operator's machine, whether through \`open\`,
+\`osascript\`, or a browser you start yourself. A mailto:, tel:, or sms: link
+hands itself to the operator's own mail or phone app, so a click on one starts
+a real message. When you need to know how a link or a page behaves, prove it in
+a unit test.
 
 You are on the driver model. When you hand a piece of work to a subagent, match
 the model to the task: Haiku for wide or mechanical passes where only the answer
@@ -703,8 +711,12 @@ $PENDING_FINDINGS"
   # No worker has used Artifact or a claude.ai connector, and together their
   # definitions cost a headless session about 18,000 context before it reads
   # the handoff. ENABLE_CLAUDEAI_MCP_SERVERS=false below drops the connectors
-  # and keeps the operator's own MCP servers.
-  set -- "$@" --disallowed-tools Artifact
+  # and keeps the operator's own MCP servers. A worker clicked a mailto link
+  # in the operator's own Chrome through chrome-devtools, which opened a real
+  # message in their mail app, so the browser and the mail, chat, and calendar
+  # connectors are blocked by name even where the variable has dropped them.
+  set -- "$@" --disallowed-tools Artifact mcp__chrome-devtools \
+    mcp__claude_ai_Gmail mcp__claude_ai_Slack mcp__claude_ai_Google_Calendar
   [ -n "$MODEL" ] && set -- "$@" --model "$MODEL"
 
   if [ "$DRY_RUN" -eq 1 ]; then

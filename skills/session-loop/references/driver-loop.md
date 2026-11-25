@@ -34,7 +34,10 @@ Contents:
    protocol block appended, and wait. The session runs without the Artifact
    tool and without the claude.ai connectors, whose definitions cost about
    18,000 context and which no worker has used; the operator's own MCP
-   servers stay.
+   servers stay, except Chrome DevTools. The driver also blocks the Chrome
+   DevTools, Gmail, Slack, and Google Calendar tools by name, and the protocol
+   block tells the session never to open a link, a page, or an app on the
+   operator's machine.
 6. Stop if claude exited non-zero, or if the run's summary says it ended for
    any reason other than finishing. The exception is the usage limit: the
    summary names when it resets, so the driver sleeps until then and runs the

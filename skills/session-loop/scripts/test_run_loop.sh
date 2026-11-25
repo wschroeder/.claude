@@ -1185,6 +1185,14 @@ for phrase in "stop every background command you started" \
   case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
   check "the contract tells the session: $phrase" 0 "$ok"
 done
+# The blocked tools are one door; the shell's `open` and a browser the session
+# starts itself are others, so the contract names the rule as well as the block.
+for phrase in "blocks the Chrome DevTools, Gmail, Slack, and Google Calendar tools" \
+              "Never open a link, a page, or an app on the operator's machine" \
+              "prove it in a unit test"; do
+  case "$PROMPT" in *"$phrase"*) ok=0 ;; *) ok=1 ;; esac
+  check "the contract tells the session: $phrase" 0 "$ok"
+done
 # Asking how full you are is itself a full-context turn. Six checks per session
 # was the repo-a habit, one of them at 43,254 context where the answer cannot
 # be anything but "keep going". No check below 102,349 in any measured session
@@ -1202,7 +1210,7 @@ for phrase in "failed three times running" "each fix you already tried"; do
 done
 # The opening line promises a count, so a rule added below has to be counted
 # here too or the session is told to expect fewer than it gets.
-case "$PROMPT" in *"Seven rules govern how you work"*) ok=0 ;; *) ok=1 ;; esac
+case "$PROMPT" in *"Eight rules govern how you work"*) ok=0 ;; *) ok=1 ;; esac
 check "the contract counts its own rules correctly" 0 "$ok"
 # A handoff names the skills the session that wrote it happened to load, so the
 # list propagates by imitation and a skill that did not exist when the phrasing
@@ -1342,6 +1350,14 @@ check "the child session runs on Opus 5.5" 0 "$ok"
 # chrome-devtools still loaded. No worker had used either.
 case "$ARGV " in *"--disallowed-tools Artifact "*) ok=0 ;; *) ok=1 ;; esac
 check "the child session is launched without the Artifact tool" 0 "$ok"
+# Measured on 2026-11-25: a worker probing whether a mailto link fired a page
+# event clicked it in the operator's own Chrome through chrome-devtools, which
+# handed the link to the operator's mail app and opened a message to send.
+for tool in mcp__chrome-devtools mcp__claude_ai_Gmail mcp__claude_ai_Slack \
+            mcp__claude_ai_Google_Calendar; do
+  case "$ARGV " in *"--disallowed-tools "*" $tool "*) ok=0 ;; *) ok=1 ;; esac
+  check "the child session is launched without $tool" 0 "$ok"
+done
 check "the child session is launched without the claude.ai connectors" false \
   "$(cat "$STUB_CONNECTORS_FILE")"
 case "$ARGV" in *--max-budget-usd*) ok=1 ;; *) ok=0 ;; esac
