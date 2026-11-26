@@ -1340,6 +1340,20 @@ def self_check(project: str, threshold: int, as_json: bool) -> int:
     return 3 if over else 0
 
 
+SCRATCH_ROOTS = ["/private/tmp/claude-%d" % os.getuid(), "/tmp/claude-%d" % os.getuid()]
+
+
+def pending_handoff_path(transcript_path: str, session_id: str) -> str:
+    """Where the auto-clear mod looks for this session's handoff."""
+    for root in SCRATCH_ROOTS:
+        found = glob.glob(os.path.join(root, "*", session_id, "scratchpad"))
+        if found:
+            return os.path.join(found[0], "pending-handoff.md")
+    root = next((r for r in SCRATCH_ROOTS if os.path.isdir(r)), SCRATCH_ROOTS[0])
+    project = os.path.basename(os.path.dirname(transcript_path))
+    return os.path.join(root, project, session_id, "scratchpad", "pending-handoff.md")
+
+
 def hook_check(threshold: int) -> int:
     """The same verdict as --self, but nobody had to decide to ask for it.
 
@@ -1403,6 +1417,10 @@ def hook_check(threshold: int) -> int:
         "has room left, so load the skill and write it properly rather "
         "than by hand.\n"
         % ("{:,}".format(stats.ctx_end), "{:,}".format(threshold)))
+    session_id = payload.get("session_id") or os.path.basename(path)[: -len(".jsonl")]
+    sys.stderr.write(
+        "If clear-task writes pending-handoff.md, its path is %s\n"
+        % pending_handoff_path(path, session_id))
     return 2
 
 

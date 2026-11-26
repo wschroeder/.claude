@@ -219,7 +219,7 @@ Open questions for you:
 ## Stop — the prompt is the terminal artifact
 
 1. Produce the one file §0 settled on, and never run /clear or begin the next steps yourself.
-2. Where §0 settled on the operator, write the prompt to `pending-handoff.md` in the scratchpad directory your system prompt names, then end the turn with one line that repeats nothing, such as "Handoff written." Print no sections, block, path, or summary.
+2. Where §0 settled on the operator, write the prompt to `pending-handoff.md` at the path the budget hook's message names, or else in the scratchpad directory your system prompt names; never choose a scratchpad folder by its modification time, because a sibling session's folder is newer as often as not. Then end the turn with one line that repeats nothing, such as "Handoff written." Print no sections, block, path, or summary.
 3. Print the block only when the operator says the auto-clear mod is not running.
 4. Where §0 settled on a worker because the next steps need no answer from the operator, also write this one line, with the real repository path, to `pending-handoff.md` in the scratchpad, so the auto-clear mod clears this session and the fresh session launches the loop:
 

@@ -692,6 +692,21 @@ class HookCheck(unittest.TestCase):
         self.assertIn("180,000", err)
         self.assertIn("170,000", err)
 
+    def test_over_the_line_it_names_this_sessions_own_handoff_file(self):
+        # The auto-clear mod reads pending-handoff.md only from the scratchpad
+        # named by the current session id; a session left to find that folder
+        # itself picked a sibling session's folder, and the clear never fired.
+        projects = os.path.join(self.dir, "projects", "-repo")
+        os.makedirs(projects)
+        path = os.path.join(projects, "abc-123.jsonl")
+        with open(path, "w") as fh:
+            fh.write(json.dumps(assistant("2026-08-17T00:00:00Z", cr=180_000)) + "\n")
+        tmp_root = os.path.join(self.dir, "tmp")
+        with mock.patch.object(sb, "SCRATCH_ROOTS", [tmp_root]):
+            _, _, err = self.run_hook({"transcript_path": path, "session_id": "abc-123"})
+        self.assertIn(os.path.join(tmp_root, "-repo", "abc-123", "scratchpad",
+                                   "pending-handoff.md"), err)
+
     def test_it_reads_the_latest_turn_not_the_peak(self):
         # A session that compacted is genuinely cheaper again, and telling it to
         # hand off on a number it no longer carries would retire a context that
